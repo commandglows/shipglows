@@ -1,0 +1,101 @@
+{
+  "measurement": "pre-edit file snapshot; chars/4 estimate; not an observed agent trace",
+  "files": {
+    "skills/900-shipglows-core/SKILL.md": {
+      "sha256": "b4f28ec285f16311e3850d074538840bda8bc22c38fa73c933e2f20f52423800",
+      "tokens": 2000
+    },
+    "skills/900-shipglows-core/references/skill-maintenance-playbook.md": {
+      "sha256": "91fc7495d9d91ce94c01598ddabee844689e1dca96afd386f38123a027f33717",
+      "tokens": 1488
+    },
+    "skills/references/reporting-contract.md": {
+      "sha256": "d885c524a5552ff309d14cbac53f3dcefefaeccb542b88922120f3eccbfd76e0",
+      "tokens": 2465
+    },
+    "skills/references/mutation-plan-approval.md": {
+      "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35",
+      "tokens": 8019
+    },
+    "skills/references/spec-driven-development-discipline.md": {
+      "sha256": "8b5b5e0b7cc850e72e0123d3ca46add70a035fb93c212f075b818eb98d900a8f",
+      "tokens": 3231
+    },
+    "skills/references/skill-context-budget.md": {
+      "sha256": "426df968dd69ec229aba5f43ba5e7ac3d56fccabbc2b9fdbdc07156e7e4e012c",
+      "tokens": 2245
+    },
+    "skills/706-continue/SKILL.md": {
+      "sha256": "f82507e7b7eeb1d93da07fbfd88026a4ad86439d7ca489b02a38263b338cd8d2",
+      "tokens": 1714
+    },
+    "skills/706-continue/references/continuation-playbook.md": {
+      "sha256": "62ddac864544e728a10a54403c17cacd0a358d0b358a4f048541d5a8df6d68a5",
+      "tokens": 862
+    },
+    "skills/references/canonical-paths.md": {
+      "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7",
+      "tokens": 844
+    },
+    "skills/references/context-quality-contract.md": {
+      "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440",
+      "tokens": 2121
+    },
+    "skills/references/decision-quality-contract.md": {
+      "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2",
+      "tokens": 1507
+    },
+    "skills/references/documentation-reflection-gate.md": {
+      "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3",
+      "tokens": 1942
+    },
+    "skills/references/editorial-reflection-gate.md": {
+      "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2",
+      "tokens": 1533
+    },
+    "skills/references/expert-mode-aliases.md": {
+      "sha256": "88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850",
+      "tokens": 1154
+    },
+    "skills/references/intent-to-outcome-autonomy.md": {
+      "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157",
+      "tokens": 1007
+    },
+    "skills/references/intent-to-outcome-execution.md": {
+      "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777",
+      "tokens": 882
+    },
+    "skills/references/reporting-closure.md": {
+      "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55",
+      "tokens": 1301
+    },
+    "skills/references/skill-instruction-layering.md": {
+      "sha256": "90ce992cfe57d5ce3315689dfe3db0867ec4962c5276ea3cb8df3aa8890256d2",
+      "tokens": 3460
+    },
+    "skills/references/skill-invocation-preflight.md": {
+      "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b",
+      "tokens": 1182
+    },
+    "skills/000-shipglows/SKILL.md": {
+      "sha256": "8e9e5275ec37abcb340443bc562f19d7ddf296db7b6e37c35991376a164444d9",
+      "tokens": 1991
+    },
+    "skills/shipglows/SKILL.md": {
+      "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2",
+      "tokens": 408
+    }
+  },
+  "existing_scenarios_sha256": {
+    "common-docs-direct": "36d6b3c1cfaaed826198b7ac67975ef7e64fd21d3778f6b7f03ffe14b6eb6623",
+    "common-verify-direct": "5d8377f794196a16685a99b0b55b7fce3067d0bed632f21d95066327c53f2580",
+    "common-bug-proof-selection": "cf1846ffd04f2562f382b26f1dab670a21c4d1a58936feaa4c5474ca3751b750",
+    "common-feature-approval": "1c2596954f28cde2351eb9fc4e958187f97ddb620ddba01aeab3a7385711e9f4",
+    "common-page-comprehension": "ca2718e690a6f762dbf1efdd2e90d04e984ed4bacbbd9569bdbfb188aebb903f",
+    "common-resume-ready": "d33f2187504a6abb1d3fb9f01ebc9b73105164e6eccf6ad8b569ceab85f0adef",
+    "common-resume-missing": "ffad98dfffbcc06394275c6fdc07acdccb187f4100df8d9754eb367bd38a1a5c",
+    "core-skill-audit": "16ce8384b2d822b0312bcf6e3d50b38e36c5a1bc4765559aea73f088659c8e10",
+    "core-help": "b12430eaa552fb415b4a16892a734bfb7d951e6c42cfba73ba9df95bb9c30556",
+    "engineering-deps-witness": "20d583c96b76a01d44f32bd09b531a9da6b704a441b03de708b7ed7039e9c270"
+  }
+}

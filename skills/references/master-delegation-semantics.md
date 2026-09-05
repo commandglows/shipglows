@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-27"
+updated: "2026-09-05"
 status: active
 source_skill: 001-sg-build
 scope: master-delegation-semantics
@@ -147,23 +147,23 @@ After a master skill has displayed the bounded plan required by
 the active conversation language means, by intent rather than exact keyword:
 
 ```text
-continue the current chantier with the canonical topology: read-only parallel for independent no-write scopes, otherwise delegated sequential
+continue the approved scope: main-only for one cohesive stream; delegate for useful isolation or required review, parallelize only with proven benefit and applicable batch gates
 ```
 
 Outside clear bounded-request authority, action approvals given before a plan authorize no chantier mutation. Explicit action approvals given after it — including standalone `v` only under the bounded mapping in `mutation-plan-approval.md` — authorize the bounded plan, its disclosed exact-scope technical milestone commits and pushes, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`.
 
 A non-material clarification keeps the unchanged proposal pending: answer it without restating the plan or asking again. Neutral acknowledgements such as `ok`, `compris`, `merci`, or `thanks` neither approve nor trigger a repeated approval prompt. A later explicit and unambiguous action approval may authorize that still-current unchanged proposal without a new plan. Material changes invalidate it and require the replacement approval path defined by `mutation-plan-approval.md`, including changes to scope, behavior, target, risk, data, permissions, destructive or external effects, proof strategy, unapproved staging, closure, or ship semantics.
 
-The next safe mission remains internal. In an unfinished user-facing report,
-offer only plain-language choices about continuing, reprioritizing, changing
-scope, or pausing; never require the operator to select an owner, skill, or
-command to continue the chantier.
+The next safe authorized mission executes without another continuation prompt.
+Offer plain-language choices only for a missing operator decision/authority or
+requested steering. External waits with no choice need evidence and recovery,
+not a fabricated menu. Never ask the operator to select an owner, skill or command.
 
 ## Read-Only Parallel Batch Matrix
 
 Use `read-only parallel` when two or more independent investigation or evidence scopes exist and parallel results materially improve elapsed time or coverage. Master-skill invocation is sufficient consent because these agents cannot mutate project or external state.
 
-Before dispatch, create a selected batch matrix that states each agent's bounded surface, explicit read-only constraint, requested evidence, and integration owner. Do not use this mode for dependent stages, overlapping scopes, one small investigation, or speculative busywork. Any subsequent fix, tracker rewrite, content update, closure, or ship work returns to delegated sequential unless the write gate below passes.
+Before dispatch, create a selected batch matrix that states each agent's bounded surface, explicit read-only constraint, requested evidence, and integration owner. Do not use this mode for dependent stages, overlapping scopes, one small investigation, or speculative busywork. Subsequent fixes, closure or ship work use main-only or useful delegated isolation; parallel writes require the write gate below. Investigation never grants mutation authority.
 
 ## Write Execution Batches
 

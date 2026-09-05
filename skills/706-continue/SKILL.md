@@ -32,7 +32,7 @@ After confirming that continuation is the correct owner, load `$SHIPGLOWS_ROOT/s
 Load shared references only at their decision boundary:
 
 - `$SHIPGLOWS_ROOT/skills/references/question-contract.md` only before asking the operator to choose among plausible targets;
-- `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before choosing or dispatching execution topology;
+- `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before dispatch, not for main-only work;
 - `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` before selecting, recommending, or overriding a delegated model;
 - `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` only for an attached chantier report;
 - `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` only before the final user report.

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.14.0"
+artifact_version: "1.15.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-09-05"
@@ -28,6 +28,24 @@ next_step: none
 ---
 
 # Skill Context Budget
+
+## Quality Before Context Cost
+
+Skill improvement prioritizes correct decisions and preserved protections, then
+clear, coherent instructions available at the decision that needs them, then
+removal of unnecessary reads, repetition and disproportionate procedure. Context
+cost is assessed after these criteria; fewer tokens alone never prove improvement.
+
+Before optimizing a selected path, name the expected decision/action, mandatory
+stops and proof. Replay comparable tasks before/after and assess those outcomes
+independently of budget results. Reject ambiguity, incorrect action, lost evidence
+or weakened protections even when all budgets pass. Distinguish a contract defect
+from an agent's failure to apply it before adding instructions.
+
+An extra read or longer instruction is justified when evidence shows it improves
+correctness or prevents an error; retain existing budget-exception arbitration.
+Quality does not justify unnecessary process. If behavioral evidence is missing,
+report the gap rather than equating shorter text or green checks with quality.
 
 ## Separate Costs And Authority
 

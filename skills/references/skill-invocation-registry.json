@@ -2949,6 +2949,428 @@
           "skills/references/canonical-paths.md",
           "skills/references/reporting-contract.md"
         ]
+      },
+      "quality-core-exact-correction": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/900-shipglows-core/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Canonical routing engine",
+            "reason": "Canonical routing engine"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve owned instruction paths",
+            "reason": "Resolve owned instruction paths"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Validate explicit invocation without injecting dependency graph",
+            "reason": "Validate explicit invocation without injecting dependency graph"
+          },
+          {
+            "path": "skills/references/expert-mode-aliases.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit core alias preserves named owner",
+            "reason": "Explicit core alias preserves named owner"
+          },
+          {
+            "path": "skills/900-shipglows-core/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "engine",
+            "trigger": "Explicit core build exact non-semantic correction",
+            "reason": "Explicit core build exact non-semantic correction"
+          },
+          {
+            "path": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "execution",
+            "trigger": "Single skill maintenance pack",
+            "reason": "Single skill maintenance pack"
+          },
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "authority",
+            "trigger": "Exact contract correction requires authority, placement and focused proof",
+            "reason": "Exact contract correction requires authority, placement and focused proof"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+            "stage": "proof",
+            "trigger": "Exact contract correction requires authority, placement and focused proof",
+            "reason": "Exact contract correction requires authority, placement and focused proof"
+          },
+          {
+            "path": "skills/references/skill-instruction-layering.md",
+            "parent": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+            "stage": "proof",
+            "trigger": "Exact contract correction requires authority, placement and focused proof",
+            "reason": "Exact contract correction requires authority, placement and focused proof"
+          },
+          {
+            "path": "skills/references/spec-driven-development-discipline.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "proof",
+            "trigger": "Exact contract correction requires authority, placement and focused proof",
+            "reason": "Exact contract correction requires authority, placement and focused proof"
+          },
+          {
+            "path": "skills/references/skill-context-budget.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "proof",
+            "trigger": "Exact contract correction requires authority, placement and focused proof",
+            "reason": "Exact contract correction requires authority, placement and focused proof"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "report",
+            "trigger": "Final successful local result",
+            "reason": "Final successful local result"
+          },
+          {
+            "path": "skills/references/reporting-closure.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+            "reason": "Claim completion of the bounded unit; preserve independent reflection"
+          },
+          {
+            "path": "skills/references/documentation-reflection-gate.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+            "reason": "Claim completion of the bounded unit; preserve independent reflection"
+          },
+          {
+            "path": "skills/references/editorial-reflection-gate.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+            "reason": "Claim completion of the bounded unit; preserve independent reflection"
+          }
+        ],
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/reporting-closure.md",
+          "skills/references/documentation-reflection-gate.md",
+          "skills/references/editorial-reflection-gate.md",
+          "skills/references/mutation-plan-approval.md",
+          "skills/references/spec-driven-development-discipline.md",
+          "skills/references/decision-quality-contract.md",
+          "skills/references/skill-instruction-layering.md"
+        ],
+        "budget": {
+          "max_tokens": 35000,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 34983,
+        "min_reduction_percent": 0,
+        "prompt": "$shipglows core build: correct the supplied typo in the named existing doctrine sentence; retain its meaning, no Git or publication.",
+        "assumptions": "Explicit exact text and target; non-semantic low-risk correction, no code/discoverability/public promise change, no task list, no spec, no dispatch. Existing next proposal is evidenced but not authorized.",
+        "checkpoint": "Bounded unit executed, focused proof reviewed, completion report with reflection and truthful authority limits.",
+        "scope": "Declared normative full-file unique reads, not observed replay or total session tokens. Task evidence, invocation checker output, tool output, host instructions and model telemetry excluded. Metadata dependencies are validation only. Initial post-change baseline measures the reviewed sufficient instruction route; no before/after savings claim. The pre-edit same-file estimate is a lower bound because old Core lifecycle ambiguity is not expanded.",
+        "baseline_state": "First post-change declared sufficient-route measurement is the future regression baseline, not a savings target. Pre-edit same-file lower bound is preserved separately in pre_edit_same_files_tokens and quality-first-pilot-baseline.json; old Core lifecycle conflict prevents complete route comparison.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 1991,
+            "sha256": "8e9e5275ec37abcb340443bc562f19d7ddf296db7b6e37c35991376a164444d9"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          },
+          {
+            "path": "skills/references/expert-mode-aliases.md",
+            "tokens": 1154,
+            "sha256": "88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850"
+          },
+          {
+            "path": "skills/900-shipglows-core/SKILL.md",
+            "tokens": 2018,
+            "sha256": "e3443683442fe469fcf0ffdb57b6f62481618f739501f7d019bb8281109e60e0"
+          },
+          {
+            "path": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+            "tokens": 1671,
+            "sha256": "515dbb7041e2fffe96738099e911104ed1647b1307207f364ce998942a150811"
+          },
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "tokens": 8019,
+            "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+          },
+          {
+            "path": "skills/references/skill-instruction-layering.md",
+            "tokens": 3460,
+            "sha256": "90ce992cfe57d5ce3315689dfe3db0867ec4962c5276ea3cb8df3aa8890256d2"
+          },
+          {
+            "path": "skills/references/spec-driven-development-discipline.md",
+            "tokens": 3231,
+            "sha256": "8b5b5e0b7cc850e72e0123d3ca46add70a035fb93c212f075b818eb98d900a8f"
+          },
+          {
+            "path": "skills/references/skill-context-budget.md",
+            "tokens": 2245,
+            "sha256": "426df968dd69ec229aba5f43ba5e7ac3d56fccabbc2b9fdbdc07156e7e4e012c"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 2477,
+            "sha256": "09b7327b35e07ba399915578a93538b721f73004f3cf2b17e18eccc09a93682f"
+          },
+          {
+            "path": "skills/references/reporting-closure.md",
+            "tokens": 1301,
+            "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+          },
+          {
+            "path": "skills/references/documentation-reflection-gate.md",
+            "tokens": 1942,
+            "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3"
+          },
+          {
+            "path": "skills/references/editorial-reflection-gate.md",
+            "tokens": 1533,
+            "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2"
+          }
+        ],
+        "pre_edit_same_files_tokens": 34770
+      },
+      "quality-continue-proof-complete": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/706-continue/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Canonical routing engine",
+            "reason": "Canonical routing engine"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve owned instruction paths",
+            "reason": "Resolve owned instruction paths"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Validate explicit invocation without injecting dependency graph",
+            "reason": "Validate explicit invocation without injecting dependency graph"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resume known paused outcome",
+            "reason": "Resume known paused outcome"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Confirm already resolved scope and quality",
+            "reason": "Confirm already resolved scope and quality"
+          },
+          {
+            "path": "skills/references/context-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "authority",
+            "trigger": "Confirm current target and authority from fresh durable evidence",
+            "reason": "Confirm current target and authority from fresh durable evidence"
+          },
+          {
+            "path": "skills/706-continue/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "engine",
+            "trigger": "Known continuation owner",
+            "reason": "Known continuation owner"
+          },
+          {
+            "path": "skills/706-continue/references/continuation-playbook.md",
+            "parent": "skills/706-continue/SKILL.md",
+            "stage": "proof",
+            "trigger": "Resolve exact authorized validation unit and verify outcome",
+            "reason": "Resolve exact authorized validation unit and verify outcome"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "execution",
+            "trigger": "Execute known preselected read-only proof",
+            "reason": "Execute known preselected read-only proof"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/706-continue/SKILL.md",
+            "stage": "report",
+            "trigger": "Final successful local result",
+            "reason": "Final successful local result"
+          },
+          {
+            "path": "skills/references/reporting-closure.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+            "reason": "Claim completion of the bounded unit; preserve independent reflection"
+          },
+          {
+            "path": "skills/references/documentation-reflection-gate.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+            "reason": "Claim completion of the bounded unit; preserve independent reflection"
+          },
+          {
+            "path": "skills/references/editorial-reflection-gate.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+            "reason": "Claim completion of the bounded unit; preserve independent reflection"
+          }
+        ],
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/reporting-closure.md",
+          "skills/references/documentation-reflection-gate.md",
+          "skills/references/editorial-reflection-gate.md",
+          "skills/references/context-quality-contract.md",
+          "skills/706-continue/references/continuation-playbook.md"
+        ],
+        "budget": {
+          "max_tokens": 19800,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 19768,
+        "min_reduction_percent": 0,
+        "prompt": "$shipglows reprends la verification autorisee: run the already selected focused check and report its result.",
+        "assumptions": "Fresh target/authority evidence and exact read-only proof command already resolved; no file changes, spec chantier, Git, model choice or delegation. Known next proposal is not authorized.",
+        "checkpoint": "Bounded unit executed, focused proof reviewed, completion report with reflection and truthful authority limits.",
+        "scope": "Declared normative full-file unique reads, not observed replay or total session tokens. Task evidence, invocation checker output, tool output, host instructions and model telemetry excluded. Metadata dependencies are validation only. Initial post-change baseline measures the reviewed sufficient instruction route; no before/after savings claim. The pre-edit same-file estimate is a lower bound because the former 706 choosing-topology versus actual-dispatch mismatch is not expanded.",
+        "baseline_state": "First post-change declared sufficient-route measurement is the future regression baseline, not a savings target. Pre-edit same-file lower bound is preserved separately in pre_edit_same_files_tokens and quality-first-pilot-baseline.json; the former 706 choosing-topology versus actual-dispatch mismatch prevents complete route comparison.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 1991,
+            "sha256": "8e9e5275ec37abcb340443bc562f19d7ddf296db7b6e37c35991376a164444d9"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+          },
+          {
+            "path": "skills/references/context-quality-contract.md",
+            "tokens": 2121,
+            "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440"
+          },
+          {
+            "path": "skills/706-continue/SKILL.md",
+            "tokens": 1711,
+            "sha256": "b9640e29d5fd0a2c5880c7c2b7118fc1d716da70c5b94dd48d8ed895904ec6bf"
+          },
+          {
+            "path": "skills/706-continue/references/continuation-playbook.md",
+            "tokens": 862,
+            "sha256": "62ddac864544e728a10a54403c17cacd0a358d0b358a4f048541d5a8df6d68a5"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "tokens": 882,
+            "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 2477,
+            "sha256": "09b7327b35e07ba399915578a93538b721f73004f3cf2b17e18eccc09a93682f"
+          },
+          {
+            "path": "skills/references/reporting-closure.md",
+            "tokens": 1301,
+            "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+          },
+          {
+            "path": "skills/references/documentation-reflection-gate.md",
+            "tokens": 1942,
+            "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3"
+          },
+          {
+            "path": "skills/references/editorial-reflection-gate.md",
+            "tokens": 1533,
+            "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2"
+          }
+        ],
+        "pre_edit_same_files_tokens": 19759
       }
     }
   },

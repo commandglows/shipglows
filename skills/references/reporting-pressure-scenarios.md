@@ -50,7 +50,7 @@ next_step: none
 - `SSRP-009 chantier opening`: local/spec header precedes time-only verdict; no trailing chantier block.
 - `SSRP-010 compact validation line`: emit `✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236`; unavailable/failing segments stay separate.
 - `SSRP-011 chantier emoji semantics`: normal `🧱`, genuinely blocked `🚧`, context markers only for their declared meanings.
-- `SSRP-012 unfinished chantier choice`: open user result ends with two or three plain choices; complete result does not.
+- `SSRP-012 unfinished chantier choice`: missing operator decision/authority or requested steering gets genuine plain choices; a safe authorized next unit executes, and an external wait without a choice reports evidence/recovery without a fabricated menu. Complete results receive no unfinished-choice block.
 - `SSRP-013 recurrence-claim-boundary`:
   - `local-repair`: report a bounded result and known recurrence conditions, not all projects or future changes.
   - `unsupported-guarantee`: require a preventive invariant whose scope covers the claim; reject “pour toujours”, “garanti”, “ne se reproduira pas” and semantic equivalents otherwise.

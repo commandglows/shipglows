@@ -87,3 +87,32 @@ change. Changelog internal-only. No new router, registry or skill file. Existing
 pilot changes preserved. Local implementation and focused proof complete; no
 commit, push, deployment or formal remote closure. HEAD remains
 65d3fc1791370ab7a2668014ce7b2338bde11d75 on main.
+
+## Quality-first criteria for the next pass
+
+Operator clarification, 2026-09-05: quality precedes token optimization. This
+bounded policy clarification does not authorize a new corpus-wide optimization.
+For selected representative tasks, freeze the expected decisions/actions, stops
+and proof, then assess in order: correctness and protections; instruction clarity,
+coherence and timing; unnecessary reading/repetition/procedure; context cost.
+Separate contract defects from agent misapplication using the actual task trace.
+
+Pressure scenarios for this clarification:
+- A shorter instruction makes approval scope ambiguous: reject despite token savings.
+- A targeted extra read prevents an incorrect decision: retain its demonstrated
+  quality benefit and use existing operator arbitration if a budget exception is needed.
+- Additional procedure produces no better decision or proof: do not label it quality.
+
+The existing budget policy owns these criteria and is already loaded by Core
+before changes. No new router, read edge, token ceiling or public invocation.
+Before this clarification, four existing scenarios already exceeded budget
+(common-bug-proof-selection, common-page-comprehension, common-resume-missing,
+core-help). This pass neither certifies those budgets nor weakens their thresholds.
+
+Verification: three existing focused protection tests, metadata lint and explicit
+invocation preflight pass. The ten declared path costs/depths are unchanged from
+the pre-edit snapshot. The conditionally loaded policy grows from 1,978 to 2,245
+estimated tokens (+267) to state the operator-requested quality criteria; this is
+not a claimed token saving. Independent read-only review passed all three pressure
+cases and found no new load edge or budget waiver. This textual review does not
+replace actual task replay during the next pass or prove general agent behavior.
