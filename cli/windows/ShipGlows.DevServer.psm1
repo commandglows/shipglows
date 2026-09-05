@@ -575,16 +575,29 @@ function Get-SgProcessSnapshot([int]$Pid) {
     }
 }
 
-function Get-SgProcessSnapshotMap([int[]]$Pids) {
+function Get-SgProcessSnapshotMap([int[]]$Pids, [int[]]$CommandLinePids) {
     $result = @{}
     $ids = @($Pids | Where-Object { $_ -gt 0 } | Sort-Object -Unique)
     if ($ids.Count -eq 0) { return $result }
     $processById = @{}
     foreach ($process in @(Get-Process -Id $ids -ErrorAction SilentlyContinue)) { $processById[[int]$process.Id] = $process }
     if ($processById.Count -eq 0) { return $result }
-    $filter = (@($processById.Keys | ForEach-Object { "ProcessId = $_" }) -join ' OR ')
+    # Existing callers request full snapshots; reconciliation supplies only the
+    # PIDs whose recorded signatures actually require a command line.
+    $commandIds = if ($PSBoundParameters.ContainsKey('CommandLinePids')) { @($CommandLinePids) } else { @($processById.Keys) }
+    $nativePaths = @{}
+    $queryIds = @()
+    foreach ($id in @($processById.Keys)) {
+        $path = $null
+        try { $path = $processById[$id].Path } catch { }
+        $nativePaths[$id] = $path
+        if (-not $path -or $id -in $commandIds) { $queryIds += $id }
+    }
     $cimById = @{}
-    foreach ($cim in @(Get-CimInstance Win32_Process -Filter $filter -ErrorAction SilentlyContinue)) { $cimById[[int]$cim.ProcessId] = $cim }
+    if ($queryIds.Count -gt 0) {
+        $filter = (@($queryIds | ForEach-Object { "ProcessId = $_" }) -join ' OR ')
+        foreach ($cim in @(Get-CimInstance Win32_Process -Filter $filter -Property ProcessId,ExecutablePath,CommandLine -ErrorAction SilentlyContinue)) { $cimById[[int]$cim.ProcessId] = $cim }
+    }
     foreach ($id in @($processById.Keys)) {
         $process = $processById[$id]
         $cim = if ($cimById.ContainsKey($id)) { $cimById[$id] } else { $null }
@@ -593,7 +606,7 @@ function Get-SgProcessSnapshotMap([int[]]$Pids) {
         $result[$id] = [pscustomobject]@{
             Pid = $id
             StartTimeUtc = $start
-            ExecutablePath = if ($cim) { $cim.ExecutablePath } else { $null }
+            ExecutablePath = if ($nativePaths[$id]) { $nativePaths[$id] } elseif ($cim) { $cim.ExecutablePath } else { $null }
             CommandLine = if ($cim) { $cim.CommandLine } else { $null }
         }
     }
@@ -619,8 +632,8 @@ function Test-SgProcessIdentity([object]$Entry, [hashtable]$SnapshotByPid = $nul
             if ((ConvertTo-SgUtcStartTicks $current.StartTimeUtc) -ne (ConvertTo-SgUtcStartTicks $Entry.startTimeUtc)) { return $false }
         } catch { return $false }
     }
-    if ($Entry.executablePath -and $current.ExecutablePath -and [IO.Path]::GetFullPath($Entry.executablePath) -ne [IO.Path]::GetFullPath($current.ExecutablePath)) { return $false }
-    if ($Entry.commandSignature -and $current.CommandLine -and $current.CommandLine -notlike "*$($Entry.commandSignature)*") { return $false }
+    if ($Entry.executablePath -and (-not $current.ExecutablePath -or [IO.Path]::GetFullPath($Entry.executablePath) -ne [IO.Path]::GetFullPath($current.ExecutablePath))) { return $false }
+    if ($Entry.commandSignature -and (-not $current.CommandLine -or $current.CommandLine -notlike "*$($Entry.commandSignature)*")) { return $false }
     return $true
 }
 
@@ -1660,7 +1673,8 @@ function Remove-SgFlutterLaunchArtifacts([object]$Config,[object]$Entry) {
 function Reconcile-SgRegistry([object]$Config) {
     return Invoke-SgRegistryMutation $Config {
         param($registry)
-        $processSnapshots = Get-SgProcessSnapshotMap @($registry.projects | ForEach-Object { [int]$_.pid })
+        $signaturePids = @($registry.projects | Where-Object { $_.PSObject.Properties['commandSignature'] -and $_.commandSignature } | ForEach-Object { [int]$_.pid })
+        $processSnapshots = Get-SgProcessSnapshotMap @($registry.projects | ForEach-Object { [int]$_.pid }) -CommandLinePids $signaturePids
         $byIdentity = @{}
         $normalized = New-Object 'System.Collections.Generic.List[object]'
         foreach ($entry in @($registry.projects)) {

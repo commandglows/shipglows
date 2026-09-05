@@ -365,6 +365,15 @@ an atomic synchronous rebuild because its identities cannot be trusted. Registry
 entries win when discovery and runtime state overlap, so the registry remains
 the authority for status, ports, logs, and process identity.
 
+Registry reconciliation reads process start times and executable paths through
+the native process snapshot. It batches CIM only for PIDs with a recorded
+command signature or an unreadable native executable path, requesting only
+ProcessId, ExecutablePath and CommandLine. Callers without the optional PID
+selector retain full snapshots. A required executable or command signature that
+cannot be observed does not validate identity. The 800 ms cold reconciliation
+fixture keeps its existing threshold; signed-process queries still incur CIM
+cost and are not covered by that unsigned fixture's performance claim.
+
 The entrypoint dispatches `help`, `exit`, and environment-control commands
 before normal DevServer initialization. Authentication and GitHub/update tools
 are resolved only when their actions are entered; the Windows menu does not
