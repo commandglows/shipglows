@@ -794,6 +794,13 @@ of proposed changes use the existing skill-context-budget policy. Ordinary help
 and unchanged read-only audit do not preload that procedure. A targeted proposed
 loading change must include that policy read in its own affected-path measure.
 
+The policy ranks decision correctness and protections before instruction clarity,
+removal of unnecessary procedure and context cost. Improvement passes define the
+expected action, stops and proof before comparing token totals; behavioral review
+is independent of the budget verdict. Necessary extra context requires evidence
+and the existing exception process, not silent ceiling changes. This uses the
+existing Core loader and adds no mandatory reference or navigation step.
+
 The existing scenario evaluator accepts optional independently reviewed
 `required_reads`; a missing required path is a structural failure before cost
 comparison. Legacy scenarios remain compatible. Witnesses are not derived from
@@ -805,3 +812,22 @@ Tests: tools/test_core_loading_prevention.py injects an eager cold read, a deepe
 chain at constant tokens, a missing mandatory read and a removed mutation gate.
 Scope/proof: shipglows_data/workflow/specs/core-loading-regression-prevention.md.
 No new router, registry, public invocation or automatic whole-corpus loader.
+
+## Quality-first Core and continuation pilot
+
+Exact low-risk corrections with resolved authority, owner and proof use Core's
+direct mini-contract path. A short diff that changes material semantics, routing,
+security or authority still requires readiness and independent review. Direct
+completion retains the existing reporting and documentation/editorial reflections;
+it does not imply deployment authority or a reload of already-running agents.
+
+Core's maintenance pack names when to load question, partnership, lifecycle,
+task-list and delegation references. Common topology and continuation clauses use
+main-only for a cohesive stream, delegation for useful isolation or required review,
+and batch gates for parallel writes. Unfinished-report choices require an actual
+operator decision, missing authority or requested steering. Authorized work continues;
+an external wait without a choice reports evidence and recovery without a menu.
+
+Proof and limits: `workflow/specs/quality-first-core-continuation-pilot.md` and
+`tools/test_quality_first_pilot.py`. New complete declared scenarios complement
+the old pre-action checkpoints; declarations do not measure actual agent sessions.

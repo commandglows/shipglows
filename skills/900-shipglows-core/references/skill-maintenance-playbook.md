@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-27"
+updated: "2026-09-05"
 status: active
 source_skill: 900-shipglows-core
 scope: skill-maintenance-lifecycle
@@ -36,12 +36,12 @@ Use for `900-shipglows-core build <skill, skill path, doctrine, activation, or s
 
 1. Resolve one explicit ShipGlows skill or app-blueprint target under `$SHIPGLOWS_ROOT`; reject generic third-party generation, unscoped repository refactors, a missing target, invalid invocation name (lowercase letters, numbers, hyphens; no edge/double hyphen; max 64), ambiguous spec, or unapproved invocation rename.
 2. Search adjacent skills and shared references for overlap. Prefer an existing mode, reference, or shared doctrine; create a domain skill only for a distinct trigger/outcome and a master only for a distinct multi-owner lifecycle. Record the placement decision.
-3. Route broad ambiguity to `700-sg-explore`; otherwise, non-trivial work follows `100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end -> 005-sg-ship`. Do not edit while readiness is not `ready`.
+3. For an exact, low-risk correction with resolved authority, owner and proof, use a mini-contract and execute directly. Non-trivial work follows `100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end -> 005-sg-ship`; its spec must be `ready` before editing. Material semantic, routing, security or authority changes never qualify merely because the diff is short. Route unresolved scope to `700-sg-explore`.
 4. Blueprint extraction from a source app is the explicit exception: load `skills/references/app-blueprints.md`; it produces a blueprint, not a product spec, and does not invent a readiness gate.
 
 ## Build The Contract
 
-1. Load `decision-quality-contract`, `skill-instruction-layering`, `spec-driven-development-discipline`, `question-contract`, `operator-partnership-contract`, `master-workflow-lifecycle`, `master-delegation-semantics`, and `task-application-loop` as applicable. Use delegated sequential work by default; parallel work needs ready, non-overlapping batches.
+1. Before a contract edit, load `decision-quality-contract`, `skill-instruction-layering` and `spec-driven-development-discipline`; before mutation, apply `mutation-plan-approval`. Reuse current loaded text. Load `question-contract` before an actual operator question, `operator-partnership-contract` for unresolved sparse intent or partnership decisions, `master-workflow-lifecycle` for non-trivial lifecycle work, and `task-application-loop` when applying a task list. Use main-only for one cohesive bounded stream; load `master-delegation-semantics` before dispatch when isolation or independent review helps. Parallel writes still require ready, non-overlapping batches.
 2. Define a pressure scenario and proof path before editing; change one bounded task slice at a time. Prefer a shared-reference repair unless the behavior is activation-critical and owner-specific.
 3. Keep `SKILL.md` an English activation contract: concise mission, scope, modes/references, stops, validation, report/lifecycle trace. Move procedures, matrices, and examples to bounded references. User-facing prompts/reports use the active language.
 4. Preserve security and ship scope: never expose secrets, strengthen unproven claims, rename an invocation without approval, or include unrelated dirty files. Record `fresh-docs not needed`, `checked`, `gap`, or `conflict`; a behavior/safety gap blocks progress.
@@ -53,4 +53,4 @@ Use for `900-shipglows-core build <skill, skill path, doctrine, activation, or s
 3. Daily validation starts with zero or one focused scenario/contract check. Run metadata lint, `audit_shipglows_skills.py`, budget audit, full suites, or all-skill runtime sync only when the changed surface or an explicit release/health/security/audit goal makes that evidence material. Affected-skill runtime sync remains appropriate when runtime discoverability changed.
 4. Load `skill-context-budget` before changing references, loading triggers, shared normative text, protections, activation bodies or discovery/public metadata; apply its Loading Change Gate even when files shrink. Do not spend daily implementation time on unrelated global health evidence.
 5. Align help, routing, README/workflow/lifecycle docs, and public skill pages when the target's discoverability, promise, or invocation changes. Preserve the target's approved visibility; a brand-new material skill workflow is public by default unless its ready spec explicitly approves an internal-only exception. This policy never publishes internal-only `900`. Report both `Documentation Update Plan` and `Editorial Update Plan` as complete, no impact, or blocked.
-6. Route implementation to `103-sg-verify`; this playbook neither closes nor ships. Report target, placement, lifecycle/proof, refresh or justified exception, runtime/reload status, changed surfaces, docs/editorial statuses, and remaining blockers.
+6. For a bounded correction, Core completes focused proof and the applicable reporting/reflection gates directly; no nested lifecycle activation is required solely to mark it done. Non-trivial work routes verification to `103-sg-verify` and retains the lifecycle's closure/ship gates; this playbook does not waive them. Keep source, runtime/reload, docs/editorial and delivery claims evidence-backed; never infer deployment authority from completion.

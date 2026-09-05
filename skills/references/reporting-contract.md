@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.18.0"
+artifact_version: "2.19.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-09-05"
@@ -68,7 +68,7 @@ The structured dependencies above validate existence/version/status, not eager r
 | Approved substantive chantier is actually starting | `reporting-start.md` |
 | Explicit `report=agent`, `handoff`, `verbose`, or `full-report` | `reporting-agent-handoff.md` |
 | Blocked, partial, risky, security-sensitive, audit, or unfinished user result | `reporting-blocked-and-audit.md` |
-| Unfinished user result needs operator choices | `strategic-choice-contract.md` |
+| Unfinished user result needs operator choices: missing decision, authority or requested steering | `strategic-choice-contract.md` |
 | Claim closed, complete, done, resolved, or shipped | `reporting-closure.md`, `documentation-reflection-gate.md`, `editorial-reflection-gate.md` |
 | Agent handoff lacks a qualified Context Capsule | `context-quality-contract.md` |
 | No concrete continuation in the conversation or pending proof/delivery | `next-outcome-selection.md` |

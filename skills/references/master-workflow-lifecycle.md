@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.12.0"
+artifact_version: "2.13.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-09-01"
+updated: "2026-09-05"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -189,7 +189,7 @@ Do not start implementation from a draft, ambiguous, or contradictory work item.
 
 Before expensive or risky execution, choose the model profile using `704-sg-model` guidance or the relevant local model-routing reference, bounded by `skills/references/decision-quality-contract.md`.
 
-Before file work, validation, closure preparation, or ship preparation, choose topology using `skills/references/master-delegation-semantics.md`. Favor subagents by default: parallel for two or more independent read-only scopes, sequential for writes, and parallel writes only through ready `Execution Batches`. Master-skill invocation authorizes bounded sequential and read-only parallel subagents; ask again only for material scope, risk, permissions, data, destructive behavior, closure, unapproved staging, ship, or unauthorized parallel-write changes.
+Use main-only for one cohesive bounded stream. Before dispatch, apply `skills/references/master-delegation-semantics.md`: delegate for useful isolation or required independent review, parallelize independent read-only scopes for net benefit, and require ready `Execution Batches` for parallel writes. Invocation alone never requires delegation or renews approval; retain authority gates for materially changed scope, risk, permissions, data, destructive behavior, closure, staging or ship effects.
 
 Record the choice when it affects trust, cost, evidence, or handoff.
 

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-09-05"
@@ -36,20 +36,22 @@ Concise does not mean vague. State the blocking gate, redacted concrete evidence
 
 ## Unfinished Chantier Choice
 
-When a user-facing final report returns control while the chantier remains unfinished, end the message
-with a numbered, plain-language choice block. Apply the strategic-choice contract already selected by the reporting owner; use two or three choices, and recommend the strongest responsible business direction. The choices must never expose skill names, slash commands, lifecycle labels, internal owners, or agent topology.
+Continue a safely executable authorized unit before returning control; do not ask
+for permission to continue it. If an operator decision, missing authority or
+requested steering is needed, end the message
+with a numbered, plain-language choice block. Apply the strategic-choice contract
+already selected by the reporting owner; offer two or three genuine choices and recommend
+the strongest responsible business direction. Choices must never expose skill names,
+slash commands, lifecycle labels, internal owners, or agent topology.
 
-When no material decision is missing, keep controls proportional. A short interaction label is allowed because it requires active guided follow-up after selection:
+For an external wait or unavailable proof with no operator choice, report the
+evidence, remaining limit and recovery action without inventing alternatives.
+Incomplete work stays incomplete. Unknown targets and new effects still require
+resolution before execution; continuation never expands authority.
 
-```text
-1. ✅ Poursuivre le résultat convenu — conserve la valeur et la priorité déjà validées.
-2. 💬 Questionner
-3. 🧭 Réorienter
-
-Réponds avec le numéro ou indique une autre direction.
-```
-
-After `Questionner`, conduct useful guided questioning. After `Réorienter`, propose concrete business directions with outcome, horizon, and trade-off; never hand the operator a blank page. When a material decision exists, replace generic controls with specific business direction options covering product, customer, market, investment, scope, trust, release, or risk consequences. Completed work receives no choice block. A blocked chantier receives specific safe recovery choices.
+Use `Questionner` or `Réorienter` only for requested steering with useful guided
+follow-up, not a generic continuation gate. Follow the reporting owner's response
+instruction and compact layout. Completed work receives no unfinished-choice block.
 
 ## Audit Reports
 

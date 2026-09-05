@@ -207,8 +207,9 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
             self.assertIn(rule, self.refresh)
 
     def test_build_uses_refresh_only_for_high_assurance_triggers(self) -> None:
-        self.assertIn("Bounded daily repairs use one focused pressure-scenario proof", self.text)
-        self.assertIn("broad skill semantic, public-routing, packaging, security, audit, and release work", self.text)
+        self.assertIn("Bounded low-risk corrections use focused pressure-scenario proof", self.text)
+        self.assertIn("material semantics, routing, security or authority changes retain ready-spec lifecycle and independent review regardless of diff size", self.text)
+        self.assertIn("Broad skill, packaging, audit and release work retains conservative", self.text)
         self.assertIn("broad semantic rewrites", self.build)
         self.assertIn("bounded daily contract repair", self.build)
         self.assertIn("zero or one focused scenario/contract check", self.build)
