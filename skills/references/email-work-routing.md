@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-07"
-updated: "2026-08-07"
+updated: "2026-09-05"
 status: active
 source_skill: 202-sg-emailing
 scope: cross-skill-email-routing
@@ -54,6 +54,13 @@ All paths resolve from `$SHIPGLOWS_ROOT/skills/202-sg-emailing/references/`.
 | HTML/template/component, responsive rendering, client compatibility, plain text, technical accessibility | `accessible-email-technical-playbook.md` |
 | Sending domain, SPF, DKIM, DMARC, reputation, consent, unsubscribe, suppressions, bounces, complaints, delivery webhooks | `email-deliverability-and-authentication-playbook.md` |
 | Resend plugin, MCP, CLI, API, agent inbox, logs, contacts, segments, broadcasts, templates, or agent-triggered sends | `resend-agent-integration-playbook.md` plus the task-specific reference above |
+| Postmark setup, API adapter, streams, webhooks, sandbox, migration or sends | `postmark-agent-integration-playbook.md` plus the task-specific reference above |
+| Newsletter signup, confirmation, preferences, server proxy or operator preview/approval | `newsletter-components-playbook.md` |
+
+For central email integration or a task connecting consent, identity and product
+access, also load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md`.
+The active owner selects these direct leaves independently; none loads a sibling.
+An email address alone or plain copywriting does not activate integration guidance.
 
 Load more than one only when the task crosses layers:
 
@@ -64,6 +71,9 @@ Load more than one only when the task crosses layers:
 - DMARC audit: deliverability only
 - Resend MCP connection: integration only until a concrete email action
   activates another layer
+- Postmark newsletter implementation: central boundary + newsletter + technical +
+  deliverability + Postmark; add writing when authoring copy. Auth0 loads only if
+  that identity integration is actually in scope, not for anonymous signup.
 
 ## Owner Routing
 

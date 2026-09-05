@@ -34,6 +34,9 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 - `references/accessible-email-technical-playbook.md` when work touches templates, markup, provider setup, rendering, or technical QA
 - `references/email-deliverability-and-authentication-playbook.md` when work touches sending domains, SPF, DKIM, DMARC, reputation, compliance, suppression, or delivery operations
 - `references/resend-agent-integration-playbook.md` before an agent connects to or operates Resend through a plugin, MCP, CLI, or API
+- `references/postmark-agent-integration-playbook.md` for Postmark setup, adapters, streams, callbacks, migration or sends
+- `references/newsletter-components-playbook.md` for signup, confirmation, preferences, server proxies or operator preview/approval
+- `skills/references/identity-consent-access-contract.md` for central email integration or consent/identity/product-access boundaries; plain copywriting does not activate it
 
 ## Scope
 

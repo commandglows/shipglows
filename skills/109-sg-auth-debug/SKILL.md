@@ -36,7 +36,7 @@ Default to `report=user`: concise, findings-first for audits and failures, outco
 
 `109-sg-auth-debug` answers one question: `Quel composant auth/session/callback explique ce comportement ?`
 
-This skill is the auth/session specialist, not the generic browser fallback. Use it for auth, OAuth, cookies, callbacks, sessions, redirects, tenants, and protected-route behavior when browser proof or runtime evidence must stay inside an auth-safe debugging lane.
+Use this auth/session specialist for OAuth, cookies, callbacks, sessions, redirects, tenants and protected-route proof; never as a generic browser fallback.
 
 It does not own generic browser proof, full manual QA logging, deployment discovery, or direct code-fix implementation:
 
@@ -49,7 +49,7 @@ It does not own generic browser proof, full manual QA logging, deployment discov
 
 - `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` for auth/session checks, OAuth/browser callbacks, token refresh, sign-in, sign-out, or any delayed provider operation.
 
-Always load shared references only when their gate applies. Load skill-local references precisely by mode:
+Load shared references only at their gate and local references by mode:
 
 - `references/auth-debug-workflow.md`: mandatory compact first-decision core and compatibility index.
 - `references/auth-intake-and-authority.md`: intake, development-mode authority, automation limits, and escalation.
@@ -62,8 +62,9 @@ Always load shared references only when their gate applies. Load skill-local ref
 
 ## ShipGlows-Owned Preflight
 
-Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or checking ShipGlows-owned auth-debug/runtime surfaces.
-For `109-sg-auth-debug`, this preflight also applies before auth-safe runtime diagnostics and callback-proof surfaces.
+Actual Auth0 diagnosis loads shared `auth0-integration-playbook.md`; identity/consent/access crossings also load shared `identity-consent-access-contract.md`. Unrelated diagnosis loads neither.
+
+Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before owned reads, tools, auth/runtime diagnostics or callback proof.
 
 ## Mode Detection
 

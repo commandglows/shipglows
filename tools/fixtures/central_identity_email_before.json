@@ -1,0 +1,86 @@
+{
+  "baseline_commit": "14b309d1b49f4f3b9ad637ad552088a9a1f28258",
+  "measurement": "pre-edit working-tree raw-byte SHA256; normalized hash and ceil(characters/4) from baseline commit for these initially clean paths; CRLF/mixed endings excluded; not observed usage",
+  "files": {
+    "skills/001-sg-build/SKILL.md": {
+      "sha256": "5338550182de5fa077161a00a7d1841ef6488cf9870c10711f8ac61538aed5fc",
+      "estimated_tokens": 1887,
+      "normalized_sha256": "7526e1c5e8d5f79e5630928a0ffb18b3d52c8da305bf9500bbdbf18ace218d15"
+    },
+    "skills/010-sg-technical/SKILL.md": {
+      "sha256": "075e2cb4a9af3538c1d4b785e15d5b097b3b39b48219ebaaace12ed573dc246f",
+      "estimated_tokens": 1524,
+      "normalized_sha256": "e351203cd0970054f5fec81711fa45e31216d46904dfc286dfdb7d55afe0fb50"
+    },
+    "skills/103-sg-verify/SKILL.md": {
+      "sha256": "f3f119a638840b4ad5fcfd2a83b16ea8013075676dddd934df2e8e2ee49cc993",
+      "estimated_tokens": 1931,
+      "normalized_sha256": "cc39fd936a964ae63c4e0febfeab21dbf49864651bdc082f250a2391af350dac"
+    },
+    "skills/109-sg-auth-debug/SKILL.md": {
+      "sha256": "0c05d16095861710539c0d9ace366d5065aa2fc22409c8c271ca50d4fc087f43",
+      "estimated_tokens": 1905,
+      "normalized_sha256": "22160b3ed733798f411719341f052edfb5d94a28bbe938f444ea9688e2a6bc0c"
+    },
+    "skills/202-sg-emailing/SKILL.md": {
+      "sha256": "635e48497d838ff178b53c97680039a585ebdcfaf8c82a31fb67d62fedbe6834",
+      "estimated_tokens": 1432,
+      "normalized_sha256": "f40484eddb1486c7173592ab7fccbc517965a4596b3cd7b0d178f9dff75fff88"
+    },
+    "skills/601-sg-product-entitlements/SKILL.md": {
+      "sha256": "e986ccc6ca07bf9437d8e823df9c1d33176944dc0abe39b146038512d974b3bd",
+      "estimated_tokens": 1267,
+      "normalized_sha256": "0c3a565ed71b4e44f27f6954372f85fcbefa6c987e53089df424a3b752874d01"
+    },
+    "skills/references/email-work-routing.md": {
+      "sha256": "f4d7dd469a7ff169615357595c41e4d11584e83116e66b51db61f95e339c9dc5",
+      "estimated_tokens": 1139,
+      "normalized_sha256": "7712fac49b841f40053b21be780713f0272a88e9ad304bf30f4634df00efd707"
+    },
+    "skills/references/identity-provider-selection.md": {
+      "sha256": "4470715d83d69c3d40c20728bfff6567f496ddb488384bd4c19515b78a2952e2",
+      "estimated_tokens": 3596,
+      "normalized_sha256": "aca7520fca5ec0b61e21a25a3099bae4ef17bdfc3e0f7aa473b99e120c21ddce"
+    },
+    "skills/references/product-entitlements-playbook.md": {
+      "sha256": "34bcdfd399058e328b458c90a6790346467eab8eb1e3cc532699b0cba792219f",
+      "estimated_tokens": 1475,
+      "normalized_sha256": "176330a878e2517333fdca399cba5f29822b7dcbd89d8ee95dd840009c3c6f71"
+    },
+    "skills/references/reporting-contract.md": {
+      "sha256": "fc9539ba4898b2bbbe9a3210c29ea1290ac7cb775b158b680ce38dfe41199ae3",
+      "estimated_tokens": 2477,
+      "normalized_sha256": "09b7327b35e07ba399915578a93538b721f73004f3cf2b17e18eccc09a93682f"
+    },
+    "skills/references/reporting-blocked-and-audit.md": {
+      "sha256": "35b31f8d92f73942a4de343d3a149118e0c1a0673d20cf71d1dbc1e49dbf8871",
+      "estimated_tokens": 802,
+      "normalized_sha256": "3d2d67b53849a7eec8e07bd6f36b8b17f077f142ff14c0178a2970aa957fb8c6"
+    },
+    "skills/references/canonical-paths.md": {
+      "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7",
+      "estimated_tokens": 844,
+      "normalized_sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+    },
+    "skills/202-sg-emailing/references/accessible-email-writing-playbook.md": {
+      "sha256": "7fe5daed91ad7412c8954c4751d7eef35b769a3e85b61309f1c870401027ba64",
+      "estimated_tokens": 1307,
+      "normalized_sha256": "9b5b47bc9d98e87ce83cf30258da3308d25c9a8d8aaf2bc946a829cc7ad5213f"
+    },
+    "skills/202-sg-emailing/references/accessible-email-technical-playbook.md": {
+      "sha256": "dbd6852354a0868b7ab2c69514289765a827791e85e31a28112a94f65f36a173",
+      "estimated_tokens": 1722,
+      "normalized_sha256": "f92b58a5dbb9736543d4f55c7d6298ab18d3c50d3cfc067cad8482ec7f5248a9"
+    },
+    "skills/202-sg-emailing/references/email-deliverability-and-authentication-playbook.md": {
+      "sha256": "566365545f41dcdcc96a3b0ad540c6e879da656e68a18da779ad258f2ec437ce",
+      "estimated_tokens": 1829,
+      "normalized_sha256": "f4faf4bfdd472b2d3be385468355653b3a264c500baad336819db9ff0d91d1fd"
+    },
+    "skills/109-sg-auth-debug/references/auth-provider-routing.md": {
+      "sha256": "2b80474f001118048555166f52937990931112a478e1997942da1ab711a008e6",
+      "estimated_tokens": 570,
+      "normalized_sha256": "970ec467e3dcfbc9521f0c4e9ddc5afca1c828a714eb15a05bce0936e29289d0"
+    }
+  }
+}

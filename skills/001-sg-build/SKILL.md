@@ -49,6 +49,8 @@ Conditional shared loaders remain conditional: `$SHIPGLOWS_ROOT/skills/reference
 
 ## Readiness And Proof Owners
 
+For central identity/consent/email integration, load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md` before selecting the service boundary. When the task changes or diagnoses the selected Auth0 integration, load `$SHIPGLOWS_ROOT/skills/references/auth0-integration-playbook.md` directly. Mere email fields or unrelated feature work do not activate these references; email-work-routing selects newsletter and provider leaves independently.
+
 Non-trivial work must pass `100-sg-spec -> 101-sg-ready` before `102-sg-start`; allow one bounded correction loop, otherwise stop. A trivial local mini-contract is allowed only when decision quality and safety are clear.
 
 Proof routing remains explicit: `108-sg-browser` for non-auth browser evidence; `109-sg-auth-debug` for auth/session/provider/protected-route evidence; `405-sg-prod` for hosted runtime/deployment truth; `107-sg-test` for durable manual QA. Preview-required modes ship before hosted proof. `102-sg-start` local auto-verify is only an implementation optimization; `001-sg-build` still owns `103-sg-verify -> 104-sg-end -> 005-sg-ship`.

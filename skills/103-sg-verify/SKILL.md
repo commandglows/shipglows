@@ -35,6 +35,8 @@ excellence: Once readiness passes, what material quality gap remains, and who ow
 
 ## Progressive Verification Packs
 
+For central identity/consent/access integration, load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md`. For actual Auth0 integration proof, load `$SHIPGLOWS_ROOT/skills/references/auth0-integration-playbook.md` directly. Email-work-routing selects Postmark/newsletter proof only for those surfaces; an unrelated auth or email-address field does not load the integration pack.
+
 Local leaves never chain. `references/verification-gates.md` is only a compatibility index.
 
 - Load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-baseline.md` and `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for every run; its `Decision Quality Baseline` applies in every mode.
