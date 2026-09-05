@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-09-05"
 updated: "2026-09-05"
-status: ready
+status: reviewed
 source_skill: 900-shipglows-core
 scope: central-identity-email-agent-training
 owner: Diane
@@ -20,7 +20,7 @@ supersedes: []
 evidence:
   - "Operator approved the four-part Core training plan on September 5, 2026."
   - "Read-only audit found Resend-only provider guidance, Auth0 selection guidance, and separate entitlement doctrine."
-next_step: Integrate the dedicated delivery branch after its repository checks; use these references for future product adaptations.
+next_step: Use the integrated references for future product adaptations; real provider activation remains project-owned.
 ---
 
 # Central identity and email agent training
@@ -121,6 +121,7 @@ dirty work or rewrite global identity/commercial policies to match one pilot.
 | Date | Owner | Action | Result |
 | --- | --- | --- | --- |
 | 2026-09-05 | shipglows core | Audit and approved plan translated to scenario-first scope | Ready; implementation and review pending |
+| 2026-09-05 | shipglows core | Independent review, scoped proof, runtime checks and exact-scope delivery | PR 152 merged; local main aligned; temporary artifacts removed |
 
 ## Current Chantier Flow
 
@@ -128,7 +129,15 @@ Specification/readiness and implementation complete under approved scope;
 independent review passed after two substantive corrections. Isolated verification
 passed: 27 tests, metadata for 8 documents, activation graph and four bounded
 domain-witness budgets. Delivery branch: codex/central-identity-email-training.
-Remote commit/PR receipts are separate from this self-referential record.
+Delivery completed through [PR 152](https://github.com/commandglows/shipglows/pull/152):
+implementation 03247a9ecf9881b2c075b18d150e32ca1d589504, merge
+0c0adb1648813f6f069bb898d78bacf8bfdffd7c. Required GitHub gates passed;
+their no-impact classification is not a substitute for the 27 local tests.
+Local main adopted the merged commit with an empty index and fast-forward
+ancestry proven; all 47 pre-adoption working-file hashes were unchanged.
+Unrelated working changes remain unstaged. The clean, integrated temporary
+worktree and local/remote branch were removed. Training implementation,
+verification and delivery are complete; no application activation is claimed.
 
 ## Verification evidence and limitations
 
