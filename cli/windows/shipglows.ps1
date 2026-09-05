@@ -12,6 +12,23 @@ function Stop-SgCommand([string]$Message) {
     exit 2
 }
 
+function Invoke-SgManagedDevServer([string[]]$Arguments) {
+    # PowerShell resolves shipglows.ps1 before shipglows.cmd on PATH.
+    # Use the same secure bootstrap when that script runs in a foreign host.
+    $expectedHost = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.shipglows\toolchains\powershell\7.6.5\win-x64\pwsh.exe'))
+    $currentHost = [IO.Path]::GetFullPath((Get-Process -Id $PID).Path)
+    if ($currentHost -ine $expectedHost -or $env:SHIPGLOWS_MANAGED_PWSH -ine $expectedHost) {
+        $bootstrap = Join-Path $PSScriptRoot 'ShipGlows.PowerShellBootstrap.ps1'
+        if (-not (Test-Path -LiteralPath $bootstrap -PathType Leaf)) {
+            Stop-SgCommand 'The managed PowerShell bootstrap is missing; rerun the official ShipGlows installer.'
+        }
+        & $bootstrap @Arguments
+    } else {
+        & (Join-Path $PSScriptRoot 'shipglows-devserver.ps1') @Arguments
+    }
+    exit $LASTEXITCODE
+}
+
 function Invoke-SgLinkedSkills([ValidateSet('check','repair')][string]$Mode) {
     # Skills follow the selected developer source; never invoke the runtime updater.
     $statePath = Join-Path $env:USERPROFILE '.shipglows\development-channel.json'
@@ -62,7 +79,7 @@ if ($CommandArguments[0] -ieq 'update') {
     }
     [string[]]$remaining = if ($CommandArguments.Count -gt 1) { @($CommandArguments[1..($CommandArguments.Count - 1)]) } else { @() }
     if ($remaining.Count -eq 1 -and $remaining[0] -ieq 'runtime') { $remaining = @() }
-    & $devServer update @remaining
+    Invoke-SgManagedDevServer -Arguments (@('update') + $remaining)
     exit $LASTEXITCODE
 }
 
@@ -74,7 +91,7 @@ if ($CommandArguments[0] -ieq 'tools') {
     if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
         Stop-SgCommand 'the managed DevServer developer-tools command is unavailable; rerun the official ShipGlows installer.'
     }
-    & $devServer tools $CommandArguments[1]
+    Invoke-SgManagedDevServer -Arguments @('tools', $CommandArguments[1])
     exit $LASTEXITCODE
 }
 

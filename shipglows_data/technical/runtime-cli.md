@@ -972,3 +972,5 @@ Run a focused runtime smoke for the touched behavior when practical, for example
 ## Maintenance Rule
 
 Update this doc when runtime entrypoints, lifecycle flows, PM2/Flox/Caddy/DuckDNS behavior, validations, or security constraints change.
+
+PowerShell resolves `shipglows.ps1` before `shipglows.cmd`. The focused script now routes runtime update and tool commands through the secure PowerShell bootstrap when called outside the managed host. Bare `shipglows update status` and `shipglows update runtime` therefore do not require a `.cmd` suffix; linked skills keep their separate native route.
