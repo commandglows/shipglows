@@ -111,6 +111,26 @@ counts, and clickable technical file links unless the operator must open, edit,
 or provide the exact artifact to proceed or explicitly requests detailed evidence.
 Never dump matrices, phase ledgers, bulk logs or internal commands in user mode.
 
+### Universal compact layout
+
+After the adjacent chantier and verdict header lines, leave one blank line before the substantive response. Every user-facing report state—start, progress, partial, blocked, audit, closure, delivery, persistence, limits, context, continuation, and decision framing—uses compact labelled rows: keep the icon, translated label, optional status marker, and content together on one line, then insert exactly one blank line before the next labelled row. Use a colon after prose labels such as `✨ OBJECTIF :`, `✨ RÉSULTAT :`, or `🔨 PROGRESSION :`; status-bearing rows such as `🧪 PREUVES ✅`, `⚠️ LIMITES`, and `🧠 CONTEXTE ✅` need no colon. Separate compact items inside a row with ` · `.
+
+Omit rows that do not apply except those mandatory for the active report state. Keep a numbered choice list contiguous as one atomic decision block: leave one blank line before it, do not insert blank lines between its options, and keep its response instruction directly after the list. Explicit `report=agent`, handoff, verbose, and full-report outputs retain the operational structure defined by `reporting-agent-handoff.md` and are exempt from this visual layout.
+
+For ordinary user-facing progress, partial, blocked, or audit results, select only the rows that carry current value, for example:
+
+```text
+🔨 PROGRESSION : <completed outcome or current state>
+
+🧪 PREUVES ✅ <current proof> · ⚠️ <proof gap when material>
+
+⚠️ LIMITES <concrete blocker, risk, or remaining gap>
+
+🧠 CONTEXTE ✅ <continuity status and conversation guidance>
+
+🧭 SUITE ➡️ <next outcome, recovery action, or decision>
+```
+
 ## Reporting Effort Ceiling
 
 A report formats required evidence; it never creates additional checks, research,
@@ -139,7 +159,7 @@ the operator starts it. Length, compaction or a separate outcome alone is insuff
 
 Distinguish local, remote Git and deployment by matching proof. A commit is not a
 push; a push is not a deployment. When ambiguity matters, show `📦 PERSISTANCE`
-with evidence-backed Local / Git distant / Déployé states; omit this duplicate
+with evidence-backed Local / Git distant / Déployé states (for example `📦 PERSISTANCE ✅ Local · ✅ Git distant · ➖ Déployé`); omit this duplicate
 when `📦 LIVRAISON` already makes delivery clear. Never describe modified files as
 “tâche sans mutation”.
 

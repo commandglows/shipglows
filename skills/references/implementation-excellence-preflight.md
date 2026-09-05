@@ -60,8 +60,7 @@ Inspect the repository's existing architecture, conventions, design authority, s
 Retain the classification and applicable gates in the execution record. For a substantive code chantier, emit the compact start receipt defined by the reporting contract:
 
 ```text
-🛡️ GARDE-FOUS
-✅ <applicable mandatory rules> · ➖ <non-applicable class and concrete reason, only when useful>
+🛡️ GARDE-FOUS ✅ <applicable mandatory rules> · ➖ <non-applicable class and concrete reason, only when useful>
 ```
 
 Do not write code while a mandatory applicable authority is unknown or contradictory. Resolve it from the repository and canonical ShipGlows references; ask the operator only when the unresolved choice would materially change product behavior, risk, cost, or authority.

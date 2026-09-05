@@ -87,8 +87,7 @@ When impacted canonical documentation is directly mapped to approved work, updat
 Every user-facing closure report must include the main documentation section icon and one compact evidence line in the user's active language, preserving one of the three stable status values:
 
 ```text
-📖 DOCUMENTATION
-✅ updated · <scope> | ➖ not impacted · <concrete reason> | ⚠️ needs review · <surface>
+📖 DOCUMENTATION ✅ updated · <scope> | ➖ not impacted · <concrete reason> | ⚠️ needs review · <surface>
 ```
 
 Choose exactly one status form; the alternatives above are not printed together. Keep its scope or reason on the same line and use ` · ` for additional compact items. The line is mandatory even for `not impacted`. A non-closure progress report may omit it. `needs review` forbids `closed`, `complete`, `done`, `resolved`, or `shipped` wording until the material gap is cleared.

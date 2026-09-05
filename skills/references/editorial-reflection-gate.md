@@ -113,8 +113,7 @@ public claim.
 Every closure report includes exactly one compact line:
 
 ```text
-✏️ ÉDITORIAL
-✅ updated · <aligned public surface>
+✏️ ÉDITORIAL ✅ updated · <aligned public surface>
 ```
 
 Use `➖ not impacted · <concrete reason>` or

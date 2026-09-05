@@ -29,28 +29,22 @@ Select directly only when claiming closed, complete, done, resolved, or shipped.
 The reporting owner has already selected the independent documentation and editorial
 reflection authorities. Apply their results; this leaf loads no sibling.
 
-For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line. Keep the content beneath `✏️ ÉDITORIAL` on exactly one line. Keep the content beneath `📰 CHANGELOG` on exactly one line. Separate each status, scope, or reason with ` · `.
+For every successful closure report, render this stable card after the header. Keep the two header lines adjacent. Then render every section as one complete line containing its icon, translated label, colon when the section contains prose, and content; insert exactly one blank line between sections. Keep proof items, statuses, scopes, and reasons compact on their section line and separate them with ` · `.
 
 Before rendering the documentation line, apply `documentation-reflection-gate.md` to the exact task-owned changed paths and canonical code-docs map. The report must not invent or infer the classification from unchanged public copy, generic test success, memory, graph output, or a plausible sentence; it renders the gate result. Editorial impact remains independent.
 
 ```text
-✨ RÉSULTAT
-<one compact outcome paragraph>
+✨ RÉSULTAT : <one compact outcome paragraph>
 
-🧪 PREUVES
-✅ <proof 1> · <proof 2> · <proof 3>
+🧪 PREUVES ✅ <proof 1> · <proof 2> · <proof 3>
 
-📖 DOCUMENTATION
-✅ updated · <aligned documentation scope>
+📖 DOCUMENTATION ✅ updated · <aligned documentation scope>
 
-✏️ ÉDITORIAL
-➖ not impacted · <concrete reason>
+✏️ ÉDITORIAL ➖ not impacted · <concrete reason>
 
-📰 CHANGELOG
-🔒 internal-only · <concrete reason>
+📰 CHANGELOG 🔒 internal-only · <concrete reason>
 
-📦 LIVRAISON
-✅ Commit local : `<sha>` · ➖ Push : non effectué
+📦 LIVRAISON ✅ Commit local : `<sha>` · ➖ Push : non effectué
 ```
 
 Translate the six labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.

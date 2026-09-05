@@ -84,8 +84,7 @@ Before sensitive mutation, require the relevant pre-change baseline to be `backe
 When persistence affects trust, use one compact line:
 
 ```text
-📦 PERSISTANCE
-✅ Local · ✅ Git distant · ➖ Déployé
+📦 PERSISTANCE ✅ Local · ✅ Git distant · ➖ Déployé
 ```
 
 Report only states supported by evidence. Omit this additional block on the healthy silent path when the ordinary delivery line already communicates the same truth. `🧭 SUITE` names the exact recovery outcome for any non-terminal state.
