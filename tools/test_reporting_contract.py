@@ -2,6 +2,7 @@
 """Regression checks for the shared ShipGlows reporting contract."""
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -160,6 +161,62 @@ class ReportingContractTests(unittest.TestCase):
         )
         self.assertIn("SSRP-010 compact validation line", text)
 
+    def test_all_user_report_states_share_compact_labelled_rows(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        blocked = REPORTING_BRANCHES[1].read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        timestamp = FINAL_TIMESTAMP.read_text(encoding="utf-8")
+        for state in (
+            "start",
+            "progress",
+            "partial",
+            "blocked",
+            "audit",
+            "closure",
+            "delivery",
+            "persistence",
+            "limits",
+            "context",
+            "continuation",
+            "decision framing",
+        ):
+            self.assertIn(state, core)
+        for rule in (
+            "keep the icon, translated label, optional status marker, and content together on one line",
+            "insert exactly one blank line before the next labelled row",
+            "Keep a numbered choice list contiguous as one atomic decision block",
+            "exempt from this visual layout",
+            "SSRP-009A universal compact user layout",
+        ):
+            self.assertIn(rule, core + blocked + scenarios)
+        self.assertIn(
+            "Keep the chantier and verdict lines adjacent, then leave exactly one blank line",
+            timestamp,
+        )
+        self.assertIn("📦 PERSISTANCE ✅ Local", core)
+        split_label_pattern = re.compile(
+            r"(?:✨ (?:OBJECTIF|RÉSULTAT)|📐 PÉRIMÈTRE|🛡️ GARDE-FOUS|"
+            r"🧪 (?:PREUVES|PREUVES ATTENDUES)|📖 (?:DOCUMENTATION|DOCUMENTATION PRÉVUE)|"
+            r"✏️ ÉDITORIAL|📰 CHANGELOG|📦 (?:LIVRAISON|PERSISTANCE)|"
+            r"🧠 CONTEXTE|⚠️ LIMITES|🧭 SUITE)\n"
+        )
+        for path in (*((ROOT / "skills").rglob("*.md")), *((ROOT / "templates").rglob("*.md"))):
+            if any(parent.is_symlink() for parent in path.parents):
+                continue
+            self.assertIsNone(
+                split_label_pattern.search(path.read_text(encoding="utf-8")),
+                path,
+            )
+
+    def test_start_and_closure_cards_keep_blank_lines_between_rows(self) -> None:
+        for path in (REPORTING_START, REPORTING_CLOSURE):
+            card = path.read_text(encoding="utf-8").split("```text", 1)[1].split("```", 1)[0].strip()
+            rows = card.split("\n\n")
+            self.assertGreaterEqual(len(rows), 5, path)
+            for row in rows:
+                self.assertNotIn("\n", row, f"{path}: split row or excess spacing")
+                self.assertIn(" ", row, path)
+
     def test_successful_closure_uses_visual_card_with_compact_lines(self) -> None:
         core = closure_contract()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
@@ -177,11 +234,11 @@ class ReportingContractTests(unittest.TestCase):
         positions = [card.index(block) for block in ordered_blocks]
         self.assertEqual(positions, sorted(positions))
         for rule in (
-            "content beneath `🧪 PREUVES` on exactly one line",
-            "content beneath `📖 DOCUMENTATION` on exactly one line",
-            "content beneath `✏️ ÉDITORIAL` on exactly one line",
-            "content beneath `📰 CHANGELOG` on exactly one line",
-            "separate proof items with ` · `",
+            "Keep the two header lines adjacent",
+            "every section as one complete line",
+            "insert exactly one blank line between sections",
+            "Keep proof items, statuses, scopes, and reasons compact on their section line",
+            "separate them with ` · `",
             "`⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory",
         ):
             self.assertIn(rule, core)
@@ -274,7 +331,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         for rule in (
             "Do not use it while approval is pending",
-            "Keep the content beneath scope, expected proof, and planned documentation each on exactly one line",
+            "Keep each section label and its content together on exactly one line",
             "Add `🧭 APPROCHE` only when the strategy materially improves operator understanding",
             "only the closure card may use `updated`, `not impacted`, or `needs review`",
         ):

@@ -67,3 +67,5 @@ For a genuinely blocked verdict, replace the first marker only:
 - When route context helps the operator understand the next action, add `🧭 Suite : <outcome or decision> — <short reason>` directly below the verdict. Never name an internal owner, skill, command, lifecycle stage, or delegated agent there.
 - Do not append a second verdict, timestamp, reminder, or commentary after the response. When a numbered decision is required, the final visible content must be the options followed by `Réponds avec le numéro, ou précise une autre option.`
 - If a skill has no natural verdict, use a concise status such as `rapport terminé` or `non applicable`.
+
+Keep the chantier and verdict lines adjacent, then leave exactly one blank line before the first compact labelled report row.

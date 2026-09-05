@@ -30,22 +30,17 @@ Select directly from reporting-contract.md only at the approved substantive star
 After approval and at the true start of a substantive chantier, render this card once. Do not use it while approval is pending or for a branch-free micro-action.
 
 ```text
-✨ OBJECTIF
-<one compact outcome promise>
+✨ OBJECTIF : <one compact outcome promise>
 
-📐 PÉRIMÈTRE
-✅ <in scope> · ➖ <material out of scope>
+📐 PÉRIMÈTRE ✅ <in scope> · ➖ <material out of scope>
 
-🛡️ GARDE-FOUS
-✅ <applicable mandatory implementation rules>
+🛡️ GARDE-FOUS ✅ <applicable mandatory implementation rules>
 
-🧪 PREUVES ATTENDUES
-✅ <proof 1> · <proof 2> · <proof 3>
+🧪 PREUVES ATTENDUES ✅ <proof 1> · <proof 2> · <proof 3>
 
-📖 DOCUMENTATION PRÉVUE
-✅ Impactée · <mapped documentation scope>
+📖 DOCUMENTATION PRÉVUE ✅ Impactée · <mapped documentation scope>
 ```
 
-Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line; the guardrails line follows the same rule and uses ` · `. Objective, scope, expected proof, and planned documentation are always mandatory. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
+Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep each section label and its content together on exactly one line; insert exactly one blank line between sections and separate compact items with ` · `. The guardrails line follows the same rule. Objective, scope, expected proof, and planned documentation are always mandatory. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
 
 The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.

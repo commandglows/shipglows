@@ -60,7 +60,7 @@ next_step: none
 - `SSRP-015 guided questioning`: selecting a short `Questionner` control triggers focused questions that reveal business truth or distinguish credible directions; it never grants mutation approval.
 - `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
 - `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.
-- `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `📖 DOCUMENTATION`, then exactly one compact line using `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`; material `needs review` forbids closure language.
+- `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `📖 DOCUMENTATION`, on the same compact line using `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`; material `needs review` forbids closure language.
 - `SSRP-019 visual closure card`: a successful closure uses the six ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON`; proof, documentation, editorial, and changelog content each occupy one line with ` · ` separators, while an empty `⚠️ LIMITES` block is absent.
 - `SSRP-020 visual start card`: after approval, a substantive chantier starts once with `🚀 Démarré` and the ordered blocks `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, and `📖 DOCUMENTATION PRÉVUE`; the card never replaces a pending approval prompt or decorates a micro-action.
 - `SSRP-021 no technical path leakage`: `report=user` omits file names, paths, and clickable technical file links unless the operator must act on that exact artifact or explicitly requests detailed evidence.
@@ -86,3 +86,5 @@ next_step: none
   - `insufficient-opportunity-evidence`: use `not assessed` without blocking closure or creating extra research.
   - `invalid-collapse`: deriving “no editorial or product opportunity” from alignment `not impacted` fails.
   - `authority-boundary`: a candidate does not create content, product work, publication, or an editorial-roadmap record without applicable authority.
+
+- `SSRP-009A universal compact user layout`: start, progress, partial, blocked, audit and closure keep every label and content on the same line, with exactly one blank line between rows; explicit agent handoffs remain exempt.
