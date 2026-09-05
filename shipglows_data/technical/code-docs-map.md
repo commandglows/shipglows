@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.30.0"
+artifact_version: "3.30.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-05"
@@ -90,6 +90,7 @@ Shared files in this map are sequential integration files. Do not assign concurr
 
 | Path pattern | Subsystem | Primary technical doc | Secondary docs | Required validation | Docs update trigger |
 | --- | --- | --- | --- | --- | --- |
+| `skills/references/{identity-consent-access-contract,auth0-integration-playbook,email-work-routing}.md`, `skills/202-sg-emailing/references/{postmark-agent-integration-playbook,newsletter-components-playbook}.md`, owner loaders, `tools/test_central_identity_email_training.py` | Central identity, consent, access and email agent training | `skills/references/identity-consent-access-contract.md` | `shipglows_data/workflow/specs/central-identity-email-agent-training.md`, Auth0/Postmark/newsletter playbooks, `tools/fixtures/central_identity_email_{before,scenarios}.json` | `python -m unittest tools.test_central_identity_email_training`; existing affected owner tests; scoped metadata and activation checks | Provider contract, consent/access boundary, component journey, loading trigger or proof limitation changes |
 | `cli/shipglows.sh`, `cli/shipglows_update.sh`, `tests/cli/shipglows-update.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/architecture.md` | `bash -n cli/shipglows.sh cli/shipglows_update.sh`; focused update-command check when behavior changes | Entrypoint, sourcing, self-update channel selection, menu dispatch, startup, or visible CLI behavior changes |
 | `cli/environment/**`, `tests/environment/**`, `tests/runtime/environment-observation.sh`, `tests/windows/environment-observation.ps1`, `tests/windows/environment-mise-adapter.ps1`, `tests/windows/environment-installed-runtime.ps1` | Reproducible environment control plane and Windows mise pilot | `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md` | `shipglows_data/workflow/test-checklists/reproducible-environment-control-plane.md`, `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/operator-guides/windows-devserver.md` | all `tests/environment/*-contract.py`; Bash/PowerShell observation adapters; installed-runtime smoke; `powershell.exe -NoProfile -File tests/windows/environment-mise-adapter.ps1` | Manifest/state/plan schema, redaction, digest, discovery, observation, CLI adapter, installed packaging, backend execution boundary, approval, mise/lock/offline semantics, or apply refusal changes |
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md` | `bash -n cli/shipglows_devserver_gum.sh cli/shipglows_devserver_bash.sh`; focused CLI smoke when behavior changes | Root menu layout, grouped submenu behavior, key handling, or visible CLI behavior changes |

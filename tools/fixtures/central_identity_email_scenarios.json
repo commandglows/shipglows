@@ -1,0 +1,303 @@
+{
+  "measurement": "Selected domain branch witness plus canonical path and report contracts. Excludes previously loaded project/lifecycle/proof packs; not a complete activation/lifecycle estimate or observed trace. baseline_tokens freezes the initial reviewed new contract for future non-regression, NOT the pre-change total. Actual pre-change costs remain separate.",
+  "activation_profiles": {
+    "scenarios": {
+      "email-copy": {
+        "entry": "skills/202-sg-emailing/SKILL.md",
+        "selected_engine": "skills/202-sg-emailing/SKILL.md",
+        "checkpoint": "selected-domain-subtree-witness",
+        "assumptions": [
+          "Project and general lifecycle context already resolved; measure only the explicitly listed subtree, not all owner obligations."
+        ],
+        "reads": [
+          {
+            "path": "skills/202-sg-emailing/SKILL.md",
+            "parent": null,
+            "stage": "selected-owner",
+            "trigger": "Owner already selected",
+            "reason": "Measure body plus scoped domain branch"
+          },
+          {
+            "path": "skills/202-sg-emailing/references/accessible-email-writing-playbook.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Draft copy only",
+            "reason": "Draft copy only"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Owned reference resolution",
+            "reason": "Owned reference resolution"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "report",
+            "trigger": "Report contract",
+            "reason": "Report contract"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Report scope and proof limits",
+            "reason": "Report scope and proof limits"
+          }
+        ],
+        "required_reads": [
+          "skills/202-sg-emailing/SKILL.md",
+          "skills/202-sg-emailing/references/accessible-email-writing-playbook.md",
+          "skills/references/canonical-paths.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/reporting-blocked-and-audit.md"
+        ],
+        "budget": {
+          "max_tokens": 6969,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 6969,
+        "min_reduction_percent": 0,
+        "pre_change_known_path_tokens": 6862,
+        "added_contract_tokens": 107
+      },
+      "newsletter-postmark": {
+        "entry": "skills/202-sg-emailing/SKILL.md",
+        "selected_engine": "skills/202-sg-emailing/SKILL.md",
+        "checkpoint": "selected-domain-subtree-witness",
+        "assumptions": [
+          "Project and general lifecycle context already resolved; measure only the explicitly listed subtree, not all owner obligations."
+        ],
+        "reads": [
+          {
+            "path": "skills/202-sg-emailing/SKILL.md",
+            "parent": null,
+            "stage": "selected-owner",
+            "trigger": "Owner already selected",
+            "reason": "Measure body plus scoped domain branch"
+          },
+          {
+            "path": "skills/references/email-work-routing.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Cross-layer newsletter implementation",
+            "reason": "Cross-layer newsletter implementation"
+          },
+          {
+            "path": "skills/references/identity-consent-access-contract.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Central ownership boundary",
+            "reason": "Central ownership boundary"
+          },
+          {
+            "path": "skills/202-sg-emailing/references/newsletter-components-playbook.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Signup and preferences components",
+            "reason": "Signup and preferences components"
+          },
+          {
+            "path": "skills/202-sg-emailing/references/accessible-email-technical-playbook.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "HTML components and provider setup",
+            "reason": "HTML components and provider setup"
+          },
+          {
+            "path": "skills/202-sg-emailing/references/email-deliverability-and-authentication-playbook.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Consent and provider operations",
+            "reason": "Consent and provider operations"
+          },
+          {
+            "path": "skills/202-sg-emailing/references/postmark-agent-integration-playbook.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Selected Postmark adapter",
+            "reason": "Selected Postmark adapter"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "domain",
+            "trigger": "Owned reference resolution",
+            "reason": "Owned reference resolution"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/202-sg-emailing/SKILL.md",
+            "stage": "report",
+            "trigger": "Report contract",
+            "reason": "Report contract"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Report scope and proof limits",
+            "reason": "Report scope and proof limits"
+          }
+        ],
+        "required_reads": [
+          "skills/202-sg-emailing/SKILL.md",
+          "skills/references/identity-consent-access-contract.md",
+          "skills/202-sg-emailing/references/postmark-agent-integration-playbook.md",
+          "skills/202-sg-emailing/references/newsletter-components-playbook.md",
+          "skills/202-sg-emailing/references/accessible-email-technical-playbook.md",
+          "skills/202-sg-emailing/references/email-deliverability-and-authentication-playbook.md",
+          "skills/references/canonical-paths.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/reporting-blocked-and-audit.md",
+          "skills/references/email-work-routing.md"
+        ],
+        "budget": {
+          "max_tokens": 15191,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 15191,
+        "min_reduction_percent": 0,
+        "pre_change_known_path_tokens": 10245,
+        "added_contract_tokens": 4946
+      },
+      "auth0-boundary": {
+        "entry": "skills/109-sg-auth-debug/SKILL.md",
+        "selected_engine": "skills/109-sg-auth-debug/SKILL.md",
+        "checkpoint": "selected-domain-subtree-witness",
+        "assumptions": [
+          "Project and general lifecycle context already resolved; measure only the explicitly listed subtree, not all owner obligations."
+        ],
+        "reads": [
+          {
+            "path": "skills/109-sg-auth-debug/SKILL.md",
+            "parent": null,
+            "stage": "selected-owner",
+            "trigger": "Owner already selected",
+            "reason": "Measure body plus scoped domain branch"
+          },
+          {
+            "path": "skills/references/auth0-integration-playbook.md",
+            "parent": "skills/109-sg-auth-debug/SKILL.md",
+            "stage": "domain",
+            "trigger": "Actual Auth0 integration",
+            "reason": "Actual Auth0 integration"
+          },
+          {
+            "path": "skills/references/identity-consent-access-contract.md",
+            "parent": "skills/109-sg-auth-debug/SKILL.md",
+            "stage": "domain",
+            "trigger": "Identity and access boundary",
+            "reason": "Identity and access boundary"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/109-sg-auth-debug/SKILL.md",
+            "stage": "domain",
+            "trigger": "Owned reference resolution",
+            "reason": "Owned reference resolution"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/109-sg-auth-debug/SKILL.md",
+            "stage": "report",
+            "trigger": "Report contract",
+            "reason": "Report contract"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Report scope and proof limits",
+            "reason": "Report scope and proof limits"
+          }
+        ],
+        "required_reads": [
+          "skills/109-sg-auth-debug/SKILL.md",
+          "skills/references/auth0-integration-playbook.md",
+          "skills/references/identity-consent-access-contract.md",
+          "skills/references/canonical-paths.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/reporting-blocked-and-audit.md"
+        ],
+        "budget": {
+          "max_tokens": 9026,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 9026,
+        "min_reduction_percent": 0,
+        "pre_change_known_path_tokens": 6028,
+        "added_contract_tokens": 2998
+      },
+      "access-consent": {
+        "entry": "skills/601-sg-product-entitlements/SKILL.md",
+        "selected_engine": "skills/601-sg-product-entitlements/SKILL.md",
+        "checkpoint": "selected-domain-subtree-witness",
+        "assumptions": [
+          "Project and general lifecycle context already resolved; measure only the explicitly listed subtree, not all owner obligations."
+        ],
+        "reads": [
+          {
+            "path": "skills/601-sg-product-entitlements/SKILL.md",
+            "parent": null,
+            "stage": "selected-owner",
+            "trigger": "Owner already selected",
+            "reason": "Measure body plus scoped domain branch"
+          },
+          {
+            "path": "skills/references/product-entitlements-playbook.md",
+            "parent": "skills/601-sg-product-entitlements/SKILL.md",
+            "stage": "domain",
+            "trigger": "Primary entitlement doctrine",
+            "reason": "Primary entitlement doctrine"
+          },
+          {
+            "path": "skills/references/identity-consent-access-contract.md",
+            "parent": "skills/601-sg-product-entitlements/SKILL.md",
+            "stage": "domain",
+            "trigger": "Purchase and unsubscribe boundary",
+            "reason": "Purchase and unsubscribe boundary"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/601-sg-product-entitlements/SKILL.md",
+            "stage": "domain",
+            "trigger": "Owned reference resolution",
+            "reason": "Owned reference resolution"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/601-sg-product-entitlements/SKILL.md",
+            "stage": "report",
+            "trigger": "Report contract",
+            "reason": "Report contract"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Report scope and proof limits",
+            "reason": "Report scope and proof limits"
+          }
+        ],
+        "required_reads": [
+          "skills/601-sg-product-entitlements/SKILL.md",
+          "skills/references/product-entitlements-playbook.md",
+          "skills/references/identity-consent-access-contract.md",
+          "skills/references/canonical-paths.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/reporting-blocked-and-audit.md"
+        ],
+        "budget": {
+          "max_tokens": 8372,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 8372,
+        "min_reduction_percent": 0,
+        "pre_change_known_path_tokens": 6865,
+        "added_contract_tokens": 1507
+      }
+    }
+  }
+}

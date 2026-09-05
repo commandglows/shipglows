@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.4.1"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-11"
+updated: "2026-09-05"
 status: active
 source_skill: 109-sg-auth-debug
 scope: flutter-identity-provider-selection
@@ -37,6 +37,12 @@ next_step: "Refresh provider maturity and package versions before the next Flutt
 ---
 
 # Flutter Identity Provider Selection
+
+Existing project decisions take precedence over this general selection matrix.
+Diagnosing or extending a declared Auth0 integration does not reopen provider
+selection. The active development, engineering or auth owner loads
+`auth0-integration-playbook.md` directly for that implementation; this matrix
+does not change a project's provider or claim that Auth0 is deployed globally.
 
 Use this matrix before implementing or changing identity. Firebase Auth is the
 portfolio default. Clerk remains an inherited existing-product exception with

@@ -785,6 +785,12 @@
           ],
           "instruction-layering": [
             "skills/references/skill-instruction-layering.md"
+          ],
+          "central-identity-consent-access": [
+            "skills/references/identity-consent-access-contract.md"
+          ],
+          "auth0-integration": [
+            "skills/references/auth0-integration-playbook.md"
           ]
         }
       },
@@ -887,6 +893,12 @@
           "report-blocked-audit": [
             "skills/references/reporting-blocked-and-audit.md",
             "skills/references/actionable-failure-contract.md"
+          ],
+          "central-identity-consent-access": [
+            "skills/references/identity-consent-access-contract.md"
+          ],
+          "auth0-integration": [
+            "skills/references/auth0-integration-playbook.md"
           ]
         }
       },
@@ -908,6 +920,12 @@
           ],
           "diagnosis-report": [
             "skills/109-sg-auth-debug/references/auth-diagnosis-and-report.md"
+          ],
+          "central-identity-consent-access": [
+            "skills/references/identity-consent-access-contract.md"
+          ],
+          "auth0-integration": [
+            "skills/references/auth0-integration-playbook.md"
           ]
         }
       },
@@ -1080,6 +1098,9 @@
           ],
           "provider-freshness": [
             "skills/references/documentation-freshness-gate.md"
+          ],
+          "central-identity-consent-access": [
+            "skills/references/identity-consent-access-contract.md"
           ]
         }
       },

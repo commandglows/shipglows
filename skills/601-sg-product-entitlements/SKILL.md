@@ -32,6 +32,7 @@ The accounting profile lives in `skill-invocation-registry.json`; runtime loader
 - WinFlowz suite/free/default-access/sync eligibility loads `$SHIPGLOWS_ROOT/skills/references/winflowz-suite-product-registry.md`.
 - Non-trivial behavior change loads `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before output or mutation.
 - Current provider/webhook/API semantics load `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` and official sources.
+- When access work crosses identity linking, consent or central email, load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md`; unrelated entitlement work does not activate email/provider playbooks. Actual Auth0 diagnosis remains owned by `109`.
 
 Load at most one entitlement doctrine before the first substantive action; load a branch only after the primary doctrine has selected it.
 
