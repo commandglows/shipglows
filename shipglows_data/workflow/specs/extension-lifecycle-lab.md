@@ -103,5 +103,6 @@ by the existing stewardship contract; installer replay is not part of this chang
   previously missing profile/in-flight boundary in the already loaded proof pack.
   The unrelated core-help declared scenario reports 11197 tokens/over-budget;
   it reads no changed file, so that existing debt was not modified or waived.
-- Delivery: source checkpoint pending Git persistence; overall journal task remains
-  partial until the personal observation is available.
+- Delivery: source checkpoint is versioned in PR #150; use its Git state for
+  integration truth. Overall journal task remains partial until the personal
+  observation is available. No installed runtime command was changed.
