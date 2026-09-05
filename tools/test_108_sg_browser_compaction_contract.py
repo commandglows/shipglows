@@ -59,6 +59,20 @@ class BrowserCompactionContractTests(unittest.TestCase):
         self.assertIn("Copy diagnostics", proof)
         self.assertIn("Paris/UTC build-time", proof)
 
+    def test_extension_lifecycle_cannot_claim_personal_journal_coverage(self) -> None:
+        proof = REFS[PACKS[0]]
+        for marker in (
+            "Zero\n`pageerror` events never proves an empty extension journal",
+            "collection is active",
+            "response still\npending",
+            "host\ntab surviving",
+            "without filtering to a few known messages",
+            "personal journal: not-read",
+            "needs no duplicate\npermission question",
+            "Never clear errors",
+        ):
+            self.assertIn(marker, proof)
+
     def test_implementation_signoff_has_shared_functional_and_visual_coverage(self) -> None:
         proof = REFS[PACKS[0]]
         for marker in (
