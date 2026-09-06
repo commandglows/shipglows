@@ -71,9 +71,7 @@ for regression in \
   devserver-stop-behavior.ps1; do
   powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"
 done
-for regression in devserver-start-detach.ps1 devserver-detached-streams.ps1 devserver-flutter-stop-budget.ps1; do
-  pwsh -NoLogo -NoProfile -File "$ROOT/tests/windows/$regression"
-done
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command '$ErrorActionPreference="Stop"; Import-Module ./cli/windows/ShipGlows.PowerShellRuntime.psm1 -Force -DisableNameChecking; $managed=Ensure-SgPowerShellRuntime; foreach($regression in @("devserver-start-detach.ps1","devserver-detached-streams.ps1","devserver-flutter-stop-budget.ps1")){ & $managed -NoLogo -NoProfile -File "./tests/windows/$regression"; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE} }'
 bash "$ROOT/tests/install/playwright-mcp-contract.sh"
 pwsh -NoLogo -NoProfile -File "$ROOT/tests/windows/flutter-state-atomic.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/flutter-configuration.ps1"
