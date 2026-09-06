@@ -8,7 +8,7 @@ Primary artifact type: `entrypoint-router`.
 
 ## Canonical Paths
 
-Before paths, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`.
+Before resolving owned paths, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`.
 Shared references: `$SHIPGLOWS_ROOT/skills/references/`;
 never substitute project shadows or memory.
 
@@ -20,8 +20,7 @@ under one public owner here. If sufficiency, authority, freshness, conflict,
 compaction or handoff may change routing, load `context-quality-contract.md`;
 retain its qualified Context Capsule, never memory as truth.
 
-Offer once to privately remember verified reusable pointers that would avoid future
-research, unless known saved or declined. Do not inspect private stores or presume
+Offer once to privately remember verified reusable pointers to avoid future research, unless known saved or declined. Do not inspect private stores or presume
 absence; route to `sg-private` only after interest.
 
 ## Chantier Tracking
@@ -33,7 +32,7 @@ and lifecycle state. `(local)` if needed; bounded execution is excepted, never a
 ## Report Modes
 
 Before final reporting load `reporting-contract.md`: concise active-language
-`report=user`, also when blocked; agent detail requires explicit request.
+`report=user`, even blocked; agent detail requires explicit request.
 Continue safely runnable authorized work instead of a command.
 
 ## Explicit Invocation Preflight
