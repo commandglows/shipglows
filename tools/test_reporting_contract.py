@@ -443,11 +443,11 @@ class ReportingContractTests(unittest.TestCase):
     def test_chantier_and_context_emoji_vocabulary(self) -> None:
         text = reporting_corpus()
         for rule in (
-            "`🧱` for the normal chantier header",
-            "`🚧` only when the run is blocked",
-            "`📂` for a dossier or scope",
-            "`🔨` for active implementation or repair",
-            "`📌` for a priority, decision, or next action",
+            "🧱 CHANTIER (<local|spec>) : <name>",
+            "Use `🚧 CHANTIER` only when genuinely blocked",
+            "`📂` denotes dossier/scope",
+            "`🔨` implementation/repair",
+            "`📌` priority/decision/next action",
         ):
             self.assertIn(" ".join(rule.split()), " ".join(text.split()))
         self.assertNotIn("🏗️ CHANTIER", text)
@@ -474,7 +474,7 @@ class ReportingContractTests(unittest.TestCase):
     def test_user_mode_route_does_not_expose_internal_owners(self) -> None:
         text = reporting_corpus()
         self.assertIn("🧭 Suite : <résultat ou décision à obtenir>", text)
-        self.assertIn("Never name a skill, command, lifecycle phase", text)
+        self.assertIn("that line never names a skill, command, lifecycle phase", text)
         timestamp = FINAL_TIMESTAMP.read_text(encoding="utf-8")
         self.assertIn("🧭 Suite : <outcome or decision>", timestamp)
         self.assertNotIn("🧭 Route: <owner>", timestamp)
