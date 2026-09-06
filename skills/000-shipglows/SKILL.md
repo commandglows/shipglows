@@ -28,7 +28,7 @@ absence; route to `sg-private` only after interest.
 
 Trace category: `non-applicable`. Process role: `helper`.
 Owner alone writes specs, bug/release scopes, Skill Run History, deployments
-and lifecycle state. Use `(local)` if needed; bounded execution below grants no chantier.
+and lifecycle state. `(local)` if needed; bounded execution is excepted, never a chantier.
 
 ## Report Modes
 
