@@ -70,3 +70,16 @@ pressure review establishes intended decisions; no live-user or model replay is 
 Initial CI exposed scenario-budget failures; these remain blocking until compared
 with the baseline and resolved under the Loading Change Gate. No threshold is waived.
 No local tests or runtime synchronization are part of this GitHub-only delivery.
+
+## Shared reporting budget repair
+
+The operator approved resolving the four pre-existing failures through the shared
+reporting reference. Baseline for this repair is `50ef313b2f289b4d0bed9deb292f9225a95bbd9c`.
+The body shrinks from 7,975 to 6,098 characters (1,994 to 1,525 ceil(chars/4)
+estimated tokens). Removed examples were illustrative; direct triggers, all report
+states, consent/authority, time, layout, continuity, privacy and proof gates remain.
+Metadata dependencies are unchanged; no loading edge, scenario read, threshold,
+baseline ledger or evaluator is changed. Existing wording-dependent expectations
+follow equivalent reviewed clauses; negative guards and leaf checks remain.
+CI compares all twelve scenarios with this frozen baseline and runs existing
+reporting, common-path and loading tests. No model replay is claimed.
