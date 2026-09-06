@@ -45,7 +45,7 @@ Scenario-first review, fixed before implementation:
 ## Loading review
 
 Baseline: ab6784bfcd211894137b7e7e4269ea40762f5abc. Estimator: ceil(text characters / 4), not provider
-billing. Core body 1992 -> 2047 estimated tokens; memory leaf
+billing. Core full file 1992 -> 1991 estimated tokens; memory leaf
 965 -> 1061. All other files on compared paths remain unchanged.
 
 Before offer / refusal checkpoint:
@@ -59,8 +59,8 @@ its canonical paths, roots, intent and reporting requirements. No new edge or
 sibling cascade; the existing selected leaf gains bounded guidance when the
 record decision needs it. Existing safety and proof loads remain mandatory.
 
-The common-path increase is only the compact predicate, justified by the observed
-failure to offer durable reuse; detailed guidance incurs cost only in memory mode.
+Nearby core prose is compacted without removing decisions or guards; the predicate fixes the observed
+failure to offer durable reuse without increasing common-path cost. Guidance stays in memory mode.
 The unchanged scenario declarations are evaluated in CI with their existing
 thresholds; no ceiling or baseline is raised. The offer checkpoint above covers the
 previously undeclared path; it is a reviewed ledger, not a new activation profile.

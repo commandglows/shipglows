@@ -8,17 +8,17 @@ Primary artifact type: `entrypoint-router`.
 
 ## Canonical Paths
 
-Before resolving owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`.
-All shared references below resolve under `$SHIPGLOWS_ROOT/skills/references/`;
+Before paths, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`.
+Shared references: `$SHIPGLOWS_ROOT/skills/references/`;
 never substitute project shadows or memory.
 
 ## Intent-to-Outcome Ownership
 
-For non-trivial routing load `intent-to-outcome-autonomy.md`; resolve
-`project -> business/brand/product -> outcome -> surface -> work item` from evidence.
-Continue under one public owner in this conversation. When sufficiency, authority,
-freshness, conflict, compaction or handoff can change the route, load
-`context-quality-contract.md`; preserve its qualified Context Capsule, never memory as truth.
+Non-trivial routing loads `intent-to-outcome-autonomy.md`; resolve
+`project -> business/brand/product -> outcome -> surface -> work item` from evidence
+under one public owner here. If sufficiency, authority, freshness, conflict,
+compaction or handoff may change routing, load `context-quality-contract.md`;
+retain its qualified Context Capsule, never memory as truth.
 
 Offer once to privately remember verified reusable pointers that would avoid future
 research, unless known saved or declined. Do not inspect private stores or presume
@@ -27,23 +27,22 @@ absence; route to `sg-private` only after interest.
 ## Chantier Tracking
 
 Trace category: `non-applicable`. Process role: `helper`.
-The owner writes lifecycle state; this router never writes specs, bug/release scopes,
-Skill Run History or deployments. Use `(local)` when needed. Authorized bounded
-execution below is the exception, not permission for a chantier.
+Owner alone writes specs, bug/release scopes, Skill Run History, deployments
+and lifecycle state. Use `(local)` if needed; bounded execution below grants no chantier.
 
 ## Report Modes
 
-Load `reporting-contract.md` before final reporting. Default `report=user`, concise
-and in the active language; blocked routing stays user mode. Agent detail requires
-explicit request. Continue safely runnable authorized work instead of returning a command.
+Before final reporting load `reporting-contract.md`: concise active-language
+`report=user`, also when blocked; agent detail requires explicit request.
+Continue safely runnable authorized work instead of a command.
 
 ## Explicit Invocation Preflight
 
-Explicit invocations, including `$shipglows`, load `skill-invocation-preflight.md`
-and run its checker: valid stays silent; invalid/ambiguous activates no substitute.
-First-token expert aliases load `expert-mode-aliases.md` before natural-language
-routing; preserve public owner -> owner mode -> internal engine. Numeric legacy
-commands resolve through `skill-code-index.md`. Aliases are never shell arguments.
+Explicit invocations (including `$shipglows`) load `skill-invocation-preflight.md`
+and run its checker: valid silent; invalid/ambiguous activates no substitute.
+First-token expert aliases load `expert-mode-aliases.md` before natural routing:
+public owner -> owner mode -> internal engine. Numeric legacy commands use
+`skill-code-index.md`. Never pass aliases to shells.
 
 ## Bounded Direct-Execution Gate
 
