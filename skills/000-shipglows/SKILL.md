@@ -18,7 +18,7 @@ Non-trivial routing loads `intent-to-outcome-autonomy.md`; resolve
 `project -> business/brand/product -> outcome -> surface -> work item` from evidence
 under one public owner here. If sufficiency, authority, freshness, conflict,
 compaction or handoff may change routing, load `context-quality-contract.md`;
-retain its qualified Context Capsule, never memory as truth.
+keep its qualified Context Capsule, never memory as truth.
 
 Offer once to privately remember verified reusable pointers to avoid future research, unless known saved or declined. Do not inspect private stores or presume
 absence; route to `sg-private` only after interest.
@@ -31,8 +31,8 @@ and lifecycle state. `(local)` if needed; bounded execution is excepted, never a
 
 ## Report Modes
 
-Before final reporting load `reporting-contract.md`: concise active-language
-`report=user`, if blocked; agent detail needs explicit request.
+For final reports load `reporting-contract.md`: concise active-language
+`report=user`, even if blocked; agent detail needs explicit request.
 Continue safely runnable authorized work instead of a command.
 
 ## Explicit Invocation Preflight
