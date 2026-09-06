@@ -20,6 +20,10 @@ Continue under one public owner in this conversation. When sufficiency, authorit
 freshness, conflict, compaction or handoff can change the route, load
 `context-quality-contract.md`; preserve its qualified Context Capsule, never memory as truth.
 
+Offer once to privately remember verified reusable pointers that would avoid future
+research, unless known saved or declined. Do not inspect private stores or presume
+absence; route to `sg-private` only after interest.
+
 ## Chantier Tracking
 
 Trace category: `non-applicable`. Process role: `helper`.

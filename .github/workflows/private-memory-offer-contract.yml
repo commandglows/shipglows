@@ -1,0 +1,36 @@
+name: Private memory offer contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'skills/000-shipglows/SKILL.md'
+      - 'skills/sg-private/**'
+      - 'skills/603-sg-private/**'
+      - 'tools/test_private_memory_offer_contract.py'
+      - '.github/workflows/private-memory-offer-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'skills/000-shipglows/SKILL.md'
+      - 'skills/sg-private/**'
+      - 'skills/603-sg-private/**'
+      - 'tools/test_private_memory_offer_contract.py'
+      - '.github/workflows/private-memory-offer-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Check private offer protections
+        run: python3 -m unittest discover -s tools -p test_private_memory_offer_contract.py -v
+      - name: Check existing scenario budgets and loading protections
+        run: |
+          python3 tools/skill_activation_budget.py --scenarios
+          python3 -m unittest discover -s tools -p test_progressive_skill_activation_contract.py -v
