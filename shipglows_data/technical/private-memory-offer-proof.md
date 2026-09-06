@@ -67,19 +67,39 @@ previously undeclared path; it is a reviewed ledger, not a new activation profil
 
 CI runs existing loading/scenario checks and a frozen-baseline diagnostic. Manual
 pressure review establishes intended decisions; no live-user or model replay is claimed.
-Initial CI exposed scenario-budget failures; these remain blocking until compared
-with the baseline and resolved under the Loading Change Gate. No threshold is waived.
+Initial CI exposed scenario-budget failures; these blocked merging until compared
+with the baseline and resolved by the approved repair below. No threshold is waived.
 No local tests or runtime synchronization are part of this GitHub-only delivery.
 
 ## Shared reporting budget repair
 
 The operator approved resolving the four pre-existing failures through the shared
 reporting reference. Baseline for this repair is `50ef313b2f289b4d0bed9deb292f9225a95bbd9c`.
-The body shrinks from 7,975 to 6,098 characters (1,994 to 1,525 ceil(chars/4)
-estimated tokens). Removed examples were illustrative; direct triggers, all report
+The full reference shrinks from 9,908 to 8,040 Unicode characters (2,477 to 2,010
+estimated tokens using the evaluator's ceil(chars/4)). Removed examples were illustrative; direct triggers, all report
 states, consent/authority, time, layout, continuity, privacy and proof gates remain.
 Metadata dependencies are unchanged; no loading edge, scenario read, threshold,
 baseline ledger or evaluator is changed. Existing wording-dependent expectations
 follow equivalent reviewed clauses; negative guards and leaf checks remain.
 CI compares all twelve scenarios with this frozen baseline and runs existing
 reporting, common-path and loading tests. No model replay is claimed.
+
+Final reporting/code proof on 7724038e: 46 reporting/common-path tests and five
+loading tests passed in GitHub Actions run 34040008021. All twelve scenarios
+are structurally valid and within unchanged budgets. The evidence-only receipt
+update is tested again on its own final head by the same workflow.
+
+| Scenario | Frozen 50ef313b | After repair | Depth (unchanged) |
+| --- | ---: | ---: | ---: |
+| common-bug-proof-selection | 24016 | 23549 | 3 |
+| common-docs-direct | 4424 | 4424 | 1 |
+| common-feature-approval | 34876 | 34409 | 1 |
+| common-page-comprehension | 19895 | 19428 | 1 |
+| common-resume-missing | 19498 | 19031 | 1 |
+| common-resume-ready | 12514 | 12514 | 1 |
+| common-verify-direct | 4424 | 4424 | 1 |
+| core-help | 11226 | 10759 | 2 |
+| core-skill-audit | 20653 | 20186 | 2 |
+| engineering-deps-witness | 23112 | 22645 | 2 |
+| quality-continue-proof-complete | 19767 | 19300 | 2 |
+| quality-core-exact-correction | 34982 | 34515 | 2 |
