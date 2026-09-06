@@ -32,6 +32,9 @@ function New-SgCliProcess([string]$Action,[bool]$RedirectOutput=$true) {
     $info.EnvironmentVariables['SHIPGLOWS_WINDOWS_WORKSPACE']=(Join-Path $fixture 'workspace')
     $info.EnvironmentVariables['LOCALAPPDATA']=$isolatedLocalAppData
     $info.EnvironmentVariables['SHIPGLOWS_MANAGED_PWSH']=$hostPowerShell
+    # This fixture only uses a local dependency; network audit/update traffic is unrelated to detachment.
+    $info.EnvironmentVariables['npm_config_audit']='false'
+    $info.EnvironmentVariables['npm_config_update_notifier']='false'
     $process=New-Object Diagnostics.Process
     $process.StartInfo=$info
     [void]$process.Start()
@@ -40,7 +43,7 @@ function New-SgCliProcess([string]$Action,[bool]$RedirectOutput=$true) {
 
 function Read-SgSharedBytes([string]$Path){
     $stream=New-Object IO.FileStream($Path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite)
-    try{$memory=New-Object IO.MemoryStream;$stream.CopyTo($memory);return $memory.ToArray()}finally{$stream.Dispose();if($memory){$memory.Dispose()}}
+    try{$memory=New-Object IO.MemoryStream;$stream.CopyTo($memory);return ,$memory.ToArray()}finally{$stream.Dispose();if($memory){$memory.Dispose()}}
 }
 
 try {
@@ -56,6 +59,7 @@ const port = Number(index >= 0 ? process.argv[index + 1] : process.env.PORT);
 fs.writeFileSync('parent.pid', String(process.pid));
 const child = spawn(process.execPath, ['child-server.js', String(port)], { detached: true, stdio: 'ignore', windowsHide: true });
 child.unref();
+console.log('sg-detach-fixture-stdout-marker');
 console.error('stderr-readable-marker');
 '@
     Set-Content -LiteralPath (Join-Path $surface 'child-server.js') -Encoding UTF8 -Value @'
@@ -75,7 +79,9 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
     $wmiReturnSeconds=$null
     $childLogSeconds=$null
     $readySeconds=$null
-    $readyDeadline=(Get-Date).AddSeconds(45)
+    # Setup includes npm ci. Match the manager's readiness budget; the separate
+    # five-second return/stream-close assertions below still prove detachment.
+    $readyDeadline=(Get-Date).AddSeconds(90)
     do {
         if(Test-Path -LiteralPath $registryPath -PathType Leaf){try{$entry=@((Get-Content -LiteralPath $registryPath -Raw|ConvertFrom-Json).projects)|Select-Object -First 1}catch{}}
         if($entry-and[int]$entry.pid-gt0-and$null-eq$wmiReturnSeconds){$wmiReturnSeconds=$clock.Elapsed.TotalSeconds}
@@ -118,7 +124,7 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
     $stdoutBytes=Read-SgSharedBytes ([string]$entry.logPath);$stderrBytes=Read-SgSharedBytes ([string]$entry.errorLogPath)
     if($stdoutBytes-contains[byte]0-or$stderrBytes-contains[byte]0){throw "Detached logs contain UTF-16 NUL bytes (wmi=${wmiReturnSeconds}s child=${childLogSeconds}s ready=${readySeconds}s)."}
     $stdoutText=[Text.Encoding]::UTF8.GetString($stdoutBytes);$stderrText=[Text.Encoding]::UTF8.GetString($stderrBytes)
-    if($stdoutText-notmatch'sg-detach-fixture'-or$stderrText-notmatch'stderr-readable-marker'){throw 'Detached stdout/stderr logs are not readable as UTF-8.'}
+    if($stdoutText-notmatch'sg-detach-fixture'-or$stderrText-notmatch'stderr-readable-marker'){throw "Detached stdout/stderr logs are not readable as UTF-8 (stdoutBytes=$($stdoutBytes.Length), stderrBytes=$($stderrBytes.Length))."}
 
     Import-Module $modulePath -Force -DisableNameChecking
     $module=Get-Module ShipGlows.DevServer
@@ -166,6 +172,9 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
     Remove-Module ShipGlows.DevServer -Force
     Write-Host ("Windows DevServer detached npm-to-Node source CLI: OK wmi={0:N2}s child={1:N2}s ready={2:N2}s" -f $wmiReturnSeconds,$childLogSeconds,$readySeconds)
 } finally {
+    # Stop the initiating CLI before cleanup so a timed-out setup cannot create
+    # a new detached process after the fixture's stop command has returned.
+    if($startProcess-and-not$startProcess.HasExited){$startProcess.Kill();[void]$startProcess.WaitForExit(5000)}
     try {
         if($port-gt0-and(Test-Path -LiteralPath $surface -PathType Container)){
             $stopProcess=New-SgCliProcess 'stop' $false
@@ -173,7 +182,6 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
             $stopProcess.Dispose()
         }
     } catch {}
-    if($startProcess-and-not$startProcess.HasExited){$startProcess.Kill();[void]$startProcess.WaitForExit(5000)}
     if($startProcess){$startProcess.Dispose()}
     $env:SHIPGLOWS_MANAGED_PWSH=$previousManagedPowerShell
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue
