@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.3.1"
 project: ShipGlows
 created: "2026-08-11"
 created_at: "2026-08-11 17:29:25 UTC"
-updated: "2026-08-11"
-updated_at: "2026-08-11 18:55:34 UTC"
+updated: "2026-09-06"
+updated_at: "2026-09-06 18:22:11 UTC"
 status: ready
 source_skill: sg-docs
 source_model: "GPT-5 Codex"
@@ -274,6 +274,11 @@ Stop implementation and request an operator decision if:
 
 ## Current Chantier Flow
 
+- 2026-09-06 central commerce tranche: locally verified in CommandGlows worktree `codex/unified-commerce-entitlements`, based on revalidated `9016d47`; one processor, completed checkout/PaymentIntent binding, strict environment isolation, immutable receipts and internal audited recovery.
+- Current authority: the operator requires preserving historical data and concurrent work. The earlier no-user/clean-reset assumption does not authorize deletion, backfill or any provider-data operation.
+- Proof: baseline 20 tests; final tranche 151 tests across 18 commerce/bridge suites, Convex TypeScript and Astro check. Canonical implementation/runbook: CommandGlows `shipglows_data/technical/payment-activation-entitlements.md`.
+- Remaining suite scope: transverse identity/recovery, AppSumo, CommunityGlows Windows, mirrors and portfolio adapters. No hosted/provider/native proof is implied. Deployment and real provider data were explicitly excluded for this tranche; delivery remains local.
+
 - sg-docs: canonical decision chain reconciled and specification ready
 - implementation batch A: common 30-day/three-cycle trial authority and fail-closed clients implemented locally
 - implementation batch B: Stripe-only commerce, CommunityGlows and Formation offers, signed checkout handoff, legacy provider runtime removal, and non-Stripe rejection implemented locally
@@ -290,3 +295,4 @@ Stop implementation and request an operator decision if:
 | 2026-08-11 | 001-sg-build / sg-development | GPT-5 Codex | Implemented batch B: Stripe-only provider types/registry/checkout, CommunityGlows and Formation Stripe Price-ID placeholders, Clerk-backed Formation/public purchase start, product/environment-bound signed handoff for every offer, central Stripe webhook coverage, Convex non-Stripe rejection, removal of active Lemon Squeezy/Polar routes/adapters/tests/dependency, and directly coupled docs. | implemented | Complete CommunityGlows client batch, then run the final cross-repo acceptance matrix; hosted/provider/account/device proof remains deferred. |
 | 2026-08-11 | 001-sg-build / sg-development + sg-docs | GPT-5 Codex | Implemented batch C in CommunityGlows: server-propagated trial counters and explicit exhaustion, authenticated restart, random installation ID with client-side pseudonymized signal, fail-closed app gate, restart/purchase UI, server-held checkout handoff with Stripe URL-only response, authenticated public purchase deep link, local legacy-provider schema cleanup, tests, and active documentation synchronization. | implemented | Configure approved Stripe Price IDs and run hosted Stripe/Convex plus Windows/Android proof in a later authorized chantier. |
 | 2026-08-11 | sg-engineering + sg-docs | GPT-5 Codex | Closed the five final-review findings: generic eight-product trial entrypoint and Formation expiry guard; one-time/idempotent Stripe handoff authority; POST-only token transport; server-keyed CommunityGlows signal pseudonymization; active IDs, branding and CSP cleanup; focused and full local proof. | implemented | Keep hosted Stripe/Convex, provider-account and device proof deferred until separately authorized. |
+| 2026-09-06 18:22:11 UTC | sg-development | GPT-6 | Revalidated 9016d47, unified central and CommunityGlows commerce processors, bound completed checkout to signed PaymentIntent, hardened environment and historical-reference isolation, added immutable receipts and bounded internal pending-review recovery. Preserved historical records and concurrent work; updated the CommandGlows runbook and tracker. | locally verified | Continue the remaining suite batches separately; no deployment or real provider data authorized in this tranche. |
