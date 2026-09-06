@@ -65,6 +65,8 @@ for regression in \
   devserver-project-catalog.ps1 \
   github-clone-filter.ps1 \
   devserver-start-detach.ps1 \
+  devserver-detached-streams.ps1 \
+  devserver-flutter-stop-budget.ps1 \
   devserver-start-state.ps1 \
   devserver-stop-behavior.ps1; do
   powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"
