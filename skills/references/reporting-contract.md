@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.19.0"
+artifact_version: "2.20.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-09-05"
+updated: "2026-09-06"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -56,126 +56,109 @@ next_step: none
 
 # Reporting Contract
 
-## Purpose And Direct Branches
+## Direct Branches
 
-Apply this contract before every final ShipGlows report. Select all applicable
-rows directly here; a leaf never discovers or loads another reporting leaf.
-Missing required references block the affected report; never silently omit a gate.
-The structured dependencies above validate existence/version/status, not eager reads.
+Before every final ShipGlows report, select applicable branches directly below.
+Leaves never load one another; missing required references block the affected
+report. Metadata dependencies validate existence/version/status, not eager reads.
+All references resolve under `$SHIPGLOWS_ROOT/skills/references/`.
 
-| Decision now | Required direct reference under `$SHIPGLOWS_ROOT/skills/references/` |
+| Decision now | Required reference |
 | --- | --- |
-| Approved substantive chantier is actually starting | `reporting-start.md` |
+| Approved substantive chantier actually starts | `reporting-start.md` |
 | Explicit `report=agent`, `handoff`, `verbose`, or `full-report` | `reporting-agent-handoff.md` |
 | Blocked, partial, risky, security-sensitive, audit, or unfinished user result | `reporting-blocked-and-audit.md` |
-| Unfinished user result needs operator choices: missing decision, authority or requested steering | `strategic-choice-contract.md` |
+| Unfinished user result needs operator choices: decision, authority or requested steering | `strategic-choice-contract.md` |
 | Claim closed, complete, done, resolved, or shipped | `reporting-closure.md`, `documentation-reflection-gate.md`, `editorial-reflection-gate.md` |
 | Agent handoff lacks a qualified Context Capsule | `context-quality-contract.md` |
-| No concrete continuation in the conversation or pending proof/delivery | `next-outcome-selection.md` |
-| Context degradation may justify restart, or handoff starts a new conversation | `conversation-continuity-contract.md` |
-| Maintenance/testing of reporting behavior | `reporting-pressure-scenarios.md` and only the exercised branches |
-| Maintenance/testing of timestamp behavior | `final-report-timestamp.md` |
+| Neither conversation nor pending proof/delivery establishes a concrete continuation | `next-outcome-selection.md` |
+| Degraded context may justify restart, or handoff starts a conversation | `conversation-continuity-contract.md` |
+| Maintain/test reporting behavior | `reporting-pressure-scenarios.md` plus exercised branches only |
+| Maintain/test timestamps | `final-report-timestamp.md` |
 
-In `report=agent`, load only agent-handoff for report detail: it includes audit
-and risk detail. Start, closure reflections and continuity are independent gates,
-not waived by report mode. Branches never chain. The default successful
-`report=user` needs no detail branch unless it claims closure.
+Agent mode loads only agent-handoff for detail, including audit/risk; start,
+closure reflections and continuity remain independent gates. Successful default
+user mode needs no detail branch unless claiming closure.
 
-## Report Modes
+## Modes And Header
 
-Default to `report=user`: outcome first, current-run proof, material limits, then
-one genuine operator action. Use the active language, retaining precise machine labels. Do not narrate routine
-tools, internal owners or lifecycle stages. Agent detail requires explicit
-operator/orchestrator request; never infer it from caller identity or blockers.
+Default `report=user`: outcome, current-run proof, material limits, then one
+genuine operator action. Use the active language and precise machine labels;
+omit routine tools, internal owners and lifecycle narration. Agent detail requires
+explicit operator/orchestrator request, never caller identity or blockers.
 
-## User Mode
-
-Every final report, including agent mode, uses one chantier header followed by
-the current Europe/Paris verdict. Start every user report with exactly:
+Every final report, including agent mode, begins with one chantier header and
+current Europe/Paris verdict; user reports start exactly:
 
 ```text
 🧱 CHANTIER (<local|spec>) : <name>
 🎯 VERDICT (HH:mm) : <verdict or status>
 ```
 
-Use `🚧 CHANTIER` only for genuinely blocked work; `(spec)` only for exactly one
-owning spec, otherwise `(local)`. Immediately before final reporting resolve the
-current clock in Europe/Paris; never reuse UTC or a previous time. Display HH:mm
-only, preserve UTC for machine ledgers. No trailing or duplicate chantier header.
-After a numbered decision end with the options followed by
-`Réponds avec le numéro, ou précise une autre option.`; append no second verdict,
-timestamp or reminder.
+Use `🚧 CHANTIER` only when genuinely blocked; `(spec)` only with exactly one
+owning spec, otherwise `(local)`. Resolve the current Europe/Paris clock
+immediately before final reporting: display HH:mm, never reuse UTC or an earlier
+time; machine ledgers retain UTC. No trailing/duplicate chantier header.
 
-Do not include a modified-files section in `report=user`. Omit file names, paths,
-counts, and clickable technical file links unless the operator must open, edit,
-or provide the exact artifact to proceed or explicitly requests detailed evidence.
-Never dump matrices, phase ledgers, bulk logs or internal commands in user mode.
+## Compact User Layout
 
-### Universal compact layout
+For every user-facing report state, keep adjacent header/verdict lines, then
+one blank line before the body. Each applicable labelled row keeps icon,
+translated label, optional status and content on one line; exactly one blank
+line separates rows. Prose labels take a colon (`✨ OBJECTIF :`,
+`✨ RÉSULTAT :`, `🔨 PROGRESSION :`); status rows need none
+(`🧪 PREUVES ✅`, `⚠️ LIMITES`, `🧠 CONTEXTE ✅`). Separate compact items
+with ` · `. Omit irrelevant rows, never those mandatory for the active state.
 
-After the adjacent chantier and verdict header lines, leave one blank line before the substantive response. Every user-facing report state—start, progress, partial, blocked, audit, closure, delivery, persistence, limits, context, continuation, and decision framing—uses compact labelled rows: keep the icon, translated label, optional status marker, and content together on one line, then insert exactly one blank line before the next labelled row. Use a colon after prose labels such as `✨ OBJECTIF :`, `✨ RÉSULTAT :`, or `🔨 PROGRESSION :`; status-bearing rows such as `🧪 PREUVES ✅`, `⚠️ LIMITES`, and `🧠 CONTEXTE ✅` need no colon. Separate compact items inside a row with ` · `.
+Keep numbered choices contiguous: one blank line before, none between options,
+then immediately `Réponds avec le numéro, ou précise une autre option.`
+End there: no second verdict, timestamp or reminder. Agent/handoff/verbose/
+full-report output instead uses `reporting-agent-handoff.md` operational layout.
 
-Omit rows that do not apply except those mandatory for the active report state. Keep a numbered choice list contiguous as one atomic decision block: leave one blank line before it, do not insert blank lines between its options, and keep its response instruction directly after the list. Explicit `report=agent`, handoff, verbose, and full-report outputs retain the operational structure defined by `reporting-agent-handoff.md` and are exempt from this visual layout.
+User mode has no modified-files section, matrices, phase ledgers, bulk logs or
+internal commands. Omit filenames, paths, counts and technical file links unless
+the operator must open/edit/provide that artifact to proceed or requests detailed
+evidence. Select only rows carrying current value for progress, partial, blocked
+and audit results.
 
-For ordinary user-facing progress, partial, blocked, or audit results, select only the rows that carry current value, for example:
+Use semantic icons consistently, at most one per labelled line except compact
+proof/delivery. Never use 🏗️, 🛠️ or ⚙️ as chantier markers.
+`📂` denotes dossier/scope, `🔨` implementation/repair, `📌` priority/decision/next action.
+When routing helps, put
+`🧭 Suite : <résultat ou décision à obtenir> — <raison courte>` below the verdict;
+that line never names a skill, command, lifecycle phase, delegated agent or owner.
 
-```text
-🔨 PROGRESSION : <completed outcome or current state>
+## Effort And Continuation
 
-🧪 PREUVES ✅ <current proof> · ⚠️ <proof gap when material>
+Format required evidence without new checks, research, docs or content solely
+for reporting. One meaningful proof suffices; placeholders are not quotas.
+Non-closure progress needs only outcome, proof, material limits and a genuine
+next decision.
 
-⚠️ LIMITES <concrete blocker, risk, or remaining gap>
+Every final user report needs `🧭 SUITE`: a missing action/proof or evidenced
+continuation, never omitted, `none`, “no action required” or an empty menu.
+Use the first sufficient evidence in this order: conversation outcome, pending
+proof/delivery, active chantier, P0 -> P1 -> P2 -> P3 tracker, overdue audit,
+grounded improvement. No broad reporting-only audit. Load detailed selection
+only if conversation and pending delivery do not establish the next outcome.
 
-🧠 CONTEXTE ✅ <continuity status and conversation guidance>
-
-🧭 SUITE ➡️ <next outcome, recovery action, or decision>
-```
-
-## Reporting Effort Ceiling
-
-A report formats required evidence; it never creates additional checks, research,
-docs or content solely for reporting. One meaningful proof suffices; example placeholders are not quotas.
-Keep each compact evidence line on one line with ` · ` separators. Non-closure
-progress needs only outcome, proof, material limits and a genuine next decision.
-
-## Mandatory Next Block And Objective Continuity
-
-Every final user report contains a `🧭 SUITE` block naming a missing action or proof
-or an evidenced continuation; never omit the block; never `none`, “no action required”,
-or an empty menu. Select the first applicable level: current conversation outcome,
-pending proof/delivery, active chantier, P0 -> P1 -> P2 -> P3 tracker, overdue audit,
-then grounded improvement. Stop at the first sufficient evidence; no broad audit
-solely for reporting. The detailed selection reference is required only when the
-conversation and pending delivery do not already establish the next outcome.
-
-Continue authorized safely agent-runnable work before final reporting. Selection
-never authorizes a new or materially expanded chantier. Keep the latest unresolved
-goal active until proven, explicitly changed/paused, or blocked by operator-owned
-authority, decision or inaccessible proof. Do not stop at an internal milestone.
-When context is degraded, stabilize and deliver before recommending restart; only
-the operator starts it. Length, compaction or a separate outcome alone is insufficient.
+Continue authorized safely agent-runnable work before final reporting, beyond
+internal milestones. Selection grants no new/materially expanded chantier.
+Keep the latest unresolved goal active until proven, explicitly changed/paused,
+or blocked by operator-owned authority/decision or inaccessible proof. With
+degraded context, stabilize and deliver before recommending restart; only the
+operator starts it. Length, compaction or a separate outcome alone is insufficient.
 
 ## Persistence And Claim Safety
 
-Distinguish local, remote Git and deployment by matching proof. A commit is not a
-push; a push is not a deployment. When ambiguity matters, show `📦 PERSISTANCE`
-with evidence-backed Local / Git distant / Déployé states (for example `📦 PERSISTANCE ✅ Local · ✅ Git distant · ➖ Déployé`); omit this duplicate
-when `📦 LIVRAISON` already makes delivery clear. Never describe modified files as
-“tâche sans mutation”.
+Prove local work, remote Git and deployment separately: commit is not push,
+push is not deployment. Where ambiguity matters, show `📦 PERSISTANCE` with
+evidenced Local / Git distant / Déployé states; omit it if `📦 LIVRAISON` already
+clarifies delivery. Modified files never mean “tâche sans mutation”.
 
-Include only checks actually run; expose failed, skipped and partial evidence.
+Report only checks actually run; expose failed, skipped and partial evidence.
 Never expose secrets, cookies, tokens, private logs, personal data or sensitive
-screenshots. A local repair is not a universal prevention guarantee: stronger claims
-require an explicit invariant, matching scope and focused mechanical proof.
-Count directly dispatched successful agents only; show `Agents: <count> · <mode>`
-only when topology affects trust. Use semantic icons consistently, at most one per
-labelled line except compact proof/delivery; never use 🏗️, 🛠️ or ⚙️ as chantier markers.
-
-When routing is useful, put `🧭 Suite : <résultat ou décision à obtenir> — <raison courte>`
-below the verdict. Never name a skill, command, lifecycle phase, delegated agent,
-or internal owner in that user-facing line. Use `🧱` for the normal chantier header
-and `🚧` only when the run is blocked. Compact proof may read
-`✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236`; include only actual proof.
-
-Use `📂` for a dossier or scope, `🔨` for active implementation or repair,
-and `📌` for a priority, decision, or next action.
+screenshots. Local repair proves no universal prevention: stronger claims need
+an explicit invariant, matching scope and focused mechanical proof.
+Count only directly dispatched successful agents; show
+`Agents: <count> · <mode>` only when topology affects trust.

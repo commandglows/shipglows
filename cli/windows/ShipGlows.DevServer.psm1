@@ -1,5 +1,7 @@
 Set-StrictMode -Version Latest
 
+. (Join-Path $PSScriptRoot 'ShipGlows.FlutterConfiguration.ps1')
+
 $script:RegistryVersion = 1
 $script:DefaultPortStart = 3000
 $script:DefaultPortEnd = 3100
@@ -425,6 +427,8 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
         } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE_ID=([A-Za-z0-9._:-]{1,128})$') {
             $settings.FlutterDeviceId = $Matches[1]
         } elseif ($line -match '^SHIPGLOWS_DART_DEFINE_FILE=(.+)$') {
+            # A declared recipe replaces legacy per-checkout generated config.
+            if (Test-Path -LiteralPath (Join-Path $ProjectPath '.shipglows.flutter.json') -PathType Leaf) { continue }
             $relative = $Matches[1].Trim()
             if ([IO.Path]::IsPathRooted($relative)) { throw "SHIPGLOWS_DART_DEFINE_FILE in $file must be relative to the project." }
             $resolved = [IO.Path]::GetFullPath((Join-Path $ProjectPath $relative))
@@ -1597,7 +1601,7 @@ function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds 
     $progressDeadline=(Get-Date).AddSeconds([Math]::Max($TimeoutSeconds,$ActiveProgressTimeoutSeconds))
     $activeProgress=$false
     do {
-        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}};$currentProgress=[bool](($state.PSObject.Properties['progressActive']-and[bool]$state.progressActive)-or[string]$state.status-eq'building');$timing=Update-SgFlutterReadinessWindow $activeProgress $currentProgress $deadline $TimeoutSeconds;$deadline=$timing.Deadline;$activeProgress=$timing.ActiveProgress}catch{}}
+        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-SgBoundedFileTail $StatePath 262144|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}};$currentProgress=[bool](($state.PSObject.Properties['progressActive']-and[bool]$state.progressActive)-or[string]$state.status-eq'building');$timing=Update-SgFlutterReadinessWindow $activeProgress $currentProgress $deadline $TimeoutSeconds;$deadline=$timing.Deadline;$activeProgress=$timing.ActiveProgress}catch{}}
         if($ProcessEntry-and-not(Test-SgProcessIdentity $ProcessEntry)){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor exited during startup.';DaemonPid=0}}
         $now=Get-Date;if(((-not$activeProgress)-and$now-ge$deadline)-or($activeProgress-and$now-ge$progressDeadline)){break};Start-Sleep -Milliseconds 250
     }while($true)
@@ -1605,6 +1609,9 @@ function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds 
 }
 
 function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload','stop','open')][string]$Method,[int]$TimeoutSeconds=10) {
+    # The supervisor can spend 10 seconds awaiting app.stop before publishing
+    # its response. Do not enter forced cleanup while that request is pending.
+    if($Method -in @('stop','open')){$TimeoutSeconds=[Math]::Max($TimeoutSeconds,12)}
     if(-not $Entry.PSObject.Properties['flutterLaunchDirectory'] -or -not $Entry.PSObject.Properties['flutterTokenPath']){throw 'Flutter supervisor identity is unavailable.'}
     $launch=[IO.Path]::GetFullPath([string]$Entry.flutterLaunchDirectory);$tokenPath=[IO.Path]::GetFullPath([string]$Entry.flutterTokenPath)
     if(-not $tokenPath.StartsWith($launch.TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or -not(Test-Path -LiteralPath $tokenPath -PathType Leaf)){throw 'Flutter supervisor token identity is invalid.'};Assert-SgNoReparseTree $launch;if(-not(Test-SgOwnerOnlyPath $launch)-or-not(Test-SgOwnerOnlyPath $tokenPath)){throw 'Flutter supervisor IPC ACL is not owner-only.'}
@@ -1615,7 +1622,7 @@ function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload',
 }
 
 function Get-SgBoundedFileTail([string]$Path,[int]$MaxBytes=262144) {
-    $stream=[IO.File]::Open($Path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite);try{$count=[int][Math]::Min([int64][Math]::Max(0,$MaxBytes),$stream.Length);[void]$stream.Seek(-$count,[IO.SeekOrigin]::End);$buffer=New-Object byte[] $count;$read=0;while($read-lt$count){$n=$stream.Read($buffer,$read,$count-$read);if($n-le0){break};$read+=$n};[Text.Encoding]::UTF8.GetString($buffer,0,$read)}finally{$stream.Dispose()}
+    $share=[IO.FileShare]::ReadWrite-bor[IO.FileShare]::Delete;$stream=[IO.File]::Open($Path,[IO.FileMode]::Open,[IO.FileAccess]::Read,$share);try{$count=[int][Math]::Min([int64][Math]::Max(0,$MaxBytes),$stream.Length);[void]$stream.Seek(-$count,[IO.SeekOrigin]::End);$buffer=New-Object byte[] $count;$read=0;while($read-lt$count){$n=$stream.Read($buffer,$read,$count-$read);if($n-le0){break};$read+=$n};[Text.Encoding]::UTF8.GetString($buffer,0,$read)}finally{$stream.Dispose()}
 }
 
 function Copy-SgFlutterDiagnostics([object]$Entry,[string]$DurableOut,[string]$DurableErr) {
@@ -2010,7 +2017,7 @@ function Install-SgFlutterDevShortcut([object]$Entry, [string]$DesktopPath = '',
     return $path
 }
 
-function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup) {
+function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '') {
     $requestedPath = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Reconcile-SgRegistry $Config).projects | Where-Object { $_.path -eq $requestedPath }) | Select-Object -First 1
     if (-not $entry) {
@@ -2023,13 +2030,20 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     }
     if (-not $entry) { throw "No runnable surface could be registered for: $requestedPath" }
     if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $($entry.path)" }
-    if (Test-SgProcessIdentity $entry) { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
+    $alreadyRunning = Test-SgProcessIdentity $entry
+    if ($alreadyRunning -and [string]$entry.kind -ne 'flutter-web') { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
     $settings = Get-SgRuntimeSettings $entry.path
+    if ($FlutterDevice) {
+        if ([string]$entry.kind -ne 'flutter-web') { throw 'Flutter target selection requires a Flutter project.' }
+        $settings.FlutterDevice=$FlutterDevice
+        $settings.FlutterDeviceId=if($FlutterDevice -eq 'android'){$FlutterDeviceId}else{$FlutterDevice}
+    } elseif ($FlutterDeviceId) { throw 'FlutterDeviceId requires an explicit Android FlutterDevice.' }
     $resolvedFlutterDevice = [string]$settings.FlutterDevice
     if ([string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
         $flutterPath=Get-SgFlutterCommandPath
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
         $resolvedFlutterDevice=Resolve-SgFlutterAndroidDevice $flutterPath ([string]$settings.FlutterDeviceId)
+        $settings.FlutterDeviceId=$resolvedFlutterDevice
     }
     $configuredPort = $RequestedPort
     if ($configuredPort -le 0 -and $env:SHIPGLOWS_ENV_PORT) {
@@ -2040,6 +2054,26 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     if ($configuredPort -le 0) {
         $projectEnvironment = Get-SgProjectEnvironment $entry.path
         if ($projectEnvironment -and $projectEnvironment.Port -gt 0) { $configuredPort = [int]$projectEnvironment.Port }
+    }
+    $flutterConfiguration = $null
+    if ([string]$entry.kind -eq 'flutter-web') {
+        $configurationPort = if ($configuredPort -gt 0) { $configuredPort } else { [int]$entry.port }
+        if ($configuredPort -le 0 -and $settings.FlutterDevice -in @('chrome','web-server')) {
+            if (-not $alreadyRunning -or $configurationPort -le 0) { $configurationPort = Get-SgFreePort $Config 0 $entry.path }
+            $configuredPort = $configurationPort
+        }
+        $flutterConfiguration = Get-SgFlutterConfiguration $entry.path $settings $configurationPort
+        if ($alreadyRunning) {
+            if (Test-SgFlutterSessionConfiguration $entry $flutterConfiguration) {
+                Write-SgInfo "Already running with verified Flutter configuration: $($entry.name)"
+                return $entry
+            }
+            [void](Resolve-SgPowerShellExecutable)
+            if (-not (Get-SgFlutterCommandPath)) { throw 'Flutter SDK is unavailable; the existing session was preserved.' }
+            Write-SgInfo 'Flutter target or configuration changed; restarting the managed session.'
+            [void](Stop-SgProject $Config $entry.path)
+            if (Test-SgProcessIdentity $entry) { throw 'Cannot replace Flutter configuration while the previous session is still active.' }
+        }
     }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
@@ -2073,6 +2107,11 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $bytes=New-Object byte[] 32;[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes);$flutterToken=([BitConverter]::ToString($bytes)).Replace('-','').ToLowerInvariant()
         $flutterTokenPath=Join-Path $flutterLaunchDirectory 'token';[IO.File]::WriteAllText($flutterTokenPath,$flutterToken,(New-Object Text.UTF8Encoding($false)));Protect-SgOwnerOnlyPath $flutterTokenPath
         $flutterLaunchIdentity="ShipGlowsFlutter-$reservationToken"
+        if ($flutterConfiguration -and $flutterConfiguration.HasRecipe) {
+            $settings.DartDefineFile = Join-Path $flutterLaunchDirectory 'public-defines.json'
+            [IO.File]::WriteAllText($settings.DartDefineFile,($flutterConfiguration.Defines | ConvertTo-Json -Compress),(New-Object Text.UTF8Encoding($false)))
+            Protect-SgOwnerOnlyPath $settings.DartDefineFile
+        }
     }
     try {
         Invoke-SgDependencySetup $Config $launchPath $kind $setupLog | Out-Null
@@ -2084,6 +2123,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     $launchEnvironment = @{}
     $launchEnvironment['PORT'] = [string]$port
     if ($kind -eq 'flutter-web') { $launchEnvironment['SHIPGLOWS_SUPERVISOR_TOKEN'] = $flutterToken }
+    if ($flutterConfiguration) { foreach ($key in $flutterConfiguration.Environment.Keys) { $launchEnvironment[$key] = [string]$flutterConfiguration.Environment[$key] } }
     if ($kind -eq 'astro') { $launchEnvironment['ASTRO_DEV_BACKGROUND'] = '0' }
     try {
         Set-SgReservationState $Config $entry.path $reservationToken 'starting'
@@ -2097,7 +2137,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
     $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
-    if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force}
+    if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force;$entryData|Add-Member -NotePropertyName flutterConfigurationFingerprint -NotePropertyValue $flutterConfiguration.Fingerprint -Force}
     Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
     if (-not (Test-SgProcessIdentity $entryData)) {
         if($kind-eq'flutter-web'){
@@ -2111,7 +2151,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProject $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProject $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
@@ -2142,7 +2182,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
         $diagnosticFailure=Get-SgStartupFailure $err $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProject $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProject $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
     }
     if($kind-eq'browser-extension'){
         Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"

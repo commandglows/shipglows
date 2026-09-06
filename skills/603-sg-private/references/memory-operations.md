@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-24"
-updated: "2026-08-24"
+updated: "2026-09-06"
 status: active
 source_skill: 603-sg-private
 scope: private-memory-operations
@@ -32,6 +32,12 @@ next_step: "/103-sg-verify private memory public/private boundary"
 ## Intent Gate
 
 Persist only from explicit language such as remember, retain, keep, store, memorize, bookmark, retiens, garde, mémorise, enregistre, or ajoute à mes signets. A pasted path, URL, file, or page used for another task remains transient.
+
+For an accepted offer, prefill only the minimum verified non-secret pointer and
+metadata; show the exact private destination and effect, asking only for missing
+information. Interest in guidance is not write consent: obtain explicit approval
+covering that record before persistence, reusing a sufficient existing approval.
+A remembered pointer grants no authority over its target.
 
 ## Source Selection
 

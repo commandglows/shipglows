@@ -1,0 +1,55 @@
+name: Private memory offer contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'skills/000-shipglows/SKILL.md'
+      - 'skills/references/reporting-contract.md'
+      - 'tools/test_reporting_contract.py'
+      - 'tools/test_common_path_reporting_modes.py'
+      - 'tools/test_progressive_loading_*.py'
+      - 'shipglows_data/technical/private-memory-offer-proof.md'
+      - 'skills/sg-private/**'
+      - 'skills/603-sg-private/**'
+      - '.github/workflows/private-memory-offer-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'skills/000-shipglows/SKILL.md'
+      - 'skills/references/reporting-contract.md'
+      - 'tools/test_reporting_contract.py'
+      - 'tools/test_common_path_reporting_modes.py'
+      - 'tools/test_progressive_loading_*.py'
+      - 'shipglows_data/technical/private-memory-offer-proof.md'
+      - 'skills/sg-private/**'
+      - 'skills/603-sg-private/**'
+      - '.github/workflows/private-memory-offer-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Check existing loading protections
+        run: python3 -m unittest discover -s tools -p test_progressive_skill_activation_contract.py -v
+      - name: Check existing reporting and common-path contracts
+        run: |
+          python3 -m unittest tools.test_reporting_contract tools.test_common_path_reporting_modes tools.test_progressive_loading_common_paths tools.test_progressive_loading_pilot -v
+      - name: Diagnose frozen pre-change scenario budgets
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir "$RUNNER_TEMP/private-offer-baseline"
+          git archive 50ef313b2f289b4d0bed9deb292f9225a95bbd9c | tar -x -C "$RUNNER_TEMP/private-offer-baseline"
+          cd "$RUNNER_TEMP/private-offer-baseline"
+          python3 tools/skill_activation_budget.py --scenarios
+      - name: Enforce existing scenario budgets
+        if: always()
+        run: python3 tools/skill_activation_budget.py --scenarios

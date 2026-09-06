@@ -54,7 +54,7 @@ try {
     $archiveEnvironment = Join-Path $archiveSource 'cli\environment'
     $archiveLocal = Join-Path $archiveSource 'local'
     New-Item -ItemType Directory -Path $archiveWindows,(Join-Path $archiveEnvironment 'schemas'),$archiveLocal -Force | Out-Null
-    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
+    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
         Copy-Item -LiteralPath (Join-Path $root "cli\windows\$windowsFile") -Destination (Join-Path $archiveWindows $windowsFile)
     }
     Copy-Item -LiteralPath (Join-Path $root 'shipglows-version.json') -Destination (Join-Path $archiveSource 'shipglows-version.json')
@@ -71,7 +71,7 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 30) { throw "Installer extracted $($entries.Count) files instead of the closed set of 30." }
+    if ($entries.Count -ne 31) { throw "Installer extracted $($entries.Count) files instead of the closed set of 31." }
     if (-not ($entries -match 'ShipGlows\.DeveloperCorpus\.psm1$')) { throw 'Installer did not extract the developer corpus channel module.' }
     if (-not ($entries -match 'ShipGlows\.RuntimeStatus\.psm1$') -or -not ($entries -match 'shipglows-version\.json$')) { throw 'Installer did not extract the runtime-status module and version metadata.' }
     if (-not ($entries -match 'shipglows\.ps1$')) { throw 'Installer did not extract the ShipGlows command entrypoint.' }
