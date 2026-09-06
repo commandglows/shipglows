@@ -656,7 +656,9 @@ Chrome while preserving debug/hot-reload support. The advanced
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
 and stdout after the CLI exits. It records the last protocol event, Flutter exit
 code and exit reason, and registry reconciliation requires its `running` state
-instead of trusting a live wrapper alone. On Windows desktop, cleanup recognizes
+instead of trusting a live wrapper alone. State readers allow delete sharing,
+while atomic publication retries only transient Windows sharing violations for
+a bounded interval and propagates persistent or unrelated I/O failures. On Windows desktop, cleanup recognizes
 only the exact current-project Debug runner declared by `BINARY_NAME`; transient
 debug-connection failures receive one retry only after verified extinction.
 The ordinary attachment deadline remains bounded, while an explicit active

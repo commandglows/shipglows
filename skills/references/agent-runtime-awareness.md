@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.8.0"
+artifact_version: "3.9.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-30"
+updated: "2026-09-06"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -108,6 +108,10 @@ and must never be automated. Report the recorded Firebase state and exact next
 action without claiming a hosted device is callable until the current turn proves it.
 
 `FLUTTER-LIVE-DEVELOPMENT`: ordinary Flutter implementation and debugging use the managed `flutter run` session for the selected target. It is the normal development loop because it keeps logs and reload available. On Android, honor an explicitly configured connected device; otherwise reuse a ready Android emulator or start the provisioned `ShipGlows_API_36` AVD and wait for Flutter device readiness. Do not create a release build merely to expose an iterative correction. Use a standalone build only for an explicit release checkpoint or targeted proof that depends on packaging, native plugins or DLLs, installation, production-mode behavior, performance, or startup without Flutter attached.
+
+`FLUTTER-CONFIGURED-LAUNCH`: a short request such as "lance l'app Windows en mode dev" or "lance le build web" includes the project's declared authentication and service configuration. Resolve target and mode from durable evidence; use the project recipe and its declared Doppler scope without asking the operator to repeat technical setup. The Windows manager reads `.shipglows.flutter.json`, runs its allowlisted public configuration resolver through Doppler, transfers frontend parameters to Dart and native parameters to Gradle, and revalidates the configuration fingerprint before reusing a session. Missing configuration blocks before replacing a running session. Never replace the recipe with a bare Flutter command, a bypass or an older artifact. The project's build entrypoints must use the same resolver. See `cli/windows/ShipGlows.FlutterConfiguration.ps1` and `shipglows_data/technical/flutter-configured-launch.md` for the bounded recipe contract. Distinguish configuration checked, process running, interactive login verified and protected API access verified; compilation or `app.started` alone proves neither login nor product access.
+
+`APP-AUTH-LAUNCH-GUARD`: existing project authentication is mandatory for normal launches and tests; never disable it, add a bypass, or use a stale artifact to make startup pass. An auth-free local development run is permitted only when project evidence establishes that authentication is not yet implemented and the tested surface exposes no protected data; state that exception explicitly. Missing, broken or misconfigured existing auth blocks the normal launch and requires diagnosis, not an automatic exception. A login screen proves only that the screen renders. When end-to-end validation is requested, continue through login and protected access using authorized test context, or report the exact remaining proof and user-only step without claiming the application fully verified.
 
 `LATEST-BUILD-ACCESS`: after a successful Windows release or Android APK build,
 or after observing a successful trusted CI build with a named complete artifact,

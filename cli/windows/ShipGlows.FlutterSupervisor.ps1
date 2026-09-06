@@ -165,11 +165,31 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
     $State.UpdatedAtUtc=[datetime]::UtcNow.ToString('o')
 }
 
-function Write-SgFlutterJsonAtomic([string]$Path, [object]$Value) {
+function Test-SgFlutterSharingViolation([Exception]$Exception) {
+    for($current=$Exception;$current;$current=$current.InnerException){
+        if($current-is[IO.IOException]){$win32Code=$current.HResult-band 0xffff;return $win32Code-in@(32,33)}
+    }
+    return $false
+}
+
+function Write-SgFlutterJsonAtomic([string]$Path, [object]$Value, [int]$RetryTimeoutMilliseconds = 2000, [int]$RetryDelayMilliseconds = 25) {
     $json = $Value | ConvertTo-Json -Depth 8 -Compress
     $temp = "$Path.$([guid]::NewGuid().ToString('N')).tmp"
     $backup="$Path.$([guid]::NewGuid().ToString('N')).bak"
-    try{[IO.File]::WriteAllText($temp,$json,(New-Object Text.UTF8Encoding($false)));if([IO.File]::Exists($Path)){[IO.File]::Replace($temp,$Path,$backup)}else{try{[IO.File]::Move($temp,$Path)}catch [IO.IOException]{if(-not[IO.File]::Exists($Path)){throw};[IO.File]::Replace($temp,$Path,$backup)}};$temp=$null}finally{if($temp-and[IO.File]::Exists($temp)){[IO.File]::Delete($temp)};if([IO.File]::Exists($backup)){[IO.File]::Delete($backup)}}
+    try{
+        [IO.File]::WriteAllText($temp,$json,(New-Object Text.UTF8Encoding($false)))
+        $deadline=[datetime]::UtcNow.AddMilliseconds([Math]::Max(0,$RetryTimeoutMilliseconds))
+        while($true){
+            try{
+                if([IO.File]::Exists($Path)){[IO.File]::Replace($temp,$Path,$backup)}else{try{[IO.File]::Move($temp,$Path)}catch [IO.IOException]{if(-not[IO.File]::Exists($Path)){throw};[IO.File]::Replace($temp,$Path,$backup)}}
+                $temp=$null
+                break
+            }catch{
+                if(-not(Test-SgFlutterSharingViolation $_.Exception)-or[datetime]::UtcNow-ge$deadline){throw}
+                Start-Sleep -Milliseconds ([Math]::Max(1,$RetryDelayMilliseconds))
+            }
+        }
+    }finally{if($temp-and[IO.File]::Exists($temp)){[IO.File]::Delete($temp)};if([IO.File]::Exists($backup)){[IO.File]::Delete($backup)}}
 }
 
 function New-SgFlutterMachineRequestJson([int]$Id, [string]$Method, [string]$AppId) {

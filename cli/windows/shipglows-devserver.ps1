@@ -8,7 +8,9 @@ param(
     [string]$PlanDigest = '',
     [switch]$Offline,
     [string]$RepositoryUrl = '',
-    [int]$Port = 0
+    [int]$Port = 0,
+    [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
+    [string]$FlutterDeviceId = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -100,6 +102,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s status                           Show every project surface and state'
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
+    Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>]'
     Write-Host '  s reload -ProjectPath <path>      Hot reload an attached managed Flutter session'
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
     Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
@@ -149,7 +152,7 @@ Ensure-SgDirectory $config.LogDirectory
 
 function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible) {
     $results = New-Object 'System.Collections.Generic.List[object]'
-    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible | ForEach-Object {
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId | ForEach-Object {
         $item = $_
         if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
             [void]$results.Add($item)
