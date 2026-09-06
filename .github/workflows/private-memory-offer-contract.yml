@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'skills/000-shipglows/SKILL.md'
+      - 'shipglows_data/technical/private-memory-offer-proof.md'
       - 'skills/sg-private/**'
       - 'skills/603-sg-private/**'
       - '.github/workflows/private-memory-offer-contract.yml'
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'skills/000-shipglows/SKILL.md'
+      - 'shipglows_data/technical/private-memory-offer-proof.md'
       - 'skills/sg-private/**'
       - 'skills/603-sg-private/**'
       - '.github/workflows/private-memory-offer-contract.yml'

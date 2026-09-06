@@ -32,7 +32,7 @@ and lifecycle state. `(local)` if needed; bounded execution is excepted, never a
 ## Report Modes
 
 Before final reporting load `reporting-contract.md`: concise active-language
-`report=user`, even blocked; agent detail requires explicit request.
+`report=user`, if blocked; agent detail needs explicit request.
 Continue safely runnable authorized work instead of a command.
 
 ## Explicit Invocation Preflight

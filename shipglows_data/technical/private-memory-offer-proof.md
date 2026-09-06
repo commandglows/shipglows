@@ -45,7 +45,7 @@ Scenario-first review, fixed before implementation:
 ## Loading review
 
 Baseline: ab6784bfcd211894137b7e7e4269ea40762f5abc. Estimator: ceil(text characters / 4), not provider
-billing. Core full file 1992 -> 1992 estimated tokens; memory leaf
+billing. Core full file 1992 -> 1991 estimated tokens; memory leaf
 965 -> 1061. All other files on compared paths remain unchanged.
 
 Before offer / refusal checkpoint:
