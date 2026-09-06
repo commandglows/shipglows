@@ -2,6 +2,7 @@
 
 | Bug ID | Status | Severity | Title | Last tested | Next step |
 |--------|--------|----------|-------|-------------|-----------|
+| [BUG-2026-09-05-001](shipglows_data/workflow/bugs/BUG-2026-09-05-001.md) | fixed-pending-verify | medium | Flutter stop budget and detached log verification disagree with producers | 2026-09-05 | Independently verify live transitions; capture any recurrent null-expression location |
 | [BUG-2026-08-26-001](shipglows_data/workflow/bugs/BUG-2026-08-26-001.md) | fix-attempted | medium | Windows clone reports success when project preparation fails | 2026-08-26 | Independently verify the clone registration failure contract |
 | [BUG-2026-08-25-001](shipglows_data/workflow/bugs/BUG-2026-08-25-001.md) | closed | medium | OWASP contract test reads UTF-8 files with the Windows CP-1252 default | 2026-08-25 | none |
 | [BUG-2026-08-24-001](shipglows_data/workflow/bugs/BUG-2026-08-24-001.md) | closed | medium | Capture tool ignores the linked ShipGlows developer root on Windows | 2026-08-24 | none |
