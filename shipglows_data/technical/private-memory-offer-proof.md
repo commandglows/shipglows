@@ -16,7 +16,6 @@ docs_impact: yes
 linked_systems:
   - skills/000-shipglows/SKILL.md
   - skills/603-sg-private/references/memory-operations.md
-  - tools/test_private_memory_offer_contract.py
 depends_on: []
 supersedes: []
 evidence:
@@ -66,7 +65,8 @@ The unchanged scenario declarations are evaluated in CI with their existing
 thresholds; no ceiling or baseline is raised. The offer checkpoint above covers the
 previously undeclared path; it is a reviewed ledger, not a new activation profile.
 
-CI runs focused text guards and existing loading/scenario checks. Text guards detect
-named omissions; they do not prove arbitrary agent compliance. Manual pressure
-review establishes the intended decisions; no live-user or model replay is claimed.
+CI runs existing loading/scenario checks and a frozen-baseline diagnostic. Manual
+pressure review establishes intended decisions; no live-user or model replay is claimed.
+Initial CI exposed scenario-budget failures; these remain blocking until compared
+with the baseline and resolved under the Loading Change Gate. No threshold is waived.
 No local tests or runtime synchronization are part of this GitHub-only delivery.
