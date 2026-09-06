@@ -66,7 +66,12 @@ try {
     if(-not$startFunction-or$errors.Count){throw 'Could not isolate the one-shot start wrapper for behavioral proof.'}
     Invoke-Expression $startFunction.Extent.Text
     $config=[pscustomobject]@{}
-    function Start-SgProject { 'setup output';'launch output';[pscustomobject]@{status='running';lastError=$null;path='C:\workspace\test'} }
+    $FlutterDevice='android';$FlutterDeviceId='fixture-device'
+    function Start-SgProject {
+        param($Config,$Path,$RequestedPort,[switch]$FlutterVisible,$FlutterDevice,$FlutterDeviceId)
+        if($FlutterDevice-ne'android'-or$FlutterDeviceId-ne'fixture-device'){throw 'One-shot start lost explicit Flutter target/device selection.'}
+        'setup output';'launch output';[pscustomobject]@{status='running';lastError=$null;path='C:\workspace\test'}
+    }
     $capturedStart=@(Invoke-SgRequiredStart 'C:\workspace\test' 6>&1)
     $informationText=@($capturedStart|Where-Object{$_-is[Management.Automation.InformationRecord]}|ForEach-Object{[string]$_.MessageData})
     if('setup output'-notin$informationText-or'launch output'-notin$informationText){throw 'One-shot start did not preserve both pre-result messages on the Information stream.'}
