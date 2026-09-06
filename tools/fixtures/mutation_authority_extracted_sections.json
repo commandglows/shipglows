@@ -1,0 +1,22 @@
+{
+  "mutation-auto-authority": {
+    "sections": [
+      "Auto-session authority"
+    ],
+    "sha256": "2247653d53dc1718e48afbca0160b94b76976075cbaafe44db02f266d9b70af3"
+  },
+  "mutation-git-authority": {
+    "sections": [
+      "Git/GitHub stewardship authority",
+      "Cumulative milestone persistence authority",
+      "Mandatory final delivery authority"
+    ],
+    "sha256": "d916b73997dfc832e095258774270e2410b5c1699db7c07b515136f6a6261579"
+  },
+  "mutation-approval-pressure-scenarios": {
+    "sections": [
+      "Pressure scenarios"
+    ],
+    "sha256": "d0bc22e1f5c5c626af112d05615e61bee3b2a7766b10ab24bf92762233e254b2"
+  }
+}

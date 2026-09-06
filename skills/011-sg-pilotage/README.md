@@ -24,7 +24,9 @@ $011-sg-pilotage sessions rename <todo|doing|in_progress|blocked|done>
 $011-sg-pilotage sessions prune [cwd]
 ```
 
-Sans mode clair, avec un mode inconnu ou avec plusieurs actions mélangées, la skill demande de choisir entre les cinq modes et ne modifie rien. `help` n’est pas un sixième mode.
+Une demande claire comme « ajoute la validation Android sur VM après commit et push » sélectionne `tasks` sans demander de mode : elle enregistre la tâche et sa dépendance, sans exécuter le travail. Le projet doit être connu et le travail fourni doit relever de l’implémentation. Une demande liée explicitement à une spec conserve son suivi complet.
+
+Pour les autres demandes sans mode clair, avec un mode inconnu ou plusieurs actions mélangées, la skill demande de choisir entre les cinq modes et ne modifie rien. `help` n’est pas un sixième mode.
 
 ## Sécurité des sessions
 

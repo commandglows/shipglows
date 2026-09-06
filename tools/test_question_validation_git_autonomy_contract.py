@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import unittest
+from tools.authority_contract_test_support import selected_authority
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +14,7 @@ class QuestionValidationGitAutonomyContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.question = (REFS / "question-contract.md").read_text(encoding="utf-8")
-        cls.approval = (REFS / "mutation-plan-approval.md").read_text(encoding="utf-8")
+        cls.approval = selected_authority("mutation-git-authority")
         cls.policy = (REFS / "project-delivery-policy.md").read_text(encoding="utf-8")
         cls.lifecycle = (REFS / "git-temporary-artifact-lifecycle.md").read_text(
             encoding="utf-8"

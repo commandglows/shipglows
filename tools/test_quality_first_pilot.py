@@ -22,7 +22,21 @@ class QualityPilotTests(unittest.TestCase):
     def test_existing_scenarios_remain_unchanged(self):
         frozen = json.loads(BASELINE.read_text(encoding='utf-8'))
         for name, digest in frozen['existing_scenarios_sha256'].items():
-            self.assertEqual(hashlib.sha256(json.dumps(self.scenarios[name], sort_keys=True).encode()).hexdigest(), digest, name)
+            scenario = copy.deepcopy(self.scenarios[name])
+            if name == 'common-feature-approval':
+                # Approved shared-authority extraction adds one directly required
+                # leaf; every older checkpoint, ceiling and read remains frozen.
+                leaf = R + 'mutation-git-authority.md'
+                additions = [r for r in scenario['reads'] if r['path'] == leaf]
+                self.assertEqual(len(additions), 1)
+                self.assertEqual(additions[0]['parent'], R + 'mutation-plan-approval.md')
+                scenario['reads'].remove(additions[0])
+                scenario['required_reads'].remove(leaf)
+                suffix = (' Git disclosure covers ordinary current-branch persistence only; no integration/promotion '
+                          'destination is selected or promised and no Git action or approved milestone is executed.')
+                self.assertTrue(scenario['assumptions'].endswith(suffix))
+                scenario['assumptions'] = scenario['assumptions'][:-len(suffix)]
+            self.assertEqual(hashlib.sha256(json.dumps(scenario, sort_keys=True).encode()).hexdigest(), digest, name)
 
     def test_complete_declared_routes_keep_structural_and_budget_results_separate(self):
         for name in NAMES:

@@ -65,14 +65,14 @@ class ProgressiveLoadingPilotTests(unittest.TestCase):
         self.assertIn("already selected by the reporting owner", leaf)
 
     def test_closure_authorities_remain_visible_before_leaf_selection(self):
-        row = next(line for line in self.report.splitlines() if line.startswith("| Claim closed"))
+        row = next(line for line in self.report.splitlines() if line.startswith("| Claim underlying work or a chantier closed"))
         for name in ("reporting-closure.md", "documentation-reflection-gate.md", "editorial-reflection-gate.md"):
             self.assertIn(name, row)
         for name in ("reporting-start", "reporting-closure"):
             leaf = (REFS / f"{name}.md").read_text(encoding="utf-8").split("---", 2)[2]
             self.assertNotIn("Load `", leaf)
-        self.assertIn("missing required references block", self.report)
-        self.assertIn("Report only checks actually run", self.report)
+        self.assertIn("Missing references block", self.report)
+        self.assertIn("Include only checks actually run", self.report)
         self.assertIn("Never expose secrets", self.report)
 
     def test_direct_bounded_execution_and_scope_stop_are_preserved(self):

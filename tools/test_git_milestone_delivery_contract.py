@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import unittest
+from tools.authority_contract_test_support import selected_authority
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +14,7 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.contract = CONTRACT.read_text(encoding="utf-8")
-        cls.approval = (ROOT / "skills/references/mutation-plan-approval.md").read_text(encoding="utf-8")
+        cls.approval = selected_authority("mutation-git-authority", "mutation-approval-pressure-scenarios")
         cls.lifecycle = (ROOT / "skills/references/master-workflow-lifecycle.md").read_text(encoding="utf-8")
         cls.start = (ROOT / "skills/102-sg-start/SKILL.md").read_text(encoding="utf-8")
         cls.end = (ROOT / "skills/104-sg-end/SKILL.md").read_text(encoding="utf-8")

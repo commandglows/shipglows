@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
 updated: "2026-09-05"
-status: ready
+status: reviewed
 source_skill: 100-sg-spec
 scope: windows-linked-skills-status
 user_story: "A Windows maintainer can verify current linked skills without a dirty checkout triggering a runtime update."
@@ -22,10 +22,35 @@ depends_on: []
 supersedes: []
 evidence:
   - "Operator approved the Windows inconsistency repair: oui vazy. Preserve existing work."
-next_step: "Review branch integration; Windows branch installation is verified."
+  - "2026-09-05: PR #146 is merged into main at 373d820742bc2bf24ee95ccc125b8a90b2081490; the installed branch receipt remains separately dated evidence."
+next_step: none
 ---
 
 # Windows Linked Skills Status
+
+## Delivery Addendum (2026-09-05)
+
+Source integration is complete: [PR #146](https://github.com/commandglows/shipglows/pull/146)
+is merged into `main` at `373d820742bc2bf24ee95ccc125b8a90b2081490`, including
+implementation commit `8d4d89422fc2216db0a8541dfec7fbd391a8dbfb` and the installation
+checkpoint `41db0a3`. Metadata `reviewed` records completion of the approved source,
+branch installation and focused verification scope; branch integration is no
+longer pending.
+
+The sections below retain the original local approval and the later branch
+bootstrap receipt as dated evidence. The installed receipt still identifies
+`8d4d89422fc2216db0a8541dfec7fbd391a8dbfb`; source integration does not convert it
+into proof of a new installation at current `main` HEAD `14b309d`. This follow-up
+did not reinstall the runtime, rerun installed commands or reload an agent session.
+
+The documented full Bash contract timing failure remains an unpassed check;
+focused native status/update proof does not replace it. Optional WSL/Turso and
+Android preparation remain outside this completed scope. No public release is
+claimed. The merged source and the historical installed branch are distinct
+delivery facts, while progressive-loading observation and budget limits remain
+tracked by the corresponding pilot specs.
+
+## Historical Approved Scope
 
 Ready scope: fix native Windows junction recognition in read-only Python status;
 honor validated development-channel state; add focused Windows skills status and

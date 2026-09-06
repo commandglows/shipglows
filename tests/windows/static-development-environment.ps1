@@ -46,6 +46,8 @@ try {
     if ((Get-FileHash -LiteralPath $writtenPath -Algorithm SHA256).Hash -ne $firstHash) { throw 'Project environment write is not idempotent.' }
 
     $approvalContract = Get-Content -LiteralPath (Join-Path $root 'skills\references\mutation-plan-approval.md') -Raw
+    if (-not $approvalContract.Contains('mutation-approval-pressure-scenarios.md')) { throw 'Approval pressure-scenario selector missing.' }
+    $approvalContract += Get-Content -LiteralPath (Join-Path $root 'skills\references\mutation-approval-pressure-scenarios.md') -Raw
     foreach ($required in @('🧭 PLAN À VALIDER','🧭 VALIDATION RAPIDE','Objectif','Périmètre','Actions','Preuves','one or two sentences','exact action','exact target','main safety guarantee','Clear bounded-request authority','does not create or approve a chantier','material expansion','MAP-BOUNDED-REQUEST','MAP-BOUNDED-EXPANSION','MAP-EFFORT-INVARIANT','MAP-FAST-SWITCH','MAP-FAST-WORKTREE','MAP-FAST-INELIGIBLE','MAP-FAST-REPLACEMENT','MAP-BOUNDED-PUSH','Local versus remote is not an approval classifier')) {
         if ($approvalContract -notmatch [regex]::Escape($required)) { throw "Mutation approval contract is missing: $required" }
     }

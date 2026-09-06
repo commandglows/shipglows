@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import unittest
+from tools.authority_contract_test_support import selected_authority
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,7 +19,7 @@ PUBLIC_PLUGIN = ROOT / "plugins" / "shipglows" / "skills" / "shipglows" / "SKILL
 class MutationPlanApprovalContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.text = CONTRACT.read_text(encoding="utf-8")
+        cls.text = selected_authority("mutation-git-authority", "mutation-approval-pressure-scenarios")
 
     def test_opening_identity_matches_chantier_reporting(self) -> None:
         for expected in (

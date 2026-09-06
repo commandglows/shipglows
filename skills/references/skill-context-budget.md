@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.15.0"
+artifact_version: "1.15.1"
 project: ShipGlows
 created: "2026-04-29"
-updated: "2026-09-05"
+updated: "2026-09-06"
 status: active
 source_skill: 300-sg-docs
 scope: skill-context-budget
@@ -115,10 +115,10 @@ declared edges below the selected engine; it is not actual UI/tool navigation.
 Terminal profiles retain compatibility: `valid` alone does not enforce a ceiling.
 Their worst case is a union of all gates, not one realistic executable scenario.
 
-For observed full-file events pass `--trace` JSON containing `events`, each with
-`path` and `reason`. Do not synthesize it from a declared scenario; partial reads,
-metadata output, model prompts and tool results need separate telemetry and cannot
-be represented honestly as full-file reads. Trace paths remain within the root.
+Observed `--trace`: V1 counts full-file events; V2 records partial/truncated delivery
+and unknown counts. Never infer observations from declarations. For replay/measurement
+only, load `shipglows_data/workflow/playbooks/agent-path-replay.md`. Paths stay within
+the measured root; incomplete telemetry cannot prove savings.
 
 ## Audit Commands
 

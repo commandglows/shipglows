@@ -1,0 +1,94 @@
+{
+  "question": "Pour quel projet dois-je enregistrer la tâche de validation Android sur la VM Linux après commit et push : `candidate-a` ou `candidate-b` ?",
+  "response": "Pour quel projet dois-je enregistrer la tâche de validation Android sur la VM Linux après commit et push : `candidate-a` ou `candidate-b` ?\n\nLe [SKILL.md]($SHIPGLOWS_ROOT/skills/011-sg-pilotage/SKILL.md) demande « ask only which project before any tracker read/write » lorsque le projet est ambigu. Aucun suivi de tâches n’a été lu ou modifié.",
+  "actions": [
+    "Read skill and mandatory references",
+    "Stopped for project selection before any tracker access",
+    "Attempted instrumentation Set-Content: exit 1, empty output",
+    "Test-Path confirmed instrumentation absent",
+    "Retried instrumentation with apply_patch"
+  ],
+  "reads": [
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/sg-planning/SKILL.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Explicit skill invocation"
+    },
+    {
+      "order": null,
+      "path": "$USER_CONFIG/environment.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Environment prerequisite"
+    },
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Project ambiguity scope gate"
+    },
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/011-sg-pilotage/SKILL.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Required engine"
+    },
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/references/canonical-paths.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Engine canonical path doctrine"
+    },
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/references/question-contract.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Ambiguous-project route"
+    },
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/references/reporting-contract.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Final reporting requirement"
+    },
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/references/reporting-blocked-and-audit.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Unfinished result reporting branch"
+    },
+    {
+      "order": null,
+      "path": "$SHIPGLOWS_ROOT/skills/references/strategic-choice-contract.md",
+      "extent": "full",
+      "truncated": null,
+      "reason": "Missing decision reporting branch"
+    }
+  ],
+  "mutations": [
+    {
+      "path": "$FIXTURE/ambiguity-observation.json",
+      "type": "Instrumentation only"
+    }
+  ],
+  "limitations": [
+    "Canonical-path doctrine read after engine",
+    "Root existence evidenced by successful reads, no separate existence check",
+    "Candidate identity and equal credibility supplied by scenario; no candidate files read",
+    "Developer concise plain-text question instruction takes precedence over skill report formatting"
+  ],
+  "measurement": {
+    "unique_skill_files": null,
+    "unique_estimated_tokens": null,
+    "full_skill_read_events": null,
+    "basis": "Agent-reported actual full reads, estimated from current file characters/4; not provider billing. Partial and hash-only reads excluded."
+  }
+}

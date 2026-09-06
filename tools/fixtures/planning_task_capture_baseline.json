@@ -1,0 +1,79 @@
+{
+  "commit": "14b309d1b49f4f3b9ad637ad552088a9a1f28258",
+  "checkpoint": "Complete declared supplied-task capture through saved-task report; project evidence, environment and provider telemetry excluded equally",
+  "reads": [
+    {
+      "path": "skills/sg-planning/SKILL.md",
+      "tokens": 397,
+      "sha256": "c83339414e206f5bc892ccdca53ea0c0e56fc0323ca25774ec7a89aab9371ffc"
+    },
+    {
+      "path": "skills/011-sg-pilotage/SKILL.md",
+      "tokens": 1717,
+      "sha256": "44c3ea9b58b268d63d3c6451ad7c8660f01f4892f4b4c4a09739d0adea355b82"
+    },
+    {
+      "path": "skills/references/intent-to-outcome-autonomy.md",
+      "tokens": 1007,
+      "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+    },
+    {
+      "path": "skills/references/canonical-paths.md",
+      "tokens": 844,
+      "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+    },
+    {
+      "path": "skills/011-sg-pilotage/references/tasks-playbook.md",
+      "tokens": 1319,
+      "sha256": "f6107ffdaee191c2e270455db7d94488375d15a030391780bb31e38d4972fc4d"
+    },
+    {
+      "path": "skills/references/operational-record-format.md",
+      "tokens": 1866,
+      "sha256": "79ea5ec1f6ae6a657d0a9a05f57cbdc5e03d03347f33013f0cc44aabc1576e72"
+    },
+    {
+      "path": "skills/references/task-registry-routing.md",
+      "tokens": 1360,
+      "sha256": "fef2ffe5d06eab6fe3d76788789b28ba0213ad21773d1e0341b09690b24cfd72"
+    },
+    {
+      "path": "skills/references/mutation-plan-approval.md",
+      "tokens": 8019,
+      "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35"
+    },
+    {
+      "path": "skills/references/functional-excellence-contract.md",
+      "tokens": 2101,
+      "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+    },
+    {
+      "path": "skills/references/chantier-tracking.md",
+      "tokens": 2835,
+      "sha256": "68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7"
+    },
+    {
+      "path": "skills/references/reporting-contract.md",
+      "tokens": 2477,
+      "sha256": "fc9539ba4898b2bbbe9a3210c29ea1290ac7cb775b158b680ce38dfe41199ae3"
+    },
+    {
+      "path": "skills/references/reporting-closure.md",
+      "tokens": 1301,
+      "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+    },
+    {
+      "path": "skills/references/documentation-reflection-gate.md",
+      "tokens": 1942,
+      "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3"
+    },
+    {
+      "path": "skills/references/editorial-reflection-gate.md",
+      "tokens": 1533,
+      "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2"
+    }
+  ],
+  "tokens": 28718,
+  "historical_first_write_lower_bound_tokens": 16529,
+  "baseline_state": "Initial target-file hashes frozen before edits; unchanged required reference hashes added after independent completeness review. Previous first-write lower bound omitted functional excellence and is not a complete baseline."
+}

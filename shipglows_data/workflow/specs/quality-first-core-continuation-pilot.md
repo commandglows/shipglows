@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
 updated: "2026-09-05"
-status: ready
+status: active
 source_skill: 100-sg-spec
 scope: quality-first-core-continuation-pilot
 user_story: "Small authorized skill changes and continuations execute proportionally while material changes retain readiness, authority and proof."
@@ -22,10 +22,41 @@ depends_on: []
 supersedes: []
 evidence:
   - "Operator approved the bounded Core and authorized-continuation pilot: validé."
-next_step: "Observe representative real uses; keep existing budget overruns explicit."
+  - "2026-09-05: implementation and focused proof merged by PR #151 at 14b309d1b49f4f3b9ad637ad552088a9a1f28258; real-use observation remains pending."
+next_step: "Observe representative real uses against the four acceptance cases; distinguish contract defects from agent misapplication and retain the four existing budget failures."
 ---
 
 # Quality-first Core and continuation pilot
+
+## Delivery Addendum (2026-09-05)
+
+The approved implementation and focused proof are integrated into `main` through
+[PR #151](https://github.com/commandglows/shipglows/pull/151), source commit
+`f3c9f5b` and merge `14b309d1b49f4f3b9ad637ad552088a9a1f28258`.
+The preceding progressive-loading and Windows work is already merged through
+PR #146. There is no pending implementation or Git integration for these delivered
+changes. Metadata `active` retains the outstanding representative-use observation;
+it does not mean the implementation is still awaiting execution.
+
+The proof below is the delivered checkpoint: 111 focused tests and five read-only
+decision simulations. This documentation follow-up does not relabel simulations
+as actual production tasks or claim universal agent behavior. Representative real
+uses must still record decisions, actions, stops and proof against the four
+acceptance cases, separating a contract defect from agent misapplication.
+
+The scenario audit at verified HEAD `14b309d` confirms 12 structurally valid
+declarations, eight within budget and four pre-existing overruns. Those failures
+are `common-bug-proof-selection` (24,017), `common-page-comprehension` (19,896),
+`common-resume-missing` (19,499) and `core-help` (11,227 estimated tokens); all
+still fail maximum-token and minimum-reduction requirements. The audit therefore
+remains failing. The two new paths remain within their first reviewed ceilings at
+34,983 and 19,768 estimated tokens. No budget was raised or waived, and no token
+savings or provider-token measurement is claimed.
+
+Implementation delivery is complete; observation and existing budget constraints
+remain explicit. Wider optimization, budget arbitration and public behavioral
+claims are not authorized by this documentary closure. No runtime installation
+or live context reload is inferred from the merge.
 
 ## Ready scope and authority
 

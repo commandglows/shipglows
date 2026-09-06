@@ -1,0 +1,158 @@
+{
+  "project": "replayglows",
+  "request": "on pourra faire la validation Android sur la VM Linux quand on aura commit et push, enregistre la tâche dans sg-planning",
+  "questions": [],
+  "requests": [
+    {
+      "number": null,
+      "before_sha256": "BBB1B4D486344319FED9E4C97E1301A0925D938DD9B295601E0F1813A409437A",
+      "after_sha256": "FD61E786877B1D7BBDB0FB9EF52CB966287BA0E3E142D32C22AD11F5FB283AF9",
+      "response": "🧱 CHANTIER (local) : Validation Android\n🎯 VERDICT (22:52) : Tâche enregistrée\n\n📌 TÂCHE : Valider Android sur la VM Linux · statut todo · après commit et push.\n\n🧪 PREUVES ✅ Enregistrement relu dans le suivi local.\n\n🧭 SUITE : Réaliser le commit et le push avant la validation Android."
+    },
+    {
+      "number": null,
+      "before_sha256": "FD61E786877B1D7BBDB0FB9EF52CB966287BA0E3E142D32C22AD11F5FB283AF9",
+      "after_sha256": "FD61E786877B1D7BBDB0FB9EF52CB966287BA0E3E142D32C22AD11F5FB283AF9",
+      "response": "🧱 CHANTIER (local) : Validation Android\n🎯 VERDICT (22:53) : Tâche déjà enregistrée\n\n📌 TÂCHE : Statut todo et dépendance après commit et push conservés · aucun doublon ajouté.\n\n🧪 PREUVES ✅ Suivi relu, contenu inchangé.\n\n🧭 SUITE : Réaliser le commit et le push avant la validation Android."
+    }
+  ],
+  "read_events": [
+    {
+      "path": "$SHIPGLOWS_ROOT/skills/sg-planning/SKILL.md",
+      "extent": "full",
+      "reason": "User-selected skill entrypoint",
+      "request": null
+    },
+    {
+      "path": "$USER_CONFIG/environment.md",
+      "extent": "full",
+      "reason": "Environment instruction before tool-dependent work",
+      "request": null
+    },
+    {
+      "path": "$SHIPGLOWS_ROOT/skills/011-sg-pilotage/SKILL.md",
+      "extent": "full",
+      "reason": "Required canonical engine",
+      "request": null
+    },
+    {
+      "path": "$MEMORY/MEMORY.md",
+      "extent": "partial",
+      "reason": "Required quick memory keyword search; no relevant result used",
+      "request": null
+    },
+    {
+      "path": "$SHIPGLOWS_ROOT/skills/references/canonical-paths.md",
+      "extent": "full",
+      "reason": "Engine canonical root doctrine",
+      "request": null
+    },
+    {
+      "path": "$SHIPGLOWS_ROOT/skills/011-sg-pilotage/references/tasks-playbook.md",
+      "extent": "full",
+      "reason": "Bounded supplied implementation-task route",
+      "request": null
+    },
+    {
+      "path": "$SHIPGLOWS_ROOT/skills/references/operational-record-format.md",
+      "extent": "full",
+      "reason": "Record grammar before write",
+      "request": null
+    },
+    {
+      "path": "$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md",
+      "extent": "full",
+      "reason": "Write authority",
+      "request": null
+    },
+    {
+      "path": "$SHIPGLOWS_ROOT/skills/references/reporting-contract.md",
+      "extent": "full",
+      "reason": "Required final user report contract",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "partial",
+      "reason": "Search matching task and destination headings",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full",
+      "reason": "Read small destination section and existing record",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full_bytes_hash_only",
+      "reason": "Instrumentation before hash",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full",
+      "reason": "Immediate authoritative reread before append",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full",
+      "reason": "Post-write verification",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full_bytes_hash_only",
+      "reason": "Instrumentation after hash",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full_bytes_hash_only",
+      "reason": "Instrumentation before hash",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "partial",
+      "reason": "Repeat request matching task search",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full",
+      "reason": "Verify equivalent existing task and preserve status and fields",
+      "request": null
+    },
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md",
+      "extent": "full_bytes_hash_only",
+      "reason": "Instrumentation after hash",
+      "request": null
+    }
+  ],
+  "failed_read_attempts": [
+    {
+      "path": "$FIXTURE/replayglows/shipglows_data/README.md",
+      "reason": "Project AGENT resume routing",
+      "error": "File missing in sandbox",
+      "request": null
+    }
+  ],
+  "truncated_outputs": [],
+  "dependency_execution": null,
+  "notes": [
+    "No relevant memory content used.",
+    "All full content reads were returned without truncation.",
+    "Second request reused already loaded skill and references.",
+    "Missing sandbox README did not prevent bounded existing-tracker task capture.",
+    "No special reporting mode or reporting test references loaded solely for instrumentation."
+  ],
+  "measurement": {
+    "unique_skill_files": null,
+    "unique_estimated_tokens": null,
+    "full_skill_read_events": null,
+    "basis": "Agent-reported actual full reads, estimated from current file characters/4; not provider billing. Partial and hash-only reads excluded."
+  }
+}

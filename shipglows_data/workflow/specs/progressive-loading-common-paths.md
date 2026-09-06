@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
 updated: "2026-09-05"
-status: ready
+status: reviewed
 source_skill: 100-sg-spec
 scope: progressive-loading-common-paths
 user_story: "An operator uses shipglows with ordinary language and the agent loads only the instructions needed for its next decision."
@@ -23,10 +23,32 @@ depends_on: []
 supersedes: []
 evidence:
   - "Operator approved the common-path clarification plan with validé after the six-path read-only audit."
-next_step: "Verify the approved local second wave; no commit or push."
+  - "2026-09-05: the implemented second wave is integrated into main by PR #146 at 373d820742bc2bf24ee95ccc125b8a90b2081490."
+next_step: "Follow representative-use observation in quality-first-core-continuation-pilot.md; handle existing budget overruns separately from delivery closure."
 ---
 
 # Common-Path Progressive Loading
+
+## Delivery Addendum (2026-09-05)
+
+The approved second wave and its focused verification are delivered in commit
+`8d4d89422fc2216db0a8541dfec7fbd391a8dbfb`, merged into `main` through
+[PR #146](https://github.com/commandglows/shipglows/pull/146) at
+`373d820742bc2bf24ee95ccc125b8a90b2081490`. The later delivery authority is recorded
+in `windows-linked-skills-status.md`. Metadata `reviewed` records this delivered
+scope, while the local-only restrictions and results below retain their history.
+
+The historical all-green scenario table is not the current budget verdict.
+At verified `main` HEAD `14b309d`, common bug proof is 24,017 estimated tokens,
+page comprehension 19,896 and missing-target continuation 19,499; all three are
+over budget. Together with Core help, they are the four pre-existing failures
+disclosed by the quality-first pilot. Structural validity does not clear them,
+and no ceiling or minimum-reduction requirement has been waived.
+
+The route replay remains decision evidence with its documented corrections and
+limits. It does not prove universal compliance or completed application tasks.
+The quality-first follow-up is merged in PR #151; representative real-use
+observation remains pending in `quality-first-core-continuation-pilot.md`.
 
 ## Approved scope and readiness
 
@@ -93,7 +115,7 @@ Editorial: no public identity, command, feature or promise change. Local proof o
 no deployment or application runtime evidence is needed or claimed. No commit,
 push, branch cleanup, installation or publication in this approval.
 
-## Current flow
+## Historical local flow
 
 Approved plan -> ready bounded execution -> local contract changes -> verification.
 Record actual checks and independent review below; do not infer completion from

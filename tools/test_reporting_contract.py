@@ -52,11 +52,11 @@ def selected_reporting_leaf(path: Path, trigger: str) -> str:
 
 
 def closure_contract() -> str:
-    return selected_reporting_leaf(REPORTING_CLOSURE, "Claim closed, complete, done, resolved, or shipped")
+    return selected_reporting_leaf(REPORTING_CLOSURE, "Claim underlying work or a chantier closed, complete, done, resolved, or shipped")
 
 
 def start_contract() -> str:
-    return selected_reporting_leaf(REPORTING_START, "Approved substantive chantier actually starts")
+    return selected_reporting_leaf(REPORTING_START, "Approved substantive chantier is actually starting")
 
 
 class ReportingContractTests(unittest.TestCase):
@@ -69,17 +69,17 @@ class ReportingContractTests(unittest.TestCase):
             for sibling in REPORTING_BRANCHES:
                 if sibling != branch:
                     self.assertNotIn(sibling.name, leaf, f"{branch} chains to {sibling}")
-        self.assertIn("Agent mode loads only agent-handoff", core)
-        self.assertIn("Metadata dependencies validate", core)
+        self.assertIn("In `report=agent`, load only agent-handoff", core)
+        self.assertIn("Metadata checks", core)
 
     def test_direct_reporting_gates_cover_moved_protections(self) -> None:
         gates = {
-            "Approved substantive chantier actually starts": (REPORTING_START,),
-            "Claim closed, complete, done, resolved, or shipped":
+            "Approved substantive chantier is actually starting": (REPORTING_START,),
+            "Claim underlying work or a chantier closed, complete, done, resolved, or shipped":
                 (REPORTING_CLOSURE, DOCUMENTATION_REFLECTION, EDITORIAL_REFLECTION),
             "Unfinished user result needs operator choices":
                 (ROOT / "skills/references/strategic-choice-contract.md",),
-            "Degraded context may justify restart, or handoff starts a conversation":
+            "Context degradation may justify restart, or handoff starts a new conversation":
                 (ROOT / "skills/references/conversation-continuity-contract.md",),
         }
         for trigger, leaves in gates.items():
@@ -94,9 +94,9 @@ class ReportingContractTests(unittest.TestCase):
     def test_user_mode_forbids_modified_file_details(self) -> None:
         text = reporting_corpus()
         for rule in (
-            "User mode has no modified-files section",
-            "Omit filenames, paths, counts and technical file links",
-            "the operator must open/edit/provide that artifact to proceed",
+            "In `report=user`, omit modified-file lists",
+            "paths, counts and technical links unless",
+            "needed for operator action or explicitly requested",
             "SSRP-008 no modified-file inventory",
         ):
             self.assertIn(" ".join(rule.split()), " ".join(text.split()))
@@ -156,7 +156,7 @@ class ReportingContractTests(unittest.TestCase):
     def test_user_mode_has_compact_validation_summary(self) -> None:
         text = reporting_corpus()
         self.assertIn(
-            "with ` · `",
+            "✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236",
             text,
         )
         self.assertIn("SSRP-010 compact validation line", text)
@@ -166,20 +166,20 @@ class ReportingContractTests(unittest.TestCase):
         blocked = REPORTING_BRANCHES[1].read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         timestamp = FINAL_TIMESTAMP.read_text(encoding="utf-8")
-        self.assertIn("For every user-facing report state", core)
+        self.assertIn("All work-report states use labelled rows", core)
         for rule in (
-            "translated label, optional status and content on one line",
-            "exactly one blank line separates rows",
-            "Keep numbered choices contiguous",
-            "full-report output instead uses",
+            "Keep icon, translated label, optional status and content on one line",
+            "one blank line between rows",
+            "Keep choices contiguous after one blank line",
+            "instead of this visual layout",
             "SSRP-009A universal compact user layout",
         ):
-            self.assertIn(" ".join(rule.split()), " ".join((core + blocked + scenarios).split()))
+            self.assertIn(rule, core + blocked + scenarios)
         self.assertIn(
             "Keep the chantier and verdict lines adjacent, then leave exactly one blank line",
             timestamp,
         )
-        self.assertIn("evidenced Local / Git distant / Déployé states", core)
+        self.assertIn("📦 PERSISTANCE ✅ Local", core)
         split_label_pattern = re.compile(
             r"(?:✨ (?:OBJECTIF|RÉSULTAT)|📐 PÉRIMÈTRE|🛡️ GARDE-FOUS|"
             r"🧪 (?:PREUVES|PREUVES ATTENDUES)|📖 (?:DOCUMENTATION|DOCUMENTATION PRÉVUE)|"
@@ -249,11 +249,11 @@ class ReportingContractTests(unittest.TestCase):
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         for marker in (
-            "Every final user report needs `🧭 SUITE`",
+            "Every final user work report contains a `🧭 SUITE` block",
             "next outcome",
-            "a missing action/proof",
-            "never omitted",
-            "`none`",
+            "missing action or proof",
+            "never omit the block",
+            "never `none`",
             "next-outcome-selection.md",
         ):
             with self.subTest(marker=marker):
@@ -329,12 +329,12 @@ class ReportingContractTests(unittest.TestCase):
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         for rule in (
-            "## Effort And Continuation",
-            "without new checks",
+            "## Reporting Effort Ceiling",
+            "never create checks, research, docs",
             "solely for reporting",
             "One meaningful proof suffices",
-            "placeholders are not quotas",
-            "translated label, optional status and content on one line",
+            "examples are not quotas",
+            "Keep icon, translated label, optional status and content on one line",
             "genuinely required by the chantier remain mandatory",
         ):
             corpus = scenarios if rule == "genuinely required by the chantier remain mandatory" else core
@@ -443,11 +443,11 @@ class ReportingContractTests(unittest.TestCase):
     def test_chantier_and_context_emoji_vocabulary(self) -> None:
         text = reporting_corpus()
         for rule in (
-            "🧱 CHANTIER (<local|spec>) : <name>",
-            "Use `🚧 CHANTIER` only when genuinely blocked",
-            "`📂` denotes dossier/scope",
-            "`🔨` implementation/repair",
-            "`📌` priority/decision/next action",
+            "`🧱` for the normal chantier header",
+            "`🚧` only when the run is blocked",
+            "`📂` for a dossier or scope",
+            "`🔨` for active implementation or repair",
+            "`📌` for a priority, decision, or next action",
         ):
             self.assertIn(" ".join(rule.split()), " ".join(text.split()))
         self.assertNotIn("🏗️ CHANTIER", text)
@@ -474,7 +474,7 @@ class ReportingContractTests(unittest.TestCase):
     def test_user_mode_route_does_not_expose_internal_owners(self) -> None:
         text = reporting_corpus()
         self.assertIn("🧭 Suite : <résultat ou décision à obtenir>", text)
-        self.assertIn("that line never names a skill, command, lifecycle phase", text)
+        self.assertIn("Never name a skill, command, lifecycle phase", text)
         timestamp = FINAL_TIMESTAMP.read_text(encoding="utf-8")
         self.assertIn("🧭 Suite : <outcome or decision>", timestamp)
         self.assertNotIn("🧭 Route: <owner>", timestamp)

@@ -282,6 +282,15 @@ function Get-SgNodePackageManager([string]$ProjectPath) {
 }
 
 function Get-SgProjectKind([string]$ProjectPath) {
+    $selectionPath = Join-Path $ProjectPath '.shipglows.runtime.json'
+    if (Test-Path -LiteralPath $selectionPath -PathType Leaf) {
+        $selection = Get-Content -LiteralPath $selectionPath -Raw | ConvertFrom-Json
+        if ($selection.surface -eq 'tauri') {
+            if (-not (Test-Path -LiteralPath (Join-Path $ProjectPath 'src-tauri\tauri.conf.json') -PathType Leaf)) { throw 'The selected Tauri surface has no tauri.conf.json.' }
+            return 'tauri'
+        }
+        if ($selection.surface -ne 'browser-extension') { throw 'Unsupported runtime surface selection. Expected tauri or browser-extension.' }
+    }
     $package = Join-Path $ProjectPath 'package.json'
     $pubspec = Join-Path $ProjectPath 'pubspec.yaml'
     if ([IO.File]::Exists($package)) {
@@ -306,6 +315,17 @@ function Get-SgProjectKind([string]$ProjectPath) {
 function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '') {
     $portValue = if ($Port -gt 0) { ":$Port" } else { 'pending' }
     switch ($Kind) {
+        'tauri' {
+            return [pscustomobject]@{
+                Label = 'Tauri desktop app'
+                PortLabel = "App / HMR $portValue"
+                Artifact = 'native development app'
+                StartOutcome = 'Tauri development session with shared Vite frontend'
+                StartNextAction = 'Follow the build logs until the native application opens.'
+                OpenAction = 'Open the frontend preview on the same development port.'
+                OpenNextAction = 'The browser preview and native application share the frontend server.'
+            }
+        }
         'browser-extension' {
             return [pscustomobject]@{
                 Label = 'Chrome extension'
@@ -1136,7 +1156,7 @@ function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port)
 }
 
 function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
-    $names = if ($Kind -in @('astro','vite','browser-extension')) {
+    $names = if ($Kind -in @('astro','vite','browser-extension','tauri')) {
         @('package.json','pnpm-lock.yaml','package-lock.json','npm-shrinkwrap.json')
     } elseif ($Kind -eq 'python') {
         @('pyproject.toml','uv.lock','requirements.txt')
@@ -1147,7 +1167,7 @@ function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
 }
 
 function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
-    if ($Kind -in @('astro','vite','browser-extension')) {
+    if ($Kind -in @('astro','vite','browser-extension','tauri')) {
         $pnpmLock=Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf
         $npmLock=(Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $ProjectPath 'npm-shrinkwrap.json') -PathType Leaf)
         $packageManager=Get-SgNodePackageManager $ProjectPath
@@ -1188,13 +1208,13 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
 }
 
 function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
-    if ($Kind -in @('astro','vite','browser-extension')) {
+    if ($Kind -in @('astro','vite','browser-extension','tauri')) {
         $nodeModules = Join-Path $ProjectPath 'node_modules'
         if (-not (Test-Path -LiteralPath $nodeModules -PathType Container)) { return $false }
         $managerArtifact=if(Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf){Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf}else{Test-Path -LiteralPath (Join-Path $nodeModules '.package-lock.json') -PathType Leaf}
         if($Kind-eq'browser-extension'){
             $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules '@crxjs\vite-plugin') 'package.json') -PathType Leaf
-        }else{$frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $Kind) 'package.json') -PathType Leaf}
+        }elseif($Kind-eq'tauri'){$frameworkArtifact=Test-Path -LiteralPath (Join-Path $nodeModules '@tauri-apps\cli\package.json') -PathType Leaf}else{$frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $Kind) 'package.json') -PathType Leaf}
         return $managerArtifact -and $frameworkArtifact
     }
     if ($Kind -eq 'python') { return Test-Path -LiteralPath (Join-Path $ProjectPath '.venv\Scripts\python.exe') -PathType Leaf }
@@ -1294,6 +1314,29 @@ function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
 }
 
 function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '') {
+    if ($Kind -eq 'tauri') {
+        $tauri = Get-Content -LiteralPath (Join-Path $ProjectPath 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
+        $devUrl = [uri]$tauri.build.devUrl
+        if ($devUrl.Host -notin @('127.0.0.1','localhost') -or $devUrl.Port -ne $Port) { throw "Tauri devUrl must use the assigned local port $Port." }
+        if (-not $tauri.build.beforeDevCommand) { throw 'Tauri must declare beforeDevCommand to own its frontend server.' }
+        $manager = Get-SgNodePackageManager $ProjectPath
+        $prefix = if (@($manager.PrefixArguments).Count) { ' ' + (@($manager.PrefixArguments) -join ' ') } else { '' }
+        $cargo = Get-SgCommandPath @('cargo.exe')
+        if (-not $cargo) {
+            $candidate = Join-Path $env:USERPROFILE '.cargo\bin\cargo.exe'
+            if (Test-Path -LiteralPath $candidate -PathType Leaf) { $cargo = $candidate }
+        }
+        if (-not $cargo) { throw 'Tauri requires native cargo.exe; a cargo.cmd wrapper is not sufficient.' }
+        $cargoDirectory = Split-Path $cargo -Parent
+        $toolchainConfig = Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows\mise.toml'
+        $toolchainPrefix = ''
+        if ((Test-Path -LiteralPath $toolchainConfig) -and -not (Test-Path -LiteralPath (Join-Path $ProjectPath 'rust-toolchain.toml')) -and -not (Test-Path -LiteralPath (Join-Path $ProjectPath 'rust-toolchain'))) {
+            $toolchainText = Get-Content -LiteralPath $toolchainConfig -Raw
+            if ($toolchainText -match 'rust\s*=\s*\{\s*version\s*=\s*"([0-9.]+)"') { $toolchainPrefix = "set `"RUSTUP_TOOLCHAIN=$($Matches[1])`" && " }
+        }
+        $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri dev"
+        return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri dev'; Interactive=$false; FlutterSdkRoot=$null }
+    }
     $signature = Get-SgCommandSignature $ProjectPath $Kind $Port
     if ($Kind -eq 'astro') {
         $pnpm = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')

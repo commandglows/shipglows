@@ -1,0 +1,47 @@
+{
+  "request": "on pourra faire ça sur la machine VM quand on aura commit et push, enregistre la tâche de validation Android dans sg-planning",
+  "fixture": "$FIXTURE/replayglows",
+  "actual_skill_files_read": [
+    "skills/sg-planning/SKILL.md",
+    "skills/011-sg-pilotage/SKILL.md",
+    "skills/references/canonical-paths.md",
+    "skills/011-sg-pilotage/references/tasks-playbook.md",
+    "skills/references/operational-record-format.md",
+    "skills/references/mutation-plan-approval.md",
+    "skills/references/reporting-contract.md"
+  ],
+  "skill_root": "$SHIPGLOWS_ROOT",
+  "other_reads": [
+    "$USER_CONFIG/environment.md",
+    "$FIXTURE/replayglows/shipglows_data/workflow/TASKS.md"
+  ],
+  "rereads": [
+    "mutation-plan-approval.md first 70 lines after output truncation",
+    "fixture TASKS.md before mutation, after mutation and during duplicate check"
+  ],
+  "first_commentary": "Je vais rejouer la demande dans un dossier temporaire isolé, puis vérifier que sa répétition ne crée pas de doublon.",
+  "skill_commentary": "J’applique le skill `sg-planning` à cette capture bornée : la validation Android sera enregistrée comme travail futur, avec le commit et le push comme préalables.",
+  "first_response": "Tâche enregistrée pour ReplayGlows : valider Android sur la VM après le commit et le push. Elle reste à faire ; la validation Android n’a pas été exécutée.",
+  "repeat_response": "Cette tâche est déjà présente pour ReplayGlows, toujours à faire après le commit et le push. Aucun doublon n’a été créé.",
+  "evidence": {
+    "matching_count": 1,
+    "status": "todo",
+    "dependency": "commit and push completed",
+    "android_executed": false,
+    "git_executed": false,
+    "duplicate_mutation": false,
+    "unrelated_task_custom_field_preserved": true,
+    "repeat_sha256_before": "BFB535DEAA5C65AF3037B983011D178C29121A83CDCB3ADD9FB33243BF407520",
+    "repeat_sha256_after": "BFB535DEAA5C65AF3037B983011D178C29121A83CDCB3ADD9FB33243BF407520"
+  },
+  "limitations": [
+    "Same-agent sequential replay, not a new conversation for repeat.",
+    "Canonical-paths was read after resolving engine, not before.",
+    "Combined reference output truncated; affected mutation authority opening reread.",
+    "SHIPGLOWS_ROOT set only in fixture setup process; explicit canonical paths used elsewhere.",
+    "Observation JSON first PowerShell write failed parsing typographic apostrophe; retried with apply_patch."
+  ],
+  "writes_scope": "Only new disposable temp directory",
+  "measurement": "Seven unique source files, not exact delivered or billed tokens; combined-output truncation and partial reread prevent exact observed total.",
+  "parent_verified_tracker_sha256": "bfb535deaa5c65af3037b983011d178c29121a83cdcb3add9fb33243bf407520"
+}

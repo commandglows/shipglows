@@ -12,7 +12,7 @@ Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/
 
 ## Public Métier Ownership
 
-Public label: `sg-planning`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or planning mode selection. Resolve `project -> business/brand/product -> outcome -> surface -> work item`, infer discoverable state, ask only for material priority decisions, and carry planning/bookkeeping outcomes through durable updates and proof.
+Public label: `sg-planning`. Resolve `project -> business/brand/product -> outcome -> surface -> work item`. A supplied task uses bounded capture or the missing-project question below. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` for other outcome/direction interpretation; a missing project name alone does not trigger it. Carry bookkeeping through durable updates and proof.
 
 ## Instruction Layering
 
@@ -23,21 +23,31 @@ This `SKILL.md` is the compact activation contract. Before editing it, load `$SH
 Trace category: `conditionnel`.
 Process role: `pilotage`.
 
-Before the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. Trace only when exactly one active spec owns the run; otherwise do not write a spec. Pilotage may route explicit non-trivial intent to `100-sg-spec`, but it does not turn every note into a chantier.
+Before writing or updating a spec trace, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. Bounded capture only updates the tracker; it does not create, select or update a spec. A missing-project question selects no spec or tracker. Other modes load chantier tracking before a work report.
 
 ## Report Modes
 
 Before the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
+Use its simple question for a missing project, record confirmation after a verified save/duplicate, and work report for execution, failure or chantier closure. Do not load work-report leaves solely because a supplied task was recorded or a factual input is missing.
+
 Default to `report=user`: concise outcome, mutation truth, evidence limit, and next owner. Use `report=agent` only on explicit operator/orchestrator request; tracker detail, rejected writes, session-safety evidence, or internal lifecycle handoffs do not select it. Preserve required blocker, proof, and continuity disclosures through the shared reporting gates.
 
 ## Mission
 
-`011-sg-pilotage` is the sole public entrypoint for five distinct management outcomes: execution-tracker state, deferred backlog, active-work order, evidence-based review, and repository-scoped Codex-session state. It selects exactly one explicit mode and loads exactly one substantive local playbook. It does not execute implementation, infer proof, close a chantier, or become a general helper.
+`011-sg-pilotage` owns five management outcomes: execution-tracker state, deferred backlog, active-work order, evidence-based review, and repository-scoped Codex-session state. It selects one mode and one substantive local playbook. It does not execute implementation, infer proof, or close a chantier.
 
 ## Mode Detection
 
 Parse `$ARGUMENTS` before reading a tracker, review artifact, changelog, conversation, or Codex state:
+
+### Bounded task capture
+
+A natural-language request to add a supplied implementation task in one known project selects `tasks`; no mode question is needed. A dependency such as "after commit and push" is recorded, not executed. Load `references/tasks-playbook.md`, then its bounded capture branch. This is an existing tasks operation, not a sixth mode. An explicitly attached spec or requested spec trace uses the full tasks workflow and chantier tracking. Missing project, conflicting scope, mixed actions, editorial work, deferred ideas, status changes or requests to execute work use the normal owner/mode rules below. Do not infer a completed status or invent an owner.
+
+### Other planning requests
+
+When task capture is clear but the project is ambiguous, load `question-contract.md` and ask only which project before any tracker read/write, then reevaluate bounded capture. Clear editorial work uses `task-registry-routing.md` and its content owner. Neither case asks the user to choose a technical mode.
 
 Normalize the first token `prio` to the canonical `priorities` mode before selection, preserving every remaining argument. This alias loads the same priorities playbook and never creates a sixth mode.
 
@@ -47,7 +57,7 @@ Normalize the first token `prio` to the canonical `priorities` mode before selec
 - `review [daily|weekly|sprint|release]` -> load only `references/review-playbook.md`.
 - `sessions [project-or-cwd|rename <status>|prune [cwd]]` -> load only `references/sessions-playbook.md`.
 
-Bare input, an unknown mode, more than one mode, or a mixed action such as `tasks sessions rename done` loads no substantive playbook, mutates nothing, and asks one choice-oriented question with exactly these five choices: `tasks`, `backlog`, `priorities`, `review`, or `sessions`. Never infer a mode from preceding conversation, a filename, tracker proximity, or the last-used mode. `help` is not a sixth mode.
+Outside the routes above, bare input, an unknown mode, more than one mode, or a mixed action such as `tasks sessions rename done` loads no substantive playbook, mutates nothing, and asks one choice-oriented question with exactly these five choices: `tasks`, `backlog`, `priorities`, `review`, or `sessions`. Never infer a mode solely from a filename, tracker proximity, or the last-used mode. `help` is not a sixth mode.
 
 A missing selected playbook is a visible blocked result. Do not fall back to another mode, a retired identity, or a hidden compatibility path.
 
@@ -68,7 +78,7 @@ Route before mutation when the requested outcome belongs to a neighbor. Pilotage
 ## Safety And Mutation Authority
 
 - Project trackers are local first. Use `shipglows_data/workflow/TASKS.md` for execution work and `shipglows_data/workflow/BACKLOG.md` for deferred work; root equivalents are legacy fallbacks only.
-- Before any operational-record write, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`. Before choosing `TASKS.md` versus the editorial roadmap, load `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md`.
+- Before any operational-record write, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` and apply `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. For bounded implementation-task capture the destination is `TASKS.md`; load `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md` when choosing another destination or resolving mixed/unclear ownership.
 - Treat snapshots as informational. Authoritatively re-read the mutable target immediately before a bounded patch, recompute once when its anchor moved, then stop and ask if ambiguity remains. Never rewrite a complete tracker from stale context.
 - One explicit mode authorizes only that mode's action. A combined request requires orientation first; do not chain modes automatically.
 - Never infer `done` from a final message, commit, build, changelog, or review alone. Preserve `implemented`, `verified`, and `assumed` as distinct evidence states.
