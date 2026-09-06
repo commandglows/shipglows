@@ -73,7 +73,14 @@ source_skill_dir() {
 }
 
 resolve_path() {
-    readlink -f "$1" 2>/dev/null || true
+    local resolved
+    resolved="$(readlink -f "$1" 2>/dev/null)" || return 0
+    # Git Bash accepts drive paths but resolves links to POSIX paths.
+    if command -v cygpath >/dev/null 2>&1; then
+        cygpath -u "$resolved"
+    else
+        printf '%s\n' "$resolved"
+    fi
 }
 
 validate_source() {
@@ -121,6 +128,8 @@ list_public_pairs() {
 import json
 import sys
 
+# Keep the Bash protocol LF-only even when python3 is a Windows executable.
+sys.stdout.reconfigure(newline="\n")
 registry = json.load(open(sys.argv[1], encoding="utf-8"))
 catalog = registry["public_catalog"]
 for domain in catalog["domains"]:
@@ -166,6 +175,16 @@ reconcile_catalog_links() {
         base="$(basename "$link_path")"
         resolved_target="$(resolve_path "$link_path")"
         if [ -z "$resolved_target" ] || [ ! -e "$resolved_target" ]; then
+            # Never reclaim a broken link whose ShipGlows ownership is unknown.
+            case "$resolved_target" in
+                "$resolved_skills"/*) ;;
+                *) continue ;;
+            esac
+            if [ "$MODE" = "check" ]; then
+                blocked=$((blocked + 1))
+                log "conflict runtime=$runtime skill=$base target=$link_path reason=stale-or-broken-symlink"
+                continue
+            fi
             rm -f "$link_path" || {
                 blocked=$((blocked + 1))
                 log "blocked runtime=$runtime skill=$base target=$link_path reason=cannot-remove-stale-symlink"
@@ -445,4 +464,5 @@ if [ "$MODE" = "repair" ]; then
     log "note: already-running Claude or Codex sessions may need a reload or new session before repaired skills appear in the skill list."
 fi
 
+[ "$blocked" -eq 0 ] || status=1
 exit "$status"
