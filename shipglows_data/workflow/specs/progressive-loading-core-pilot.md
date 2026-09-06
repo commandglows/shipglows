@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-04"
 updated: "2026-09-05"
-status: ready
+status: reviewed
 source_skill: 100-sg-spec
 scope: progressive-loading-core-pilot
 user_story: "An agent loads the minimum sufficient instructions for Core help and audit while preserving authority and proof."
@@ -20,11 +20,32 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Operator approved the bounded local pilot after the read-only audit; no commit or push authorized."
-next_step: "Operator review of the local pilot; generalization and Git delivery are not authorized."
+  - "Initial approval covered the bounded local pilot after the read-only audit; Git delivery was authorized later."
+  - "2026-09-05: PR #146 is merged into main at 373d820742bc2bf24ee95ccc125b8a90b2081490."
+next_step: "Follow representative-use observation in quality-first-core-continuation-pilot.md; retain the existing budget failures without a waiver."
 ---
 
 # Progressive Loading Core Pilot
+
+## Delivery Addendum (2026-09-05)
+
+The approved implementation and focused proof were delivered in commit
+`8d4d89422fc2216db0a8541dfec7fbd391a8dbfb` and integrated into `main` by
+[PR #146](https://github.com/commandglows/shipglows/pull/146), merge commit
+`373d820742bc2bf24ee95ccc125b8a90b2081490`. The later delivery authority recorded
+in `windows-linked-skills-status.md` superseded the initial local-only boundary.
+Metadata `reviewed` records this delivered scope; it is not a universal proof claim.
+
+The implementation, review and replay sections below preserve their dated local
+evidence. Their original Git restrictions and passing budget snapshots are history,
+not the current delivery or budget state. At the verified `main` HEAD `14b309d`,
+`core-help` is over budget at 11,227 estimated tokens; the complete scenario audit
+has four pre-existing overruns and remains failing. No threshold was relaxed.
+
+The eight-file help replay remains bounded, agent-reported evidence. General
+runtime compliance, complete task execution and billed tokens remain unproven.
+The merged quality-first follow-up in PR #151 owns the next representative-use
+observation; it does not retroactively supply that proof or authorize wider rollout.
 
 ## User Story And Minimal Behavior
 
@@ -104,7 +125,7 @@ Readiness: ready after target, approval, proof, invariants and write ownership r
 Parent owns contracts, registry, scenario proof and docs. Delegated instrumentation
 owns only tools/skill_activation_budget.py and its existing test file.
 
-## Current Chantier Flow
+## Historical Local Chantier Flow
 
 100-sg-spec -> 101-sg-ready: ready -> 102-sg-start: implemented locally ->
 103-sg-verify: local mechanical proof and bounded fresh help replay passed.

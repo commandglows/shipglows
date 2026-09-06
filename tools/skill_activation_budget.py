@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -106,6 +107,12 @@ def _path(relative: Any, root: Path) -> Path:
 
 def audit_trace(trace: Any, root: Path = ROOT) -> dict[str, Any]:
     """Measure supplied observations separately; never infer a trace from declarations."""
+    if isinstance(trace, dict):
+        version = trace.get("schema_version", 1)
+        if type(version) is not int or version not in (1, 2):
+            return {"status": "invalid", "errors": ["unsupported_trace_version"]}
+        if version == 2:
+            return audit_observed_trace(trace, root)
     errors: list[str] = []
     seen: set[Path] = set()
     unique = repeated = 0
@@ -128,6 +135,58 @@ def audit_trace(trace: Any, root: Path = ROOT) -> dict[str, Any]:
     return {"status": "invalid" if errors else "valid", "errors": errors,
             "unique_tokens": unique, "repeated_tokens": repeated, "total_tokens": unique + repeated,
             "event_count": len(events), "unique_paths": len(seen)}
+
+
+def audit_observed_trace(trace: dict[str, Any], root: Path) -> dict[str, Any]:
+    """V2 counts supplied delivered characters; partial overlap is not deduplicated.
+
+    Hashes bind observations to source bytes. They do not authenticate telemetry.
+    Missing delivery measurements remain unknown, never zero or full-file cost.
+    """
+    events = trace.get("events")
+    if not isinstance(events, list):
+        return {"status": "invalid", "errors": ["invalid_events"]}
+    errors, results = [], []
+    seen: set[Path] = set()
+    known = unknown = repeated_paths = 0
+    for index, event in enumerate(events):
+        try:
+            if not isinstance(event, dict) or not isinstance(event.get("reason"), str) or not event["reason"].strip():
+                raise ValueError("invalid_event")
+            path = _path(event.get("path"), root)
+            if event.get("source_sha256") != hashlib.sha256(path.read_bytes()).hexdigest():
+                raise ValueError("source_hash_mismatch")
+            extent = event.get("extent")
+            if extent not in ("full", "partial", "truncated"):
+                raise ValueError("invalid_extent")
+            if "delivered_characters" not in event:
+                raise ValueError("missing_delivered_characters")
+            chars = event["delivered_characters"]
+            if chars is not None and (type(chars) is not int or chars < 0):
+                raise ValueError("invalid_delivered_characters")
+            if chars is None:
+                unknown += 1
+                cost = None
+            else:
+                cost = (chars + 3) // 4
+                known += cost
+            repeated = path in seen
+            repeated_paths += int(repeated)
+            seen.add(path)
+            results.append({"index": index, "path": event["path"], "extent": extent,
+                            "estimated_tokens": cost, "previously_read_path": repeated})
+        except (ValueError, OSError) as error:
+            errors.append(f"event:{index}:{error}")
+    return {"status": "invalid" if errors else "valid", "errors": errors,
+            "schema_version": 2,
+            "measurement": "supplied_delivered_characters_estimate",
+            "measurement_status": "invalid" if errors else "incomplete" if unknown else "complete",
+            "known_tokens": known, "total_tokens": None if errors or unknown else known,
+            "unique_tokens": None, "repeated_tokens": None,
+            "unmeasured_events": unknown, "repeated_path_events": repeated_paths,
+            "event_count": len(events), "unique_paths": len(seen), "events": results,
+            "limits": "Supplied telemetry, not independently captured or billed tokens. "
+                      "Repeated paths do not establish overlapping text; no unique/repeated token split."}
 
 
 def audit_scenarios(registry: dict[str, Any], root: Path = ROOT,

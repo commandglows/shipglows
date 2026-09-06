@@ -4,6 +4,7 @@
 import json
 from pathlib import Path
 import unittest
+from tools.authority_contract_test_support import selected_authority
 
 from tools.skill_invocation_check import check
 
@@ -34,7 +35,7 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         cls.playbook = AUTO_PLAYBOOK.read_text(encoding="utf-8")
         cls.coordination = AUTO_COORDINATION.read_text(encoding="utf-8")
         cls.nolocal = NOLOCAL.read_text(encoding="utf-8")
-        cls.approval = APPROVAL.read_text(encoding="utf-8")
+        cls.approval = selected_authority("mutation-auto-authority")
         cls.delegation = DELEGATION.read_text(encoding="utf-8")
         cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         cls.index = INDEX.read_text(encoding="utf-8")

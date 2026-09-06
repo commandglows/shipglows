@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "description": "Shape example only. Replace the source hash and counts with observed evidence; never submit this as an actual run.",
+  "events": [
+    {
+      "path": "skills/sg-planning/SKILL.md",
+      "source_sha256": "REPLACE_WITH_SOURCE_BYTE_SHA256",
+      "reason": "Explicit planning invocation; output truncated and delivered length unavailable",
+      "extent": "truncated",
+      "delivered_characters": null
+    }
+  ]
+}

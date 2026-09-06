@@ -33,7 +33,7 @@ class CommonPathReportingModesTests(unittest.TestCase):
         self.assertIn("reporting-agent-handoff.md", explicit)
         self.assertIn("reporting-blocked-and-audit.md", blocked)
         self.assertNotIn("reporting-agent-handoff.md", blocked)
-        self.assertIn("never caller identity or blockers", body)
+        self.assertIn("not caller identity or blockers", body)
 
 
 if __name__ == "__main__":

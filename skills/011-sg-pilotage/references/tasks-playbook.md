@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.4"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-08-04"
+updated: "2026-09-05"
 status: active
 source_skill: 011-sg-pilotage
 scope: pilotage-tasks-mode
@@ -43,11 +43,19 @@ Make the durable execution tracker match real project state, then recommend one 
 
 ## Inputs And Sources
 
+### Bounded capture
+
+For a supplied implementation task in one known project, use `shipglows_data/workflow/TASKS.md`. Load `operational-record-format.md` for the record grammar and `mutation-plan-approval.md` for write authority, reusing current loaded text. Search for matching tasks and read only the matching records and destination section. Preserve the user's outcome, dependencies and known evidence; record future work as `todo`, never infer `done` or assign an owner without evidence. If an equivalent task exists, avoid duplication and preserve its status and unknown fields; conflicting records require clarification. Apply the Write Protocol below and report the saved task and its actual next dependency. Recording a task does not run tests, install tools, commit, push, or execute the future work.
+
+This branch needs no portfolio analysis, spec trace, changelog or editorial routing read. An explicitly attached spec or requested spec trace requires the full workflow and chantier tracking. Missing tracker, ambiguous project, status changes, migration, mixed/editorial work or a request to execute work selects the full workflow below. Reporting remains owned by `reporting-contract.md`: a verified save/duplicate gets a record confirmation, not a chantier closure; failed or uncertain writes get a work report.
+
+### Full workflow
+
 - Use `shipglows_data/workflow/TASKS.md` as the canonical project tracker.
 - Use root `TASKS.md` only as a legacy fallback or migration source when the canonical tracker is absent.
 - Treat archived central trackers as migration evidence, never as an active master dashboard.
 - Read git state, relevant files, tests, specs, and project docs only as needed to establish task truth.
-- Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before any record write and `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md` before choosing an execution or editorial destination.
+- Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before any record write. Load `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md` for destination selection outside bounded capture.
 
 At a workspace root or when several projects are credible targets, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and ask for one explicit project or portfolio scope before reading or writing a tracker. A portfolio view remains derived from project-local trackers and never creates or mutates a central master tracker.
 

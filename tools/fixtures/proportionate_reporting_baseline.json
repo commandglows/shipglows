@@ -1,0 +1,2649 @@
+{
+  "commit": "5ee74db312491897a861286cb2bbe560a5bf4742",
+  "files": {
+    "skills/references/documentation-freshness-gate.md": {
+      "sha256": "96600030f392775be39dcb660891ca46b299f0cb3c258f3cbf421b3c10a0c3c1",
+      "tokens": 1028
+    },
+    "skills/010-sg-technical/SKILL.md": {
+      "sha256": "394e27848287547b3742238203b7eca0b9173c36b1526207954efee7af668947",
+      "tokens": 1615
+    },
+    "skills/sg-engineering/SKILL.md": {
+      "sha256": "6e1774c1a11a28c7b4ad6c50200953cc909db08bcc9d1c7901d6bd0c59884215",
+      "tokens": 606
+    },
+    "skills/011-sg-pilotage/references/tasks-playbook.md": {
+      "sha256": "942c84ea484f9a1a09d1b4f5dae58f881667fe259d01cc0bb7a13ced2c756389",
+      "tokens": 1627
+    },
+    "skills/references/reporting-blocked-and-audit.md": {
+      "sha256": "35b31f8d92f73942a4de343d3a149118e0c1a0673d20cf71d1dbc1e49dbf8871",
+      "tokens": 802
+    },
+    "skills/references/skill-execution-fidelity.md": {
+      "sha256": "e846303fb66c7047630514714369b1e58d1bd0731b2ba79a773fa91ef6601b17",
+      "tokens": 4513
+    },
+    "skills/references/mutation-git-authority.md": {
+      "sha256": "0fd0ef408ecd7d5791d4c1a8b7e40539b61fe32da62b9ef681cada67c32bd723",
+      "tokens": 1373
+    },
+    "skills/706-continue/references/continuation-playbook.md": {
+      "sha256": "62ddac864544e728a10a54403c17cacd0a358d0b358a4f048541d5a8df6d68a5",
+      "tokens": 862
+    },
+    "skills/references/skill-invocation-preflight.md": {
+      "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b",
+      "tokens": 1182
+    },
+    "skills/references/skill-context-budget.md": {
+      "sha256": "04086ce0de341c1ca281efcbb87d8b664794042ca64c21e3076c39d403ada7e9",
+      "tokens": 2245
+    },
+    "skills/003-sg-bug/SKILL.md": {
+      "sha256": "48c7424819d35f643b279e611ef7c42d9296ff37aa4625b57c0b9bcce4aaaedf",
+      "tokens": 2068
+    },
+    "skills/sg-bug/SKILL.md": {
+      "sha256": "ff74b1134b1037f29eee47f85193c222944b0a0e973d197ac657315c3c649fb7",
+      "tokens": 375
+    },
+    "skills/references/functional-excellence-contract.md": {
+      "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193",
+      "tokens": 2101
+    },
+    "skills/011-sg-pilotage/SKILL.md": {
+      "sha256": "5d76249d30dcfdeef333a5885c3cefa42c815f10f5797af1e4021c25b41975fa",
+      "tokens": 1992
+    },
+    "skills/references/mutation-auto-authority.md": {
+      "sha256": "b917eb8a968c3051a5b80f46d9ae66213c42bbed92dd91fe61c7f9f2e1d059ef",
+      "tokens": 988
+    },
+    "skills/900-shipglows-core/SKILL.md": {
+      "sha256": "db15c77cc6aded4e1347a466236b1e8ae772f7edbdea25067a3f3e5d30a532ce",
+      "tokens": 2018
+    },
+    "skills/references/next-outcome-selection.md": {
+      "sha256": "49d9fe10ef143a8920b2257f0986f4aecb0fef2fbdc5c6405645e425cc293f08",
+      "tokens": 1153
+    },
+    "skills/003-sg-bug/references/bug-evidence-routing.md": {
+      "sha256": "ea9190aa2c0361764bcfebed058e2113502b91a6715033dbf93cab86f38b7fa5",
+      "tokens": 893
+    },
+    "skills/references/strategic-choice-contract.md": {
+      "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969",
+      "tokens": 1605
+    },
+    "skills/references/reporting-contract.md": {
+      "sha256": "04b4b5e65a1b53a921157d0ca4950d25e9c8d8cb7691b176c36a37d3cdc6cc57",
+      "tokens": 1998
+    },
+    "skills/references/no-local-execution-policy.md": {
+      "sha256": "ba7e2275d06d52a7ce91ffd0b3937b3def68cc8daad71fb7d4c21dead8345550",
+      "tokens": 1649
+    },
+    "skills/references/editorial-reflection-gate.md": {
+      "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2",
+      "tokens": 1533
+    },
+    "skills/references/chantier-tracking.md": {
+      "sha256": "68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7",
+      "tokens": 2835
+    },
+    "skills/706-continue/SKILL.md": {
+      "sha256": "644e513a16994bddc62f2cbd294b52d8435de2f750d5e6b02b9b36df1847e088",
+      "tokens": 1711
+    },
+    "skills/references/project-delivery-policy.md": {
+      "sha256": "b255e76a9e64ce3751edc3b1ba86aa6ca8750787f1d3fb7a172649e9eb5dc48f",
+      "tokens": 1967
+    },
+    "skills/sg-experience/SKILL.md": {
+      "sha256": "2ec5da681e8c3adf672a4c46a94ea58a7016af4c8e0136866bd744f42217c4d2",
+      "tokens": 335
+    },
+    "skills/references/operational-record-format.md": {
+      "sha256": "79ea5ec1f6ae6a657d0a9a05f57cbdc5e03d03347f33013f0cc44aabc1576e72",
+      "tokens": 1866
+    },
+    "skills/900-shipglows-core/references/core-audit-and-improvement.md": {
+      "sha256": "7fa3a51d8511d4c0310d63eb54ea334adeb0df0d01d298113dcc089c7d9dec66",
+      "tokens": 499
+    },
+    "skills/references/reporting-closure.md": {
+      "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55",
+      "tokens": 1301
+    },
+    "skills/references/decision-quality-contract.md": {
+      "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2",
+      "tokens": 1507
+    },
+    "skills/references/documentation-reflection-gate.md": {
+      "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3",
+      "tokens": 1942
+    },
+    "skills/references/canonical-paths.md": {
+      "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7",
+      "tokens": 844
+    },
+    "skills/references/spec-driven-development-discipline.md": {
+      "sha256": "8b5b5e0b7cc850e72e0123d3ca46add70a035fb93c212f075b818eb98d900a8f",
+      "tokens": 3231
+    },
+    "skills/010-sg-technical/references/dependency-audit-playbook.md": {
+      "sha256": "4ba7674736d16727a1fef81c5777f31d16ad9f27e1c0cd90e754250e0016d39c",
+      "tokens": 4621
+    },
+    "skills/references/intent-to-outcome-execution.md": {
+      "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777",
+      "tokens": 882
+    },
+    "skills/references/context-quality-contract.md": {
+      "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440",
+      "tokens": 2121
+    },
+    "skills/008-sg-customer/SKILL.md": {
+      "sha256": "359ba2dfcd3bc0895008f20974b41633c4ca05be20c0f97f59ceb3a5633bc8d0",
+      "tokens": 1886
+    },
+    "skills/sg-development/SKILL.md": {
+      "sha256": "a59ddda575b3ffae1dc49749701f0755653f3ad11d232bb316393b4d50ccb167",
+      "tokens": 615
+    },
+    "skills/sg-planning/SKILL.md": {
+      "sha256": "141ba52092a87b8aa861413eb2f4c85bdcf252011b78dabf4770acf2bd0dbfd9",
+      "tokens": 424
+    },
+    "skills/references/mutation-plan-approval.md": {
+      "sha256": "f2965ff263b188793522fa823ef8917e17a003fc132bf37ece1dab165e09e630",
+      "tokens": 3482
+    },
+    "skills/000-shipglows/SKILL.md": {
+      "sha256": "8e9e5275ec37abcb340443bc562f19d7ddf296db7b6e37c35991376a164444d9",
+      "tokens": 1991
+    },
+    "skills/references/question-contract.md": {
+      "sha256": "ffeb8f0a1ebc9f65cff5fa66fa05105ce1fa7b0ffa25fd93cd0474a97db03f90",
+      "tokens": 1529
+    },
+    "skills/references/zombies-edge-case-heuristic.md": {
+      "sha256": "f0e110e8d3b04b296daf332cecc3c6ebe25456734c705f0e8209c0aeaac4e27b",
+      "tokens": 754
+    },
+    "skills/900-shipglows-core/references/skill-maintenance-playbook.md": {
+      "sha256": "0edbf33732464f80c912b76ad1a1175aaf4a27bb2cf01c6b25d7a8c6ac9aaa7a",
+      "tokens": 1671
+    },
+    "skills/references/intent-to-outcome-autonomy.md": {
+      "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157",
+      "tokens": 1007
+    },
+    "skills/references/operator-partnership-contract.md": {
+      "sha256": "35dc78056315eb71a10cfa656ca04aad76072c4135824e9d66295b6fa20a3d89",
+      "tokens": 1453
+    },
+    "skills/references/skill-instruction-layering.md": {
+      "sha256": "90ce992cfe57d5ce3315689dfe3db0867ec4962c5276ea3cb8df3aa8890256d2",
+      "tokens": 3460
+    },
+    "skills/001-sg-build/references/build-lifecycle-workflow.md": {
+      "sha256": "66f2a1dbb5f07885612809401f2ea9b91a6bdfad95ae35085b62fd4b8edb02f3",
+      "tokens": 420
+    },
+    "skills/references/business-context-mesh.md": {
+      "sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a",
+      "tokens": 2407
+    },
+    "skills/references/project-development-mode.md": {
+      "sha256": "54d078a5f1a24f44cd611f7d5182d5d360f5bea9eb88e1b87dc34f6850155d0c",
+      "tokens": 1528
+    },
+    "skills/shipglows/SKILL.md": {
+      "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2",
+      "tokens": 408
+    },
+    "skills/references/design-system-token-contract.md": {
+      "sha256": "93cf9820183e64c77cef8bc2e5c9748645d71fa6307c57908eee042ea4cc4a32",
+      "tokens": 3625
+    },
+    "skills/001-sg-build/SKILL.md": {
+      "sha256": "b39a40949f257228c8efd514ca23cfa60b7db475a178ba6a1b2ec3fd674c7799",
+      "tokens": 2003
+    },
+    "skills/008-sg-customer/references/customer-audit-playbook.md": {
+      "sha256": "7c80fa17efcd2e461099c4f02ba5184d7d5c1db7c4e275e828fe98b990d8d114",
+      "tokens": 462
+    },
+    "skills/references/expert-mode-aliases.md": {
+      "sha256": "88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850",
+      "tokens": 1154
+    }
+  },
+  "scenarios": {
+    "common-docs-direct": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/000-shipglows/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve bounded gate before owner",
+          "reason": "Resolve bounded gate before owner"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical runtime files",
+          "reason": "Resolve canonical runtime files"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit shipglows invocation",
+          "reason": "Explicit shipglows invocation"
+        }
+      ],
+      "budget": {
+        "max_tokens": 4436,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 4436,
+      "min_reduction_percent": 0,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 2002,
+          "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        }
+      ],
+      "prompt": "shipglows Mets la documentation à jour pour ce changement",
+      "checkpoint": "Bounded direct route selected; before documentation mutation, proof, or final report",
+      "assumptions": "Exact known diff; affected internal files and edits are enumerable; no material editorial choice. Mutation approval contract is required at the later write boundary.",
+      "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+      "baseline_depth_after_selection": 1,
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md"
+      ]
+    },
+    "common-verify-direct": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/000-shipglows/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve bounded gate before owner",
+          "reason": "Resolve bounded gate before owner"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical runtime files",
+          "reason": "Resolve canonical runtime files"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit shipglows invocation",
+          "reason": "Explicit shipglows invocation"
+        }
+      ],
+      "budget": {
+        "max_tokens": 4436,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 4436,
+      "min_reduction_percent": 0,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 2002,
+          "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        }
+      ],
+      "prompt": "shipglows Vérifie que ça fonctionne",
+      "checkpoint": "Bounded direct verification route selected; before test execution or final report",
+      "assumptions": "Specific local non-UI behavior and focused test known; no browser, release, security or hosted-proof ambiguity.",
+      "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+      "baseline_depth_after_selection": 1,
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md"
+      ]
+    },
+    "common-bug-proof-selection": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/003-sg-bug/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve bounded gate before owner",
+          "reason": "Resolve bounded gate before owner"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical runtime files",
+          "reason": "Resolve canonical runtime files"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit shipglows invocation",
+          "reason": "Explicit shipglows invocation"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial outcome",
+          "reason": "Nontrivial outcome"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial route and scope decision",
+          "reason": "Nontrivial route and scope decision"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Actionable owner and outcome resolved",
+          "reason": "Actionable owner and outcome resolved"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Material product outcome",
+          "reason": "Material product outcome"
+        },
+        {
+          "path": "skills/sg-bug/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "owner",
+          "trigger": "Known single defect",
+          "reason": "Known single defect"
+        },
+        {
+          "path": "skills/003-sg-bug/SKILL.md",
+          "parent": "skills/sg-bug/SKILL.md",
+          "stage": "engine",
+          "trigger": "Single bug lifecycle",
+          "reason": "Single bug lifecycle"
+        },
+        {
+          "path": "skills/003-sg-bug/references/bug-evidence-routing.md",
+          "parent": "skills/003-sg-bug/SKILL.md",
+          "stage": "diagnosis",
+          "trigger": "Select evidence owner and proof route",
+          "reason": "Select evidence owner and proof route"
+        },
+        {
+          "path": "skills/references/spec-driven-development-discipline.md",
+          "parent": "skills/003-sg-bug/references/bug-evidence-routing.md",
+          "stage": "diagnosis",
+          "trigger": "Evidence playbook requires one proof path before dispatch",
+          "reason": "Evidence playbook requires one proof path before dispatch"
+        },
+        {
+          "path": "skills/references/project-development-mode.md",
+          "parent": "skills/003-sg-bug/references/bug-evidence-routing.md",
+          "stage": "diagnosis",
+          "trigger": "Determine authoritative proof location",
+          "reason": "Determine authoritative proof location"
+        },
+        {
+          "path": "skills/references/project-delivery-policy.md",
+          "parent": "skills/references/project-development-mode.md",
+          "stage": "diagnosis",
+          "trigger": "Authoritative proof surface contract explicitly requires separate delivery policy",
+          "reason": "Authoritative proof surface contract explicitly requires separate delivery policy"
+        },
+        {
+          "path": "skills/references/zombies-edge-case-heuristic.md",
+          "parent": "skills/references/spec-driven-development-discipline.md",
+          "stage": "diagnosis",
+          "trigger": "Nontrivial save behavior needs edge-case coverage in proof planning",
+          "reason": "Nontrivial save behavior needs edge-case coverage in proof planning"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "report",
+          "trigger": "Report unfinished finding or decision",
+          "reason": "Report unfinished finding or decision"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Unfinished outcome, expose evidence and limits",
+          "reason": "Unfinished outcome, expose evidence and limits"
+        }
+      ],
+      "budget": {
+        "max_tokens": 23641,
+        "max_depth_after_selection": 3
+      },
+      "baseline_tokens": 23641,
+      "min_reduction_percent": 0,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 2002,
+          "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "tokens": 882,
+          "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "tokens": 2101,
+          "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+        },
+        {
+          "path": "skills/sg-bug/SKILL.md",
+          "tokens": 375,
+          "sha256": "ff74b1134b1037f29eee47f85193c222944b0a0e973d197ac657315c3c649fb7"
+        },
+        {
+          "path": "skills/003-sg-bug/SKILL.md",
+          "tokens": 2068,
+          "sha256": "48c7424819d35f643b279e611ef7c42d9296ff37aa4625b57c0b9bcce4aaaedf"
+        },
+        {
+          "path": "skills/003-sg-bug/references/bug-evidence-routing.md",
+          "tokens": 893,
+          "sha256": "ea9190aa2c0361764bcfebed058e2113502b91a6715033dbf93cab86f38b7fa5"
+        },
+        {
+          "path": "skills/references/spec-driven-development-discipline.md",
+          "tokens": 3231,
+          "sha256": "8b5b5e0b7cc850e72e0123d3ca46add70a035fb93c212f075b818eb98d900a8f"
+        },
+        {
+          "path": "skills/references/project-development-mode.md",
+          "tokens": 1528,
+          "sha256": "54d078a5f1a24f44cd611f7d5182d5d360f5bea9eb88e1b87dc34f6850155d0c"
+        },
+        {
+          "path": "skills/references/project-delivery-policy.md",
+          "tokens": 1967,
+          "sha256": "b255e76a9e64ce3751edc3b1ba86aa6ca8750787f1d3fb7a172649e9eb5dc48f"
+        },
+        {
+          "path": "skills/references/zombies-edge-case-heuristic.md",
+          "tokens": 754,
+          "sha256": "f0e110e8d3b04b296daf332cecc3c6ebe25456734c705f0e8209c0aeaac4e27b"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 2046,
+          "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "tokens": 846,
+          "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+        }
+      ],
+      "prompt": "shipglows Corrige le bug : le bouton Enregistrer ne fait rien",
+      "checkpoint": "Evidence owner and proof path selected, reported; before topology, dispatch, repair or closure",
+      "assumptions": "Known product, reproduction and expected behavior; local non-auth defect; no active spec, runtime crash, external evidence or unresolved product decision. Later delegation and mutation gates remain required.",
+      "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+      "baseline_correction": "Independent source review corrected the earlier incomplete 20920-token checkpoint by adding explicit conditional readers; historical source hashes remain the captured pre-wave working tree.",
+      "baseline_depth_after_selection": 3,
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md",
+        "skills/references/reporting-contract.md",
+        "skills/references/spec-driven-development-discipline.md",
+        "skills/references/project-delivery-policy.md",
+        "skills/references/zombies-edge-case-heuristic.md"
+      ]
+    },
+    "common-feature-approval": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/001-sg-build/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve bounded gate before owner",
+          "reason": "Resolve bounded gate before owner"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical runtime files",
+          "reason": "Resolve canonical runtime files"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit shipglows invocation",
+          "reason": "Explicit shipglows invocation"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial outcome",
+          "reason": "Nontrivial outcome"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial route and scope decision",
+          "reason": "Nontrivial route and scope decision"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Actionable owner and outcome resolved",
+          "reason": "Actionable owner and outcome resolved"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Material product outcome",
+          "reason": "Material product outcome"
+        },
+        {
+          "path": "skills/sg-development/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "owner",
+          "trigger": "Known existing-product feature",
+          "reason": "Known existing-product feature"
+        },
+        {
+          "path": "skills/001-sg-build/SKILL.md",
+          "parent": "skills/sg-development/SKILL.md",
+          "stage": "engine",
+          "trigger": "Product lifecycle owner",
+          "reason": "Product lifecycle owner"
+        },
+        {
+          "path": "skills/001-sg-build/references/build-lifecycle-workflow.md",
+          "parent": "skills/001-sg-build/SKILL.md",
+          "stage": "selection",
+          "trigger": "Required early route and existing-spec check",
+          "reason": "Required early route and existing-spec check"
+        },
+        {
+          "path": "skills/references/business-context-mesh.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Existing product behavior affects decision",
+          "reason": "Existing product behavior affects decision"
+        },
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "parent": "skills/001-sg-build/SKILL.md",
+          "stage": "clarification",
+          "trigger": "Material proposed implementation requires bounded plan approval",
+          "reason": "Material proposed implementation requires bounded plan approval"
+        },
+        {
+          "path": "skills/references/operator-partnership-contract.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "clarification",
+          "trigger": "Material operator question",
+          "reason": "Material operator question"
+        },
+        {
+          "path": "skills/references/question-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "clarification",
+          "trigger": "Missing material decision requires question",
+          "reason": "Missing material decision requires question"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "parent": "skills/references/question-contract.md",
+          "stage": "clarification",
+          "trigger": "Useful operator choices and consequences",
+          "reason": "Useful operator choices and consequences"
+        },
+        {
+          "path": "skills/references/design-system-token-contract.md",
+          "parent": "skills/001-sg-build/SKILL.md",
+          "stage": "clarification",
+          "trigger": "Build owner requires design-system authority for UI work, including the proposed filter",
+          "reason": "Build owner requires design-system authority for UI work, including the proposed filter"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "report",
+          "trigger": "Report unfinished finding or decision",
+          "reason": "Report unfinished finding or decision"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Unfinished outcome, expose evidence and limits",
+          "reason": "Unfinished outcome, expose evidence and limits"
+        },
+        {
+          "path": "skills/references/mutation-git-authority.md",
+          "parent": "skills/references/mutation-plan-approval.md",
+          "stage": "approval",
+          "trigger": "Technical plan discloses milestone and final Git persistence",
+          "reason": "Preserve standing and bounded delivery authority before approval"
+        }
+      ],
+      "budget": {
+        "max_tokens": 40827,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 40827,
+      "min_reduction_percent": 0,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 2002,
+          "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "tokens": 882,
+          "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "tokens": 2101,
+          "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+        },
+        {
+          "path": "skills/sg-development/SKILL.md",
+          "tokens": 615,
+          "sha256": "a59ddda575b3ffae1dc49749701f0755653f3ad11d232bb316393b4d50ccb167"
+        },
+        {
+          "path": "skills/001-sg-build/SKILL.md",
+          "tokens": 1887,
+          "sha256": "5338550182de5fa077161a00a7d1841ef6488cf9870c10711f8ac61538aed5fc"
+        },
+        {
+          "path": "skills/001-sg-build/references/build-lifecycle-workflow.md",
+          "tokens": 420,
+          "sha256": "66f2a1dbb5f07885612809401f2ea9b91a6bdfad95ae35085b62fd4b8edb02f3"
+        },
+        {
+          "path": "skills/references/business-context-mesh.md",
+          "tokens": 2407,
+          "sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a"
+        },
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "tokens": 8019,
+          "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35"
+        },
+        {
+          "path": "skills/references/operator-partnership-contract.md",
+          "tokens": 4043,
+          "sha256": "e1ac1218e5756f7ebdb98df14c58e319157b6dd8668d4dd9057eeacd8db41df1"
+        },
+        {
+          "path": "skills/references/question-contract.md",
+          "tokens": 5381,
+          "sha256": "f5fa11129683a5ef41cb13b4bbdcdd124e91b2eaf0759d65cb75b46bbb6faae4"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "tokens": 1605,
+          "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969"
+        },
+        {
+          "path": "skills/references/design-system-token-contract.md",
+          "tokens": 3625,
+          "sha256": "93cf9820183e64c77cef8bc2e5c9748645d71fa6307c57908eee042ea4cc4a32"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 2046,
+          "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "tokens": 846,
+          "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+        }
+      ],
+      "prompt": "shipglows Ajoute un filtre par statut à la liste des commandes",
+      "checkpoint": "First material implementation plan presented; before spec creation, readiness or execution",
+      "assumptions": "Existing application; no matching active spec; material filter semantics remain operator choice; existing pattern and product facts available; no new journey, platform or visual direction. Project facts are excluded data, not omitted instruction reads. Git disclosure covers ordinary current-branch persistence only; no integration/promotion destination is selected or promised and no Git action or approved milestone is executed.",
+      "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+      "baseline_correction": "Independent source review corrected the earlier incomplete 37202-token checkpoint by adding explicit conditional readers; historical source hashes remain the captured pre-wave working tree.",
+      "baseline_depth_after_selection": 1,
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md",
+        "skills/references/reporting-contract.md",
+        "skills/references/mutation-plan-approval.md",
+        "skills/references/design-system-token-contract.md",
+        "skills/references/question-contract.md",
+        "skills/references/mutation-git-authority.md"
+      ]
+    },
+    "common-page-comprehension": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/008-sg-customer/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve bounded gate before owner",
+          "reason": "Resolve bounded gate before owner"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical runtime files",
+          "reason": "Resolve canonical runtime files"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit shipglows invocation",
+          "reason": "Explicit shipglows invocation"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial outcome",
+          "reason": "Nontrivial outcome"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial route and scope decision",
+          "reason": "Nontrivial route and scope decision"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Actionable owner and outcome resolved",
+          "reason": "Actionable owner and outcome resolved"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Material product outcome",
+          "reason": "Material product outcome"
+        },
+        {
+          "path": "skills/sg-experience/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "owner",
+          "trigger": "Evidence identifies comprehension outcome",
+          "reason": "Evidence identifies comprehension outcome"
+        },
+        {
+          "path": "skills/008-sg-customer/SKILL.md",
+          "parent": "skills/sg-experience/SKILL.md",
+          "stage": "engine",
+          "trigger": "Existing customer journey audit",
+          "reason": "Existing customer journey audit"
+        },
+        {
+          "path": "skills/008-sg-customer/references/customer-audit-playbook.md",
+          "parent": "skills/008-sg-customer/SKILL.md",
+          "stage": "diagnosis",
+          "trigger": "One selected audit playbook",
+          "reason": "One selected audit playbook"
+        },
+        {
+          "path": "skills/references/business-context-mesh.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "diagnosis",
+          "trigger": "Target user and first success matter",
+          "reason": "Target user and first success matter"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "report",
+          "trigger": "Report unfinished finding or decision",
+          "reason": "Report unfinished finding or decision"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Unfinished outcome, expose evidence and limits",
+          "reason": "Unfinished outcome, expose evidence and limits"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Unfinished outcome requires actionable next choices",
+          "reason": "Unfinished outcome requires actionable next choices"
+        }
+      ],
+      "budget": {
+        "max_tokens": 19520,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 19520,
+      "min_reduction_percent": 0,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 2002,
+          "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "tokens": 882,
+          "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "tokens": 2101,
+          "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+        },
+        {
+          "path": "skills/sg-experience/SKILL.md",
+          "tokens": 335,
+          "sha256": "2ec5da681e8c3adf672a4c46a94ea58a7016af4c8e0136866bd744f42217c4d2"
+        },
+        {
+          "path": "skills/008-sg-customer/SKILL.md",
+          "tokens": 1886,
+          "sha256": "359ba2dfcd3bc0895008f20974b41633c4ca05be20c0f97f59ceb3a5633bc8d0"
+        },
+        {
+          "path": "skills/008-sg-customer/references/customer-audit-playbook.md",
+          "tokens": 462,
+          "sha256": "7c80fa17efcd2e461099c4f02ba5184d7d5c1db7c4e275e828fe98b990d8d114"
+        },
+        {
+          "path": "skills/references/business-context-mesh.md",
+          "tokens": 2407,
+          "sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 2046,
+          "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "tokens": 846,
+          "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "tokens": 1605,
+          "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969"
+        }
+      ],
+      "prompt": "shipglows Améliore cette page, elle est confuse",
+      "checkpoint": "Initial comprehension finding and next owner reported; before external research, material solution question or implementation",
+      "assumptions": "Known page with supplied trustworthy evidence of user misunderstanding; target user, first success and existing product facts known. No permissions, delayed operation, external claims, design-system decision or new interaction. Without comprehension evidence design vs experience stays ambiguous; this fixture does not decide all confusing-page requests.",
+      "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+      "baseline_depth_after_selection": 1,
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md",
+        "skills/references/reporting-contract.md"
+      ]
+    },
+    "common-resume-ready": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/706-continue/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve bounded gate before owner",
+          "reason": "Resolve bounded gate before owner"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical runtime files",
+          "reason": "Resolve canonical runtime files"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit shipglows invocation",
+          "reason": "Explicit shipglows invocation"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial outcome",
+          "reason": "Nontrivial outcome"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial route and scope decision",
+          "reason": "Nontrivial route and scope decision"
+        },
+        {
+          "path": "skills/references/context-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Continuity state and freshness determine route",
+          "reason": "Continuity state and freshness determine route"
+        },
+        {
+          "path": "skills/706-continue/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "engine",
+          "trigger": "Paused-work continuation helper",
+          "reason": "Paused-work continuation helper"
+        },
+        {
+          "path": "skills/706-continue/references/continuation-playbook.md",
+          "parent": "skills/706-continue/SKILL.md",
+          "stage": "selection",
+          "trigger": "Resolve unique ready work and authority",
+          "reason": "Resolve unique ready work and authority"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Actionable owner and outcome resolved",
+          "reason": "Actionable owner and outcome resolved"
+        }
+      ],
+      "budget": {
+        "max_tokens": 12523,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 12523,
+      "min_reduction_percent": 0,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 2002,
+          "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+        },
+        {
+          "path": "skills/references/context-quality-contract.md",
+          "tokens": 2121,
+          "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440"
+        },
+        {
+          "path": "skills/706-continue/SKILL.md",
+          "tokens": 1714,
+          "sha256": "f82507e7b7eeb1d93da07fbfd88026a4ad86439d7ca489b02a38263b338cd8d2"
+        },
+        {
+          "path": "skills/706-continue/references/continuation-playbook.md",
+          "tokens": 856,
+          "sha256": "19512f395f5c9962a38f9440ecf7634dbcf46b56f8b9a6ba805f46e00e6617ef"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "tokens": 882,
+          "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+        }
+      ],
+      "prompt": "shipglows Où en est-on ? Reprends la suite",
+      "checkpoint": "Unique ready task and next authorized unit selected; before loading that unit owner or executing",
+      "assumptions": "One current ready task with explicit prior authority and fresh continuation capsule.",
+      "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+      "baseline_depth_after_selection": 1,
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md"
+      ]
+    },
+    "common-resume-missing": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/706-continue/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve bounded gate before owner",
+          "reason": "Resolve bounded gate before owner"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical runtime files",
+          "reason": "Resolve canonical runtime files"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit shipglows invocation",
+          "reason": "Explicit shipglows invocation"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial outcome",
+          "reason": "Nontrivial outcome"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Nontrivial route and scope decision",
+          "reason": "Nontrivial route and scope decision"
+        },
+        {
+          "path": "skills/references/context-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Continuity state and freshness determine route",
+          "reason": "Continuity state and freshness determine route"
+        },
+        {
+          "path": "skills/706-continue/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "engine",
+          "trigger": "Paused-work continuation helper",
+          "reason": "Paused-work continuation helper"
+        },
+        {
+          "path": "skills/706-continue/references/continuation-playbook.md",
+          "parent": "skills/706-continue/SKILL.md",
+          "stage": "selection",
+          "trigger": "Resolve unique ready work and authority",
+          "reason": "Resolve unique ready work and authority"
+        },
+        {
+          "path": "skills/references/operator-partnership-contract.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "clarification",
+          "trigger": "Material operator question",
+          "reason": "Material operator question"
+        },
+        {
+          "path": "skills/references/question-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "clarification",
+          "trigger": "Missing material decision requires question",
+          "reason": "Missing material decision requires question"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "parent": "skills/references/question-contract.md",
+          "stage": "clarification",
+          "trigger": "Useful operator choices and consequences",
+          "reason": "Useful operator choices and consequences"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "report",
+          "trigger": "Report unfinished finding or decision",
+          "reason": "Report unfinished finding or decision"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Unfinished outcome, expose evidence and limits",
+          "reason": "Unfinished outcome, expose evidence and limits"
+        }
+      ],
+      "budget": {
+        "max_tokens": 19171,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 25562,
+      "min_reduction_percent": 25,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 2002,
+          "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+        },
+        {
+          "path": "skills/references/context-quality-contract.md",
+          "tokens": 2121,
+          "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440"
+        },
+        {
+          "path": "skills/706-continue/SKILL.md",
+          "tokens": 1714,
+          "sha256": "f82507e7b7eeb1d93da07fbfd88026a4ad86439d7ca489b02a38263b338cd8d2"
+        },
+        {
+          "path": "skills/706-continue/references/continuation-playbook.md",
+          "tokens": 856,
+          "sha256": "19512f395f5c9962a38f9440ecf7634dbcf46b56f8b9a6ba805f46e00e6617ef"
+        },
+        {
+          "path": "skills/references/operator-partnership-contract.md",
+          "tokens": 4043,
+          "sha256": "e1ac1218e5756f7ebdb98df14c58e319157b6dd8668d4dd9057eeacd8db41df1"
+        },
+        {
+          "path": "skills/references/question-contract.md",
+          "tokens": 5381,
+          "sha256": "f5fa11129683a5ef41cb13b4bbdcdd124e91b2eaf0759d65cb75b46bbb6faae4"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "tokens": 1605,
+          "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 2046,
+          "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "tokens": 846,
+          "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+        }
+      ],
+      "prompt": "shipglows Où en est-on ? Reprends la suite",
+      "checkpoint": "Safe evidence search found no identifiable continuation target; concise clarification reported",
+      "assumptions": "No target recoverable from conversation or safe focused local discovery; no material strategy decision beyond selecting task; no mutation, greenfield proposal or new chantier.",
+      "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+      "baseline_depth_after_selection": 1,
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md",
+        "skills/references/reporting-contract.md",
+        "skills/references/question-contract.md",
+        "skills/references/context-quality-contract.md",
+        "skills/706-continue/references/continuation-playbook.md"
+      ]
+    },
+    "core-skill-audit": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/900-shipglows-core/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Public invocation; canonical engine",
+          "reason": "Public invocation; canonical engine"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Select owner and preserve authority",
+          "reason": "Select owner and preserve authority"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve ShipGlows-owned resources",
+          "reason": "Resolve ShipGlows-owned resources"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Non-trivial skill audit outcome",
+          "reason": "Non-trivial skill audit outcome"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Non-trivial skill audit selection",
+          "reason": "Non-trivial skill audit selection"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "execution",
+          "trigger": "Actionable owner resolved; no mutation",
+          "reason": "Actionable owner resolved; no mutation"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Material audit result for maintenance decisions",
+          "reason": "Material audit result for maintenance decisions"
+        },
+        {
+          "path": "skills/900-shipglows-core/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "engine",
+          "trigger": "Known ShipGlows skill audit; direct route",
+          "reason": "Known ShipGlows skill audit; direct route"
+        },
+        {
+          "path": "skills/900-shipglows-core/references/core-audit-and-improvement.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "audit",
+          "trigger": "Skill audit; one local pack",
+          "reason": "Skill audit; one local pack"
+        },
+        {
+          "path": "skills/references/skill-execution-fidelity.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "audit",
+          "trigger": "Execution-fidelity audit",
+          "reason": "Execution-fidelity audit"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "report",
+          "trigger": "Final user audit",
+          "reason": "Final user audit"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Audit findings and limits",
+          "reason": "Audit findings and limits"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Unfinished improvement requires operator decision",
+          "reason": "Unfinished improvement requires operator decision"
+        }
+      ],
+      "budget": {
+        "max_tokens": 22238,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 37064,
+      "min_reduction_percent": 40,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 1521,
+          "sha256": "75707dd8029a75480a9d9688e200ca3b12c0f34d33ddd2c6c7e9bc9023939699"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 3388,
+          "sha256": "b8e7c96a9952cae2d45fbb62ddc04b867157033096515fada5aa67653681ea26"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "297aadd6f470d5b52c00d08c245e193eecb83d61d0de2d8cb53310cdd05b37c4"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "tokens": 882,
+          "sha256": "7c52474474c1f7b1790a094552fe647006590851135a3ee48c4013bf067d870a"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "tokens": 2101,
+          "sha256": "0fa09326ed45179349e794a00e5a3c29b4efd48eeb4db212d7766db22f576349"
+        },
+        {
+          "path": "skills/900-shipglows-core/SKILL.md",
+          "tokens": 2001,
+          "sha256": "b12ee48781ec49d6725730b6400595ef54d4b00471d856efdb4f1c2df35eb256"
+        },
+        {
+          "path": "skills/900-shipglows-core/references/core-audit-and-improvement.md",
+          "tokens": 420,
+          "sha256": "38ef5f648751e22eca595516cde5efd92a83ff12da0c93c073de3992a2db700e"
+        },
+        {
+          "path": "skills/references/skill-execution-fidelity.md",
+          "tokens": 4513,
+          "sha256": "441189fce74860e3123ad121aab120388a381b41f088460465adc109082493cc"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 4771,
+          "sha256": "ea106f57e8929305533d51ce804d60133a2ed85033d857c73b36e319e3e3e0a1"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "tokens": 841,
+          "sha256": "fd120a54dcdbb7033c7f7762c722c1a9700d01c374c2f760bc395926b3c54f58"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "tokens": 1605,
+          "sha256": "1f302ff05c61b1fa5a8ebe8dc69bcecea81fde284cac532218237ae8dfdd2f88"
+        },
+        {
+          "path": "skills/references/entrypoint-routing.md",
+          "tokens": 4905,
+          "sha256": "74d555dc527e5a265bee0af87080265cfdeca8fb2c8ca867b1dae63ec62a6f6b"
+        },
+        {
+          "path": "skills/references/master-delegation-semantics.md",
+          "tokens": 4632,
+          "sha256": "180593c7e86f64c7df1c098ef582c23999149b3edaf5688c18f1d978f70dbc4f"
+        },
+        {
+          "path": "skills/references/final-report-timestamp.md",
+          "tokens": 973,
+          "sha256": "8439b11416708bfa38ecc90583d6239afc6fab7b733a443e41dc0ebd7eb49554"
+        },
+        {
+          "path": "skills/references/next-outcome-selection.md",
+          "tokens": 1153,
+          "sha256": "ec9ae52a1f056cd59c2b61b82521314f343ec3b09395207a40349ddc8d7f5a9b"
+        }
+      ],
+      "scope": "Declared scenario, not observed trace; applicable read ledger without depends_on expansion.",
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/reporting-contract.md",
+        "skills/references/skill-execution-fidelity.md"
+      ]
+    },
+    "core-help": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/900-shipglows-core/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Public invocation; canonical engine",
+          "reason": "Public invocation; canonical engine"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Select owner and preserve authority",
+          "reason": "Select owner and preserve authority"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve ShipGlows-owned resources",
+          "reason": "Resolve ShipGlows-owned resources"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit core help invocation",
+          "reason": "Explicit core help invocation"
+        },
+        {
+          "path": "skills/references/expert-mode-aliases.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "First-token core alias",
+          "reason": "First-token core alias"
+        },
+        {
+          "path": "skills/900-shipglows-core/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "engine",
+          "trigger": "Explain modes without playbook",
+          "reason": "Explain modes without playbook"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "report",
+          "trigger": "Final Core help answer",
+          "reason": "Final Core help answer"
+        },
+        {
+          "path": "skills/references/next-outcome-selection.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "No evidenced continuation after help",
+          "reason": "Account for fallback selection, not an assumed next outcome"
+        }
+      ],
+      "budget": {
+        "max_tokens": 10796,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 17994,
+      "min_reduction_percent": 40,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 1521,
+          "sha256": "75707dd8029a75480a9d9688e200ca3b12c0f34d33ddd2c6c7e9bc9023939699"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 3388,
+          "sha256": "b8e7c96a9952cae2d45fbb62ddc04b867157033096515fada5aa67653681ea26"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "13ed73c32dac08ce968c19fde550d8b0ecb5470a9cb743fa0641b365eac62b6c"
+        },
+        {
+          "path": "skills/references/expert-mode-aliases.md",
+          "tokens": 1154,
+          "sha256": "7ee9db75ee357ed5dc5def104093eede7495d9041f5c62686dcdae87d3ad8f8d"
+        },
+        {
+          "path": "skills/900-shipglows-core/SKILL.md",
+          "tokens": 2001,
+          "sha256": "b12ee48781ec49d6725730b6400595ef54d4b00471d856efdb4f1c2df35eb256"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 4771,
+          "sha256": "ea106f57e8929305533d51ce804d60133a2ed85033d857c73b36e319e3e3e0a1"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a"
+        },
+        {
+          "path": "skills/references/final-report-timestamp.md",
+          "tokens": 973,
+          "sha256": "8439b11416708bfa38ecc90583d6239afc6fab7b733a443e41dc0ebd7eb49554"
+        },
+        {
+          "path": "skills/references/next-outcome-selection.md",
+          "tokens": 1153,
+          "sha256": "ec9ae52a1f056cd59c2b61b82521314f343ec3b09395207a40349ddc8d7f5a9b"
+        }
+      ],
+      "scope": "Declared scenario, not observed trace; applicable read ledger without depends_on expansion.",
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md",
+        "skills/references/reporting-contract.md"
+      ]
+    },
+    "engineering-deps-witness": {
+      "entry": "skills/sg-engineering/SKILL.md",
+      "selected_engine": "skills/010-sg-technical/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/sg-engineering/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit deps; resolved project",
+          "reason": "Explicit deps; resolved project"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/sg-engineering/SKILL.md",
+          "stage": "selection",
+          "trigger": "Non-trivial dependency audit",
+          "reason": "Non-trivial dependency audit"
+        },
+        {
+          "path": "skills/010-sg-technical/SKILL.md",
+          "parent": "skills/sg-engineering/SKILL.md",
+          "stage": "engine",
+          "trigger": "Explicit deps mode",
+          "reason": "Explicit deps mode"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/010-sg-technical/SKILL.md",
+          "stage": "selection",
+          "trigger": "Required explicit engineering selection",
+          "reason": "Required explicit engineering selection"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/010-sg-technical/SKILL.md",
+          "stage": "selection",
+          "trigger": "Required explicit engineering selection",
+          "reason": "Required explicit engineering selection"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/010-sg-technical/SKILL.md",
+          "stage": "selection",
+          "trigger": "Required explicit engineering selection",
+          "reason": "Required explicit engineering selection"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "execution",
+          "trigger": "Actionable owner resolved",
+          "reason": "Actionable owner resolved"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "selection",
+          "trigger": "Material dependency audit result",
+          "reason": "Material dependency audit result"
+        },
+        {
+          "path": "skills/010-sg-technical/references/dependency-audit-playbook.md",
+          "parent": "skills/010-sg-technical/SKILL.md",
+          "stage": "audit",
+          "trigger": "deps project mode; unchanged workflow",
+          "reason": "deps project mode; unchanged workflow"
+        },
+        {
+          "path": "skills/references/documentation-freshness-gate.md",
+          "parent": "skills/010-sg-technical/SKILL.md",
+          "stage": "audit",
+          "trigger": "Current vendor/package claims",
+          "reason": "Current vendor/package claims"
+        },
+        {
+          "path": "skills/references/chantier-tracking.md",
+          "parent": "skills/010-sg-technical/SKILL.md",
+          "stage": "report",
+          "trigger": "Source-de-chantier final report",
+          "reason": "Source-de-chantier final report"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/010-sg-technical/SKILL.md",
+          "stage": "report",
+          "trigger": "User audit result",
+          "reason": "User audit result"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Dependency audit limits",
+          "reason": "Dependency audit limits"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Potential fixes require choice",
+          "reason": "Potential fixes require choice"
+        }
+      ],
+      "budget": {
+        "max_tokens": 27480,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 27480,
+      "min_reduction_percent": 0,
+      "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+      "baseline_reads": [
+        {
+          "path": "skills/sg-engineering/SKILL.md",
+          "tokens": 606,
+          "sha256": "f759fd8efbacb54d2c1e3e71a249b8fcd8fb89d0c0077a5782e3d53d33a6a5d2"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a"
+        },
+        {
+          "path": "skills/010-sg-technical/SKILL.md",
+          "tokens": 1524,
+          "sha256": "e351203cd0970054f5fec81711fa45e31216d46904dfc286dfdb7d55afe0fb50"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "297aadd6f470d5b52c00d08c245e193eecb83d61d0de2d8cb53310cdd05b37c4"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "13ed73c32dac08ce968c19fde550d8b0ecb5470a9cb743fa0641b365eac62b6c"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "tokens": 882,
+          "sha256": "7c52474474c1f7b1790a094552fe647006590851135a3ee48c4013bf067d870a"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "tokens": 2101,
+          "sha256": "0fa09326ed45179349e794a00e5a3c29b4efd48eeb4db212d7766db22f576349"
+        },
+        {
+          "path": "skills/010-sg-technical/references/dependency-audit-playbook.md",
+          "tokens": 4621,
+          "sha256": "583b15fe58bf21041e8ea758b1e7c1510432ceb9f7236564f05f0873d6a54cdf"
+        },
+        {
+          "path": "skills/references/documentation-freshness-gate.md",
+          "tokens": 1028,
+          "sha256": "4cc1a7915d9d5afc09eb292c43d2aca94af3d85348e00105bbff90a20d51d302"
+        },
+        {
+          "path": "skills/references/chantier-tracking.md",
+          "tokens": 2835,
+          "sha256": "577408cc12cd533ba8ade3663093024866d319a865fad101de31d85ad609a31a"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 4771,
+          "sha256": "ea106f57e8929305533d51ce804d60133a2ed85033d857c73b36e319e3e3e0a1"
+        },
+        {
+          "path": "skills/references/reporting-blocked-and-audit.md",
+          "tokens": 841,
+          "sha256": "fd120a54dcdbb7033c7f7762c722c1a9700d01c374c2f760bc395926b3c54f58"
+        },
+        {
+          "path": "skills/references/strategic-choice-contract.md",
+          "tokens": 1605,
+          "sha256": "1f302ff05c61b1fa5a8ebe8dc69bcecea81fde284cac532218237ae8dfdd2f88"
+        },
+        {
+          "path": "skills/references/final-report-timestamp.md",
+          "tokens": 973,
+          "sha256": "8439b11416708bfa38ecc90583d6239afc6fab7b733a443e41dc0ebd7eb49554"
+        },
+        {
+          "path": "skills/references/next-outcome-selection.md",
+          "tokens": 1153,
+          "sha256": "ec9ae52a1f056cd59c2b61b82521314f343ec3b09395207a40349ddc8d7f5a9b"
+        }
+      ],
+      "scope": "Declared scenario, not observed trace; applicable read ledger without depends_on expansion.",
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/reporting-contract.md"
+      ]
+    },
+    "quality-core-exact-correction": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/900-shipglows-core/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Canonical routing engine",
+          "reason": "Canonical routing engine"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve owned instruction paths",
+          "reason": "Resolve owned instruction paths"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Validate explicit invocation without injecting dependency graph",
+          "reason": "Validate explicit invocation without injecting dependency graph"
+        },
+        {
+          "path": "skills/references/expert-mode-aliases.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Explicit core alias preserves named owner",
+          "reason": "Explicit core alias preserves named owner"
+        },
+        {
+          "path": "skills/900-shipglows-core/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "engine",
+          "trigger": "Explicit core build exact non-semantic correction",
+          "reason": "Explicit core build exact non-semantic correction"
+        },
+        {
+          "path": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "execution",
+          "trigger": "Single skill maintenance pack",
+          "reason": "Single skill maintenance pack"
+        },
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "authority",
+          "trigger": "Exact contract correction requires authority, placement and focused proof",
+          "reason": "Exact contract correction requires authority, placement and focused proof"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+          "stage": "proof",
+          "trigger": "Exact contract correction requires authority, placement and focused proof",
+          "reason": "Exact contract correction requires authority, placement and focused proof"
+        },
+        {
+          "path": "skills/references/skill-instruction-layering.md",
+          "parent": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+          "stage": "proof",
+          "trigger": "Exact contract correction requires authority, placement and focused proof",
+          "reason": "Exact contract correction requires authority, placement and focused proof"
+        },
+        {
+          "path": "skills/references/spec-driven-development-discipline.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "proof",
+          "trigger": "Exact contract correction requires authority, placement and focused proof",
+          "reason": "Exact contract correction requires authority, placement and focused proof"
+        },
+        {
+          "path": "skills/references/skill-context-budget.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "proof",
+          "trigger": "Exact contract correction requires authority, placement and focused proof",
+          "reason": "Exact contract correction requires authority, placement and focused proof"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/900-shipglows-core/SKILL.md",
+          "stage": "report",
+          "trigger": "Final successful local result",
+          "reason": "Final successful local result"
+        },
+        {
+          "path": "skills/references/reporting-closure.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+          "reason": "Claim completion of the bounded unit; preserve independent reflection"
+        },
+        {
+          "path": "skills/references/documentation-reflection-gate.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+          "reason": "Claim completion of the bounded unit; preserve independent reflection"
+        },
+        {
+          "path": "skills/references/editorial-reflection-gate.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+          "reason": "Claim completion of the bounded unit; preserve independent reflection"
+        }
+      ],
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md",
+        "skills/references/reporting-contract.md",
+        "skills/references/reporting-closure.md",
+        "skills/references/documentation-reflection-gate.md",
+        "skills/references/editorial-reflection-gate.md",
+        "skills/references/mutation-plan-approval.md",
+        "skills/references/spec-driven-development-discipline.md",
+        "skills/references/decision-quality-contract.md",
+        "skills/references/skill-instruction-layering.md"
+      ],
+      "budget": {
+        "max_tokens": 35000,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 34983,
+      "min_reduction_percent": 0,
+      "prompt": "$shipglows core build: correct the supplied typo in the named existing doctrine sentence; retain its meaning, no Git or publication.",
+      "assumptions": "Explicit exact text and target; non-semantic low-risk correction, no code/discoverability/public promise change, no task list, no spec, no dispatch. Existing next proposal is evidenced but not authorized.",
+      "checkpoint": "Bounded unit executed, focused proof reviewed, completion report with reflection and truthful authority limits.",
+      "scope": "Declared normative full-file unique reads, not observed replay or total session tokens. Task evidence, invocation checker output, tool output, host instructions and model telemetry excluded. Metadata dependencies are validation only. Initial post-change baseline measures the reviewed sufficient instruction route; no before/after savings claim. The pre-edit same-file estimate is a lower bound because old Core lifecycle ambiguity is not expanded.",
+      "baseline_state": "First post-change declared sufficient-route measurement is the future regression baseline, not a savings target. Pre-edit same-file lower bound is preserved separately in pre_edit_same_files_tokens and quality-first-pilot-baseline.json; old Core lifecycle conflict prevents complete route comparison.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 1991,
+          "sha256": "8e9e5275ec37abcb340443bc562f19d7ddf296db7b6e37c35991376a164444d9"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        },
+        {
+          "path": "skills/references/expert-mode-aliases.md",
+          "tokens": 1154,
+          "sha256": "88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850"
+        },
+        {
+          "path": "skills/900-shipglows-core/SKILL.md",
+          "tokens": 2018,
+          "sha256": "e3443683442fe469fcf0ffdb57b6f62481618f739501f7d019bb8281109e60e0"
+        },
+        {
+          "path": "skills/900-shipglows-core/references/skill-maintenance-playbook.md",
+          "tokens": 1671,
+          "sha256": "515dbb7041e2fffe96738099e911104ed1647b1307207f364ce998942a150811"
+        },
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "tokens": 8019,
+          "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+        },
+        {
+          "path": "skills/references/skill-instruction-layering.md",
+          "tokens": 3460,
+          "sha256": "90ce992cfe57d5ce3315689dfe3db0867ec4962c5276ea3cb8df3aa8890256d2"
+        },
+        {
+          "path": "skills/references/spec-driven-development-discipline.md",
+          "tokens": 3231,
+          "sha256": "8b5b5e0b7cc850e72e0123d3ca46add70a035fb93c212f075b818eb98d900a8f"
+        },
+        {
+          "path": "skills/references/skill-context-budget.md",
+          "tokens": 2245,
+          "sha256": "426df968dd69ec229aba5f43ba5e7ac3d56fccabbc2b9fdbdc07156e7e4e012c"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 2477,
+          "sha256": "09b7327b35e07ba399915578a93538b721f73004f3cf2b17e18eccc09a93682f"
+        },
+        {
+          "path": "skills/references/reporting-closure.md",
+          "tokens": 1301,
+          "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+        },
+        {
+          "path": "skills/references/documentation-reflection-gate.md",
+          "tokens": 1942,
+          "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3"
+        },
+        {
+          "path": "skills/references/editorial-reflection-gate.md",
+          "tokens": 1533,
+          "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2"
+        }
+      ],
+      "pre_edit_same_files_tokens": 34770
+    },
+    "quality-continue-proof-complete": {
+      "entry": "skills/shipglows/SKILL.md",
+      "selected_engine": "skills/706-continue/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "Explicit public invocation",
+          "reason": "Explicit public invocation"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "parent": "skills/shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Canonical routing engine",
+          "reason": "Canonical routing engine"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve owned instruction paths",
+          "reason": "Resolve owned instruction paths"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Validate explicit invocation without injecting dependency graph",
+          "reason": "Validate explicit invocation without injecting dependency graph"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resume known paused outcome",
+          "reason": "Resume known paused outcome"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "routing",
+          "trigger": "Confirm already resolved scope and quality",
+          "reason": "Confirm already resolved scope and quality"
+        },
+        {
+          "path": "skills/references/context-quality-contract.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "authority",
+          "trigger": "Confirm current target and authority from fresh durable evidence",
+          "reason": "Confirm current target and authority from fresh durable evidence"
+        },
+        {
+          "path": "skills/706-continue/SKILL.md",
+          "parent": "skills/000-shipglows/SKILL.md",
+          "stage": "engine",
+          "trigger": "Known continuation owner",
+          "reason": "Known continuation owner"
+        },
+        {
+          "path": "skills/706-continue/references/continuation-playbook.md",
+          "parent": "skills/706-continue/SKILL.md",
+          "stage": "proof",
+          "trigger": "Resolve exact authorized validation unit and verify outcome",
+          "reason": "Resolve exact authorized validation unit and verify outcome"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "parent": "skills/references/intent-to-outcome-autonomy.md",
+          "stage": "execution",
+          "trigger": "Execute known preselected read-only proof",
+          "reason": "Execute known preselected read-only proof"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/706-continue/SKILL.md",
+          "stage": "report",
+          "trigger": "Final successful local result",
+          "reason": "Final successful local result"
+        },
+        {
+          "path": "skills/references/reporting-closure.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+          "reason": "Claim completion of the bounded unit; preserve independent reflection"
+        },
+        {
+          "path": "skills/references/documentation-reflection-gate.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+          "reason": "Claim completion of the bounded unit; preserve independent reflection"
+        },
+        {
+          "path": "skills/references/editorial-reflection-gate.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Claim completion of the bounded unit; preserve independent reflection",
+          "reason": "Claim completion of the bounded unit; preserve independent reflection"
+        }
+      ],
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/references/skill-invocation-preflight.md",
+        "skills/references/reporting-contract.md",
+        "skills/references/reporting-closure.md",
+        "skills/references/documentation-reflection-gate.md",
+        "skills/references/editorial-reflection-gate.md",
+        "skills/references/context-quality-contract.md",
+        "skills/706-continue/references/continuation-playbook.md"
+      ],
+      "budget": {
+        "max_tokens": 19800,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 19768,
+      "min_reduction_percent": 0,
+      "prompt": "$shipglows reprends la verification autorisee: run the already selected focused check and report its result.",
+      "assumptions": "Fresh target/authority evidence and exact read-only proof command already resolved; no file changes, spec chantier, Git, model choice or delegation. Known next proposal is not authorized.",
+      "checkpoint": "Bounded unit executed, focused proof reviewed, completion report with reflection and truthful authority limits.",
+      "scope": "Declared normative full-file unique reads, not observed replay or total session tokens. Task evidence, invocation checker output, tool output, host instructions and model telemetry excluded. Metadata dependencies are validation only. Initial post-change baseline measures the reviewed sufficient instruction route; no before/after savings claim. The pre-edit same-file estimate is a lower bound because the former 706 choosing-topology versus actual-dispatch mismatch is not expanded.",
+      "baseline_state": "First post-change declared sufficient-route measurement is the future regression baseline, not a savings target. Pre-edit same-file lower bound is preserved separately in pre_edit_same_files_tokens and quality-first-pilot-baseline.json; the former 706 choosing-topology versus actual-dispatch mismatch prevents complete route comparison.",
+      "baseline_reads": [
+        {
+          "path": "skills/shipglows/SKILL.md",
+          "tokens": 408,
+          "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+        },
+        {
+          "path": "skills/000-shipglows/SKILL.md",
+          "tokens": 1991,
+          "sha256": "8e9e5275ec37abcb340443bc562f19d7ddf296db7b6e37c35991376a164444d9"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/references/skill-invocation-preflight.md",
+          "tokens": 1182,
+          "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+        },
+        {
+          "path": "skills/references/decision-quality-contract.md",
+          "tokens": 1507,
+          "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+        },
+        {
+          "path": "skills/references/context-quality-contract.md",
+          "tokens": 2121,
+          "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440"
+        },
+        {
+          "path": "skills/706-continue/SKILL.md",
+          "tokens": 1711,
+          "sha256": "b9640e29d5fd0a2c5880c7c2b7118fc1d716da70c5b94dd48d8ed895904ec6bf"
+        },
+        {
+          "path": "skills/706-continue/references/continuation-playbook.md",
+          "tokens": 862,
+          "sha256": "62ddac864544e728a10a54403c17cacd0a358d0b358a4f048541d5a8df6d68a5"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-execution.md",
+          "tokens": 882,
+          "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 2477,
+          "sha256": "09b7327b35e07ba399915578a93538b721f73004f3cf2b17e18eccc09a93682f"
+        },
+        {
+          "path": "skills/references/reporting-closure.md",
+          "tokens": 1301,
+          "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+        },
+        {
+          "path": "skills/references/documentation-reflection-gate.md",
+          "tokens": 1942,
+          "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3"
+        },
+        {
+          "path": "skills/references/editorial-reflection-gate.md",
+          "tokens": 1533,
+          "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2"
+        }
+      ],
+      "pre_edit_same_files_tokens": 19759
+    },
+    "planning-task-capture": {
+      "entry": "skills/sg-planning/SKILL.md",
+      "selected_engine": "skills/011-sg-pilotage/SKILL.md",
+      "reads": [
+        {
+          "path": "skills/sg-planning/SKILL.md",
+          "parent": null,
+          "stage": "entry",
+          "trigger": "User explicitly names sg-planning",
+          "reason": "User explicitly names sg-planning"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "parent": "skills/sg-planning/SKILL.md",
+          "stage": "routing",
+          "trigger": "Resolve canonical engine and owned paths",
+          "reason": "Resolve canonical engine and owned paths"
+        },
+        {
+          "path": "skills/011-sg-pilotage/SKILL.md",
+          "parent": "skills/sg-planning/SKILL.md",
+          "stage": "selection",
+          "trigger": "Select known-project supplied implementation task",
+          "reason": "Select known-project supplied implementation task"
+        },
+        {
+          "path": "skills/011-sg-pilotage/references/tasks-playbook.md",
+          "parent": "skills/011-sg-pilotage/SKILL.md",
+          "stage": "execution",
+          "trigger": "Bounded capture write protocol",
+          "reason": "Bounded capture write protocol"
+        },
+        {
+          "path": "skills/references/operational-record-format.md",
+          "parent": "skills/011-sg-pilotage/SKILL.md",
+          "stage": "execution",
+          "trigger": "Canonical task grammar before write",
+          "reason": "Canonical task grammar before write"
+        },
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "parent": "skills/references/canonical-paths.md",
+          "stage": "authority",
+          "trigger": "Clear bounded request grants only tracker write authority",
+          "reason": "Clear bounded request grants only tracker write authority"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "parent": "skills/sg-planning/SKILL.md",
+          "stage": "report",
+          "trigger": "Report saved task and supplied dependency",
+          "reason": "Report saved task and supplied dependency"
+        },
+        {
+          "path": "skills/references/reporting-closure.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Saved task is a completion claim; retain closure reflection",
+          "reason": "Saved task is a completion claim; retain closure reflection"
+        },
+        {
+          "path": "skills/references/documentation-reflection-gate.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Saved task is a completion claim; retain closure reflection",
+          "reason": "Saved task is a completion claim; retain closure reflection"
+        },
+        {
+          "path": "skills/references/editorial-reflection-gate.md",
+          "parent": "skills/references/reporting-contract.md",
+          "stage": "report",
+          "trigger": "Saved task is a completion claim; retain closure reflection",
+          "reason": "Saved task is a completion claim; retain closure reflection"
+        }
+      ],
+      "budget": {
+        "max_tokens": 18000,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 28718,
+      "min_reduction_percent": 35,
+      "baseline_commit": "14b309d1b49f4f3b9ad637ad552088a9a1f28258",
+      "baseline_state": "Initial target-file hashes frozen before edits; unchanged required reference hashes added after independent completeness review. Previous first-write lower bound omitted functional excellence and is not a complete baseline.",
+      "baseline_reads": [
+        {
+          "path": "skills/sg-planning/SKILL.md",
+          "tokens": 397,
+          "sha256": "c83339414e206f5bc892ccdca53ea0c0e56fc0323ca25774ec7a89aab9371ffc"
+        },
+        {
+          "path": "skills/011-sg-pilotage/SKILL.md",
+          "tokens": 1717,
+          "sha256": "44c3ea9b58b268d63d3c6451ad7c8660f01f4892f4b4c4a09739d0adea355b82"
+        },
+        {
+          "path": "skills/references/intent-to-outcome-autonomy.md",
+          "tokens": 1007,
+          "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+        },
+        {
+          "path": "skills/references/canonical-paths.md",
+          "tokens": 844,
+          "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+        },
+        {
+          "path": "skills/011-sg-pilotage/references/tasks-playbook.md",
+          "tokens": 1319,
+          "sha256": "f6107ffdaee191c2e270455db7d94488375d15a030391780bb31e38d4972fc4d"
+        },
+        {
+          "path": "skills/references/operational-record-format.md",
+          "tokens": 1866,
+          "sha256": "79ea5ec1f6ae6a657d0a9a05f57cbdc5e03d03347f33013f0cc44aabc1576e72"
+        },
+        {
+          "path": "skills/references/task-registry-routing.md",
+          "tokens": 1360,
+          "sha256": "fef2ffe5d06eab6fe3d76788789b28ba0213ad21773d1e0341b09690b24cfd72"
+        },
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "tokens": 8019,
+          "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35"
+        },
+        {
+          "path": "skills/references/functional-excellence-contract.md",
+          "tokens": 2101,
+          "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+        },
+        {
+          "path": "skills/references/chantier-tracking.md",
+          "tokens": 2835,
+          "sha256": "68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7"
+        },
+        {
+          "path": "skills/references/reporting-contract.md",
+          "tokens": 2477,
+          "sha256": "fc9539ba4898b2bbbe9a3210c29ea1290ac7cb775b158b680ce38dfe41199ae3"
+        },
+        {
+          "path": "skills/references/reporting-closure.md",
+          "tokens": 1301,
+          "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+        },
+        {
+          "path": "skills/references/documentation-reflection-gate.md",
+          "tokens": 1942,
+          "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3"
+        },
+        {
+          "path": "skills/references/editorial-reflection-gate.md",
+          "tokens": 1533,
+          "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2"
+        }
+      ],
+      "prompt": "Enregistre la validation Android sur la VM apres commit et push dans sg-planning.",
+      "checkpoint": "Complete declared supplied-task capture through saved-task report; project evidence, environment and provider telemetry excluded equally",
+      "assumptions": "Known ReplayGlows project, supplied implementation task, existing tracker, no equivalent record or attached spec; no execution, status change, mixed/editorial work or external effects. Report claims capture complete, not Android validated.",
+      "scope": "Declared complete skill-read path, not actual model execution or billed tokens; estimator ceil(characters/4).",
+      "required_reads": [
+        "skills/references/canonical-paths.md",
+        "skills/011-sg-pilotage/SKILL.md",
+        "skills/011-sg-pilotage/references/tasks-playbook.md",
+        "skills/references/operational-record-format.md",
+        "skills/references/mutation-plan-approval.md",
+        "skills/references/reporting-contract.md",
+        "skills/references/reporting-closure.md",
+        "skills/references/documentation-reflection-gate.md",
+        "skills/references/editorial-reflection-gate.md"
+      ]
+    },
+    "authority-auto-selection": {
+      "entry": "skills/references/mutation-plan-approval.md",
+      "selected_engine": "skills/references/mutation-plan-approval.md",
+      "reads": [
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "parent": null,
+          "stage": "authority",
+          "trigger": "Authority consumer checkpoint",
+          "reason": "Select standing authority without broad activation"
+        },
+        {
+          "path": "skills/references/mutation-auto-authority.md",
+          "parent": "skills/references/mutation-plan-approval.md",
+          "stage": "authority",
+          "trigger": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+          "reason": "Apply selected authority restrictions"
+        },
+        {
+          "path": "skills/references/no-local-execution-policy.md",
+          "parent": "skills/references/mutation-plan-approval.md",
+          "stage": "policy",
+          "trigger": "Selected authority requires execution or target policy",
+          "reason": "Preserve independent policy before any write"
+        }
+      ],
+      "budget": {
+        "max_tokens": 9668,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 9668,
+      "min_reduction_percent": 10,
+      "baseline_commit": "5ee74db312491897a861286cb2bbe560a5bf4742",
+      "baseline_reads": [
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35",
+          "tokens": 8019
+        },
+        {
+          "path": "skills/references/no-local-execution-policy.md",
+          "tokens": 1649,
+          "sha256": "ba7e2275d06d52a7ce91ffd0b3937b3def68cc8daad71fb7d4c21dead8345550"
+        }
+      ],
+      "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
+      "prompt": "authority-auto-selection",
+      "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
+      "assumptions": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+      "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
+      "required_reads": [
+        "skills/references/mutation-plan-approval.md",
+        "skills/references/mutation-auto-authority.md",
+        "skills/references/no-local-execution-policy.md"
+      ]
+    },
+    "authority-git-selection": {
+      "entry": "skills/references/mutation-plan-approval.md",
+      "selected_engine": "skills/references/mutation-plan-approval.md",
+      "reads": [
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "parent": null,
+          "stage": "authority",
+          "trigger": "Authority consumer checkpoint",
+          "reason": "Select standing authority without broad activation"
+        },
+        {
+          "path": "skills/references/mutation-git-authority.md",
+          "parent": "skills/references/mutation-plan-approval.md",
+          "stage": "authority",
+          "trigger": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+          "reason": "Apply selected authority restrictions"
+        },
+        {
+          "path": "skills/references/project-delivery-policy.md",
+          "parent": "skills/references/mutation-git-authority.md",
+          "stage": "policy",
+          "trigger": "Selected authority requires execution or target policy",
+          "reason": "Preserve independent policy before any write"
+        }
+      ],
+      "budget": {
+        "max_tokens": 9986,
+        "max_depth_after_selection": 2
+      },
+      "baseline_tokens": 9986,
+      "min_reduction_percent": 10,
+      "baseline_commit": "5ee74db312491897a861286cb2bbe560a5bf4742",
+      "baseline_reads": [
+        {
+          "path": "skills/references/mutation-plan-approval.md",
+          "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35",
+          "tokens": 8019
+        },
+        {
+          "path": "skills/references/project-delivery-policy.md",
+          "tokens": 1967,
+          "sha256": "b255e76a9e64ce3751edc3b1ba86aa6ca8750787f1d3fb7a172649e9eb5dc48f"
+        }
+      ],
+      "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
+      "prompt": "authority-git-selection",
+      "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
+      "assumptions": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+      "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
+      "required_reads": [
+        "skills/references/mutation-plan-approval.md",
+        "skills/references/mutation-git-authority.md",
+        "skills/references/project-delivery-policy.md"
+      ]
+    }
+  },
+  "scope": "Before approved distinction of saved-record confirmation, simple question and substantive work report; working tree with prior compaction. Same task outcome, reporting requirements intentionally clarified."
+}

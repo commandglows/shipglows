@@ -1779,6 +1779,13 @@
             "stage": "report",
             "trigger": "Unfinished outcome, expose evidence and limits",
             "reason": "Unfinished outcome, expose evidence and limits"
+          },
+          {
+            "path": "skills/references/mutation-git-authority.md",
+            "parent": "skills/references/mutation-plan-approval.md",
+            "stage": "approval",
+            "trigger": "Technical plan discloses milestone and final Git persistence",
+            "reason": "Preserve standing and bounded delivery authority before approval"
           }
         ],
         "budget": {
@@ -1888,7 +1895,7 @@
         ],
         "prompt": "shipglows Ajoute un filtre par statut à la liste des commandes",
         "checkpoint": "First material implementation plan presented; before spec creation, readiness or execution",
-        "assumptions": "Existing application; no matching active spec; material filter semantics remain operator choice; existing pattern and product facts available; no new journey, platform or visual direction. Project facts are excluded data, not omitted instruction reads.",
+        "assumptions": "Existing application; no matching active spec; material filter semantics remain operator choice; existing pattern and product facts available; no new journey, platform or visual direction. Project facts are excluded data, not omitted instruction reads. Git disclosure covers ordinary current-branch persistence only; no integration/promotion destination is selected or promised and no Git action or approved milestone is executed.",
         "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
         "baseline_correction": "Independent source review corrected the earlier incomplete 37202-token checkpoint by adding explicit conditional readers; historical source hashes remain the captured pre-wave working tree.",
         "baseline_depth_after_selection": 1,
@@ -1898,7 +1905,8 @@
           "skills/references/reporting-contract.md",
           "skills/references/mutation-plan-approval.md",
           "skills/references/design-system-token-contract.md",
-          "skills/references/question-contract.md"
+          "skills/references/question-contract.md",
+          "skills/references/mutation-git-authority.md"
         ]
       },
       "common-page-comprehension": {
@@ -3392,6 +3400,365 @@
           }
         ],
         "pre_edit_same_files_tokens": 19759
+      },
+      "planning-task-capture": {
+        "entry": "skills/sg-planning/SKILL.md",
+        "selected_engine": "skills/011-sg-pilotage/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/sg-planning/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "User explicitly names sg-planning",
+            "reason": "User explicitly names sg-planning"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/sg-planning/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical engine and owned paths",
+            "reason": "Resolve canonical engine and owned paths"
+          },
+          {
+            "path": "skills/011-sg-pilotage/SKILL.md",
+            "parent": "skills/sg-planning/SKILL.md",
+            "stage": "selection",
+            "trigger": "Select known-project supplied implementation task",
+            "reason": "Select known-project supplied implementation task"
+          },
+          {
+            "path": "skills/011-sg-pilotage/references/tasks-playbook.md",
+            "parent": "skills/011-sg-pilotage/SKILL.md",
+            "stage": "execution",
+            "trigger": "Bounded capture write protocol",
+            "reason": "Bounded capture write protocol"
+          },
+          {
+            "path": "skills/references/operational-record-format.md",
+            "parent": "skills/011-sg-pilotage/SKILL.md",
+            "stage": "execution",
+            "trigger": "Canonical task grammar before write",
+            "reason": "Canonical task grammar before write"
+          },
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "parent": "skills/references/canonical-paths.md",
+            "stage": "authority",
+            "trigger": "Clear bounded request grants only tracker write authority",
+            "reason": "Clear bounded request grants only tracker write authority"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/sg-planning/SKILL.md",
+            "stage": "report",
+            "trigger": "Report saved task and supplied dependency",
+            "reason": "Report saved task and supplied dependency"
+          }
+        ],
+        "budget": {
+          "max_tokens": 14000,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 28718,
+        "min_reduction_percent": 35,
+        "baseline_commit": "14b309d1b49f4f3b9ad637ad552088a9a1f28258",
+        "baseline_state": "Initial target-file hashes frozen before edits; unchanged required reference hashes added after independent completeness review. Previous first-write lower bound omitted functional excellence and is not a complete baseline.",
+        "baseline_reads": [
+          {
+            "path": "skills/sg-planning/SKILL.md",
+            "tokens": 397,
+            "sha256": "c83339414e206f5bc892ccdca53ea0c0e56fc0323ca25774ec7a89aab9371ffc"
+          },
+          {
+            "path": "skills/011-sg-pilotage/SKILL.md",
+            "tokens": 1717,
+            "sha256": "44c3ea9b58b268d63d3c6451ad7c8660f01f4892f4b4c4a09739d0adea355b82"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/011-sg-pilotage/references/tasks-playbook.md",
+            "tokens": 1319,
+            "sha256": "f6107ffdaee191c2e270455db7d94488375d15a030391780bb31e38d4972fc4d"
+          },
+          {
+            "path": "skills/references/operational-record-format.md",
+            "tokens": 1866,
+            "sha256": "79ea5ec1f6ae6a657d0a9a05f57cbdc5e03d03347f33013f0cc44aabc1576e72"
+          },
+          {
+            "path": "skills/references/task-registry-routing.md",
+            "tokens": 1360,
+            "sha256": "fef2ffe5d06eab6fe3d76788789b28ba0213ad21773d1e0341b09690b24cfd72"
+          },
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "tokens": 8019,
+            "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "tokens": 2101,
+            "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+          },
+          {
+            "path": "skills/references/chantier-tracking.md",
+            "tokens": 2835,
+            "sha256": "68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 2477,
+            "sha256": "fc9539ba4898b2bbbe9a3210c29ea1290ac7cb775b158b680ce38dfe41199ae3"
+          },
+          {
+            "path": "skills/references/reporting-closure.md",
+            "tokens": 1301,
+            "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+          },
+          {
+            "path": "skills/references/documentation-reflection-gate.md",
+            "tokens": 1942,
+            "sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3"
+          },
+          {
+            "path": "skills/references/editorial-reflection-gate.md",
+            "tokens": 1533,
+            "sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2"
+          }
+        ],
+        "prompt": "Enregistre la validation Android sur la VM apres commit et push dans sg-planning.",
+        "checkpoint": "Complete supplied-task capture through verified record confirmation; project evidence, environment and provider telemetry excluded equally",
+        "assumptions": "Known ReplayGlows project, supplied implementation task, existing tracker, no equivalent record or attached spec; no execution, status change, mixed/editorial work or external effects. Report claims capture complete, not Android validated. Approved proportionate-reporting distinction: recording confirmation is not chantier closure; historical baseline retained, reporting requirements intentionally clarified.",
+        "scope": "Declared complete skill-read path, not actual model execution or billed tokens; estimator ceil(characters/4).",
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/011-sg-pilotage/SKILL.md",
+          "skills/011-sg-pilotage/references/tasks-playbook.md",
+          "skills/references/operational-record-format.md",
+          "skills/references/mutation-plan-approval.md",
+          "skills/references/reporting-contract.md"
+        ]
+      },
+      "authority-auto-selection": {
+        "entry": "skills/references/mutation-plan-approval.md",
+        "selected_engine": "skills/references/mutation-plan-approval.md",
+        "reads": [
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "parent": null,
+            "stage": "authority",
+            "trigger": "Authority consumer checkpoint",
+            "reason": "Select standing authority without broad activation"
+          },
+          {
+            "path": "skills/references/mutation-auto-authority.md",
+            "parent": "skills/references/mutation-plan-approval.md",
+            "stage": "authority",
+            "trigger": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+            "reason": "Apply selected authority restrictions"
+          },
+          {
+            "path": "skills/references/no-local-execution-policy.md",
+            "parent": "skills/references/mutation-plan-approval.md",
+            "stage": "policy",
+            "trigger": "Selected authority requires execution or target policy",
+            "reason": "Preserve independent policy before any write"
+          }
+        ],
+        "budget": {
+          "max_tokens": 9668,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 9668,
+        "min_reduction_percent": 10,
+        "baseline_commit": "5ee74db312491897a861286cb2bbe560a5bf4742",
+        "baseline_reads": [
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35",
+            "tokens": 8019
+          },
+          {
+            "path": "skills/references/no-local-execution-policy.md",
+            "tokens": 1649,
+            "sha256": "ba7e2275d06d52a7ce91ffd0b3937b3def68cc8daad71fb7d4c21dead8345550"
+          }
+        ],
+        "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
+        "prompt": "authority-auto-selection",
+        "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
+        "assumptions": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+        "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
+        "required_reads": [
+          "skills/references/mutation-plan-approval.md",
+          "skills/references/mutation-auto-authority.md",
+          "skills/references/no-local-execution-policy.md"
+        ]
+      },
+      "authority-git-selection": {
+        "entry": "skills/references/mutation-plan-approval.md",
+        "selected_engine": "skills/references/mutation-plan-approval.md",
+        "reads": [
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "parent": null,
+            "stage": "authority",
+            "trigger": "Authority consumer checkpoint",
+            "reason": "Select standing authority without broad activation"
+          },
+          {
+            "path": "skills/references/mutation-git-authority.md",
+            "parent": "skills/references/mutation-plan-approval.md",
+            "stage": "authority",
+            "trigger": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+            "reason": "Apply selected authority restrictions"
+          },
+          {
+            "path": "skills/references/project-delivery-policy.md",
+            "parent": "skills/references/mutation-git-authority.md",
+            "stage": "policy",
+            "trigger": "Selected authority requires execution or target policy",
+            "reason": "Preserve independent policy before any write"
+          }
+        ],
+        "budget": {
+          "max_tokens": 9986,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 9986,
+        "min_reduction_percent": 10,
+        "baseline_commit": "5ee74db312491897a861286cb2bbe560a5bf4742",
+        "baseline_reads": [
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35",
+            "tokens": 8019
+          },
+          {
+            "path": "skills/references/project-delivery-policy.md",
+            "tokens": 1967,
+            "sha256": "b255e76a9e64ce3751edc3b1ba86aa6ca8750787f1d3fb7a172649e9eb5dc48f"
+          }
+        ],
+        "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
+        "prompt": "authority-git-selection",
+        "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
+        "assumptions": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+        "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
+        "required_reads": [
+          "skills/references/mutation-plan-approval.md",
+          "skills/references/mutation-git-authority.md",
+          "skills/references/project-delivery-policy.md"
+        ]
+      },
+      "planning-project-question": {
+        "entry": "skills/sg-planning/SKILL.md",
+        "selected_engine": "skills/011-sg-pilotage/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/sg-planning/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Missing factual project input only",
+            "reason": "Select concise project question before tracker access"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/sg-planning/SKILL.md",
+            "stage": "routing",
+            "trigger": "Missing factual project input only",
+            "reason": "Select concise project question before tracker access"
+          },
+          {
+            "path": "skills/011-sg-pilotage/SKILL.md",
+            "parent": "skills/sg-planning/SKILL.md",
+            "stage": "routing",
+            "trigger": "Missing factual project input only",
+            "reason": "Select concise project question before tracker access"
+          },
+          {
+            "path": "skills/references/question-contract.md",
+            "parent": "skills/011-sg-pilotage/SKILL.md",
+            "stage": "routing",
+            "trigger": "Missing factual project input only",
+            "reason": "Select concise project question before tracker access"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/sg-planning/SKILL.md",
+            "stage": "routing",
+            "trigger": "Missing factual project input only",
+            "reason": "Select concise project question before tracker access"
+          }
+        ],
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/011-sg-pilotage/SKILL.md",
+          "skills/references/question-contract.md",
+          "skills/references/reporting-contract.md"
+        ],
+        "budget": {
+          "max_tokens": 7500,
+          "max_depth_after_selection": 2
+        },
+        "prompt": "Enregistre la validation Android sur la VM apres commit et push; deux projets egalement plausibles.",
+        "checkpoint": "First factual project question, before any tracker read or write",
+        "assumptions": "Known task outcome, unknown project, no material/security/permission decision or execution; no detailed report requested.",
+        "scope": "Declared skill reads, estimated characters/4; not billed tokens.",
+        "baseline_tokens": 10201,
+        "min_reduction_percent": 25,
+        "baseline_reads": [
+          {
+            "path": "skills/sg-planning/SKILL.md",
+            "sha256": "141ba52092a87b8aa861413eb2f4c85bdcf252011b78dabf4770acf2bd0dbfd9",
+            "tokens": 424
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157",
+            "tokens": 1007
+          },
+          {
+            "path": "skills/011-sg-pilotage/SKILL.md",
+            "sha256": "5d76249d30dcfdeef333a5885c3cefa42c815f10f5797af1e4021c25b41975fa",
+            "tokens": 1992
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7",
+            "tokens": 844
+          },
+          {
+            "path": "skills/references/question-contract.md",
+            "sha256": "ffeb8f0a1ebc9f65cff5fa66fa05105ce1fa7b0ffa25fd93cd0474a97db03f90",
+            "tokens": 1529
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "sha256": "04b4b5e65a1b53a921157d0ca4950d25e9c8d8cb7691b176c36a37d3cdc6cc57",
+            "tokens": 1998
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "sha256": "35b31f8d92f73942a4de343d3a149118e0c1a0673d20cf71d1dbc1e49dbf8871",
+            "tokens": 802
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969",
+            "tokens": 1605
+          }
+        ],
+        "baseline_state": "Observed pre-clarification ambiguity route, source hashes frozen in proportionate_reporting_baseline.json; character estimates only."
       }
     }
   },

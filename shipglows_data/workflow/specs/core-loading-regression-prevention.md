@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
 updated: "2026-09-05"
-status: ready
+status: reviewed
 source_skill: 100-sg-spec
 scope: core-loading-regression-prevention
 user_story: "Core preserves minimal sufficient loading and protections when maintaining instructions."
@@ -20,11 +20,38 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Operator approved prevention pass: oui validation. Local only, no commit/push."
-next_step: "Implement and verify the approved loading regression gate."
+  - "Initial prevention approval: oui validation; local-only authority was later expanded for delivery."
+  - "2026-09-05: prevention implementation merged through PR #146; quality-first criteria merged through PR #151."
+next_step: "Observe representative uses through quality-first-core-continuation-pilot.md; preserve four pre-existing budget failures as unresolved constraints."
 ---
 
 # Core Loading Regression Prevention
+
+## Delivery Addendum (2026-09-05)
+
+The approved regression gate and focused mechanical proof are integrated into
+`main` by [PR #146](https://github.com/commandglows/shipglows/pull/146), merge
+`373d820742bc2bf24ee95ccc125b8a90b2081490`. The later quality-first policy criteria
+and bounded continuation pilot are integrated by
+[PR #151](https://github.com/commandglows/shipglows/pull/151), source commit
+`f3c9f5b` and merge `14b309d1b49f4f3b9ad637ad552088a9a1f28258`.
+Metadata `reviewed` records delivery of these specified changes.
+
+The original readiness, local-only authority, HEAD and passing-budget statements
+below are preserved as historical checkpoints. They do not describe current Git
+state or certify today's budgets. At verified HEAD `14b309d`, all 12 declared
+scenarios are structurally valid, eight are within budget and four remain over:
+`common-bug-proof-selection` (24,017), `common-page-comprehension` (19,896),
+`common-resume-missing` (19,499) and `core-help` (11,227 estimated tokens).
+Each still fails its maximum-token and minimum-reduction requirements; no waiver
+or universal regression-prevention guarantee is implied by delivery.
+
+The quality-first criteria below are now implemented policy. Independent fixture
+and contract checks remain bounded proof. Actual representative-use observation
+is still pending in `quality-first-core-continuation-pilot.md`; budget remediation
+or arbitration is a separate unresolved outcome, outside this documentation update.
+
+## Historical Approved Scope
 
 Ready: approved scope, write ownership and scenario-first proof resolved. Preserve
 all earlier dirty pilot changes. Main owns Core and existing audit/maintenance/

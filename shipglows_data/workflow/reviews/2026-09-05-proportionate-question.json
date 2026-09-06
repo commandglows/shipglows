@@ -1,0 +1,17 @@
+{
+  "response": "Dans quel projet dois-je enregistrer la tâche « Validation Android sur la VM après commit et push » : candidate-a ou candidate-b ?",
+  "actual_skill_files_read": [
+    "skills/sg-planning/SKILL.md",
+    "skills/011-sg-pilotage/SKILL.md",
+    "skills/references/canonical-paths.md",
+    "skills/references/question-contract.md",
+    "skills/references/reporting-contract.md"
+  ],
+  "tracker_access": false,
+  "mutation": false,
+  "limitations": [
+    "Agent-reported read ledger; no provider telemetry.",
+    "Canonical-paths read after engine.",
+    "Reporting core shortened slightly during replay; final-source estimate is not an exact observed total."
+  ]
+}

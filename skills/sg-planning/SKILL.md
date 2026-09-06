@@ -11,7 +11,7 @@ description: Plan tasks, priorities, reviews, and portfolio work.
 
 ## Scope Gate
 
-Resolve the relevant project and product portfolio, then load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Produce and maintain an actionable plan without making the operator schedule internal lifecycle skills.
+Resolve the named or current project. For a supplied task, use the engine's bounded capture or missing-project question route. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` only when the outcome or planning direction needs interpretation, not for a missing project name alone. Do not make the operator choose internal modes for a clear task request.
 
 ## Required References
 

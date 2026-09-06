@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.41.0"
+artifact_version: "2.41.2"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-05"
@@ -336,6 +336,8 @@ Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 - `308-sg-status` reports cross-project git and sync state.
 - `700-sg-explore` frames the problem or option space before commitment.
 - `011-sg-pilotage tasks` maintains the durable execution tracker; editorial/public-content follow-up stays in `shipglows_data/editorial/ROADMAP.md` through content owners.
+- `sg-planning` accepts a supplied implementation-task capture in natural language for a known project. It records dependencies without executing them, preserves duplicate/status safety, and loads the bounded tasks branch. An ambiguous project requires only project clarification; editorial work keeps its content owner and explicit spec attachment retains full tracing. The `planning-task-capture` activation scenario measures the complete declared capture/report path; its estimates are not provider token usage.
+- Shared mutation authority keeps bounded/fast/full-plan selection and pending approvals in its core. It directly selects Auto authority before an Auto candidate, Git authority before stewardship or persistence disclosure, target policy before choosing/promising an integration destination, and milestone policy before executing approved delivery. Pressure scenarios load only for authority maintenance/testing. Reporting retains all closure classifications and truth boundaries; examples do not create extra work. See the shared-authority/reporting audit of 2026-09-05 for before/after costs and proof limits.
 - `011-sg-pilotage backlog` captures, defers, cleans, or promotes future work.
 - `011-sg-pilotage priorities` ranks active work for immediate execution order without executing it.
 - `011-sg-pilotage review` reconstructs what happened, what is proven, and what should happen next without replacing verification.
@@ -831,3 +833,5 @@ an external wait without a choice reports evidence and recovery without a menu.
 Proof and limits: `workflow/specs/quality-first-core-continuation-pilot.md` and
 `tools/test_quality_first_pilot.py`. New complete declared scenarios complement
 the old pre-action checkpoints; declarations do not measure actual agent sessions.
+
+- Proportionate reporting distinguishes verified record confirmation, one factual question, and substantive work reports. Work-report conditions take precedence; real closure keeps reflection gates. See `../workflow/audits/2026-09-05-proportionate-reporting.md` for declared costs and fresh replay limitations.
