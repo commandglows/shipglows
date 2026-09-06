@@ -71,6 +71,9 @@ for regression in \
   devserver-stop-behavior.ps1; do
   powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"
 done
+for regression in devserver-start-detach.ps1 devserver-detached-streams.ps1 devserver-flutter-stop-budget.ps1; do
+  pwsh -NoLogo -NoProfile -File "$ROOT/tests/windows/$regression"
+done
 bash "$ROOT/tests/install/playwright-mcp-contract.sh"
 pwsh -NoLogo -NoProfile -File "$ROOT/tests/windows/flutter-state-atomic.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/flutter-configuration.ps1"
