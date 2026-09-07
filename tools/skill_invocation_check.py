@@ -28,6 +28,33 @@ def public_entries(registry: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return entries
 
 
+def argument_error(engine: str, args: list[str], registry: dict[str, Any]) -> dict[str, Any] | None:
+    """Validate declared command grammar, leaving unknown natural-language input alone."""
+    modes = registry.get("rules", {}).get(engine, {}).get("modes", {})
+    if not args or args[0] not in modes:
+        return None
+    rule = modes[args[0]]
+    rest = args[1:]
+    subcommands = rule.get("subcommands")
+    if subcommands is not None:
+        if not rest:
+            if rule.get("subcommand_required", False):
+                return {"error": "missing_subcommand", "allowed_subcommands": sorted(subcommands)}
+        elif rest[0] in subcommands:
+            rule, rest = subcommands[rest[0]], rest[1:]
+        elif rule.get("subcommand_required", False):
+            return {"error": "unknown_subcommand", "allowed_subcommands": sorted(subcommands)}
+    if len(rest) < rule.get("min_args", 0):
+        return {"error": "missing_argument"}
+    if "max_args" in rule and len(rest) > rule["max_args"]:
+        return {"error": "too_many_arguments"}
+    if rule.get("positive_integer") and rest and not re.fullmatch(r"[1-9][0-9]*", rest[0]):
+        return {"error": "invalid_positive_integer"}
+    if rest and rest[0].replace("\\", "/").rstrip("/") in rule.get("forbidden_targets", []):
+        return {"error": "unsupported_target", "suggestion": "shipglows core build <objective>"}
+    return None
+
+
 def validate_activation_graph(
     registry: dict[str, Any],
     skills_root: Path = ROOT / "skills",
@@ -363,6 +390,18 @@ def check(
     def valid_payload(
         *, implied: list[str] | None = None, forbidden: list[str] | None = None, **details: Any
     ) -> dict[str, Any]:
+        entry = public_entries(registry).get(tokens[0])
+        if entry is not None:
+            engine = entry["runtime_skill"]
+            command_args = tokens[1:]
+            if details.get("router_alias") == "core":
+                engine, command_args = "900-shipglows-core", tokens[2:]
+            elif details.get("router_alias") or details.get("selected_internal_engine"):
+                # Other hidden routes have their own argument transformation.
+                command_args = []
+            problem = argument_error(engine, command_args, registry)
+            if problem:
+                return result("invalid", requested, message="Invalid arguments for the selected command.", **details, **problem)
         forbidden_requested = sorted(set(forbidden or []).intersection(requested_execution_tags))
         if forbidden_requested:
             return result(
@@ -598,6 +637,10 @@ def check(
             mode=mode,
             message="This mode needs an additional target or scope.",
         )
+    problem = argument_error(skill, args, registry)
+    if problem:
+        return result("invalid", requested, resolved_skill=skill, mode=mode,
+                      message="Invalid arguments for the selected command.", **problem)
     return valid_payload(resolved_skill=skill, mode=mode)
 
 

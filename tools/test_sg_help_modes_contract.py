@@ -40,6 +40,15 @@ class HelpModesContractTests(unittest.TestCase):
         self.assertEqual(len(actual), len(set(actual)))
         self.assertTrue(all(" — " in line and "\n" not in line for line in lines))
 
+    def test_catalog_mentions_every_public_and_hidden_mode(self) -> None:
+        public = json.loads(REGISTRY.read_text(encoding="utf-8"))["public_catalog"]
+        lines = {self.catalog_id(line): line for line in self.catalog_lines()}
+        for domain in public["domains"]:
+            for skill in domain["skills"]:
+                for mode in set(skill.get("modes", [])) | set(skill.get("hidden_modes", {})):
+                    if mode != "default":
+                        self.assertRegex(lines[skill["id"]], rf"(?<![\w-]){mode}(?![\w-])", skill["id"])
+
     def test_default_catalog_exposes_reusable_exact_invocation_grammar(self) -> None:
         catalog = CATALOG.read_text(encoding="utf-8")
         expected_grammar = (
@@ -47,9 +56,9 @@ class HelpModesContractTests(unittest.TestCase):
             "audit <ui|tokens|components|a11y> [scope] | "
             "animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status>",
             "sg-experience <audit|flow|onboarding|recovery> <scope>",
-            "sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity> [target]",
-            "sg-help [default|mode|expert] [topic]",
-            "shipglows [context|auto] <request>",
+            "sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity|verify|test|browser> [target]",
+            "sg-help [default|mode|modes|expert] [topic]",
+            "shipglows <request> | context | update | auto [goal] | core",
         )
         for grammar in expected_grammar:
             self.assertIn(f"`{grammar}", catalog)

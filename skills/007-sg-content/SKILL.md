@@ -1,7 +1,7 @@
 ---
 name: 007-sg-content
 description: "Route governed public content from source through proof and publication."
-argument-hint: '[goal | source | file | mode: plan, capture, clean-transcript, repurpose, draft, enrich, audit, marketing, seo, editorial, apply, ship]'
+argument-hint: '[goal | source | file | mode: plan, capture, clean-transcript, repurpose, draft, enrich, audit, marketing, seo, editorial, apply, publish, ship, emailing]'
 ---
 
 Primary artifact type: `master-workflow`.

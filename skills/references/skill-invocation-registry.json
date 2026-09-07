@@ -265,7 +265,13 @@
               "800-tmux-capture-conversation",
               "801-clean-conversation-transcript",
               "emailing"
-            ]
+            ],
+            "mode_routes": {
+              "emailing": {
+                "runtime_engine": "202-sg-emailing",
+                "min_args": 0
+              }
+            }
           },
           {
             "id": "sg-marketing",
@@ -3821,10 +3827,40 @@
           "min_args": 0
         },
         "audit": {
-          "min_args": 1
+          "min_args": 1,
+          "subcommand_required": true,
+          "subcommands": {
+            "ui": {
+              "min_args": 0
+            },
+            "tokens": {
+              "min_args": 0
+            },
+            "components": {
+              "min_args": 0
+            },
+            "a11y": {
+              "min_args": 0
+            }
+          }
         },
         "animation": {
-          "min_args": 1
+          "min_args": 1,
+          "subcommand_required": true,
+          "subcommands": {
+            "audit": {
+              "min_args": 0
+            },
+            "design": {
+              "min_args": 0
+            },
+            "implement": {
+              "min_args": 0
+            },
+            "tune": {
+              "min_args": 0
+            }
+          }
         },
         "redesign": {
           "min_args": 0
@@ -3833,7 +3869,27 @@
           "min_args": 0
         },
         "library": {
-          "min_args": 1
+          "min_args": 1,
+          "subcommand_required": true,
+          "subcommands": {
+            "add": {
+              "min_args": 1
+            },
+            "retry": {
+              "min_args": 1,
+              "max_args": 1
+            },
+            "approve": {
+              "min_args": 1,
+              "max_args": 1
+            },
+            "list": {
+              "max_args": 0
+            },
+            "status": {
+              "max_args": 0
+            }
+          }
         }
       }
     },
@@ -3880,6 +3936,12 @@
           "min_args": 0
         },
         "ship": {
+          "min_args": 0
+        },
+        "publish": {
+          "min_args": 0
+        },
+        "emailing": {
           "min_args": 0
         }
       }
@@ -4051,13 +4113,29 @@
       "kind": "modes",
       "modes": {
         "audit": {
-          "min_args": 0
+          "min_args": 0,
+          "subcommands": {
+            "recent": {
+              "min_args": 0,
+              "max_args": 1,
+              "positive_integer": true
+            },
+            "since": {
+              "min_args": 1,
+              "max_args": 1
+            }
+          }
         },
         "build": {
           "min_args": 1
         },
         "refresh": {
-          "min_args": 1
+          "min_args": 1,
+          "forbidden_targets": [
+            "900-shipglows-core",
+            "skills/900-shipglows-core",
+            "skills/900-shipglows-core/SKILL.md"
+          ]
         },
         "packaging": {
           "min_args": 0
