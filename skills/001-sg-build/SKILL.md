@@ -49,6 +49,10 @@ Conditional shared loaders remain conditional: `$SHIPGLOWS_ROOT/skills/reference
 
 ## Readiness And Proof Owners
 
+Before defining user-facing interface copy and interactions for implementation, load `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` and carry its criteria into implementation and review; infrastructure-only work does not activate it.
+
+When creating or changing cookie-consent banners, preference panels, or their copy and interactions, load `$SHIPGLOWS_ROOT/skills/references/consent-experience.md` before defining copy, UI, and implementation behavior.
+
 For central identity/consent/email integration, load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md` before selecting the service boundary. When the task changes or diagnoses the selected Auth0 integration, load `$SHIPGLOWS_ROOT/skills/references/auth0-integration-playbook.md` directly. Mere email fields or unrelated feature work do not activate these references; email-work-routing selects newsletter and provider leaves independently.
 
 Non-trivial work must pass `100-sg-spec -> 101-sg-ready` before `102-sg-start`; allow one bounded correction loop, otherwise stop. A trivial local mini-contract is allowed only when decision quality and safety are clear.

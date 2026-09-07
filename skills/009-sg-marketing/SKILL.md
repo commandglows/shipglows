@@ -57,6 +57,7 @@ Never guess between `copy` and `copywriting`: `copy` asks whether wording is cle
 
 ## Conditional Shared Gates
 
+- Load `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` when writing or auditing product-interface copy and interactions; evaluate care and emotional fit alongside clarity and truth. Market research alone does not activate it.
 Load only gates required by the selected mode:
 
 - `market` and `gtm`: load `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` when competitor pages, marketplaces, external reviews, or raw sources materially affect the analysis. Load `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` only when behavior-to-value, activation, retention, or feature-value proof is needed; it is draft, so state its confidence limit rather than elevating it to settled proof.

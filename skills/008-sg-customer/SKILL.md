@@ -50,6 +50,8 @@ Natural-language input is dispatcher input, not a fifth mode: select one mode on
 
 ## Required References
 
+- `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` before defining or reviewing user-facing interface copy and interactions, including onboarding, permissions, empty/loading/success states, errors and recovery.
+- `$SHIPGLOWS_ROOT/skills/references/consent-experience.md` when creating or changing cookie-consent banners, preference panels, or their copy and interactions.
 - `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` for customer-facing loading, onboarding, save, upload, support, recovery, or any other operation with a noticeable delay.
 
 Load only the selected mode playbook. Load shared references only when their gate applies:

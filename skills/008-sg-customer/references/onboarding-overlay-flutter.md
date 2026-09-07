@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-08-03"
+updated: "2026-09-07"
 status: active
 source_skill: 008-sg-customer
 scope: onboarding-overlay-flutter
@@ -22,4 +22,4 @@ next_step: "/103-sg-verify compact monolithic skill references"
 
 # Onboarding Overlay — Flutter
 
-Use only for Flutter. Compose a `Dialog` from header, progress dots, active step, action panel, and footer. The parent owns selection/action/skip/dismiss/next/refresh callbacks; progress dots own accessible semantic status. Use project colours and widgets. The colour resolver implements skipped → danger, satisfied → success, blocked → warning, current → active, otherwise pending; a satisfied active step must render success immediately.
+Use only for Flutter. Compose a `Dialog` from header, progress dots, active step, action panel, and footer. The parent owns selection/action/skip/dismiss/next/refresh callbacks; progress dots own accessible semantic status. Use project colours and widgets. The colour resolver implements skipped → neutral choice, satisfied → success, blocked → warning, current → active, otherwise pending; distinguish skipped from pending with a label or icon. A satisfied active step must render success immediately. Do not use danger styling solely because a user skipped or refused a step; explain actual blocking consequences separately.

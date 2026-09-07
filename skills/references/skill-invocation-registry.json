@@ -1212,6 +1212,11 @@
           "audit": [
             "skills/900-shipglows-core/references/core-audit-and-improvement.md"
           ],
+          "audit-recent": [
+            "skills/900-shipglows-core/references/recent-loading-audit.md",
+            "skills/references/skill-context-budget.md",
+            "skills/references/skill-refactor-verifier.md"
+          ],
           "build": [
             "skills/900-shipglows-core/references/skill-maintenance-playbook.md"
           ],

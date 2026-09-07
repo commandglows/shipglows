@@ -25,6 +25,8 @@ If no unique spec exists, do not write to a spec. For narrow read-only diagnosis
 
 ## Required References
 
+- `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` before designing or reviewing user-facing interface copy and interactions; do not load for visual-token-only work.
+- `$SHIPGLOWS_ROOT/skills/references/consent-experience.md` when creating or changing cookie-consent banners, preference panels, or their copy and interactions.
 Load these before the matching work:
 
 - `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for route and implementation decisions.
