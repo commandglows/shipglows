@@ -1989,6 +1989,13 @@
             "reason": "Existing customer journey audit"
           },
           {
+            "path": "skills/references/interface-voice-and-care.md",
+            "parent": "skills/008-sg-customer/SKILL.md",
+            "stage": "diagnosis",
+            "trigger": "Review supplied interface copy and interactions for comprehension",
+            "reason": "Apply care, emotional fit and truthful interface guidance before findings"
+          },
+          {
             "path": "skills/008-sg-customer/references/customer-audit-playbook.md",
             "parent": "skills/008-sg-customer/SKILL.md",
             "stage": "diagnosis",
@@ -2117,7 +2124,8 @@
         "required_reads": [
           "skills/references/canonical-paths.md",
           "skills/references/skill-invocation-preflight.md",
-          "skills/references/reporting-contract.md"
+          "skills/references/reporting-contract.md",
+          "skills/references/interface-voice-and-care.md"
         ]
       },
       "common-resume-ready": {

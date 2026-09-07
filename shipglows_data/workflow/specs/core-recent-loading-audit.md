@@ -80,3 +80,19 @@ This incremental measurement is not a complete recent-audit scenario cost: the
 affected Git content and consumer reads depend on the selected window. No observed
 trace consumption is claimed. No automatic latest-remote or clean-audit verdict
 has been issued. The earlier interface-voice changes remain outside this spec.
+
+
+## Authorized Finding Corrections — 2026-09-07
+
+The operator requested delivery of both findings from the first integrated audit.
+Extension lifecycle clauses were extracted verbatim into a direct, extension-only
+leaf. The changed ordinary-browser read set drops from 3,444 to 3,198 estimated
+tokens; the active extension path preserves all authority and proof rules.
+
+The comprehension scenario now includes the voice core in reads and required_reads.
+Customer instructions and voice guidance were compacted without changing budgets,
+baselines or the diagnostic checkpoint; French examples remain verbatim in a
+separate authoring-only leaf, selected directly by all four owning engines.
+The complete scenario measures 19,515 against the unchanged 19,520 ceiling,
+depth 1. All 16 declared scenarios pass. Independent semantic review covered both
+corrections. These are declared/static measurements, not observed consumption.

@@ -6,78 +6,71 @@ argument-hint: "<audit|flow|onboarding|recovery> <scope>"
 
 ## Canonical Paths
 
-Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Resolve skills, references, tools, templates, and workflow documents from that root.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (root defaults to `$HOME/.shipglows/runtime`). Shared names resolve under `$SHIPGLOWS_ROOT/skills/references/`; `references/` is engine-local.
 
-## Public Métier Ownership
+## Ownership
 
-Public label: `sg-experience`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or journey routing. Resolve `project -> business/brand/product -> outcome -> surface -> work item` and own the customer outcome through diagnosis, design/content/implementation collaboration, behavioral proof, and closure.
+`sg-experience`. Load shared `intent-to-outcome-autonomy.md` before clarification/routing: `project -> business/brand/product -> outcome -> surface -> work item`. Own diagnosis through collaboration, behavioral proof and closure.
 
-## Instruction Layering
+## Layering
 
-This is the compact dispatcher. Before changing it, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md`; detailed mode procedure belongs in one local playbook, not in this activation contract.
+Before edits, load shared `skill-instruction-layering.md`; procedure belongs in playbooks.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-When one active chantier spec owns the run, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, write its run trace, and use its chantier header. Otherwise do not write a spec. Non-trivial implementation follow-up requires `/100-sg-spec` before source changes.
+For one unique active owning spec, load shared `chantier-tracking.md` and use its trace/header; otherwise no spec. Non-trivial source changes require `/100-sg-spec`.
 
 ## Report Modes
 
-Before reporting, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. Default to `report=user`; `report=agent`, `handoff`, `verbose`, and `full-report` may include the full customer contract and routing evidence.
-
-## Mission
-
-`008-sg-customer` is the single customer-experience owner. It turns one selected customer job into a contract or finding that makes the target user, first meaningful success, trust consequence, observable states, recovery path, documentation/editorial impact, and proof route explicit.
-
-It is not a second onboarding skill, a visual-design owner, a copy/docs owner, an implementation lifecycle, or a proof runner.
+Before reporting load shared `reporting-contract.md`. Default `report=user`; `report=agent`, `handoff`, `verbose`, `full-report` allow full contract/routing evidence.
 
 ## Modes
 
-Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+Load shared `skill-invocation-preflight.md` before invocation; invalid/ambiguous preflight blocks activation. One playbook:
 
-Use exactly one primary playbook:
+| Invocation | Primary playbook |
+| --- | --- |
+| `008-sg-customer audit [scope]` | `references/customer-audit-playbook.md` |
+| `008-sg-customer flow [feature-or-flow]` | `references/customer-flow-playbook.md` |
+| `008-sg-customer onboarding [feature-or-flow]` | `references/onboarding-playbook.md` |
+| `008-sg-customer recovery [feature-or-state]` | `references/customer-recovery-playbook.md` |
 
-| Invocation | Primary playbook | Result |
-| --- | --- | --- |
-| `008-sg-customer audit [scope]` | `references/customer-audit-playbook.md` | Evidence-backed customer findings and owner/proof route for an existing journey. |
-| `008-sg-customer flow [feature-or-flow]` | `references/customer-flow-playbook.md` | End-User Contract for a new, changed, or shipped path. |
-| `008-sg-customer onboarding [feature-or-flow]` | `references/onboarding-playbook.md` | First-success setup, progressive disclosure, defer/revisit, and setup recovery. |
-| `008-sg-customer recovery [feature-or-state]` | `references/customer-recovery-playbook.md` | Safe resume, defer, or recheck path for a disrupted state. |
+Ambiguous language: ask among `audit`, `flow`, `onboarding`, and `recovery`. Bare `audit`, invalid input, and materially mixed requests never silently select/load playbooks. Only onboarding may additionally load `references/onboarding-progress-overlay-pattern.md` for an explicitly requested stepped overlay; then only needed direct siblings: `onboarding-overlay-contract.md` (behavior/state/persistence), `onboarding-overlay-vue.md` or `onboarding-overlay-flutter.md` (target), `onboarding-overlay-proof-and-copy.md` (copy/proof/docs).
 
-Natural-language input is dispatcher input, not a fifth mode: select one mode only when intent is unambiguous; otherwise ask one concise question among `audit`, `flow`, `onboarding`, and `recovery`. Bare `audit`, invalid input, and materially mixed requests never silently select or load several playbooks. Only onboarding may additionally load the overlay index for an explicitly requested stepped overlay, then exactly the direct contract, framework, or proof reference required by the request.
+## References
 
-## Required References
+Load at gate:
 
-- `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` before defining or reviewing user-facing interface copy and interactions, including onboarding, permissions, empty/loading/success states, errors and recovery.
-- `$SHIPGLOWS_ROOT/skills/references/consent-experience.md` when creating or changing cookie-consent banners, preference panels, or their copy and interactions.
-- `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` for customer-facing loading, onboarding, save, upload, support, recovery, or any other operation with a noticeable delay.
+| Reference | Required before/when |
+| --- | --- |
+| `interface-voice-and-care.md` | Define/review user-facing interface copy/interactions. |
+| `interface-voice-examples.md` | Draft/revise interface wording. |
+| `consent-experience.md` | Create/change cookie banners/preferences, copy/interactions. |
+| `async-feedback-visibility-contract.md` | Any noticeable customer-facing delay. |
+| `decision-quality-contract.md` | Scope/default/proof/route decisions. |
+| `spec-driven-development-discipline.md` | Behavior change/implementation proof. |
+| `master-workflow-lifecycle.md` | Non-trivial implementation routing. |
+| `question-contract.md` | A material question. |
+| `documentation-freshness-gate.md` | Guidance depends on current permissions/billing/accessibility/SDK/provider/policy. |
+| `source-intake-classification.md` | External competitor/customer feedback informs advice/audit. |
+| `ux-reference-intelligence.md` | Needs cross-source journey conventions; shared `ux-reference-connectors.md` only before external source selection/use. |
 
-Load only the selected mode playbook. Load shared references only when their gate applies:
+Load `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` for durable first-success/activation measurement.
 
-- `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` before choosing scope, defaults, proof, or route.
-- `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before changing behavior or defining implementation proof.
-- `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` before routing non-trivial implementation.
-- `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before a material question.
-- `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when current external permissions, billing, accessibility, SDK, provider, or policy behavior governs guidance.
-- `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` when external competitor or customer-feedback evidence drives an audit or recommendation.
-- `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` when a material journey, onboarding, navigation, common interaction, or recovery pattern needs cross-source convention evidence; load the shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md` only before selecting or using an external source.
-- `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` when first success or activation must be measured as durable value rather than shallow completion.
+## Boundaries
 
-For an explicitly requested stepped overlay, load `references/onboarding-progress-overlay-pattern.md`, then one or more direct siblings only as needed: `onboarding-overlay-contract.md` for behavior/state/persistence, `onboarding-overlay-vue.md` or `onboarding-overlay-flutter.md` for the target implementation, and `onboarding-overlay-proof-and-copy.md` for copy, proof, or documentation impact.
-
-## Non-Negotiables And Boundaries
-
-- Define first success as meaningful value; when a value loop matters, do not treat setup completion as activation.
-- Preserve comprehension, usefulness, friction, trust, visible states, accessibility/device fit, recovery, documentation/editorial coherence, and proportional proof.
-- For permissions, billing, privacy, data, integrations, external accounts, device access, or settings: state value, optionality, consequence, safe defer path, and recovery/recheck. Never coerce access, conceal effects, claim unsupported capability, or imply the app can grant an OS/provider permission.
-- Route visual systems, components, tokens, layout, motion, and accessibility craft to `006-sg-design`; public/support copy and claims to `007-sg-content`; documentation architecture, governance, and metadata to `300-sg-docs`; manual QA to `107-sg-test`; non-auth browser evidence to `108-sg-browser`; and auth/session/callback diagnosis to `109-sg-auth-debug`.
-- Source behavior across UI, routing, data, permissions, claims, or several surfaces requires `100-sg-spec -> 101-sg-ready -> 001-sg-build/102-sg-start`; this skill supplies the customer contract, not direct implementation.
+- First success is value; setup alone is not activation when a value loop matters.
+- Define user, first success, trust, states, recovery, docs/editorial impact and proof route. Preserve comprehension, usefulness, friction, accessibility/device fit and coherence.
+- Permissions/billing/privacy/data/integrations/external accounts/device access/settings require value, optionality, consequence, safe defer path, and recovery/recheck. Never coerce access, conceal effects, claim unsupported capability or imply the app grants OS/provider permission.
+- Route visual systems/components/tokens/layout/motion/accessibility craft to `006-sg-design`; public/support copy/claims to `007-sg-content`; docs architecture/governance/metadata to `300-sg-docs`; manual QA to `107-sg-test`; non-auth browser evidence to `108-sg-browser`; auth/session/callback diagnosis to `109-sg-auth-debug`.
+- UI/routing/data/permission/claim/cross-surface behavior requires `100-sg-spec -> 101-sg-ready -> 001-sg-build/102-sg-start`; supply the contract only; proof stays proportional.
 
 ## Stop Conditions
 
-Stop, ask the smallest material question, or route when target user, first success, trust boundary, observable state, or proof path cannot be identified; when an external-policy freshness gate is required but unavailable; when a state is misleading or unrecoverable; or when the work would absorb unrelated dirty files.
+Stop/ask/route for unknown user/first success/trust/state/proof, unavailable required policy freshness, misleading/unrecoverable states or unrelated dirty work. Ask the smallest material question.
 
 ## Validation
 
@@ -90,6 +83,4 @@ tools/shipglows_sync_skills.sh --check --all
 
 ## Rules
 
-- Do not add aliases, wrappers, or second customer/onboarding/end-user identities.
-- Keep internal contracts in English and user-facing output in the active user language.
-- Do not duplicate adjacent-owner procedures; name the handoff only.
+No new aliases/wrappers/customer/onboarding/end-user identities. English contracts; user-language output. Name handoffs without duplicating procedure.

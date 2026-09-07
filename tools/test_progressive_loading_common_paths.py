@@ -50,6 +50,25 @@ class CommonPathLoadingTests(unittest.TestCase):
                 self.assertTrue(scenario["checkpoint"] and scenario["assumptions"])
                 self.assertIn("not observed", scenario["scope"])
 
+    def test_comprehension_accounts_for_care_before_findings(self):
+        name = PREFIX + "page-comprehension"
+        scenario = self.scenarios[name]
+        core = "skills/references/interface-voice-and-care.md"
+        examples = "skills/references/interface-voice-examples.md"
+        reads = {r["path"]: r for r in scenario["reads"]}
+        self.assertIn(core, scenario["required_reads"])
+        self.assertEqual(reads[core]["parent"], scenario["selected_engine"])
+        self.assertEqual(reads[core]["stage"], "diagnosis")
+        self.assertNotIn(examples, reads)  # Reviewing evidence, not authoring copy.
+        self.assertEqual(scenario["budget"], {"max_tokens": 19520, "max_depth_after_selection": 2})
+        self.assertEqual(scenario["baseline_tokens"], 19520)
+        omitted = copy.deepcopy(self.registry)
+        broken = omitted["activation_profiles"]["scenarios"][name]
+        broken["reads"] = [r for r in broken["reads"] if r["path"] != core]
+        result = audit_scenarios(omitted, selected_scenario=name)["scenarios"][name]
+        self.assertEqual(result["structural_status"], "invalid")
+        self.assertEqual(result["budget_status"], "not_evaluated")
+
     def test_direct_routes_do_not_activate_a_business_lifecycle(self):
         expected = {"skills/shipglows/SKILL.md", "skills/000-shipglows/SKILL.md", "skills/references/canonical-paths.md", "skills/references/skill-invocation-preflight.md"}
         for suffix in ("docs-direct", "verify-direct"):
