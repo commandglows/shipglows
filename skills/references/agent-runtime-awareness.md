@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.9.0"
+artifact_version: "3.10.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-09-06"
+updated: "2026-09-08"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -110,6 +110,41 @@ action without claiming a hosted device is callable until the current turn prove
 `FLUTTER-LIVE-DEVELOPMENT`: ordinary Flutter implementation and debugging use the managed `flutter run` session for the selected target. It is the normal development loop because it keeps logs and reload available. On Android, honor an explicitly configured connected device; otherwise reuse a ready Android emulator or start the provisioned `ShipGlows_API_36` AVD and wait for Flutter device readiness. Do not create a release build merely to expose an iterative correction. Use a standalone build only for an explicit release checkpoint or targeted proof that depends on packaging, native plugins or DLLs, installation, production-mode behavior, performance, or startup without Flutter attached.
 
 `FLUTTER-CONFIGURED-LAUNCH`: a short request such as "lance l'app Windows en mode dev" or "lance le build web" includes the project's declared authentication and service configuration. Resolve target and mode from durable evidence; use the project recipe and its declared Doppler scope without asking the operator to repeat technical setup. The Windows manager reads `.shipglows.flutter.json`, runs its allowlisted public configuration resolver through Doppler, transfers frontend parameters to Dart and native parameters to Gradle, and revalidates the configuration fingerprint before reusing a session. Missing configuration blocks before replacing a running session. Never replace the recipe with a bare Flutter command, a bypass or an older artifact. The project's build entrypoints must use the same resolver. See `cli/windows/ShipGlows.FlutterConfiguration.ps1` and `shipglows_data/technical/flutter-configured-launch.md` for the bounded recipe contract. Distinguish configuration checked, process running, interactive login verified and protected API access verified; compilation or `app.started` alone proves neither login nor product access.
+
+## Required backend information
+
+`APP-BACKEND-LAUNCH-GUARD`: before launching, restarting or reusing a managed
+application session, or executing a test that needs its backend, inspect the
+selected surface's `.shipglows.backend.json`, existing launch recipes and relevant
+project documentation. Apply this to existing and future projects. Do not request
+backend information for an unrelated documentation edit, static check or isolated
+unit test that does not consume it.
+
+Resolve the provider, local/remote mode, authorized local command, dependency
+inputs and readiness check from current project evidence. A provider SDK in a
+lockfile, a remembered URL or a running frontend does not establish that contract.
+If required information remains absent, ambiguous or inaccessible after focused
+inspection, ask the operator one concise question naming only the missing facts
+and why the requested launch or test needs them. Do not ask for facts already
+established or request secret values. Continue independent work while awaiting the
+answer; block only the dependent launch, restart, reuse or test and preserve any
+existing session.
+
+Never invent a provider, command, environment, endpoint or implicit no-backend
+exception. Under the Windows DevServer contract, the manifest must exist, validate
+and establish readiness before any replacement stop. When project evidence fully
+resolves a missing manifest, create it only within authorized configuration work;
+otherwise explain that the declaration still needs to be written. An operator
+answer supplies information, not permission for unrelated project changes, account
+setup or provider operations. Projects genuinely without a backend require an
+explicit `mode: none` manifest with a project-specific reason; absent files or
+unavailable services do not justify that exception. A malformed manifest or an
+unavailable declared backend requires diagnosis, not a fallback to `none`.
+
+Use `shipglows_data/technical/operator-guides/windows-devserver.md` for the exact
+manifest contract when preparing configuration. Revalidate the backend fingerprint
+and readiness before session reuse. Report backend readiness, user login and
+protected API access separately; none substitutes for either of the others.
 
 `APP-AUTH-LAUNCH-GUARD`: existing project authentication is mandatory for normal launches and tests; never disable it, add a bypass, or use a stale artifact to make startup pass. An auth-free local development run is permitted only when project evidence establishes that authentication is not yet implemented and the tested surface exposes no protected data; state that exception explicitly. Missing, broken or misconfigured existing auth blocks the normal launch and requires diagnosis, not an automatic exception. A login screen proves only that the screen renders. When end-to-end validation is requested, continue through login and protected access using authorized test context, or report the exact remaining proof and user-only step without claiming the application fully verified.
 

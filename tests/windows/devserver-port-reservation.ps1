@@ -19,13 +19,14 @@ try {
     if ($ports.Count -ne 2 -or $ports[0] -eq $ports[1]) { throw "Concurrent reservations collided: $($ports -join ',')." }
 
     Import-Module $modulePath -Force -DisableNameChecking
+    $twoEntry = (Read-SgRegistry $config).projects | Where-Object path -eq $two | Select-Object -First 1
     $collision = $false
-    try { Reserve-SgProjectPort $config $one $ports[1] $true | Out-Null } catch { $collision = $_.Exception.Message -like '*occupied or reserved*' }
+    try { Reserve-SgProjectPort $config $one $twoEntry.port $true | Out-Null } catch { $collision = $_.Exception.Message -like '*occupied or reserved*' }
     if (-not $collision) { throw 'An explicit reserved-port collision did not fail.' }
     $oneEntry = (Read-SgRegistry $config).projects | Where-Object path -eq $one | Select-Object -First 1
     Release-SgProjectPort $config $one $oneEntry.reservationToken 'setup failed'
     $released = (Read-SgRegistry $config).projects | Where-Object path -eq $one | Select-Object -First 1
-    if ($released.status -ne 'error' -or $released.reservationToken -or $released.port -ne $ports[0]) { throw 'Failed launch did not release its reservation while preserving the surface port.' }
+    if ($released.status -ne 'error' -or $released.reservationToken -or $released.port -ne $oneEntry.port) { throw 'Failed launch did not release its reservation while preserving the surface port.' }
     $invalidPort = $false
     try { Reserve-SgProjectPort $config $one 70000 $true | Out-Null } catch { $invalidPort = $_.Exception.Message -like 'Requested port must be*' }
     if (-not $invalidPort) { throw 'An out-of-range requested port was accepted.' }

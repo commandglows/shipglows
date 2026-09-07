@@ -25,6 +25,8 @@ Never invent test results. If neither this run's tooling nor the operator observ
 
 Do not log pass/fail before the operator answers unless direct tool/browser evidence was collected in this run. Technical checks never impersonate required human validation. Ask only for genuinely manual/device/account/external evidence after exhausting safe agent-runnable diagnostics under `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`.
 
+Before launching, restarting or reusing a managed app, or selecting a test that needs its backend, load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` and apply its backend-information gate.
+
 ## Mode And Environment
 
 Parse empty/recent scope, free text, `--local`, `--preview`, `--prod`, `--retest BUG-ID`, URL/route, or spec path. If the exact flow is unclear, ask one targeted question.

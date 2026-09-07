@@ -33,6 +33,8 @@ Run and interpret proportional technical checks. A green result proves only the 
 - `nofix` is strictly read-only. In `fix`, repair root causes and rerun the failed check, for at most 3 fix cycles.
 - Never install dependencies, weaken lint/type/test/build rules, trivialize assertions, or remove validation, auth, authorization, or error handling to obtain green output.
 
+Before launching, restarting or reusing a managed app, or selecting a test that needs its backend, load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` and apply its backend-information gate.
+
 ## Required References
 
 Before choosing or interpreting checks, load `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` and inspect project instructions and lockfiles.

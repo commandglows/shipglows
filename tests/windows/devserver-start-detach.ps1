@@ -48,6 +48,7 @@ function Read-SgSharedBytes([string]$Path){
 
 try {
     New-Item -ItemType Directory -Path $surface,$isolatedLocalAppData,(Join-Path $surface 'vendor\vite') -Force|Out-Null
+    Set-Content -LiteralPath (Join-Path $surface '.shipglows.backend.json') -Encoding UTF8 -Value '{"schemaVersion":"shipglows.backend.v1","provider":"none","mode":"none","reason":"Isolated static HTTP fixture without backend data.","command":null,"dependencies":[],"readiness":null}'
     Set-Content -LiteralPath (Join-Path $surface 'package.json') -Encoding UTF8 -Value '{"name":"sg-detach-fixture","version":"1.0.0","scripts":{"dev":"node server.js"},"devDependencies":{"vite":"file:vendor/vite"}}'
     Set-Content -LiteralPath (Join-Path $surface 'package-lock.json') -Encoding UTF8 -Value '{"name":"sg-detach-fixture","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"sg-detach-fixture","version":"1.0.0","devDependencies":{"vite":"file:vendor/vite"}},"node_modules/vite":{"resolved":"vendor/vite","link":true},"vendor/vite":{"version":"1.0.0","dev":true}}}'
     Set-Content -LiteralPath (Join-Path $surface 'vendor\vite\package.json') -Encoding UTF8 -Value '{"name":"vite","version":"1.0.0"}'
@@ -125,6 +126,19 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
     if($stdoutBytes-contains[byte]0-or$stderrBytes-contains[byte]0){throw "Detached logs contain UTF-16 NUL bytes (wmi=${wmiReturnSeconds}s child=${childLogSeconds}s ready=${readySeconds}s)."}
     $stdoutText=[Text.Encoding]::UTF8.GetString($stdoutBytes);$stderrText=[Text.Encoding]::UTF8.GetString($stderrBytes)
     if($stdoutText-notmatch'sg-detach-fixture'-or$stderrText-notmatch'stderr-readable-marker'){throw "Detached stdout/stderr logs are not readable as UTF-8 (stdoutBytes=$($stdoutBytes.Length), stderrBytes=$($stderrBytes.Length))."}
+
+    # The public CLI restart must fail before stopping a live session when its backend declaration disappears.
+    $backendManifest=Join-Path $surface '.shipglows.backend.json'
+    $savedManifest=[IO.File]::ReadAllText($backendManifest)
+    Remove-Item -LiteralPath $backendManifest
+    $rejectedRestart=New-SgCliProcess 'restart'
+    try {
+        $restartOut=$rejectedRestart.StandardOutput.ReadToEndAsync()
+        $restartErr=$rejectedRestart.StandardError.ReadToEndAsync()
+        if (-not $rejectedRestart.WaitForExit(20000)) { throw 'Invalid backend restart did not return promptly.' }
+        if ($rejectedRestart.ExitCode -eq 0 -or ($restartOut.Result+$restartErr.Result) -notmatch 'Backend declaration required') { throw 'CLI restart accepted an absent backend declaration.' }
+        if (-not (Get-Process -Id ([int]$entry.pid) -ErrorAction SilentlyContinue) -or (Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$port" -TimeoutSec 3).StatusCode -ne 200) { throw 'CLI restart stopped the existing session before backend validation.' }
+    } finally { $rejectedRestart.Dispose(); [IO.File]::WriteAllText($backendManifest,$savedManifest) }
 
     Import-Module $modulePath -Force -DisableNameChecking
     $module=Get-Module ShipGlows.DevServer

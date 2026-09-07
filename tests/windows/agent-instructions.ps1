@@ -41,6 +41,8 @@ try {
     foreach ($path in @($codexPath, $claudePath, $kiloPath, $geminiPath)) {
         $content = [IO.File]::ReadAllText($path)
         Assert-Sg (([regex]::Matches($content, '(?m)^# >>> ShipGlows development environment >>>\r?$')).Count -eq 1) "Managed block duplication in $path"
+        $backendRule=@((Get-SgAgentEnvironmentInstructionBlock) -split '\r?\n' | Where-Object { $_.StartsWith('Managed app launch, restart, session reuse and backend-dependent tests require') })
+        Assert-Sg ($backendRule.Count -eq 1 -and $content.Contains($backendRule[0])) "Backend-information rule was not projected intact into $path"
         Assert-Sg ($content -match 'purpose-built tool') "Purpose-built tool guidance missing in $path"
         Assert-Sg ($content -match 'deferred/searchable catalog') "Deferred tool catalog guidance missing in $path"
         Assert-Sg ($content -match '\$shipglows context') "ShipGlows context recovery guidance missing in $path"

@@ -1,3 +1,4 @@
+# Application/configuration core unit tests; devserver-backend.ps1 covers the public launch gate.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -92,14 +93,14 @@ try {
             function Get-SgFlutterConfiguration {throw 'fixture config unavailable'}
             $script:stopCalled=$false
             function Stop-SgProject {$script:stopCalled=$true}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture}
             Assert-Config (-not $script:stopCalled) 'Preflight failure stopped a working session.'
             function Get-SgFlutterConfiguration {$first}
-            $reused=Start-SgProject ([pscustomobject]@{}) $Fixture
+            $reused=Start-SgProjectCore ([pscustomobject]@{}) $Fixture
             Assert-Config ($reused.status -eq 'running' -and -not $script:stopCalled) 'Verified same configuration should not restart.'
             function Resolve-SgPowerShellExecutable {throw 'fixture missing host'}
             function Get-SgFlutterConfiguration {$rotated}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture}
             Assert-Config (-not $script:stopCalled) 'Missing launch host stopped a working session.'
 
             # Explicit targets are transient and reach configuration resolution.
@@ -107,7 +108,7 @@ try {
             function Get-SgFlutterCommandPath {'C:\fixture\flutter.bat'}
             function Resolve-SgFlutterAndroidDevice { 'emulator-5556' }
             function Get-SgFlutterConfiguration {param($p,$s,$port) $script:observedTarget=$s.FlutterDevice;$script:observedId=$s.FlutterDeviceId;throw 'fixture stop after preflight'}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture -FlutterDevice android}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture -FlutterDevice android}
             Assert-Config ($script:observedTarget -eq 'android' -and $script:observedId -eq 'emulator-5556') 'Resolved Android device did not reach session fingerprint input.'
             Assert-Config ((Get-SgRuntimeSettings $Fixture).FlutterDevice -eq 'windows') 'Explicit target changed the durable project settings.'
 
@@ -118,7 +119,7 @@ try {
             $script:observedPort=0
             function Get-SgFlutterConfiguration {param($p,$s,$port) $script:observedPort=$port;return $first}
             function Reserve-SgProjectPort {param($c,$p,$port,$explicit) Assert-Config ($port -eq $script:observedPort -and $port -eq 32201 -and $explicit) 'Reserved Web port diverges from preflight.';throw 'fixture stop after port proof'}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture -FlutterDevice chrome}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture -FlutterDevice chrome}
             Assert-Config ($script:observedPort -eq 32201) 'Stale stored Web port was used for configuration.'
         } finally {[Environment]::SetEnvironmentVariable('AUTH_BYPASS',$prior,'Process')}
     } $fixture

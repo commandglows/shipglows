@@ -17,11 +17,11 @@ try {
         function Invoke-SgRegistryMutation { param($Config,$Mutation); $registry=Read-SgRegistry; & $Mutation $registry; $registry }
         $warnings = @(); function Write-SgWarn { param($Message); $script:warnings += $Message }
         $script:entry.lastError='stale live error'
-        if (Stop-SgProject $config $script:entry.path) { throw 'Stopping an already stopped entry reported a process stop.' }
+        if (Stop-SgProjectCore $config $script:entry.path) { throw 'Stopping an already stopped entry reported a process stop.' }
         if ($script:entry.lastError) { throw 'Idempotent stop retained a stale live error.' }
         if ($warnings.Count -ne 0) { throw 'Stopping an already stopped entry emitted a warning.' }
         $script:entry.status='running'; $script:entry.pid=77
-        if (-not (Stop-SgProject $config $script:entry.path)) { throw 'Running process stop was not reported.' }
+        if (-not (Stop-SgProjectCore $config $script:entry.path)) { throw 'Running process stop was not reported.' }
     }
     & $module {
         $entry=[pscustomobject]@{name='unproved';path='C:\workspace\unproved';kind='vite';port=3000;status='running';pid=88;startTimeUtc=$null;lastError=$null}
@@ -35,7 +35,7 @@ try {
         function Stop-SgOwnedFlutterBrowser{$false}
         function Invoke-SgRegistryMutation{throw 'Registry mutation must not run before extinction proof.'}
         $failed=$false
-        try{Stop-SgProject $config $entry.path|Out-Null}catch{$message=$_.Exception.Message;$failed=$message-like'*could not prove*'}
+        try{Stop-SgProjectCore $config $entry.path|Out-Null}catch{$message=$_.Exception.Message;$failed=$message-like'*could not prove*'}
         if(-not$failed){throw "Unproved extinction did not fail closed: $message"}
         if($entry.status-ne'running'-or[int]$entry.pid-ne88){throw "Unproved extinction changed durable state: status=$($entry.status) pid=$($entry.pid)"}
     }

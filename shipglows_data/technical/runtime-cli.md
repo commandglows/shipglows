@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.38.0"
+artifact_version: "1.39.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-05"
+updated: "2026-09-07"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -103,6 +103,34 @@ next_step: "/sg-docs technical audit runtime-cli"
 ---
 
 # Runtime CLI
+
+## Windows backend launch prerequisite
+
+`Start-SgProject` now gates application launch and reuse through the closed,
+per-surface `.shipglows.backend.json` contract in `ShipGlows.Backend.ps1`.
+`Start-SgProjectCore` remains the internal application/authentication implementation.
+Backend validation and readiness precede registry reconciliation, registration,
+port reservation and any replacement stop. Menu and CLI restart request the same
+transaction rather than stopping first. A per-project named mutex serializes
+start, stop and backend-supervisor actions. Existing manifests are never inferred
+or generated; a justified `none` mode is the only no-backend exception.
+
+`ShipGlows.BackendSupervisor.ps1` owns the declared local command within the detached
+Windows Job and checks readiness after the application is attached. Loss of local
+readiness stops the application and records an error. Remote checks never launch
+or stop the external backend. Registry `backend` stores `mode`, `provider`,
+`fingerprint`, `status`, `checkedAtUtc`, `instanceId` and the optional process identity.
+The fingerprint covers the manifest, declared dependency file contents and resolved
+executable contents/path. PowerShell 7.5+ registry reads retain timestamp strings to
+preserve reservation and process identity comparisons across host versions.
+
+The installed payload lists include both backend files. This source change does not
+migrate product manifests, install the runtime or modify provider accounts.
+See [the Windows operator contract](operator-guides/windows-devserver.md#backend-obligatoire-au-lancement)
+for the exact schema, examples, occupied-port refusal and authentication proof boundary.
+Focused proof: `tests/windows/devserver-backend.ps1` runs real isolated Windows
+processes; application core, Flutter configuration, detached CLI, registry and
+reservation regressions cover the integration boundaries.
 
 ## Windows host contract
 

@@ -14,6 +14,8 @@ Resolve ShipGlows-owned files through `$SHIPGLOWS_ROOT/skills/references/canonic
 
 For authored-code `audit` or `architecture`, conditionally load `clean-code-quality-contract.md`. For project or global authored-code `audit`, load `dead-code-obsolescence-audit.md`; also load it for a narrower audit when the request names unused, unreachable, obsolete, legacy, compatibility, deprecation, or cleanup concerns. For internet-facing or privileged `audit`, `architecture`, `deps`, or `migrate`, load `owasp-application-security-awareness.md`. For email sending or delivery concerns, load `email-work-routing.md` and only its selected leaves. For Flutter, Android, Windows desktop, or Firebase Device Streaming platform/toolchain/parity work, load `agent-runtime-awareness.md` before choosing evidence or remediation. Before editing this contract, load `skill-instruction-layering.md`.
 
+Before launching, restarting or reusing a managed app, or selecting a test that needs its backend, load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` and apply its backend-information gate.
+
 ## Modes
 
 - `audit [<file|directory|diff|PR|project|global>]`: load `technical-audit-protocol.md`, then exactly one of `technical-file-audit.md`, `technical-project-audit.md`, or `technical-global-audit.md`.

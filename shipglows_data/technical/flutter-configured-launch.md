@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: shipglows
 created: "2026-09-05"
-updated: "2026-09-06"
+updated: "2026-09-07"
 status: active
 source_skill: sg-development
 scope: flutter-configured-launch
@@ -30,6 +30,13 @@ next_review: "2026-10-05"
 A request to launch an app includes its declared authentication and service
 configuration. An agent must resolve that configuration, not require the user
 to repeat Doppler, Dart defines or provider setup in each prompt.
+
+The independent `.shipglows.backend.json` contract is also mandatory for every
+managed launch, including Flutter. Backend readiness is checked before entering
+this configuration resolver and before any session replacement. An explicit,
+justified `none` backend exception does not waive this authentication recipe.
+See the [Windows backend contract](operator-guides/windows-devserver.md#backend-obligatoire-au-lancement).
+Backend availability, user login and protected API access remain separate proofs.
 
 ## Project recipe
 

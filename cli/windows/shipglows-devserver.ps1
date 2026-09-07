@@ -150,9 +150,9 @@ $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
 
-function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible) {
+function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible, [switch]$Restart) {
     $results = New-Object 'System.Collections.Generic.List[object]'
-    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId | ForEach-Object {
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -Restart:$Restart | ForEach-Object {
         $item = $_
         if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
             [void]$results.Add($item)
@@ -914,7 +914,7 @@ function Invoke-Menu {
                 '2' { $path = Read-SgInput 'Project path' $config.Workspace; if ($path) { Invoke-SgRegisterProject $path } }
                 '3' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
                 '4' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
-                '5' { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+                '5' { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port -Restart | Out-Null } }
                 '6' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
                 '7' { $entry = Get-SelectedProject 'open'; if ($entry) { Open-SgManagedProject $entry } }
                 '8' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
@@ -964,8 +964,8 @@ try {
         }
         'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } } }
         'restart' {
-            if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath); Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
-            else { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+            if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port -Restart | Out-Null }
+            else { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port -Restart | Out-Null } }
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject $entry } }
@@ -973,7 +973,7 @@ try {
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         'select-stop' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
         'select-unregister' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
-        'select-restart' { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+        'select-restart' { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port -Restart | Out-Null } }
         'select-logs' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }

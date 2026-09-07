@@ -73,7 +73,10 @@ function Read-SgRegistry([object]$Config) {
     if (-not (Test-Path -LiteralPath $Config.RegistryPath -PathType Leaf)) { return Get-SgRegistryDefault }
     try {
         $raw = Get-Content -LiteralPath $Config.RegistryPath -Raw -ErrorAction Stop
-        $data = $raw | ConvertFrom-Json -ErrorAction Stop
+        # Keep round-trip timestamps intact on PowerShell 7.5+, as on Windows PowerShell.
+        $jsonOptions = @{}
+        if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) { $jsonOptions.DateKind='String' }
+        $data = $raw | ConvertFrom-Json @jsonOptions -ErrorAction Stop
         if ($data.schemaVersion -ne $script:RegistryVersion -or $null -eq $data.projects) { throw 'Unsupported registry schema.' }
         return $data
     } catch {
@@ -1766,6 +1769,10 @@ function Reconcile-SgRegistry([object]$Config) {
                 if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
             }
 
+            if ($entry.PSObject.Properties['backend'] -and $entry.backend -and $entry.backend.mode -eq 'local' -and ($entry.backend.status -eq 'error' -or ($entry.backend.status -eq 'ready' -and -not (Test-SgProcessIdentity $entry.backend.process)))) {
+                $entry.backend.status = if ($entry.status -eq 'stopped') { 'stopped' } else { 'error' }
+                if ($live) { $entry.status='error'; $entry.lastError='Required backend supervisor is no longer active.' }
+            }
             if (-not $byIdentity.ContainsKey($identity)) {
                 $byIdentity[$identity] = [pscustomobject]@{ Entry = $entry; Live = $live }
                 [void]$normalized.Add($entry)
@@ -2060,7 +2067,7 @@ function Install-SgFlutterDevShortcut([object]$Entry, [string]$DesktopPath = '',
     return $path
 }
 
-function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '') {
+function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '', [switch]$Restart) {
     $requestedPath = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Reconcile-SgRegistry $Config).projects | Where-Object { $_.path -eq $requestedPath }) | Select-Object -First 1
     if (-not $entry) {
@@ -2074,7 +2081,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     if (-not $entry) { throw "No runnable surface could be registered for: $requestedPath" }
     if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $($entry.path)" }
     $alreadyRunning = Test-SgProcessIdentity $entry
-    if ($alreadyRunning -and [string]$entry.kind -ne 'flutter-web') { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
+    if ($alreadyRunning -and -not $Restart -and [string]$entry.kind -ne 'flutter-web') { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
     $settings = Get-SgRuntimeSettings $entry.path
     if ($FlutterDevice) {
         if ([string]$entry.kind -ne 'flutter-web') { throw 'Flutter target selection requires a Flutter project.' }
@@ -2107,17 +2114,18 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         }
         $flutterConfiguration = Get-SgFlutterConfiguration $entry.path $settings $configurationPort
         if ($alreadyRunning) {
-            if (Test-SgFlutterSessionConfiguration $entry $flutterConfiguration) {
+            if (-not $Restart -and (Test-SgFlutterSessionConfiguration $entry $flutterConfiguration)) {
                 Write-SgInfo "Already running with verified Flutter configuration: $($entry.name)"
                 return $entry
             }
             [void](Resolve-SgPowerShellExecutable)
             if (-not (Get-SgFlutterCommandPath)) { throw 'Flutter SDK is unavailable; the existing session was preserved.' }
             Write-SgInfo 'Flutter target or configuration changed; restarting the managed session.'
-            [void](Stop-SgProject $Config $entry.path)
+            [void](Stop-SgProject $Config $entry.path -PreserveBackend)
             if (Test-SgProcessIdentity $entry) { throw 'Cannot replace Flutter configuration while the previous session is still active.' }
         }
     }
+    if ($alreadyRunning -and $Restart -and [string]$entry.kind -ne 'flutter-web') { [void](Stop-SgProject $Config $entry.path -PreserveBackend) }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
     $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort
@@ -2194,7 +2202,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProject $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
@@ -2225,7 +2233,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
         $diagnosticFailure=Get-SgStartupFailure $err $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProject $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
     }
     if($kind-eq'browser-extension'){
         Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"
@@ -2316,7 +2324,7 @@ function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8) {
     } while ($true)
 }
 
-function Stop-SgProject([object]$Config, [string]$ProjectPath) {
+function Stop-SgProjectCore([object]$Config, [string]$ProjectPath, [switch]$PreserveBackend) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
     if (-not $entry) { return $false }
@@ -2344,10 +2352,12 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
         Write-SgWarn "Stale or unverified process for $($entry.name); no process was terminated."
     }
     if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $($entry.name); registry state was preserved." }
+    if (-not $PreserveBackend -and $entry.PSObject.Properties['backend']) { Stop-SgBackend $entry.backend }
     Invoke-SgRegistryMutation $Config {
         param($data)
         $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
         if ($found) {
+            if (-not $PreserveBackend -and $found.PSObject.Properties['backend']) { $found.backend.status='stopped' }
             $found.status = 'stopped'; $found.pid = 0; $found.startTimeUtc = $null; $found.lastError = $null;if($found.kind-eq'flutter-web'){$found|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force}
             if ($found.PSObject.Properties['reservationToken']) { $found.reservationToken = $null }
             if ($found.PSObject.Properties['reservationTimeUtc']) { $found.reservationTimeUtc = $null }
@@ -2427,6 +2437,8 @@ function Show-SgDashboard([object]$Config) {
     $index = 1
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
+
+. (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
 Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
