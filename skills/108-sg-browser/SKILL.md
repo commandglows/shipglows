@@ -55,9 +55,10 @@ runtime/install/deploy owner instead.
 Local packs load directly and never chain. `$SHIPGLOWS_ROOT/skills/108-sg-browser/references/browser-evidence.md` is a compatibility index only.
 
 - After target, owner, environment, and runtime preflight pass, load `$SHIPGLOWS_ROOT/skills/108-sg-browser/references/browser-proof-playbook.md`.
+- Only for extension errors, lifecycle/teardown or extension journals, load `references/browser-extension-evidence.md` directly before extension-specific actions. Ordinary screenshots do not load it.
 - After evidence is collected or a proof blocker is established, load `$SHIPGLOWS_ROOT/skills/108-sg-browser/references/browser-report-and-routing.md`.
 
-Load at most one local pack before the first substantive action.
+Load at most one general proof pack before acting; extension objectives additionally require their selected leaf.
 
 ## Read-Only And Safety Gate
 
