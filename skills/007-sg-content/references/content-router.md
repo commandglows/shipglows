@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-08-12"
+updated: "2026-09-07"
 status: active
 source_skill: 007-sg-content
 scope: content-router
@@ -36,6 +36,7 @@ Select one smallest viable lane; do not execute later lifecycle phases from this
 - `audit copy`, `copy`, `copywriting`, `market`, `gtm`: exact `009-sg-marketing` mode; `seo`: `406-sg-seo`.
 - `docs`, `readme`, internal editorial governance: `300-sg-docs`.
 - unsettled external trend/source: `205-sg-veille` or `203-sg-research`.
+- `emailing [objective]`: use `202-sg-emailing` for writing, sequences, templates, deliverability or provider guidance; preserve its permission and proof gates, and never infer sending authority.
 - `apply`, `publish`, `ship`: governance and proof first, then `103-sg-verify` and bounded `005-sg-ship`.
 
 Source material with no settled downstream surface may use the bounded repurpose lane first. Never dispatches to a second public repurpose skill.

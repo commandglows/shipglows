@@ -36,13 +36,13 @@ EXPECTED_ALIASES = {
 
 class ShipGlowsCoreAliasContractTests(unittest.TestCase):
     def test_core_is_a_hard_shipglows_context_in_every_entrypoint(self) -> None:
-        public = PUBLIC_ROUTER.read_text(encoding="utf-8")
+        public = " ".join(PUBLIC_ROUTER.read_text(encoding="utf-8").split())
         compatibility = " ".join(COMPAT_ROUTER.read_text(encoding="utf-8").split())
         core = CORE.read_text(encoding="utf-8")
 
-        self.assertIn("Never redirect any part of a `core` instruction to the current project", public)
-        self.assertIn("`core` is the sole hard context switch", compatibility)
-        self.assertIn("No later project name, repository path, request, or quoted outcome overrides", core)
+        self.assertIn("`core` binds every remaining word to the system, including quoted application evidence; never redirect part of it to that application.", public)
+        self.assertIn("$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md", compatibility)
+        self.assertIn("Later project names, paths, requests or quotes cannot override this context.", core)
         self.assertIn("it does not audit either repository", core)
 
     def test_every_alias_has_one_public_owner_mode_and_internal_engine(self) -> None:
@@ -87,7 +87,7 @@ class ShipGlowsCoreAliasContractTests(unittest.TestCase):
             self.assertIn(expected, alias_text)
 
     def test_verify_preserves_specialist_ownership(self) -> None:
-        public = PUBLIC_ROUTER.read_text(encoding="utf-8")
+        public = " ".join(PUBLIC_ROUTER.read_text(encoding="utf-8").split())
         aliases = ALIASES.read_text(encoding="utf-8")
         for owner in ("`sg-design`", "`sg-seo`", "`sg-release`", "`sg-bug`"):
             self.assertIn(owner, aliases)
