@@ -21,7 +21,7 @@ class BrowserCompactionContractTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertLessEqual(tokens, 1700)
         self.assertLess(SKILL.index(PACKS[0]), SKILL.index(PACKS[1]))
-        self.assertIn("Load at most one local pack before the first substantive action", SKILL)
+        self.assertIn("Load at most one general proof pack before acting", SKILL)
         self.assertIn("compatibility index only", SKILL)
 
     def test_owner_preflight_and_environment_routes_are_local(self) -> None:
@@ -60,7 +60,10 @@ class BrowserCompactionContractTests(unittest.TestCase):
         self.assertIn("Paris/UTC build-time", proof)
 
     def test_extension_lifecycle_cannot_claim_personal_journal_coverage(self) -> None:
-        proof = REFS[PACKS[0]]
+        proof = (DIR / "references/browser-extension-evidence.md").read_text(encoding="utf-8")
+        self.assertNotIn("## Extension Lifecycle Evidence", REFS[PACKS[0]])
+        self.assertIn("Only for extension errors, lifecycle/teardown or extension journals", SKILL)
+        self.assertIn("Ordinary screenshots do not load it", SKILL)
         for marker in (
             "Zero\n`pageerror` events never proves an empty extension journal",
             "collection is active",

@@ -50,6 +50,7 @@ Conditional shared loaders remain conditional: `$SHIPGLOWS_ROOT/skills/reference
 ## Readiness And Proof Owners
 
 Before defining user-facing interface copy and interactions for implementation, load `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` and carry its criteria into implementation and review; infrastructure-only work does not activate it.
+Load `$SHIPGLOWS_ROOT/skills/references/interface-voice-examples.md` directly only when drafting or revising interface wording.
 
 When creating or changing cookie-consent banners, preference panels, or their copy and interactions, load `$SHIPGLOWS_ROOT/skills/references/consent-experience.md` before defining copy, UI, and implementation behavior.
 
