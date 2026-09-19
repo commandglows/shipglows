@@ -388,3 +388,9 @@ For behavioral changes, prefer a disposable host/container or a narrowly scoped 
 Update this doc when install privilege, user targeting, package/tool list, symlink/alias behavior, MCP setup, Codex/Claude config, or `shipglows_data` bootstrap behavior changes.
 
 PowerShell resolves `shipglows.ps1` before `shipglows.cmd`. The focused script now routes runtime update and tool commands through the secure PowerShell bootstrap when called outside the managed host. Bare `shipglows update status` and `shipglows update runtime` therefore do not require a `.cmd` suffix; linked skills keep their separate native route.
+
+### Windows developer-tool update diagnostics
+
+Each installer run prints its JSONL log path under `%USERPROFILE%\.shipglows\logs\tools-*.jsonl`. Logs retain operation, timestamp, duration, exit code and classified diagnostics; raw child output and spinner ticks are excluded. WinGet's no-applicable-update result is successful; other nonzero results stop the update. Administrator approval may require a Windows prompt even with silent installation.
+
+An npm `EBUSY` error means the executable is in use. The CLI reports the deferred update without terminating sessions or changing the installation method. Exact agent versions remain verified before success. `s tools update` and `s update tools` select the same action. Tool updates do not rewrite their running launchers; launcher regeneration is idempotent, and grouped batch execution preserves the child exit code across replacement.

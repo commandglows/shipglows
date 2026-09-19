@@ -190,6 +190,7 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'update status' = 'update-status'
         'tools status' = 'tools-status'
         'tools update' = 'tools-update'
+        'update tools' = 'tools-update'
         'h'   = 'help'
         'x'   = 'exit'
     }

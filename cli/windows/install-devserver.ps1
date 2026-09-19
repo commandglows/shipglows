@@ -52,7 +52,11 @@ if (-not (Test-Path -LiteralPath $wslTursoModule -PathType Leaf)) { throw "Missi
 Import-Module $wslTursoModule -Force -DisableNameChecking
 $tursoCloudInstaller = Join-Path $ShipglowsDir 'cli\install-turso-cloud.sh'
 if (-not (Test-Path -LiteralPath $tursoCloudInstaller -PathType Leaf)) { throw "Missing bundled Turso Cloud installer: $tursoCloudInstaller" }
-$installerEventSink = New-SgInstallerConsoleEventSink
+$installerLogDirectory = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'logs'
+[void][IO.Directory]::CreateDirectory($installerLogDirectory)
+$installerLogPath = Join-Path $installerLogDirectory ("tools-$(Get-Date -Format 'yyyyMMdd-HHmmss')-$PID.jsonl")
+$installerEventSink = New-SgInstallerConsoleEventSink -LogPath $installerLogPath
+Write-Host "Installer log: $installerLogPath" -ForegroundColor DarkGray
 $script:activeInstallerPhase = $null
 
 function Invoke-SgVisibleBoundedProcess {
@@ -62,10 +66,11 @@ function Invoke-SgVisibleBoundedProcess {
         [Parameter(Mandatory=$true)][string]$File,
         [string[]]$Arguments = @(),
         [int]$TimeoutSeconds = 60,
+        [int[]]$SuccessExitCodes = @(0),
         [string]$InputText = ''
     )
     $operation = New-SgInstallerOperation -Id $OperationId -Label $Label -TimeoutSeconds $TimeoutSeconds
-    return Invoke-SgInstallerOperation -Operation $operation -EventSink $installerEventSink -Runner {
+    return Invoke-SgInstallerOperation -Operation $operation -EventSink $installerEventSink -SuccessExitCodes $SuccessExitCodes -Runner {
         param($progress)
         Invoke-SgBoundedProcess -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds -InputText $InputText -ProgressCallback $progress
     }
@@ -285,20 +290,34 @@ function global:gp {
     return $true
 }
 
+function Set-SgLauncherContent([string]$Path, [string]$Content) {
+    $contentToWrite = $Content.TrimEnd("`r", "`n").Replace("`r`n", "`n").Replace("`n", "`r`n") + "`r`n"
+    if ((Test-Path -LiteralPath $Path) -and [IO.File]::ReadAllText($Path).Replace("`r`n", "`n").TrimEnd("`n") -ceq $Content.Replace("`r`n", "`n").TrimEnd("`n")) { return }
+    $temporary = "$Path.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temporary,$contentToWrite,[Text.Encoding]::ASCII)
+        [IO.File]::Move($temporary,$Path,$true)
+    } finally { if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Force } }
+}
+
 function Install-SgCommandWrappers {
     $wrapper = @'
 @echo off
 set "_SHIPGLOWS_PWSH=%USERPROFILE%\.shipglows\toolchains\powershell\7.6.5\win-x64\pwsh.exe"
 if not exist "%_SHIPGLOWS_PWSH%" goto shipglows_bootstrap
 set "SHIPGLOWS_MANAGED_PWSH=%_SHIPGLOWS_PWSH%"
+(
 "%_SHIPGLOWS_PWSH%" -NoLogo -NoProfile -File "%~dp0shipglows-devserver.ps1" %*
-@exit /b %ERRORLEVEL%
+call exit /b %%errorlevel%%
+)
 :shipglows_bootstrap
+(
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.PowerShellBootstrap.ps1" %*
-@exit /b %ERRORLEVEL%
+call exit /b %%errorlevel%%
+)
 '@
     $longCommand = Join-Path $runtimeDir 'shipglows-dev.cmd'
-    Set-Content -LiteralPath $longCommand -Value $wrapper -Encoding ASCII
+    Set-SgLauncherContent $longCommand $wrapper
     Add-SgRuntimeToUserPath
 
     $shortCommand = Join-Path $runtimeDir 's.cmd'
@@ -308,7 +327,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.
         try { $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortCommand) } catch { }
     }
     if ($canUseShortCommand) {
-        Set-Content -LiteralPath $shortCommand -Value $wrapper -Encoding ASCII
+        Set-SgLauncherContent $shortCommand $wrapper
         Write-Host 'Short command installed: s' -ForegroundColor Green
     } else {
         Write-SgInstallerWarning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
@@ -333,13 +352,17 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.
 set "_SHIPGLOWS_PWSH=%USERPROFILE%\.shipglows\toolchains\powershell\7.6.5\win-x64\pwsh.exe"
 if not exist "%_SHIPGLOWS_PWSH%" goto shipglows_bootstrap
 set "SHIPGLOWS_MANAGED_PWSH=%_SHIPGLOWS_PWSH%"
+(
 "%_SHIPGLOWS_PWSH%" -NoLogo -NoProfile -File "%~dp0shipglows.ps1" %*
-@exit /b %ERRORLEVEL%
+call exit /b %%errorlevel%%
+)
 :shipglows_bootstrap
+(
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.PowerShellBootstrap.ps1" -FocusedLauncher %*
-@exit /b %ERRORLEVEL%
+call exit /b %%errorlevel%%
+)
 '@
-        Set-Content -LiteralPath $shipglowsCommand -Value $shipglowsWrapper -Encoding ASCII
+        Set-SgLauncherContent $shipglowsCommand $shipglowsWrapper
         Write-Host 'ShipGlows command installed: shipglows' -ForegroundColor Green
     } else {
         Write-SgInstallerWarning "The command 'shipglows' is already used by $($existingShipglows.Source). ShipGlows preserved it."
@@ -904,10 +927,15 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady, 
         if (-not [bool]$CurrentReady[$name]) { continue }
         try {
             $resolvedVersions[$name] = Resolve-SgNpmVersion $NpmPath $definitions[$name].Package
+            if ($UpdateApproved -and -not $resolvedVersions[$name]) { throw "$name CLI target version could not be resolved." }
             $installedVersion = Get-SgInstalledCommandVersion $definitions[$name].Command $definitions[$name].Paths
+            if ($UpdateApproved -and -not $installedVersion) { throw "$name CLI installed version could not be proven." }
             if ($installedVersion -and $installedVersion -ne $resolvedVersions[$name]) { $outdated[$name] = $true }
             elseif (-not $installedVersion) { Write-SgInstallerWarning "$name CLI runs, but its installed version could not be proven; it was preserved." }
-        } catch { Write-SgInstallerWarning "$name CLI version comparison remains pending: $($_.Exception.Message)" }
+        } catch {
+            if ($UpdateApproved) { throw }
+            Write-SgInstallerWarning "$name CLI version comparison remains pending: $($_.Exception.Message)"
+        }
     }
     $initial = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice ''
     if ($initial.Ask -and -not $UpdateApproved) {
@@ -922,7 +950,7 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady, 
             $version = if ($resolvedVersions[$name]) { $resolvedVersions[$name] } else { Resolve-SgNpmVersion $NpmPath $definition.Package }
             $install = Invoke-SgVisibleBoundedProcess -OperationId ("agent." + $name.ToLowerInvariant()) -Label ("Installing $name CLI $version") -File $NpmPath -Arguments @('install','--global',"$($definition.Package)@$version",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 900
             $ready = -not $install.TimedOut -and $install.ExitCode -eq 0 -and (Test-SgToolRuns $definition.Command $definition.Paths)
-            if (-not $ready -and $definition.PostInstall) {
+            if (-not $ready -and $definition.ContainsKey('PostInstall') -and $definition.PostInstall) {
                 $prefix = Invoke-SgBoundedProcess $NpmPath @('prefix','--global') 30
                 $node = Get-SgToolPath 'node.exe' $nodePaths
                 $postInstallPath = if (-not $prefix.TimedOut -and $prefix.ExitCode -eq 0) { Join-Path (Join-Path $prefix.Output.Trim() 'node_modules') (($definition.Package + '/' + $definition.PostInstall).Replace('/','\')) } else { '' }
@@ -933,7 +961,16 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady, 
             }
             if (-not $ready) { Write-SgInstallerWarning "$name CLI exact-version installation or executable verification failed." }
             if ($UpdateApproved -and -not $ready) { throw "$name CLI update failed final executable verification." }
-        } catch { Write-SgInstallerWarning "$name CLI remains pending: $($_.Exception.Message)" }
+            if ($UpdateApproved) {
+                $verifiedVersion = Get-SgInstalledCommandVersion $definition.Command $definition.Paths
+                if ($verifiedVersion -ne $version) {
+                    throw "$name CLI update version mismatch: installed=$(if($verifiedVersion){$verifiedVersion}else{'unknown'}) target=$version."
+                }
+            }
+        } catch {
+            if ($UpdateApproved) { throw }
+            Write-SgInstallerWarning "$name CLI remains pending: $($_.Exception.Message)"
+        }
     }
     return @{
         Codex = Test-SgToolRuns 'codex.cmd' $codexPaths
@@ -993,15 +1030,15 @@ function Invoke-SgManagedWingetToolUpdate([object]$Definition) {
     if (-not $winget) { Write-SgInstallerWarning "WinGet is unavailable; $($Definition.Name) could not be checked for an update."; return $false }
     if (-not (Test-SgTool $Definition.Command $Definition.Paths)) { return $true }
 
-    $result = Invoke-SgVisibleBoundedProcess -OperationId ("tool.update." + $Definition.Key) -Label ("Updating " + $Definition.Name) -File $winget -Arguments @('upgrade','--id',$Definition.PackageId,'--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 1800
+    Write-Host "Windows may request administrator approval for $($Definition.Name). Check the Windows prompt if progress pauses. WinGet logs: $env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir" -ForegroundColor DarkGray
+    $result = Invoke-SgVisibleBoundedProcess -OperationId ("tool.update." + $Definition.Key) -Label ("Updating " + $Definition.Name) -File $winget -Arguments @('upgrade','--id',$Definition.PackageId,'--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 1800 -SuccessExitCodes @(0,-1978335189)
     Update-SgProcessPath
     if (-not (Test-SgToolRuns $Definition.Command $Definition.Paths)) {
         throw "$($Definition.Name) is unavailable after its WinGet update attempt."
     }
     if ($result.TimedOut) { throw "$($Definition.Name) WinGet update timed out." }
-    if ($result.ExitCode -ne 0) {
-        Write-SgInstallerWarning "$($Definition.Name) remains usable, but WinGet returned exit code $($result.ExitCode); this can mean no applicable update or a provider-side refusal."
-    }
+    if ($result.ExitCode -eq -1978335189) { Write-Host "$($Definition.Name): no applicable update; already current for this source." -ForegroundColor Green }
+    elseif ($result.ExitCode -ne 0) { throw "$($Definition.Name) update failed (WinGet exit $($result.ExitCode)). The existing command still runs. See WinGet diagnostic logs." }
     return $true
 }
 
@@ -1911,7 +1948,8 @@ Remove-SgLegacyRuntime
 Remove-SgObsoleteProfileCommand
 Import-Module (Join-Path $runtimeDir 'ShipGlows.PowerShellRuntime.psm1') -Force -DisableNameChecking
 $env:SHIPGLOWS_MANAGED_PWSH = Resolve-SgManagedPowerShell
-Install-SgCommandWrappers
+# Never rewrite the batch launcher while it is waiting for this updater.
+if (-not $UpdateDeveloperTools) { Install-SgCommandWrappers }
 [void](Install-SgGum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
