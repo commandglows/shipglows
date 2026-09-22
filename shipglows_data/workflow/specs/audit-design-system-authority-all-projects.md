@@ -20,7 +20,7 @@ docs_impact: yes
 linked_systems:
   - "/home/claude/contentglowz"
   - "/home/claude/gocharbon"
-  - "/home/claude/replayglowz"
+  - "/home/claude/replayglows"
   - "/home/claude/shipglows_app"
   - "/home/claude/socialglowz"
   - "/home/claude/temu"
@@ -47,9 +47,9 @@ depends_on:
 supersedes: []
 evidence:
   - "Wave 20 migrates the branding dependency to the canonical shipglows_data/branding/branding.md authority with the same reviewed 1.1.0 contract."
-  - "2026-06-11 server scan found UI/app signals in contentglowz, gocharbon, replayglowz, shipglows_app, socialglowz, temu, and winflowz."
+  - "2026-06-11 server scan found UI/app signals in contentglowz, gocharbon, replayglows, shipglows_app, socialglowz, temu, and winflowz."
   - "2026-06-11 server scan found design-system authority already present in shipglows and temu."
-  - "2026-06-11 server scan found missing design-system authority in contentglowz, gocharbon, replayglowz, shipglows_app, socialglowz, and winflowz."
+  - "2026-06-11 server scan found missing design-system authority in contentglowz, gocharbon, replayglows, shipglows_app, socialglowz, and winflowz."
   - "Several missing-authority projects already have theme/token files, so the immediate risk is governance drift rather than absence of all design primitives."
 next_step: "/300-sg-docs technical design-system-authority contentglowz"
 ---
@@ -102,7 +102,7 @@ Run a staged cross-project audit. First produce a read-only inventory and compli
 
 ## Scope In
 
-- Audit these detected product/project repos: `contentglowz`, `gocharbon`, `replayglowz`, `shipglows_app`, `socialglowz`, `temu`, and `winflowz`.
+- Audit these detected product/project repos: `contentglowz`, `gocharbon`, `replayglows`, `shipglows_app`, `socialglowz`, `temu`, and `winflowz`.
 - Keep `shipglows` as the reference/control project because it already has the doctrine and tooling.
 - Detect UI/app surfaces from project markers such as `package.json`, `astro.config.*`, `vite.config.*`, `tailwind.config.*`, `pubspec.yaml`, `app.json`, and source directories.
 - Check for canonical authority at `shipglows_data/technical/design-system-authority.md`, with monorepo root handling.
@@ -181,7 +181,7 @@ The first audit creates or updates a central ShipGlows workflow audit report. It
 
 - `shipglows_app` stores governance under `app/shipglows_data` signals, but the repo root has the git root; the audit must identify whether this is a standalone exception or migration debt.
 - `socialglowz` has both root app and `site/` governance signals; the audit must avoid treating nested governance as authoritative without a documented monorepo rule.
-- `contentglowz`, `replayglowz`, and `winflowz` mix site and Flutter app surfaces; authority may need scoped entries per surface under one root.
+- `contentglowz`, `replayglows`, and `winflowz` mix site and Flutter app surfaces; authority may need scoped entries per surface under one root.
 - File names containing `theme` may be content topics rather than design-system tokens; candidate detection must be checked against source context.
 - Existing dirty files in a repo must not be staged or overwritten by this chantier.
 

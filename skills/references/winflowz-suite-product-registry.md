@@ -57,7 +57,7 @@ Known canonical product ids governed by the unified policy include:
 - `gocharbon`
 - `contentglowz`
 - `shipglows`
-- `replayglowz`
+- `replayglows`
 - `communityglows`
 - `temu_shopping_lists`
 

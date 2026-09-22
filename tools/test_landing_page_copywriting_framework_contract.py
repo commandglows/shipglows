@@ -198,7 +198,7 @@ class LandingPageCopywritingFrameworkContractTests(unittest.TestCase):
             "decision-quality-contract.md",
         ):
             self.assertIn(owner_reference, self.framework)
-        self.assertNotIn("ReplayGlowz", self.framework)
+        self.assertNotIn("ReplayGlows", self.framework)
         self.assertLessEqual(len(self.skill.splitlines()), 180)
 
 

@@ -141,8 +141,8 @@
               - link "ObsiFlowz" [ref=e144] [cursor=pointer]:
                 - /url: /products/flowzsuite-obsidian
             - listitem [ref=e145]:
-              - link "ReplayGlowz" [ref=e146] [cursor=pointer]:
-                - /url: /products/replayglowz-extension
+              - link "ReplayGlows" [ref=e146] [cursor=pointer]:
+                - /url: /products/replayglows-extension
             - listitem [ref=e147]:
               - link "Windows Mastery" [ref=e148] [cursor=pointer]:
                 - /url: /windows-mastery

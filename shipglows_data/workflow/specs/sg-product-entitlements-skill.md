@@ -18,7 +18,7 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - /home/claude/replayglowz/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md
+  - /home/claude/replayglows/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md
   - skills/601-sg-product-entitlements/SKILL.md
   - skills/600-sg-local-cloud-sync/SKILL.md
   - skills/109-sg-auth-debug/SKILL.md
@@ -44,12 +44,12 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Wave 20 reclassifies the ReplayGlowz exploration as external provenance and replaces the retired sync-skill dependency with the active 600 local-cloud-sync doctrine."
-  - "Exploration report /home/claude/replayglowz/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md recommends one new product-entitlements skill and no standalone data-sync skill."
+  - "Wave 20 reclassifies the ReplayGlows exploration as external provenance and replaces the retired sync-skill dependency with the active 600 local-cloud-sync doctrine."
+  - "Exploration report /home/claude/replayglows/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md recommends one new product-entitlements skill and no standalone data-sync skill."
   - "skills/references/product-entitlements-playbook.md defines the core doctrine: identity, provider events, and product entitlements are separate layers; authentication must not grant product access."
   - "skills/sg-local-cloud-sync/SKILL.md already owns local-to-cloud data promotion, merge, conflict, tombstone, offline queue, UX state, and data-trust proof."
   - "skills/sg-auth-debug/SKILL.md owns auth/OAuth/session debugging, not entitlement lifecycle design."
-  - "ReplayGlowz suite-auth migration and backend guard work exposed the recurring need for a skill that prevents duplicate ledgers, stale mirrors, and product-data authorization gaps."
+  - "ReplayGlows suite-auth migration and backend guard work exposed the recurring need for a skill that prevents duplicate ledgers, stale mirrors, and product-data authorization gaps."
 next_step: "/sg-ship \"Add sg-product-entitlements skill\""
 ---
 
@@ -129,7 +129,7 @@ Create `skills/sg-product-entitlements/SKILL.md` as a domain skill backed by `sk
 
 ## Scope Out
 
-- Implementing entitlement code in ReplayGlowz, WinFlowz, SocialGlowz, or any product project.
+- Implementing entitlement code in ReplayGlows, WinFlowz, SocialGlowz, or any product project.
 - Changing prices, plans, provider configuration, manual grants, or support actions in a live product.
 - Creating a standalone `sg-data-sync` skill.
 - Replacing `sg-local-cloud-sync` or moving its merge/offline/tombstone doctrine into `sg-product-entitlements`.
@@ -295,12 +295,12 @@ If public content changes, also run the existing site build command documented b
 
 ## Execution Notes
 
-- This spec originated from `/sg-explore` report `/home/claude/replayglowz/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md`.
+- This spec originated from `/sg-explore` report `/home/claude/replayglows/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md`.
 - The user selected the skill name `sg-product-entitlements` on 2026-06-10.
 - Preferred implementation owner: `/sg-skill-build shipglows_data/workflow/specs/sg-product-entitlements-skill.md` after `/sg-ready`.
 - Preferred proof path: `scenario-first`.
 - Do not create `sg-data-sync` in this chantier.
-- Do not edit product projects such as ReplayGlowz as part of this skill-maintenance spec.
+- Do not edit product projects such as ReplayGlows as part of this skill-maintenance spec.
 - Stop if another active spec already owns the exact `sg-product-entitlements` skill creation.
 
 ## Open Questions
