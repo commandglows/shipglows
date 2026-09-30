@@ -24,11 +24,11 @@ try {
         [IO.File]::WriteAllText((Join-Path $Fixture 'pubspec.yaml'),"name: fixture`ndependencies:`n  auth0_flutter: any")
         Expect-Blocked { Get-SgFlutterConfiguration $Fixture $settings 3010 }
         [IO.File]::WriteAllText((Join-Path $Fixture 'config.py'),'# fixture resolver, never executed')
-        $recipe=[ordered]@{schemaVersion='shipglows.flutter-recipe.v1';configurationScript='config.py';doppler=@{project='fixture';config='dev'};publicDefines=@('AUTH0_DOMAIN','AUTH0_CLIENT_ID','AUTH0_AUDIENCE','AUTH_BYPASS');publicEnvironment=@('AUTH0_DOMAIN');requiredDefines=@('AUTH0_DOMAIN','AUTH0_CLIENT_ID','AUTH0_AUDIENCE');forbiddenTrueDefines=@('AUTH_BYPASS')}
+        $recipe=[ordered]@{schemaVersion='shipglows.flutter-recipe.v1';configurationScript='config.py';doppler=@{project='fixture';config='dev'};publicDefines=@('AUTH0_DOMAIN','AUTH0_CLIENT_ID','AUTH0_AUDIENCE','AUTH_BYPASS','BUILD_TIMESTAMP','BUILD_AT_UTC','BUILD_AT_PARIS','BUILD_BRANCH','BUILD_COMMIT_SHA','BUILD_SOURCE_STATE');publicEnvironment=@('AUTH0_DOMAIN');requiredDefines=@('AUTH0_DOMAIN','AUTH0_CLIENT_ID','AUTH0_AUDIENCE');forbiddenTrueDefines=@('AUTH_BYPASS')}
         $recipePath=Join-Path $Fixture '.shipglows.flutter.json'
         function Save-Recipe { $recipe | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $recipePath }
         Save-Recipe
-        $script:response=[ordered]@{schemaVersion='shipglows.flutter-configuration.v1';dartDefines=[ordered]@{AUTH0_DOMAIN='fixture.invalid';AUTH0_CLIENT_ID='fixture-client';AUTH0_AUDIENCE='fixture-api';AUTH_BYPASS='false'};environment=@{AUTH0_DOMAIN='fixture.invalid'}}
+        $script:response=[ordered]@{schemaVersion='shipglows.flutter-configuration.v1';dartDefines=[ordered]@{AUTH0_DOMAIN='fixture.invalid';AUTH0_CLIENT_ID='fixture-client';AUTH0_AUDIENCE='fixture-api';AUTH_BYPASS='false';BUILD_TIMESTAMP='2026-09-30T12:00:00Z';BUILD_AT_UTC='2026-09-30T12:00:00Z';BUILD_AT_PARIS='2026-09-30 14:00';BUILD_BRANCH='codex/fixture';BUILD_COMMIT_SHA='fixture-sha';BUILD_SOURCE_STATE='clean'};environment=@{AUTH0_DOMAIN='fixture.invalid'}}
         $script:argsSeen=@()
         $script:fileSeen=$null
         $runner={param($File,$Arguments) $script:fileSeen=$File; $script:argsSeen=$Arguments; Assert-Config ($env:AUTH_BYPASS -ceq 'false') 'Bypass policy was not applied in child environment.'; [pscustomobject]@{ExitCode=0;Output=($script:response|ConvertTo-Json -Depth 5 -Compress)}}
@@ -43,10 +43,23 @@ try {
             Assert-Config ($script:argsSeen[0] -ceq 'run' -and $script:argsSeen[1] -ceq '--project' -and $script:argsSeen[2] -ceq 'fixture' -and $script:argsSeen[3] -ceq '--config' -and $script:argsSeen[4] -ceq 'dev') 'Declared Doppler scope was not used.'
             $separator=[array]::IndexOf([string[]]$script:argsSeen,'--')
             Assert-Config ($script:fileSeen -ceq 'C:\fixture\doppler.exe' -and $separator -ge 0 -and $script:argsSeen[$separator+1] -ceq 'C:\fixture\python.exe' -and $script:argsSeen[$separator+2] -like '*config.py') 'Doppler must run Python on the declared resolver.'
+            $script:response.dartDefines.BUILD_TIMESTAMP='2026-09-30T12:01:00Z'
+            $script:response.dartDefines.BUILD_AT_UTC='2026-09-30T12:01:00Z'
+            $script:response.dartDefines.BUILD_AT_PARIS='2026-09-30 14:01'
             $second=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
             Assert-Config ($first.Fingerprint -ceq $second.Fingerprint) 'Identical configuration fingerprint is unstable.'
+            Assert-Config ($first.Defines['BUILD_TIMESTAMP'] -cne $second.Defines['BUILD_TIMESTAMP']) 'Fresh build timestamp was discarded from Flutter launch defines.'
+            Assert-Config ($first.Defines['BUILD_TIMESTAMP'] -is [string] -and $first.Defines['BUILD_AT_UTC'] -is [string]) 'ISO build timestamps were not preserved as strings.'
             $entry=[pscustomobject]@{flutterConfigurationFingerprint=$first.Fingerprint}
             Assert-Config (Test-SgFlutterSessionConfiguration $entry $second) 'Identical session should be reused.'
+            $script:response.dartDefines.BUILD_BRANCH='codex/other-branch'
+            $branchChanged=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
+            Assert-Config ($branchChanged.Fingerprint -cne $first.Fingerprint) 'Branch change reused a session with stale build identity.'
+            $script:response.dartDefines.BUILD_BRANCH='codex/fixture'
+            $script:response.dartDefines.BUILD_COMMIT_SHA='other-fixture-sha'
+            $commitChanged=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
+            Assert-Config ($commitChanged.Fingerprint -cne $first.Fingerprint) 'Commit change reused a session with stale build identity.'
+            $script:response.dartDefines.BUILD_COMMIT_SHA='fixture-sha'
             $script:response.dartDefines.AUTH0_CLIENT_ID='rotated-client'
             $rotated=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
             Assert-Config (-not(Test-SgFlutterSessionConfiguration $entry $rotated)) 'Rotated configuration reused an old session.'

@@ -55,10 +55,21 @@ function ConvertTo-SgPublicFlutterMap([object]$Value,[string[]]$Allowed,[string]
     if ($null -eq $Value -or $Value -isnot [pscustomobject]) { throw "Flutter $Label must be an object." }
     $map = [ordered]@{}
     foreach ($property in @($Value.PSObject.Properties | Sort-Object Name)) {
-        if ($property.Name -cnotin $Allowed -or $property.Value -isnot [string] -or $property.Value.Length -gt 8192 -or $property.Value -match '[\x00-\x1f]') { throw "Flutter $Label contains an undeclared or invalid public parameter." }
-        $map[$property.Name] = $property.Value
+        $propertyValue = $property.Value
+        if ($propertyValue -is [datetime] -and $property.Name -in @('BUILD_TIMESTAMP','BUILD_AT_UTC','BUILD_AT_PARIS')) {
+            $format = if ($property.Name -eq 'BUILD_AT_PARIS') { 'yyyy-MM-dd HH:mm' } else { "yyyy-MM-dd'T'HH:mm:ss'Z'" }
+            $propertyValue = if ($property.Name -eq 'BUILD_AT_PARIS') { $propertyValue.ToString($format,[Globalization.CultureInfo]::InvariantCulture) } else { $propertyValue.ToUniversalTime().ToString($format,[Globalization.CultureInfo]::InvariantCulture) }
+        }
+        if ($property.Name -cnotin $Allowed -or $propertyValue -isnot [string] -or $propertyValue.Length -gt 8192 -or $propertyValue -match '[\x00-\x1f]') { throw "Flutter $Label contains an undeclared or invalid public parameter." }
+        $map[$property.Name] = $propertyValue
     }
     return $map
+}
+
+function ConvertFrom-SgFlutterJson([string]$Json) {
+    $parameters = @{ InputObject=$Json; ErrorAction='Stop' }
+    if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) { $parameters.DateKind = 'String' }
+    return ConvertFrom-Json @parameters
 }
 
 function Invoke-SgPublicFlutterResolver([string]$File,[string[]]$Arguments) {
@@ -122,7 +133,7 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
         } finally { foreach ($key in $saved.Keys) { [Environment]::SetEnvironmentVariable($key,$saved[$key],'Process') } }
         if (-not $result -or $result.ExitCode -ne 0) { throw 'Flutter configuration preflight failed. Check the declared configuration source and required public client configuration; the existing session was preserved.' }
         if ([string]$result.Output -eq '' -or ([string]$result.Output).Length -gt 65536) { throw 'Flutter resolver returned an empty or oversized response.' }
-        try { $resolved = [string]$result.Output | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Flutter resolver did not return the public configuration contract.' }
+        try { $resolved = ConvertFrom-SgFlutterJson ([string]$result.Output) } catch { throw 'Flutter resolver did not return the public configuration contract.' }
         if ($null -eq $resolved -or $resolved -is [array] -or (@($resolved.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'dartDefines,environment,schemaVersion' -or $resolved.schemaVersion -cne 'shipglows.flutter-configuration.v1') { throw 'Unsupported Flutter public configuration response.' }
         $defines = ConvertTo-SgPublicFlutterMap $resolved.dartDefines $recipe.publicDefines 'defines'
         $publicEnvironment = ConvertTo-SgPublicFlutterMap $resolved.environment $recipe.publicEnvironment 'environment'
@@ -131,7 +142,7 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
         $sourceHash = (Get-FileHash -LiteralPath $recipe.RecipePath -Algorithm SHA256).Hash + (Get-FileHash -LiteralPath $recipe.ScriptPath -Algorithm SHA256).Hash
     } elseif ($Settings.DartDefineFile) {
         if ((Get-Item -LiteralPath $Settings.DartDefineFile).Length -gt 65536) { throw 'Flutter define file exceeds 64 KiB.' }
-        try { $legacy = Get-Content -LiteralPath $Settings.DartDefineFile -Raw | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Flutter define file is not valid JSON.' }
+        try { $legacy = ConvertFrom-SgFlutterJson (Get-Content -LiteralPath $Settings.DartDefineFile -Raw) } catch { throw 'Flutter define file is not valid JSON.' }
         $allowed = @($legacy.PSObject.Properties.Name)
         if (@($allowed | Where-Object { $_ -match '(SECRET|PASSWORD|TOKEN|PRIVATE_KEY)' }).Count -gt 0) { throw 'Flutter defines may not contain service secrets.' }
         $defines = ConvertTo-SgPublicFlutterMap $legacy $allowed 'defines'
@@ -139,7 +150,13 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
     }
     $mode = if ($Settings.PSObject.Properties['FlutterMode'] -and [string]$Settings.FlutterMode) { [string]$Settings.FlutterMode } else { 'debug' }
     if ($mode -notin @('debug','profile')) { throw 'Flutter launch mode must be debug or profile.' }
-    $identity = [ordered]@{ target=$target; deviceId=[string]$Settings.FlutterDeviceId; mode=$mode; origin=$origin; source=$sourceHash; dartDefines=$defines; environment=$publicEnvironment }
+    # A fresh managed Flutter run gets a fresh build timestamp, but timestamps
+    # alone must not invalidate a live session during a reuse check.
+    $stableDefines = [ordered]@{}
+    foreach ($key in $defines.Keys) {
+        if ($key -notin @('BUILD_TIMESTAMP','BUILD_AT_UTC','BUILD_AT_PARIS')) { $stableDefines[$key] = $defines[$key] }
+    }
+    $identity = [ordered]@{ target=$target; deviceId=[string]$Settings.FlutterDeviceId; mode=$mode; origin=$origin; source=$sourceHash; dartDefines=$stableDefines; environment=$publicEnvironment }
     $sha = [Security.Cryptography.SHA256]::Create()
     try { $fingerprint = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($identity | ConvertTo-Json -Depth 8 -Compress))))).Replace('-','').ToLowerInvariant() } finally { $sha.Dispose() }
     return [pscustomobject]@{ Fingerprint=$fingerprint; Defines=$defines; Environment=$publicEnvironment; HasRecipe=($null -ne $recipe) }
