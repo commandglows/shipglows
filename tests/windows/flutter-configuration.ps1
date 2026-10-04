@@ -39,6 +39,7 @@ try {
             Assert-Config ($first.Environment['AUTH0_DOMAIN'] -ceq 'fixture.invalid') 'Android environment projection lost.'
             Assert-Config ($env:AUTH_BYPASS -ceq 'original') 'Parent environment was not restored.'
             Assert-Config ('--no-fallback' -in $script:argsSeen -and '--preserve-env=AUTH_BYPASS' -in $script:argsSeen) 'Doppler scope/fallback policy missing.'
+            Assert-Config ($script:argsSeen[0] -ceq 'run' -and $script:argsSeen[1] -ceq '--project' -and $script:argsSeen[2] -ceq 'fixture' -and $script:argsSeen[3] -ceq '--config' -and $script:argsSeen[4] -ceq 'dev') 'Declared Doppler scope was not used.'
             $second=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
             Assert-Config ($first.Fingerprint -ceq $second.Fingerprint) 'Identical configuration fingerprint is unstable.'
             $entry=[pscustomobject]@{flutterConfigurationFingerprint=$first.Fingerprint}
@@ -76,6 +77,14 @@ try {
             Expect-Blocked {Get-SgFlutterConfiguration $Fixture $settings 3010 {param($f,$a) [pscustomobject]@{ExitCode=0;Output='{broken'}}}
             $recipe.doppler.config='production'; Save-Recipe
             Expect-Blocked {Read-SgFlutterRecipe $Fixture}
+            $recipe.doppler='NONE'; Save-Recipe
+            $noneRecipe=Read-SgFlutterRecipe $Fixture
+            Assert-Config ($noneRecipe.doppler -ceq 'NONE') 'Explicit Doppler NONE declaration was not accepted.'
+            $script:argsSeen=@()
+            $withoutDoppler=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
+            Assert-Config ($withoutDoppler.HasRecipe -and $withoutDoppler.Fingerprint -cne $first.Fingerprint) 'Doppler NONE did not produce a distinct configured launch.'
+            Assert-Config ('run' -notin $script:argsSeen -and '--project' -notin $script:argsSeen -and '--config' -notin $script:argsSeen -and '--no-fallback' -notin $script:argsSeen) 'Doppler NONE unexpectedly invoked Doppler or inherited its scope.'
+            $recipe.doppler=@{project='fixture';config='dev'}
             $recipe.doppler.config='dev'; $recipe.configurationScript='../outside.py'; Save-Recipe
             Expect-Blocked {Read-SgFlutterRecipe $Fixture}
             $recipe.configurationScript='config.py'; Save-Recipe
