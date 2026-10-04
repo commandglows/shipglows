@@ -5,11 +5,6 @@ function Assert-Sg([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
 
-function Read-SgShortcut([string]$Path) {
-    $shell = New-Object -ComObject WScript.Shell
-    return $shell.CreateShortcut($Path)
-}
-
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $modulePath = Join-Path $repoRoot 'cli\windows\ShipGlows.BuildArtifacts.psm1'
 $entrypointPath = Join-Path $repoRoot 'cli\windows\shipglows-build-artifacts.ps1'
@@ -31,13 +26,9 @@ try {
     $localWindows = Publish-SgBuildArtifact `
         -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows -SourceKind local `
         -ArtifactPath (Join-Path $windowsSource 'app.exe') -PackageRoot $windowsSource `
-        -SourceId 'local-v1' -Commit 'abc1234' -StateRoot $stateRoot -DesktopPath $desktop
+        -SourceId 'local-v1' -Commit 'abc1234' -StateRoot $stateRoot
 
-    $windowsLocalShortcut = Join-Path $desktop 'ShipGlows - ContentGlows - Windows - Local.lnk'
-    Assert-Sg (Test-Path -LiteralPath $windowsLocalShortcut -PathType Leaf) 'The Windows Local shortcut was not created.'
-    $windowsLink = Read-SgShortcut $windowsLocalShortcut
-    Assert-Sg ($windowsLink.TargetPath -eq $localWindows.entryPath) 'The Windows shortcut does not target the cached executable.'
-    Assert-Sg ($windowsLink.Description -match '^ShipGlows managed build shortcut v1\|') 'The shortcut ownership marker is missing.'
+    Assert-Sg (-not (Get-ChildItem -LiteralPath $desktop -Filter '*.lnk' -File).Count) 'Build publication created a Desktop shortcut.'
     Assert-Sg (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $localWindows.entryPath) 'data\app.so')) 'The complete Windows package was not cached.'
     Remove-Item -LiteralPath (Split-Path -Parent $windowsSource) -Recurse -Force
     Assert-Sg (Test-Path -LiteralPath $localWindows.entryPath -PathType Leaf) 'The cached build did not survive source worktree removal.'
@@ -55,21 +46,21 @@ try {
         Publish-SgBuildArtifact `
             -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows -SourceKind local `
             -ArtifactPath $localWindows.entryPath -PackageRoot $localWindows.generationPath `
-            -Provenance @{ privatePath = 'C:\private\build' } -StateRoot $stateRoot -DesktopPath $desktop | Out-Null
+            -Provenance @{ privatePath = 'C:\private\build' } -StateRoot $stateRoot | Out-Null
     } catch { $freeProvenanceRejected = $_.Exception.Message -match 'not allowed' }
     Assert-Sg $freeProvenanceRejected 'Free-form provenance fields must fail closed.'
-    Assert-Sg ((Read-SgShortcut $windowsLocalShortcut).TargetPath -eq $localWindows.entryPath) 'Rejected provenance replaced the last-known-good shortcut.'
 
-    $failedPreviousTarget = $windowsLink.TargetPath
     $missingRejected = $false
     try {
         Publish-SgBuildArtifact `
             -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows -SourceKind local `
             -ArtifactPath (Join-Path $fixtureRoot 'missing\app.exe') -PackageRoot (Join-Path $fixtureRoot 'missing') `
-            -StateRoot $stateRoot -DesktopPath $desktop | Out-Null
+            -StateRoot $stateRoot | Out-Null
     } catch { $missingRejected = $_.Exception.Message -match 'does not exist' }
     Assert-Sg $missingRejected 'A missing local build must fail closed.'
-    Assert-Sg ((Read-SgShortcut $windowsLocalShortcut).TargetPath -eq $failedPreviousTarget) 'A failed publish replaced the last-known-good shortcut.'
+    $localAfterFailures = @(Get-SgBuildArtifactStatus -ProjectPath $project -ProjectName 'ContentGlows' -StateRoot $stateRoot |
+        Where-Object { $_.platform -eq 'windows' -and $_.sourceKind -eq 'local' })
+    Assert-Sg ($localAfterFailures.Count -eq 1 -and $localAfterFailures[0].entryPath -eq $localWindows.entryPath) 'A failed publish replaced the last-known-good cached build.'
 
     $apkSource = Join-Path $fixtureRoot 'source android\content glows release.apk'
     New-Item -ItemType Directory -Path (Split-Path -Parent $apkSource) -Force | Out-Null
@@ -77,11 +68,8 @@ try {
     $localAndroid = Publish-SgBuildArtifact `
         -ProjectPath $project -ProjectName 'ContentGlows' -Platform android -SourceKind local `
         -ArtifactPath $apkSource -PackageRoot (Split-Path -Parent $apkSource) `
-        -SourceId 'local-apk-v1' -StateRoot $stateRoot -DesktopPath $desktop
-    $androidLocalShortcut = Join-Path $desktop 'ShipGlows - ContentGlows - Android APK - Local.lnk'
-    $androidLink = Read-SgShortcut $androidLocalShortcut
-    Assert-Sg ($androidLink.TargetPath -match '(?i)explorer\.exe$') 'The Android shortcut must use Explorer instead of installing the APK.'
-    Assert-Sg ($androidLink.Arguments.Contains($localAndroid.entryPath)) 'The Android shortcut does not reveal the cached APK.'
+        -SourceId 'local-apk-v1' -StateRoot $stateRoot
+    Assert-Sg (-not (Get-ChildItem -LiteralPath $desktop -Filter '*.lnk' -File).Count) 'Android artifact publication created a Desktop shortcut.'
 
     $oversizeSource = Join-Path $fixtureRoot 'oversize\app.exe'
     New-Item -ItemType Directory -Path (Split-Path -Parent $oversizeSource) -Force | Out-Null
@@ -91,24 +79,9 @@ try {
         Publish-SgBuildArtifact `
             -ProjectPath $project -ProjectName 'Oversize' -Platform windows -SourceKind local `
             -ArtifactPath $oversizeSource -PackageRoot (Split-Path -Parent $oversizeSource) `
-            -StateRoot $stateRoot -DesktopPath $desktop -MaxBytes 2 | Out-Null
+            -StateRoot $stateRoot -MaxBytes 2 | Out-Null
     } catch { $oversizeRejected = $_.Exception.Message -match 'size limit' }
-    Assert-Sg $oversizeRejected 'An oversized package must be rejected before shortcut publication.'
-
-    $collisionSource = Join-Path $fixtureRoot 'collision\app.exe'
-    New-Item -ItemType Directory -Path (Split-Path -Parent $collisionSource) -Force | Out-Null
-    [IO.File]::WriteAllText($collisionSource, 'collision', [Text.UTF8Encoding]::new($false))
-    $collisionShortcut = Join-Path $desktop 'ShipGlows - Collision - Windows - Local.lnk'
-    [IO.File]::WriteAllText($collisionShortcut, 'not-a-shipglows-shortcut', [Text.UTF8Encoding]::new($false))
-    $collisionRejected = $false
-    try {
-        Publish-SgBuildArtifact `
-            -ProjectPath $project -ProjectName 'Collision' -Platform windows -SourceKind local `
-            -ArtifactPath $collisionSource -PackageRoot (Split-Path -Parent $collisionSource) `
-            -StateRoot $stateRoot -DesktopPath $desktop | Out-Null
-    } catch { $collisionRejected = $_.Exception.Message -match 'not owned by ShipGlows' }
-    Assert-Sg $collisionRejected 'An unowned same-name shortcut must never be overwritten.'
-    Assert-Sg ([IO.File]::ReadAllText($collisionShortcut) -eq 'not-a-shipglows-shortcut') 'The unowned collision was modified.'
+    Assert-Sg $oversizeRejected 'An oversized package must be rejected before it enters the cache.'
 
     $fakeGitHub = {
         param([string[]]$Arguments)
@@ -131,11 +104,8 @@ try {
         -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows `
         -Repository 'commandglows/contentglows' -Workflow 'windows-release.yml' -Branch 'auth0-migration' `
         -ArtifactName 'windows-release' -EntryRelativePath 'bundle\app.exe' `
-        -StateRoot $stateRoot -DesktopPath $desktop -GitHubRunner $fakeGitHub
-    $windowsCiShortcut = Join-Path $desktop 'ShipGlows - ContentGlows - Windows - CI.lnk'
-    Assert-Sg (Test-Path -LiteralPath $windowsCiShortcut -PathType Leaf) 'The Windows CI shortcut was not created.'
-    Assert-Sg ((Read-SgShortcut $windowsCiShortcut).TargetPath -eq $ciWindows.entryPath) 'The CI shortcut does not target its cached CI executable.'
-    Assert-Sg ((Read-SgShortcut $windowsLocalShortcut).TargetPath -eq $failedPreviousTarget) 'Publishing CI replaced the Local lane.'
+        -StateRoot $stateRoot -GitHubRunner $fakeGitHub
+    Assert-Sg (-not (Get-ChildItem -LiteralPath $desktop -Filter '*.lnk' -File).Count) 'CI artifact publication created a Desktop shortcut.'
     Assert-Sg ($ciWindows.provenance.runId -eq '4242' -and $ciWindows.provenance.event -eq 'push') 'CI provenance is incomplete.'
     Assert-Sg (($ciWindows | ConvertTo-Json -Depth 8) -notmatch '(?i)(token|secret|password|credential)') 'CI state contains a forbidden secret-bearing field.'
 
@@ -145,7 +115,7 @@ try {
             -ProjectPath $project -ProjectName 'Escape' -Platform windows `
             -Repository 'commandglows/contentglows' -Workflow 'windows-release.yml' -Branch 'auth0-migration' `
             -ArtifactName 'windows-release' -EntryRelativePath '..\escape.exe' `
-            -StateRoot $stateRoot -DesktopPath $desktop -GitHubRunner $fakeGitHub | Out-Null
+            -StateRoot $stateRoot -GitHubRunner $fakeGitHub | Out-Null
     } catch { $escapeRejected = $_.Exception.Message -match 'escapes its allowed root' }
     Assert-Sg $escapeRejected 'A CI entrypoint path escape must fail closed.'
 
@@ -165,7 +135,7 @@ try {
         Sync-SgGitHubBuildArtifact `
             -ProjectPath $project -ProjectName 'Ambiguous' -Platform windows `
             -Repository 'commandglows/contentglows' -Workflow 'windows-release.yml' -Branch 'auth0-migration' `
-            -ArtifactName 'windows-release' -StateRoot $stateRoot -DesktopPath $desktop `
+            -ArtifactName 'windows-release' -StateRoot $stateRoot `
             -GitHubRunner $ambiguousGitHub | Out-Null
     } catch { $ambiguousRejected = $_.Exception.Message -match 'exactly one' }
     Assert-Sg $ambiguousRejected 'Ambiguous CI entrypoints must fail closed.'
@@ -183,17 +153,19 @@ try {
             -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows `
             -Repository 'commandglows/contentglows' -Workflow 'windows-release.yml' -Branch 'auth0-migration' `
             -ArtifactName 'windows-release' -EntryRelativePath 'bundle\app.exe' `
-            -StateRoot $stateRoot -DesktopPath $desktop -GitHubRunner $untrustedGitHub | Out-Null
+            -StateRoot $stateRoot -GitHubRunner $untrustedGitHub | Out-Null
     } catch { $untrustedRejected = $_.Exception.Message -match 'allowed successful CI run' }
     Assert-Sg $untrustedRejected 'A disallowed CI event must fail closed.'
-    Assert-Sg ((Read-SgShortcut $windowsCiShortcut).TargetPath -eq $ciWindows.entryPath) 'An untrusted CI run replaced the last-known-good CI shortcut.'
+    $ciAfterFailure = @(Get-SgBuildArtifactStatus -ProjectPath $project -ProjectName 'ContentGlows' -StateRoot $stateRoot |
+        Where-Object { $_.platform -eq 'windows' -and $_.sourceKind -eq 'ci' })
+    Assert-Sg ($ciAfterFailure.Count -eq 1 -and $ciAfterFailure[0].entryPath -eq $ciWindows.entryPath) 'An untrusted CI run replaced the last-known-good cached build.'
 
     $optionFieldRejected = $false
     try {
         Sync-SgGitHubBuildArtifact `
             -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows `
             -Repository 'commandglows/contentglows' -Workflow '--all' -Branch 'auth0-migration' `
-            -ArtifactName 'windows-release' -StateRoot $stateRoot -DesktopPath $desktop `
+            -ArtifactName 'windows-release' -StateRoot $stateRoot `
             -GitHubRunner $fakeGitHub | Out-Null
     } catch { $optionFieldRejected = $_.Exception.Message -match 'option-shaped' }
     Assert-Sg $optionFieldRejected 'Option-shaped GitHub selectors must fail closed before CLI invocation.'
@@ -203,9 +175,9 @@ try {
         Publish-SgBuildArtifact `
             -ProjectPath $project -ProjectName 'ContentGlows' -Platform ios -SourceKind local `
             -ArtifactPath $apkSource -PackageRoot (Split-Path -Parent $apkSource) `
-            -StateRoot $stateRoot -DesktopPath $desktop | Out-Null
-    } catch { $unsupportedRejected = $_.Exception.Message -match 'not runnable from Windows' }
-    Assert-Sg $unsupportedRejected 'Windows must not present iOS artifacts as runnable builds.'
+            -StateRoot $stateRoot | Out-Null
+    } catch { $unsupportedRejected = $_.Exception.Message -match 'not supported by this Windows artifact cache' }
+    Assert-Sg $unsupportedRejected 'Windows must not accept iOS artifacts in its cache.'
 
     $retentionSource = Join-Path $fixtureRoot 'retention\app.exe'
     New-Item -ItemType Directory -Path (Split-Path -Parent $retentionSource) -Force | Out-Null
@@ -214,7 +186,7 @@ try {
         Publish-SgBuildArtifact `
             -ProjectPath $project -ProjectName 'Retention' -Platform windows -SourceKind local `
             -ArtifactPath $retentionSource -PackageRoot (Split-Path -Parent $retentionSource) `
-            -SourceId "retention-$version" -StateRoot $stateRoot -DesktopPath $desktop | Out-Null
+            -SourceId "retention-$version" -StateRoot $stateRoot | Out-Null
         Start-Sleep -Milliseconds 2
     }
     $retentionState = Get-SgBuildArtifactStatus -ProjectPath $project -ProjectName 'Retention' -StateRoot $stateRoot |
@@ -233,7 +205,7 @@ try {
         Publish-SgBuildArtifact `
             -ProjectPath $project -ProjectName 'Reparse' -Platform windows -SourceKind local `
             -ArtifactPath (Join-Path $reparseSource 'app.exe') -PackageRoot $reparseSource `
-            -StateRoot $stateRoot -DesktopPath $desktop | Out-Null
+            -StateRoot $stateRoot | Out-Null
     } catch { $reparseRejected = $_.Exception.Message -match 'reparse point' }
     Assert-Sg $reparseRejected 'A package containing a reparse point must fail closed.'
 

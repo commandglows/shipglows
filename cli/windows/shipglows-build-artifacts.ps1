@@ -14,7 +14,6 @@ param(
     [string]$ArtifactName = '',
     [string]$EntryRelativePath = '',
     [string]$StateRoot = '',
-    [string]$DesktopPath = '',
     [long]$MaxBytes = 2147483648,
     [int]$MaxFiles = 50000
 )
@@ -44,7 +43,6 @@ switch ($Action) {
             MaxBytes = $MaxBytes
             MaxFiles = $MaxFiles
         }
-        if ($DesktopPath) { $arguments.DesktopPath = $DesktopPath }
         Publish-SgBuildArtifact @arguments | ConvertTo-Json -Depth 8
     }
     'sync-ci' {
@@ -61,7 +59,6 @@ switch ($Action) {
             MaxBytes = $MaxBytes
             MaxFiles = $MaxFiles
         }
-        if ($DesktopPath) { $arguments.DesktopPath = $DesktopPath }
         Sync-SgGitHubBuildArtifact @arguments | ConvertTo-Json -Depth 8
     }
     'status' {

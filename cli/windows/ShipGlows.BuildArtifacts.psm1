@@ -2,18 +2,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $script:SgBuildArtifactSchema = 'shipglows-build-artifact/v1'
-$script:SgShortcutPrefix = 'ShipGlows managed build shortcut v1'
 
 function Get-SgDefaultBuildArtifactRoot {
     $localData = [Environment]::GetFolderPath('LocalApplicationData')
     if ([string]::IsNullOrWhiteSpace($localData)) { throw 'Windows LocalApplicationData is unavailable.' }
     return Join-Path $localData 'ShipGlows\BuildArtifacts'
-}
-
-function Get-SgDefaultDesktopPath {
-    $desktop = [Environment]::GetFolderPath('DesktopDirectory')
-    if ([string]::IsNullOrWhiteSpace($desktop)) { throw 'The Windows desktop directory is unavailable.' }
-    return $desktop
 }
 
 function Get-SgTextSha256([string]$Value) {
@@ -110,7 +103,7 @@ function Get-SgBuildLane([string]$Platform, [string]$SourceKind) {
     $platformKey = $Platform.Trim().ToLowerInvariant()
     $sourceKey = $SourceKind.Trim().ToLowerInvariant()
     if ($platformKey -notin @('windows','android')) {
-        throw "Platform '$Platform' is not runnable from Windows; supported shortcut platforms are windows and android."
+        throw "Platform '$Platform' is not supported by this Windows artifact cache; supported platforms are windows and android."
     }
     if ($sourceKey -notin @('local','ci')) { throw "SourceKind must be local or ci: $SourceKind" }
     $platformLabel = if ($platformKey -eq 'windows') { 'Windows' } else { 'Android APK' }
@@ -124,10 +117,6 @@ function Get-SgBuildLane([string]$Platform, [string]$SourceKind) {
     }
 }
 
-function Get-SgBuildShortcutMarker([string]$ProjectId, [string]$LaneKey) {
-    return "$script:SgShortcutPrefix|$ProjectId|$LaneKey"
-}
-
 function ConvertTo-SgBuildProvenance([hashtable]$Provenance) {
     $allowed = @('repository','workflow','branch','artifactName','runId','event','createdAt')
     if ($Provenance.Count -gt $allowed.Count) { throw 'Provenance contains too many fields.' }
@@ -139,43 +128,6 @@ function ConvertTo-SgBuildProvenance([hashtable]$Provenance) {
         $result[$key] = $value
     }
     return $result
-}
-
-function Assert-SgManagedShortcutCollision([string]$ShortcutPath, [string]$ExpectedMarker) {
-    if (-not (Test-Path -LiteralPath $ShortcutPath)) { return }
-    try {
-        $shell = New-Object -ComObject WScript.Shell
-        $existing = $shell.CreateShortcut($ShortcutPath)
-        if ($existing.Description -ne $ExpectedMarker) { throw 'marker mismatch' }
-    } catch {
-        throw "Existing shortcut is not owned by ShipGlows and will not be overwritten: $ShortcutPath"
-    }
-}
-
-function New-SgBuildShortcutFile {
-    param(
-        [Parameter(Mandatory=$true)][string]$Path,
-        [Parameter(Mandatory=$true)][string]$Marker,
-        [Parameter(Mandatory=$true)][string]$Platform,
-        [Parameter(Mandatory=$true)][string]$EntryPath
-    )
-
-    $shell = New-Object -ComObject WScript.Shell
-    $shortcut = $shell.CreateShortcut($Path)
-    if ($Platform -eq 'windows') {
-        $shortcut.TargetPath = $EntryPath
-        $shortcut.WorkingDirectory = Split-Path -Parent $EntryPath
-        $shortcut.IconLocation = "$EntryPath,0"
-    } else {
-        $explorer = Join-Path $env:WINDIR 'explorer.exe'
-        if (-not (Test-Path -LiteralPath $explorer -PathType Leaf)) { throw 'Windows Explorer is unavailable.' }
-        $shortcut.TargetPath = $explorer
-        $shortcut.Arguments = "/select,`"$EntryPath`""
-        $shortcut.WorkingDirectory = Split-Path -Parent $EntryPath
-    }
-    $shortcut.Description = $Marker
-    $shortcut.Save()
-    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw "Windows did not create the shortcut: $Path" }
 }
 
 function Remove-SgOldBuildGenerations([string]$GenerationsRoot, [string[]]$KeepPaths, [int]$KeepCount = 2) {
@@ -204,7 +156,6 @@ function Publish-SgBuildArtifact {
         [string]$Commit = '',
         [hashtable]$Provenance = @{},
         [string]$StateRoot = '',
-        [string]$DesktopPath = '',
         [long]$MaxBytes = 2147483648,
         [int]$MaxFiles = 50000
     )
@@ -215,10 +166,8 @@ function Publish-SgBuildArtifact {
     if ($Commit -and $Commit -notmatch '^[0-9A-Fa-f]{7,64}$') { throw 'Commit must be a hexadecimal Git object identifier.' }
     $stateProvenance = ConvertTo-SgBuildProvenance -Provenance $Provenance
     if (-not $StateRoot) { $StateRoot = Get-SgDefaultBuildArtifactRoot }
-    if (-not $DesktopPath) { $DesktopPath = Get-SgDefaultDesktopPath }
     $StateRoot = [IO.Path]::GetFullPath($StateRoot).TrimEnd('\')
-    $DesktopPath = [IO.Path]::GetFullPath($DesktopPath).TrimEnd('\')
-    New-Item -ItemType Directory -Path $StateRoot,$DesktopPath -Force | Out-Null
+    New-Item -ItemType Directory -Path $StateRoot -Force | Out-Null
 
     if (-not (Test-Path -LiteralPath $PackageRoot -PathType Container)) { throw "Build package root does not exist: $PackageRoot" }
     if (-not (Test-Path -LiteralPath $ArtifactPath -PathType Leaf)) { throw "Build artifact does not exist: $ArtifactPath" }
@@ -233,13 +182,8 @@ function Publish-SgBuildArtifact {
     $generationsRoot = Join-Path $laneRoot 'generations'
     $statePath = Join-Path $laneRoot 'state.json'
     New-Item -ItemType Directory -Path $generationsRoot -Force | Out-Null
-    $shortcutPath = Join-Path $DesktopPath "ShipGlows - $($identity.displayName) - $($lane.platformLabel) - $($lane.sourceLabel).lnk"
-    $marker = Get-SgBuildShortcutMarker -ProjectId $identity.id -LaneKey $lane.key
-    Assert-SgManagedShortcutCollision -ShortcutPath $shortcutPath -ExpectedMarker $marker
 
     $staging = Join-Path $laneRoot ('.staging-' + [guid]::NewGuid().ToString('N'))
-    $shortcutTemporary = Join-Path $DesktopPath ('.shipglows-shortcut-' + [guid]::NewGuid().ToString('N') + '.lnk')
-    $shortcutBackup = Join-Path $DesktopPath ('.shipglows-shortcut-backup-' + [guid]::NewGuid().ToString('N') + '.lnk')
     $previousState = if (Test-Path -LiteralPath $statePath -PathType Leaf) { [IO.File]::ReadAllText($statePath) } else { $null }
     $previousGeneration = $null
     if ($previousState) {
@@ -280,23 +224,13 @@ function Publish-SgBuildArtifact {
             entryPath = $entryPath
             entryRelativePath = $entryRelative
             entrySha256 = $entryHash
-            shortcutPath = $shortcutPath
             provenance = $stateProvenance
         }
 
-        New-SgBuildShortcutFile -Path $shortcutTemporary -Marker $marker -Platform $lane.platform -EntryPath $entryPath
-        if (Test-Path -LiteralPath $shortcutPath -PathType Leaf) { Copy-Item -LiteralPath $shortcutPath -Destination $shortcutBackup }
-        Move-Item -LiteralPath $shortcutTemporary -Destination $shortcutPath -Force
         Write-SgBuildAtomicText -Path $statePath -Text ($state | ConvertTo-Json -Depth 8)
-        if (Test-Path -LiteralPath $shortcutBackup) { Remove-Item -LiteralPath $shortcutBackup -Force }
         Remove-SgOldBuildGenerations -GenerationsRoot $generationsRoot -KeepPaths @($generationPath,$previousGeneration) -KeepCount 2
         return [pscustomobject]$state
     } catch {
-        if (Test-Path -LiteralPath $shortcutBackup -PathType Leaf) {
-            Move-Item -LiteralPath $shortcutBackup -Destination $shortcutPath -Force
-        } elseif ((Test-Path -LiteralPath $shortcutPath -PathType Leaf) -and -not $previousState) {
-            Remove-Item -LiteralPath $shortcutPath -Force
-        }
         if ($previousState) {
             Write-SgBuildAtomicText -Path $statePath -Text $previousState
         } elseif (Test-Path -LiteralPath $statePath) {
@@ -304,7 +238,7 @@ function Publish-SgBuildArtifact {
         }
         throw
     } finally {
-        foreach ($temporaryPath in @($staging,$shortcutTemporary,$shortcutBackup)) {
+        foreach ($temporaryPath in @($staging)) {
             if (Test-Path -LiteralPath $temporaryPath) { Remove-Item -LiteralPath $temporaryPath -Recurse -Force }
         }
     }
@@ -337,7 +271,6 @@ function Sync-SgGitHubBuildArtifact {
         [string]$EntryRelativePath = '',
         [string[]]$AllowedEvents = @('push','workflow_dispatch','release'),
         [string]$StateRoot = '',
-        [string]$DesktopPath = '',
         [long]$MaxBytes = 2147483648,
         [int]$MaxFiles = 50000,
         [scriptblock]$GitHubRunner = ${function:Invoke-SgDefaultGitHubRunner}
@@ -392,7 +325,7 @@ function Sync-SgGitHubBuildArtifact {
             -ProjectPath $ProjectPath -ProjectName $ProjectName -Platform $lane.platform -SourceKind ci `
             -ArtifactPath $entryPath -PackageRoot $downloadRoot -SourceId "github-run-$runId" `
             -Commit ([string]$run.headSha) -Provenance $provenance -StateRoot $StateRoot `
-            -DesktopPath $DesktopPath -MaxBytes $MaxBytes -MaxFiles $MaxFiles
+            -MaxBytes $MaxBytes -MaxFiles $MaxFiles
     } finally {
         $downloadsRoot = Split-Path -Parent $downloadRoot
         [void](Assert-SgBuildPathInside -Candidate $downloadRoot -Root $downloadsRoot -Label 'CI download cleanup target')

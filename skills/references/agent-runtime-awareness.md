@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.10.0"
+artifact_version: "3.11.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-09-08"
+updated: "2026-10-04"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -30,7 +30,7 @@ linked_systems:
   - plugins/shipglows/skills/shipglows/SKILL.md
 depends_on:
   - artifact: "skills/references/latest-build-artifact-access.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
@@ -152,9 +152,11 @@ protected API access separately; none substitutes for either of the others.
 or after observing a successful trusted CI build with a named complete artifact,
 load `skills/references/latest-build-artifact-access.md`. Publish the validated
 output through `cli/windows/shipglows-build-artifacts.ps1`, keep Local and CI
-lanes separate, and report the refreshed shortcut name. A failed build or unsafe
-artifact keeps the prior last-known-good lane; never launch or install it
-automatically. Linux, macOS, and iOS outputs retain their host-specific limits.
+lanes separate, and report the cached artifact path. Build publication never
+creates a Desktop shortcut; Desktop shortcuts are reserved for live Dev projects.
+A failed build or unsafe artifact keeps the prior last-known-good lane; never
+launch or install it automatically. Linux, macOS, and iOS outputs retain their
+host-specific limits.
 
 Keep installation, configuration, discovery, and callability distinct. ChatGPT apps/connectors and Codex CLI tools are separate surfaces. The global file describes what ShipGlows installed or configured, while the current host turn decides what can be called.
 
