@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.39.0"
+artifact_version: "1.42.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-07"
+updated: "2026-10-05"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -134,7 +134,31 @@ reservation regressions cover the integration boundaries.
 
 ## Windows host contract
 
-`s.cmd` and `shipglows-dev.cmd` invoke Windows PowerShell 5.1 only to run `ShipGlows.PowerShellBootstrap.ps1`. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`. The separate collision-safe `shipglows.cmd` also enters that exact managed runtime before routing focused commands through `shipglows.ps1`; when the managed runtime is missing, its bootstrap fallback uses the explicit focused-launcher route instead of bypassing command validation. This surface owns `shipglows rename rio <name>`, `shipglows update`, `shipglows update status`, and the compatibility spelling `shipglows update runtime`, which normalizes to the canonical update action. The Rio rename path validates the title and emits exactly one UTF-8 OSC title sequence for the current terminal tab without reading Codex state.
+`s.cmd` and `shipglows-dev.cmd` use the installed managed Core executable directly; Windows PowerShell 5.1 is used only for the `ShipGlows.PowerShellBootstrap.ps1` fallback when that executable is absent. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`. The separate collision-safe `shipglows.cmd` also enters that exact managed runtime before routing focused commands through `shipglows.ps1`; when the managed runtime is missing, its bootstrap fallback uses the explicit focused-launcher route instead of bypassing command validation. This surface owns `shipglows rename rio <name>`, `shipglows update`, `shipglows update status`, and the compatibility spelling `shipglows update runtime`, which normalizes to the canonical update action. The Rio rename path validates the title and emits exactly one UTF-8 OSC title sequence for the current terminal tab without reading Codex state.
+
+### Native Windows interactive menu
+
+Bare `s` and `shipglows-dev` show the shared `shipglows-menu.txt` choices through
+CMD/fzf while one managed PowerShell session initializes and starts background
+catalogue/status refresh. The session handles the first selection and subsequent
+menu choices without restarting PowerShell. A choice submitted before preparation
+finishes can still wait; this is not a zero-latency guarantee. Commands with
+arguments bypass the native selector, and missing fzf retains the backend fallback.
+
+`ShipGlows.MenuSession.ps1` binds the warming worker to a dedicated CMD parent,
+checks PID/start-time identity and uses a pipe restricted to the current user to
+wait for completion without a second foreground host. The temporary request carries
+one allowlisted menu key. An accepted marker prevents retry after an action starts.
+Native Quit and parent termination before handoff stop the worker and clean its
+channel. This is a session lifecycle, not a persistent service across CLI launches.
+
+Project pickers display names from the prepared catalogue and resolve the selected
+identity before dispatch; the dashboard retains reconciled process status.
+Authentication lists provider names and queries status only for the selected
+provider in its existing action menu. Login/logout confirmation remains unchanged.
+See [the latency bug record](../workflow/bugs/BUG-2026-10-04-001.md) for local
+Rio/Herdr measurements, focused test evidence and the broader reconciliation-test
+failure. Human responsiveness acceptance remains open.
 
 `-Offline` is a strict no-network mode: it reuses a valid managed runtime and fails actionably when the coordinate is absent or corrupt. The portable runtime is private to `.shipglows` and does not replace Windows PowerShell or add PowerShell 7 to the user/system `PATH`.
 

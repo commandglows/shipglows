@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.29.0"
+artifact_version: "1.30.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-09-08"
+updated: "2026-10-05"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -162,6 +162,17 @@ d'une application et ne déclenche aucune authentification fournisseur.
 Si le diagnostic est `blocked`, le clone reste sur disque mais la commande échoue avec une erreur contextuelle. Corriger manuellement la source invalide puis relancer `s env prepare`; toute configuration existante inconnue ou invalide est préservée plutôt que remplacée.
 
 ## Runtime PowerShell
+
+Sans argument, `s` affiche le menu fzf pendant la préparation d'une session
+PowerShell qui sera réutilisée pour les choix suivants. Un choix effectué très
+vite peut encore attendre la fin de cette préparation. Les commandes comme `s d`
+gardent leur lancement direct ; sans fzf, le menu PowerShell reste disponible.
+
+Les sélecteurs de projets affichent les noms du catalogue préparé ; le projet
+choisi est vérifié avant l'action. Le dashboard conserve les états des processus.
+Le menu Authentification affiche les outils sans interroger tous les comptes :
+l'état est vérifié à l'ouverture de l'outil choisi. Les confirmations de connexion
+et déconnexion sont conservées.
 
 Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Les commandes ciblées `shipglows update`, `shipglows update status` et `shipglows rename rio <nom>` passent elles aussi par le runtime PowerShell 7.6.5 géré par ShipGlows. L'ancienne forme `shipglows update runtime` reste acceptée et est normalisée vers la mise à jour canonique. N'utilisez pas `s update` lorsqu'une instance interactive de `s.exe` est encore ouverte, car Windows ne peut pas remplacer un exécutable en cours d'utilisation. La première installation complète en ligne peut acquérir l'archive épinglée. Le mode hors ligne ne fonctionne qu'après validation locale du runtime ; sinon, reconnectez la machine et relancez l'installateur complet. Un échec de SHA, d'archive, de sonde, de verrou ou une corruption conserve le pointeur actif précédent.
 

@@ -133,6 +133,10 @@ foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatu
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
+$menuCommand = [IO.File]::ReadAllText((Join-Path $sourceDir 'shipglows-menu.cmd')) -replace '\r?\n', "`r`n"
+[IO.File]::WriteAllText((Join-Path $runtimeDir 'shipglows-menu.cmd'), $menuCommand, [Text.Encoding]::ASCII)
+Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-menu.txt') -Destination $runtimeDir -Force
+Copy-Item -LiteralPath (Join-Path $sourceDir 'ShipGlows.MenuSession.ps1') -Destination $runtimeDir -Force
 $privateDataSource = Join-Path (Split-Path -Parent $sourceDir) 'private_data.py'
 $privateDataDestination = Join-Path $ShipglowsDir 'private_data.py'
 if (-not (Test-Path -LiteralPath $privateDataSource -PathType Leaf)) { throw "Missing private-data control-plane helper: $privateDataSource" }
@@ -306,6 +310,15 @@ function Install-SgCommandWrappers {
 set "_SHIPGLOWS_PWSH=%USERPROFILE%\.shipglows\toolchains\powershell\7.6.5\win-x64\pwsh.exe"
 if not exist "%_SHIPGLOWS_PWSH%" goto shipglows_bootstrap
 set "SHIPGLOWS_MANAGED_PWSH=%_SHIPGLOWS_PWSH%"
+if not "%~1"=="" goto shipglows_backend
+if not exist "%~dp0shipglows-menu.cmd" goto shipglows_backend
+(
+"%SystemRoot%\System32\cmd.exe" /d /c call "%~dp0shipglows-menu.cmd"
+if errorlevel 71 call exit /b %%errorlevel%%
+if errorlevel 70 goto shipglows_backend
+call exit /b %%errorlevel%%
+)
+:shipglows_backend
 (
 "%_SHIPGLOWS_PWSH%" -NoLogo -NoProfile -File "%~dp0shipglows-devserver.ps1" %*
 call exit /b %%errorlevel%%

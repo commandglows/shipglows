@@ -10,7 +10,12 @@ param(
     [string]$RepositoryUrl = '',
     [int]$Port = 0,
     [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
-    [string]$FlutterDeviceId = ''
+    [string]$FlutterDeviceId = '',
+    [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
+    [string]$InitialMenuSelection = '',
+    [string]$MenuSessionRequestPath = '',
+    [int]$MenuSessionParentId = 0,
+    [long]$MenuSessionParentStartTicks = 0
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,6 +35,16 @@ $expectedManagedRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.ship
 if (-not $currentHost.StartsWith($expectedManagedRoot + '\',[StringComparison]::OrdinalIgnoreCase)) {
     [Console]::Error.WriteLine('ShipGlows refused a PowerShell host outside its managed toolchain coordinate.')
     exit 70
+}
+
+if ($MenuSessionRequestPath) {
+    $MenuSessionRequestPath = [IO.Path]::GetFullPath($MenuSessionRequestPath)
+    $menuTemporaryRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\')
+    if ($Action -ne 'menu' -or $InitialMenuSelection -or $MenuSessionParentId -le 0 -or $MenuSessionParentStartTicks -le 0 -or
+        [IO.Path]::GetDirectoryName($MenuSessionRequestPath) -ine $menuTemporaryRoot -or
+        [IO.Path]::GetFileName($MenuSessionRequestPath) -cnotmatch '^shipglows-menu-[0-9]{1,5}-[0-9]{1,5}\.request$') {
+        throw 'Invalid menu session channel.'
+    }
 }
 
 # Keep the environment control plane outside the DevServer bootstrap: its
@@ -313,7 +328,9 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
 }
 
 function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Choose a project') {
-    $items = @(Get-SgProjectCatalogForDisplay $config)
+    # Show project identities from the prepared snapshot. Resolve the selected
+    # entry below before any action rather than probing every project to render.
+    $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
     switch ($Action) {
         'start' { $items = @($items) }
         'navigate' { $items = @($items) }
@@ -330,7 +347,7 @@ function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Ch
         $labels = New-Object 'System.Collections.Generic.List[string]'
         $identityByLabel = @{}
         foreach ($item in $items) {
-            $label = if ($Action -eq 'navigate') { [string]$item.Name } else { "$($item.Name)  $(Format-SgProjectStatus $item)" }
+            $label = [string]$item.Name
             if ($identityByLabel.ContainsKey($label)) { throw "Duplicate project choice label: $label" }
             $identityByLabel[$label] = [string]$item.Id
             [void]$labels.Add($label)
@@ -344,8 +361,7 @@ function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Ch
     } else {
         $index = 1
         foreach ($item in $items) {
-            if ($Action -eq 'navigate') { Write-Host ("[{0}] {1}" -f $index,$item.Name) }
-            else { Write-Host ("[{0}] {1}  {2}" -f $index,$item.Name,(Format-SgProjectStatus $item)) }
+            Write-Host ("[{0}] {1}" -f $index,$item.Name)
             $index++
         }
         Write-Host '[0] Back to menu'
@@ -745,8 +761,7 @@ function Invoke-SgAuthenticationMenu {
         $labels = New-Object 'System.Collections.Generic.List[string]'
         $byLabel = @{}
         foreach ($definition in $definitions) {
-            $state = Get-SgAuthenticationMenuState $definition
-            $label = "$($definition.Category) - $($definition.Name)  [$($state.Status)]"
+            $label = "$($definition.Category) - $($definition.Name)"
             [void]$labels.Add($label); $byLabel[$label] = $definition
         }
         [void]$labels.Add('0  Back to menu')
@@ -761,7 +776,9 @@ function Invoke-SgAuthenticationMenu {
         $command = Get-SgApplication $definition.Command @()
         if (-not $command) { Write-SgWarn "$($definition.Name) CLI is unavailable. Rerun the full installer."; continue }
         if ($definition.LoginMode -eq 'project') { Write-SgWarn "$($definition.Name) authentication is project-scoped. Navigate to the project and run its official development command."; continue }
-        $action = if($choiceUiAvailable){Read-SgChoice "$($definition.Name) authentication" @('Connect or reconnect','Logout','Back')}else{Read-Host 'Choose connect, logout, or back'}
+        $state = Get-SgAuthenticationMenuState $definition
+        $header = "$($definition.Name) authentication [$($state.Status)]"
+        $action = if($choiceUiAvailable){Read-SgChoice $header @('Connect or reconnect','Logout','Back')}else{Write-Host $header; Read-Host 'Choose connect, logout, or back'}
         if (-not $action -or $action -match '^(Back|back)$') { continue }
         if ($action -match '^(Logout|logout)$') {
             $confirm=(Read-Host "Logout $($definition.Name) on this Windows account? [y/N]").Trim().ToLowerInvariant()
@@ -877,28 +894,40 @@ function Wait-SgBackgroundCatalogRefresh {
 }
 
 function Invoke-Menu {
-    $menuItems = @(
-        '1  Clone a repository',
-        '2  Register a local project',
-        '3  Start a project',
-        '4  Stop a project',
-        '5  Restart a project',
-        '6  View logs',
-        '7  Open / load project',
-        '8  Stop all projects',
-        '9  Unregister a project',
-        'n  Navigate to a project',
-        'a  Authentication',
-        'r  Refresh',
-        't  Update developer tools',
-        'u  Update ShipGlows',
-        '0  Quit ShipGlows'
-    )
+    $menuItems = @(Get-Content -LiteralPath (Join-Path $PSScriptRoot 'shipglows-menu.txt'))
+    $pendingSelection = $InitialMenuSelection
+    if ($MenuSessionRequestPath) {
+        # The dedicated native frontend owns the warming session until it
+        # supplies one validated key. Background refresh prepares the snapshot;
+        # console input and action handlers start only after handoff.
+        $parent = $null
+        try {
+            $parent = Get-Process -Id $MenuSessionParentId -ErrorAction Stop
+            if ($parent.StartTime.ToUniversalTime().Ticks -ne $MenuSessionParentStartTicks) { return }
+            if ([IO.File]::Exists($MenuSessionRequestPath) -and [IO.File]::ReadAllText($MenuSessionRequestPath).Trim() -ceq '0') { return }
+            Start-SgBackgroundCatalogRefresh
+            Start-SgBackgroundUpdateStatusRefresh
+            while (-not [IO.File]::Exists($MenuSessionRequestPath)) {
+                if ($parent.HasExited) { return }
+                Start-Sleep -Milliseconds 20
+            }
+            if ($parent.HasExited) { return }
+            if ([IO.File]::GetAttributes($MenuSessionRequestPath) -band [IO.FileAttributes]::ReparsePoint) { throw 'Invalid menu session channel.' }
+            $pendingSelection = [IO.File]::ReadAllText($MenuSessionRequestPath).Trim()
+            if ($pendingSelection -cnotmatch '^[1-9nartu0]$') { throw 'Invalid menu session selection.' }
+            if ($pendingSelection -ceq '0') { return }
+            $acceptedPath = $MenuSessionRequestPath.Substring(0, $MenuSessionRequestPath.Length - '.request'.Length) + '.accepted'
+            [IO.File]::WriteAllText($acceptedPath, '1', [Text.Encoding]::ASCII)
+        } finally { if ($parent) { $parent.Dispose() } }
+    }
     while ($true) {
         Complete-SgBackgroundCatalogRefresh
         Start-SgBackgroundCatalogRefresh
         Start-SgBackgroundUpdateStatusRefresh
-        if ($choiceUiAvailable) {
+        if (-not [string]::IsNullOrEmpty($pendingSelection)) {
+            $choice = $pendingSelection
+            $pendingSelection = ''
+        } elseif ($choiceUiAvailable) {
             $selected = Read-SgChoice 'What do you want to do?' $menuItems
             if (-not $selected) { continue }
             $choice = $selected.Substring(0,1)
