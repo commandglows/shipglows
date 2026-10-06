@@ -33,11 +33,8 @@ Route skill/workflow selection to `000-shipglows`, active-work continuation to `
 
 ## Runtime-Adaptive Retrieval
 
-For runtime-dependent context, select the managed surface and summary using
-`agent-runtime-awareness.md`. Refresh its matching registry entry before the
-verdict; current `status` outranks retained process and Flutter startup fields.
-Missing or conflicting evidence remains a qualified gap, not a guessed URL or
-an inferred running session.
+For runtime-dependent context, use the selected surface and fresh registry
+status from `agent-runtime-awareness.md`; missing evidence stays unknown.
 
 Inspect directly exposed tools and the host's deferred/searchable tool catalog
 before classifying current-turn capabilities; configuration alone is not
