@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.17.0"
+artifact_version: "1.18.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-27"
+updated: "2026-10-06"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -26,6 +26,8 @@ linked_systems:
   - "tools/shipglows_metadata_lint.py"
   - "tests/"
   - "shipglows_data/technical/platforms/hetzner.md"
+  - "skills/references/schemas/source-analysis-v1.schema.json"
+  - "shipglows_data/technical/decisions/provider-agnostic-source-ingestion-with-readwise-reader-pilot.md"
 external_dependencies:
   - "Flox"
   - "PM2"
@@ -36,6 +38,7 @@ external_dependencies:
   - "Node.js/pnpm"
   - "uv"
   - "Flutter"
+  - "Readwise Reader (pilot)"
 invariants:
   - "PM2 cache must be invalidated after state mutations"
   - "Project paths must be validated and absolute"
@@ -44,6 +47,7 @@ invariants:
   - "UI projects must declare a design-system authority before visual implementation changes"
   - "Environment intent, planning, observation, and backend execution remain separate states; only an approved executable backend may mutate tools"
   - "Managed workspace presence never proves or implies that a project is publicly deployed"
+  - "Source acquisition providers remain isolated behind a provider-neutral envelope; project analysis and derivatives never depend on provider-specific vocabulary"
 security_impact: yes
 docs_impact: yes
 evidence:
@@ -59,6 +63,7 @@ evidence:
   - "The 2026-08-16 source pilot activates only Windows mise plus project-local Node 24 and pnpm 10 behind approval-digest validation and an injectable structured runner; the Best Fried Chicken provider smoke proves that bounded cycle while every other backend/capability remains fail-closed."
   - "The 2026-08-27 public/private infrastructure boundary exposes only logical retained-runtime and managed-workspace roles here while routing operational machine details to the private operator inventory."
   - "Operator decision 2026-08-27 defines this repository as the ShipGlows DX system and keeps shipglows_app as the separate public-site and SaaS product repository."
+  - "Operator decision 2026-08-26 preserves Mail Intelligence as an inactive fallback and selects Readwise Reader as the first adapter pilot behind a provider-neutral source boundary."
 depends_on:
   - artifact: "shipglows_data/technical/guidelines.md"
     artifact_version: "1.0.0"
@@ -142,6 +147,7 @@ Native Windows packaging keeps the environment engine as a closed Python package
 - Native Windows flow: `install-shipglows.ps1` -> `cli/windows/install-devserver.ps1` -> PATH-backed `.cmd` launcher -> PowerShell frontend/module -> localhost project process and atomic registry.
 - Local tunnel flow: `local/local.sh` -> SSH connection selection -> remote state inspection -> tunnel lifecycle.
 - Doc/workflow flow: skills -> templates -> markdown artifacts -> metadata lint -> verification.
+- Source-intelligence flow: replaceable acquisition adapter -> bounded `SourceEnvelope` -> provider-neutral classification and `SourceAnalysis` -> explicit operator review -> project-owned derivative. Reader is the first pilot provider; Mail Intelligence remains inactive fallback evidence.
 
 ## Data And State
 
@@ -155,6 +161,7 @@ Native Windows packaging keeps the environment engine as a closed Python package
 - On Linux, Flox isolates runtimes, PM2 owns running process state, and Caddy/DuckDNS expose optional public URLs.
 - On Windows, Node/pnpm, uv, and Flutter own supported project runtimes; Gum owns the preferred interactive selector, while Git/GitHub CLI own repository operations and authentication.
 - SSH supports remote access and local tunnel flows.
+- Readwise Reader is a paid hosted pilot dependency for source capture, reading, organization, and retrieval. MCP supports interactive triage; CLI read-only or API reads are preferred for deterministic automation. Reader never owns canonical project derivatives.
 
 ## Invariants
 
@@ -162,6 +169,8 @@ Native Windows packaging keeps the environment engine as a closed Python package
 - Unsafe project paths are rejected rather than normalized optimistically.
 - Generated or runtime-managed config should not be hand-edited as source of truth.
 - Workflow docs are treated as contracts; trackers are not.
+- Provider identifiers, tags, locations, folders, authentication, and mutation semantics stop at the source adapter boundary.
+- Raw source bodies remain outside public repositories, and source-provider mutations require explicit bounded authority.
 
 ## Documentation Architecture
 
