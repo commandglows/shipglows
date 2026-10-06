@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-30"
+updated: "2026-10-06"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-security-ui-runtime
@@ -15,6 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/103-sg-verify/SKILL.md
+  - skills/references/webextension-api-contract.md
 depends_on: []
 supersedes: []
 evidence:
@@ -46,3 +47,11 @@ Use widget/unit tests first, then the managed live `flutter run` session on the 
 Verify safe Sentry/observability, diagnostics or log-copy, and commit/build plus Paris/UTC build header when applicable; static sites may document a valid exception. Reuse the project diagnostic helper/surface or justify a bounded addition. Gather safe local/browser/app/log evidence before asking the operator. Requests to the operator are limited to decisions, secrets, inaccessible environments, manual/device-only proof, or unsafe external side effects.
 
 Hosted, production, provider, browser, auth, and manual evidence must identify scenario and target/environment. Missing target starts discovery rather than a readiness claim.
+
+## Browser Extension APIs
+
+For browser-extension API behavior, use `skills/references/webextension-api-contract.md`
+to assess the browser/version matrix, permission and message trust boundaries,
+restart behavior and observable API outcome. Chromium lifecycle lab evidence
+remains scoped to its documented collectors and scenarios; missing API-specific
+or other-browser proof stays partial.
