@@ -44,20 +44,6 @@ jobs:
       - name: Observe the hosted runner without probing tools
         run: python tools/agent_runtime_envelope.py --format json
 
-      - name: Diagnose failed Windows observation
-        if: failure() && runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          @'
-          import subprocess
-          from tools.agent_runtime_envelope import _windows_observation
-          try:
-              _windows_observation()
-          except subprocess.CalledProcessError as error:
-              print(error.stderr)
-              raise SystemExit(1)
-          '@ | python -
-
       - name: Test Windows instruction projection in temporary files
         if: runner.os == 'Windows'
         shell: pwsh

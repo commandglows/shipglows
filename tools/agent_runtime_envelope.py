@@ -115,7 +115,7 @@ def _proc_observation() -> tuple[list[ProcessRecord], dict[str, str]]:
 
 def _windows_observation() -> tuple[list[ProcessRecord], dict[str, str]]:
     # Follow only this Python process's ancestry. Never collect command lines.
-    command = r"""+$ErrorActionPreference = 'Stop'
+    command = r"""$ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $cursor = [int]$env:SHIPGLOWS_ENVELOPE_PID
 $seen = @{}
