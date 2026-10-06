@@ -1127,6 +1127,7 @@ function Start-SgEncodedProcess {
     $psi = New-Object Diagnostics.ProcessStartInfo
     $transportPath = ''
     $process = $null
+    $isWsl = $false
     try {
         if ([IO.Path]::GetExtension($File) -in @('.cmd','.bat')) {
             foreach ($value in @($File) + @($Arguments)) { if ([string]$value -match "[`0`r`n]") { throw 'Batch transport rejected unsafe NUL/CR/LF input.' } }
@@ -1140,7 +1141,14 @@ function Start-SgEncodedProcess {
             $psi.Arguments = '/d /s /c "' + (ConvertTo-SgWindowsArgument $transportPath) + '"'
         } else {
             $psi.FileName = $File
-            $psi.Arguments = (@($Arguments | ForEach-Object { ConvertTo-SgWindowsArgument ([string]$_) }) -join ' ')
+            # wsl.exe treats quoted option tokens as a Linux command instead of WSL switches.
+            # Keep simple WSL tokens unquoted while retaining Windows quoting for values with spaces.
+            $isWsl = [IO.Path]::GetFileName($File) -ieq 'wsl.exe'
+            $psi.Arguments = (@($Arguments | ForEach-Object {
+                $value = [string]$_
+                if ($isWsl -and $value -match '^[A-Za-z0-9_./:=+-]+$') { $value }
+                else { ConvertTo-SgWindowsArgument $value }
+            }) -join ' ')
         }
         $psi.UseShellExecute = $false
         $psi.CreateNoWindow = [bool]$Capture
@@ -1149,7 +1157,11 @@ function Start-SgEncodedProcess {
         $process = New-Object Diagnostics.Process
         $process.StartInfo = $psi
         if (-not $process.Start()) { throw "Failed to start bounded process: $File" }
-        if ($InputText) { $process.StandardInput.WriteLine($InputText); $process.StandardInput.Close() }
+        if ($InputText) {
+            if ($isWsl) { $process.StandardInput.NewLine = "`n" }
+            $process.StandardInput.WriteLine($InputText)
+            $process.StandardInput.Close()
+        }
         $process | Add-Member -NotePropertyName SgTransportPath -NotePropertyValue $transportPath
         return $process
     } catch {

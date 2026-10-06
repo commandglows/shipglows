@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.42.0"
+artifact_version: "1.43.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-05"
+updated: "2026-10-06"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -26,6 +26,11 @@ linked_systems:
   - cli/environment/mise_backend.py
   - cli/environment/shipglows_environment.py
   - cli/environment/schemas/shipglows-environment-v1.schema.json
+  - tools/shipglows_gsc.py
+  - tools/shipglows_serp.py
+  - shipglows_data/technical/google-search-console-cli.md
+  - shipglows_data/technical/serpapi-google-serp-cli.md
+  - shipglows_data/technical/parallel-web-search-cli.md
   - skills/references/agent-runtime-awareness.md
   - CONTEXT-FUNCTION-TREE.md
 depends_on:
@@ -98,7 +103,8 @@ evidence:
   - "Native Windows installed agent instructions now require direct-plus-deferred tool discovery before declaring a configured capability unavailable."
   - "Native Windows project discovery now uses one cached linear catalogue shared by every dashboard and picker, while the registry remains authoritative for live state."
   - "CommunityGlows regression 2026-08-24: Windows infers Node, pnpm, Cargo and Tauri from native manifests, reports Linux-only Flox explicitly, and returns semantic non-ready exit codes."
-next_review: "2026-06-01"
+  - "GSC CLI ownership and navigation now point to the canonical implementation and its focused usage/security guide."
+next_review: "2026-10-30"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
 
@@ -210,6 +216,32 @@ Current official authorities checked for this pilot are mise's [Windows installa
 The native Windows full-install contract packages the closed `cli/environment` Python tree and schema under `%USERPROFILE%\.shipglows\runtime\cli\environment`. The installed launcher in `runtime\bin` resolves that path; the source launcher resolves its sibling source tree. Both dispatch `s env` before importing the DevServer module. Bootstrap extraction uses an exact file allowlist, rejects incomplete packages, and validates the installed Python sources/schema before claiming success. The isolated installer proof invokes the installed launcher with `inspect` from an unmanaged temporary project and requires no workspace, registry, menu cache, profile, Android/Flutter installation, authentication or network mutation.
 
 The same full installer packages `ShipGlows.WslTurso.psm1` and the pinned Turso Cloud consumer. WSL and Turso use separate consent and readiness gates; Turso requires initialized Ubuntu, uses fixed argv and verified archives, and leaves authentication user-owned.
+
+## Google Search Console CLI
+
+The standalone GSC reader is a ShipGlows-owned tool rather than part of the general server/DevServer command tree. Its implementation is `tools/shipglows_gsc.py`, and `cli/shipglows-gsc.sh` is the repository wrapper. Read `shipglows_data/technical/google-search-console-cli.md` for authentication, invocation on Windows and supported shells, permissions, commands, and API-result interpretation. Keep its OAuth client configuration and profile files outside the repository; do not infer Windows file privacy from POSIX `chmod` mode bits.
+
+The SerpApi SERP reader is another standalone command, `tools/shipglows_serp.py`, launched by `cli/shipglows-serp.sh` and optionally exposed through the installer as `shipglows-serp`. It reads `SERPAPI_API_KEY` from the invoking process and does not share GSC OAuth profiles or query traffic/performance metrics. See `shipglows_data/technical/serpapi-google-serp-cli.md` for setup, quota boundaries, and localized-query semantics.
+
+Parallel's Search, Extract, Task, and Monitor client is `tools/shipglows_parallel.py`, launched by `cli/shipglows-parallel.sh` and optionally exposed as `shipglows-parallel`. It reads `PARALLEL_API_KEY` from the invoking process. Search discovers relevant pages and supports source filters; Extract reads explicit URLs and can return full-page markdown; Task runs multi-step research; Monitor manages recurring web-change watches. Search relevance is neither a Google SERP position nor Search Console performance data. See `shipglows_data/technical/parallel-web-search-cli.md` for commands and limits.
+
+## Shared analytics agent CLI
+
+`shipglows-analytics` is owned by the separate local `shipglows-analytics-engine`
+repository, not by this runtime or the general ShipGlows installer. Its Windows
+user-local wrapper points to that checkout; repository launchers exist for
+Windows and POSIX. It reads the ContentGlows opportunities API and prepares
+review-only briefs using explicit backend project/period/opportunity/snapshot IDs.
+Apps and CLI share the API context; they do not share authentication sessions.
+
+Read the canonical guide at
+`../shipglows-analytics-engine/shipglows_data/technical/agent-cli.md` (relative to
+this repository root). Existing host bearer credentials come from the approved
+local secret environment; no login/token provisioning is implemented. Six local
+fake-transport tests and Windows help launchers passed; deployed routes and real
+authenticated access remain unverified. This does not expose an installed MCP
+connector. GSC/SERP/Parallel remain separate measurement/research tools; private
+analytics must not be sent to public research providers.
 
 ## Owned Files
 
@@ -423,6 +455,16 @@ Invalid schema, scanner, workspace, timestamp, or JSON fails closed and triggers
 an atomic synchronous rebuild because its identities cannot be trusted. Registry
 entries win when discovery and runtime state overlap, so the registry remains
 the authority for status, ports, logs, and process identity.
+
+The Windows GitHub clone chooser maintains a separate local index at
+`%LOCALAPPDATA%\ShipGlows\DevServer\github-repository-index.json`. It stores only
+normalized `owner/repo` identities, never full remote URLs or credentials. Cache
+reuse requires the same workspace and an index younger than five minutes. A
+successful clone or project catalog invalidation marks this index stale. External
+changes to repository remotes may therefore take up to five minutes to appear in
+the installed-repository filter. This avoids scanning every `.git` directory or
+starting one Git process per installed repository on a cache hit while keeping
+GitHub's remote list complete and searchable.
 
 Registry reconciliation reads process start times and executable paths through
 the native process snapshot. It batches CIM only for PIDs with a recorded

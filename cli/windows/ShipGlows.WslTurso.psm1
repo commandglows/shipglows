@@ -165,7 +165,7 @@ function Invoke-SgTursoCloudInstall {
     }
     if (-not $WslState.Ready -or [string]$WslState.Distribution -notmatch $script:SgUbuntuDistributionPattern) { throw 'Turso installation requires a ready supported Ubuntu distribution.' }
     if (-not (Test-Path -LiteralPath $InstallerPath -PathType Leaf)) { throw "Missing bundled Turso installer: $InstallerPath" }
-    $scriptText = [IO.File]::ReadAllText($InstallerPath)
+    $scriptText = [IO.File]::ReadAllText($InstallerPath).Replace("`r`n", "`n")
     if ($scriptText.Length -gt 32768) { throw 'Bundled Turso installer exceeds the allowed size.' }
     $result = Invoke-SgWslTursoRunner $Runner $WslPath @('-d',[string]$WslState.Distribution,'--exec','/bin/bash','-s','--') 300 $scriptText
     if ($result.TimedOut) { return [pscustomobject]@{ Status='error'; Changed=$false; Reason='Turso installation timed out.' } }

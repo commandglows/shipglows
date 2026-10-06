@@ -387,11 +387,12 @@ Une racine de dépôt ou un monorepo enregistré explicitement peut donc produir
 plusieurs surfaces. Chacune possède sa propre entrée de registre, son nom
 qualifié, son port persistant, ses journaux et son `ENVIRONMENT.md`.
 
-La recherche est volontairement bornée à quatre niveaux dans le workspace et
-trois niveaux sous une racine de projet. Elle ignore les dossiers cachés, les
-dépendances, les caches et les sorties de build. Une structure plus profonde ou
-sans manifest reconnaissable doit être enregistrée par sa surface exécutable ;
-ShipGlows ne prétend pas reconnaître toutes les conventions de monorepo.
+La recherche est volontairement bornée à trois niveaux sous la racine du
+workspace (racine = niveau zéro), et trois niveaux sous une racine de projet
+explicitement sélectionnée. Elle ignore les dossiers cachés, les dépendances,
+les caches et les sorties de build. Une surface plus profonde ou sans manifest
+reconnaissable doit être enregistrée directement ; ShipGlows ne prétend pas
+reconnaître toutes les conventions de monorepo.
 
 Le dashboard et tous les sélecteurs réutilisent le même catalogue. Un scan
 linéaire alimente un index non autoritaire en mémoire et dans
@@ -485,9 +486,9 @@ uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
 ### Flutter Windows en développement
 
-Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `ShipGlows - <Projet> - Dev`, qui démarre la session ou réutilise celle déjà active.
+Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `<Projet> - Dev`, qui démarre la session ou réutilise celle déjà active. Les anciens raccourcis Flutter gérés sous `ShipGlows - <Projet> - Dev` sont renommés au prochain démarrage du projet.
 
-Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les raccourcis `Windows - Local` et `Windows - CI` restent réservés aux builds figés validés : releases et contrôles ciblés du packaging, des plugins natifs ou du démarrage sans Flutter attaché.
+Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev.
 
 ### Flutter Android en développement
 

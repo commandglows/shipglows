@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.1.1"
 project: ShipGlows
 created: "2026-06-12"
-updated: "2026-08-11"
+updated: "2026-10-02"
 status: active
 source_skill: 009-sg-skill-build
 scope: winflowz-suite-product-registry
@@ -31,8 +31,9 @@ evidence:
   - "2026-06-12 Diane clarified winflowz_android is the same product as winflowz_app, not a separate product_id."
   - "2026-08-06 operator decision: CommandGlows App uses trial_then_paid with one 14-day trial and at most two additional 14-day reactivations; permanent free access is not the default for future paid products."
   - "2026-08-11 operator decision superseding all prior exceptions: every current and future suite product uses three maximum 30-day trial cycles, then mandatory purchase, with no permanent free grants and Stripe Managed Payments only."
-next_review: "2026-09-11"
-next_step: "Implement and verify the unified policy across every current product registry entry and access resolver."
+  - "Operator decision on 2026-10-02: CommunityGlows has a product-specific maximum of two 30-day cycles and one restart; all other products retain the three-cycle suite default."
+next_review: "2026-11-02"
+next_step: "Verify product-specific cycle limits and complete hosted proof before shipping; deployment follows the approved release workflow."
 ---
 
 # Glows Suite Product Registry
@@ -44,7 +45,7 @@ compatibility; this document is the active suite-wide registry policy.
 
 ## Canonical Rule
 
-Every current and future suite product uses the same `trial_then_paid` policy.
+Every current and future suite product uses the same server-owned `trial_then_paid` model and provider contract.
 Account creation and identity bridging prove identity only; they never grant
 permanent product access. Convex is the canonical entitlement authority.
 
@@ -63,15 +64,18 @@ Known canonical product ids governed by the unified policy include:
 
 Legacy names are aliases for lookup and migration evidence only; they are not
 canonical identifiers and cannot create a separate allowance. Every entry above and every future allowlisted product uses
-the same trial and provider contract; none receives `product_default` access.
+the server-owned policy registry; none receives `product_default` access. Trial limits follow the suite default unless
+this registry and the current product spec record an operator-approved exception.
 
 ## Commercial Access Policy
 
 The sole active suite policy is:
 
 - 30 days for the initial server-owned trial cycle;
-- at most two additional user-triggered 30-day restarts after expiry;
-- at most three cycles or 90 trial days in total;
+- by default, at most two additional user-triggered 30-day restarts after expiry
+  (three cycles or 90 days total);
+- CommunityGlows exception: at most one user-triggered 30-day restart
+  (two cycles or 60 days total);
 - eligibility counted server-side by global identity and recognized app
   installation, not by email address alone;
 - IP address used only as a privacy-aware anti-abuse signal and rate-limit
@@ -79,7 +83,9 @@ The sole active suite policy is:
 - after the allowance is exhausted, access requires a paid entitlement;
 - a refund, revoke, or fraud decision removes access through the canonical
   ledger and does not recreate or reset a trial;
-- no permanent freemium, default-free grant, or product-specific trial duration;
+- no permanent freemium or default-free grant; product-specific cycle caps
+  require an explicit operator decision recorded in this registry and the
+  owning product spec;
 - Stripe Managed Payments is the only active direct-payment provider.
 
 Offer prices and plans may differ by product. Their Stripe Price IDs are
@@ -88,7 +94,8 @@ price amounts. Missing offer configuration fails closed.
 
 The prior default-free suite rule, CommandGlows 14-day/42-day rule,
 CommunityGlows single-cycle rule, and Lemon Squeezy/Polar provider exceptions
-are superseded history.
+are superseded history. The 2026-10-02 CommunityGlows two-cycle limit is a
+current product-specific cap, not a return to its historical single-cycle rule.
 
 ## Alias And Exclusion Notes
 
@@ -132,7 +139,8 @@ Stop and route before implementation when:
 - a client claim, cookie, local storage value, or provider payload is treated as durable access truth;
 - a paid entitlement could be overwritten or bypassed by a trial/default grant;
 - a free formation entitlement is treated as premium/private course access without an explicit premium plan gate.
-- a product proposes a provider other than Stripe or a trial contract other
-  than 30 days plus two maximum restarts;
+- a product proposes a provider other than Stripe or a trial cap that differs
+  from the suite default without explicit approval in this registry and its
+  current product spec;
 - a price amount would need to be invented instead of supplied through an
   approved Stripe Price ID environment key.

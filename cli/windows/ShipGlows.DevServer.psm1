@@ -6,9 +6,11 @@ $script:RegistryVersion = 1
 $script:DefaultPortStart = 3000
 $script:DefaultPortEnd = 3100
 $script:ProjectIndexSchemaVersion = 1
-$script:ProjectScannerVersion = '2'
+$script:ProjectScannerVersion = '3'
+$script:ProjectCatalogMaxWorkspaceDepth = 3
 $script:ProjectIndexTtlMinutes = 5
 $script:ProjectCatalogMemory = @{}
+$script:GitHubRepositoryIdentityMemory = @{}
 $script:ProjectEnvironmentSchema = 'shipglows-project-environment/v2'
 $script:ProjectEnvironmentBegin = '<!-- >>> ShipGlows development environment >>> -->'
 $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< -->'
@@ -739,6 +741,159 @@ function ConvertTo-SgGitHubRepositoryIdentity([string]$Value) {
     return "$($Matches.owner)/$($Matches.repository)".ToLowerInvariant()
 }
 
+function Get-SgGitHubRepositoryIndexPath([object]$Config) {
+    $runtimeDirectory = if ($Config.PSObject.Properties['RuntimeDirectory'] -and $Config.RuntimeDirectory) {
+        [IO.Path]::GetFullPath([string]$Config.RuntimeDirectory)
+    } else {
+        Split-Path -Parent (Get-SgProjectIndexPath $Config)
+    }
+    return Join-Path $runtimeDirectory 'github-repository-index.json'
+}
+
+function Add-SgGitHubRepositoryIndexFileState([System.Collections.Generic.List[object]]$State, [string]$Path) {
+    $fullPath = [IO.Path]::GetFullPath($Path)
+    $file = Get-Item -LiteralPath $fullPath -Force -ErrorAction SilentlyContinue
+    if ($file -and -not $file.PSIsContainer) {
+        [void]$State.Add([pscustomobject]@{
+            path = $fullPath.ToLowerInvariant()
+            exists = $true
+            length = [long]$file.Length
+            lastWriteUtcTicks = [long]$file.LastWriteTimeUtc.Ticks
+        })
+    } else {
+        [void]$State.Add([pscustomobject]@{ path = $fullPath.ToLowerInvariant(); exists = $false })
+    }
+}
+
+function Get-SgGitHubRepositoryIndexSignature([string[]]$RepositoryPaths) {
+    $state = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($repositoryPath in @($RepositoryPaths | Sort-Object -Unique)) {
+        $markerPath = Join-Path $repositoryPath '.git'
+        $marker = Get-Item -LiteralPath $markerPath -Force -ErrorAction SilentlyContinue
+        if (-not $marker) { continue }
+        $gitDirectories = New-Object 'System.Collections.Generic.List[string]'
+        [void]$state.Add([pscustomobject]@{
+            path = [IO.Path]::GetFullPath($markerPath).ToLowerInvariant()
+            isDirectory = [bool]$marker.PSIsContainer
+            length = if ($marker.PSIsContainer) { 0L } else { [long]$marker.Length }
+            lastWriteUtcTicks = [long]$marker.LastWriteTimeUtc.Ticks
+        })
+        if ($marker.PSIsContainer) {
+            [void]$gitDirectories.Add([IO.Path]::GetFullPath($marker.FullName))
+        } else {
+            $pointer = try { [IO.File]::ReadAllText($marker.FullName).Trim() } catch { '' }
+            if ($pointer -match '(?im)^\s*gitdir:\s*(?<path>.+?)\s*$') {
+                $gitDirectory = [string]$Matches.path
+                if (-not [IO.Path]::IsPathRooted($gitDirectory)) { $gitDirectory = Join-Path $repositoryPath $gitDirectory }
+                try { [void]$gitDirectories.Add([IO.Path]::GetFullPath($gitDirectory)) } catch { }
+            }
+        }
+        $commonDirectories = New-Object 'System.Collections.Generic.List[string]'
+        foreach ($gitDirectory in $gitDirectories) {
+            [void]$commonDirectories.Add($gitDirectory)
+            Add-SgGitHubRepositoryIndexFileState $state (Join-Path $gitDirectory 'config')
+            Add-SgGitHubRepositoryIndexFileState $state (Join-Path $gitDirectory 'config.worktree')
+            $commonDirectoryFile = Join-Path $gitDirectory 'commondir'
+            Add-SgGitHubRepositoryIndexFileState $state $commonDirectoryFile
+            if (Test-Path -LiteralPath $commonDirectoryFile -PathType Leaf) {
+                $commonDirectory = try { [IO.File]::ReadAllText($commonDirectoryFile).Trim() } catch { '' }
+                if ($commonDirectory) {
+                    if (-not [IO.Path]::IsPathRooted($commonDirectory)) { $commonDirectory = Join-Path $gitDirectory $commonDirectory }
+                    try { [void]$commonDirectories.Add([IO.Path]::GetFullPath($commonDirectory)) } catch { }
+                }
+            }
+        }
+        foreach ($commonDirectory in @($commonDirectories | Sort-Object -Unique)) {
+            Add-SgGitHubRepositoryIndexFileState $state (Join-Path $commonDirectory 'config')
+            Add-SgGitHubRepositoryIndexFileState $state (Join-Path $commonDirectory 'config.worktree')
+        }
+    }
+    $serialized = ConvertTo-Json -InputObject @($state.ToArray()) -Depth 5 -Compress
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try {
+        return [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($serialized))).Replace('-','').ToLowerInvariant()
+    } finally {
+        $sha.Dispose()
+    }
+}
+
+function Test-SgGitHubRepositoryIdentityIndex([object]$Config, [object]$Index, [string]$Signature, [switch]$AllowCachedSignature) {
+    if (-not $Index -or $Index.schemaVersion -ne 1 -or (-not $AllowCachedSignature -and [string]$Index.signature -ne $Signature) -or $null -eq $Index.repositories) { return $false }
+    $workspace = [IO.Path]::GetFullPath([string]$Config.Workspace).TrimEnd('\','/')
+    $indexedWorkspace = try { [IO.Path]::GetFullPath([string]$Index.workspace).TrimEnd('\','/') } catch { return $false }
+    if (-not $workspace.Equals($indexedWorkspace, [StringComparison]::OrdinalIgnoreCase)) { return $false }
+    try { $generatedAt = ConvertFrom-SgRoundTripTimestamp $Index.generatedAt } catch { return $false }
+    $age = ([DateTimeOffset]::UtcNow - $generatedAt).TotalMinutes
+    if ($age -lt 0 -or $age -ge $script:ProjectIndexTtlMinutes) { return $false }
+    foreach ($identity in @($Index.repositories)) {
+        $normalized = ConvertTo-SgGitHubRepositoryIdentity ([string]$identity)
+        if (-not $normalized -or -not $normalized.Equals([string]$identity, [StringComparison]::Ordinal)) { return $false }
+    }
+    return $true
+}
+
+function Read-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signature, [switch]$AllowCachedSignature) {
+    $path = Get-SgGitHubRepositoryIndexPath $Config
+    $key = "$([IO.Path]::GetFullPath([string]$Config.Workspace).ToLowerInvariant())|$($path.ToLowerInvariant())"
+    if (Test-Path -LiteralPath "$path.stale" -PathType Leaf) {
+        [void]$script:GitHubRepositoryIdentityMemory.Remove($key)
+        return $null
+    }
+    if ($script:GitHubRepositoryIdentityMemory.ContainsKey($key)) {
+        $memoryIndex = $script:GitHubRepositoryIdentityMemory[$key]
+        if (Test-SgGitHubRepositoryIdentityIndex $Config $memoryIndex $Signature -AllowCachedSignature:$AllowCachedSignature) { return $memoryIndex }
+        [void]$script:GitHubRepositoryIdentityMemory.Remove($key)
+    }
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
+    try {
+        $index = (Get-Content -LiteralPath $path -Raw -ErrorAction Stop) | ConvertFrom-Json -ErrorAction Stop
+        if (Test-SgGitHubRepositoryIdentityIndex $Config $index $Signature -AllowCachedSignature:$AllowCachedSignature) {
+            $script:GitHubRepositoryIdentityMemory[$key] = $index
+            return $index
+        }
+    } catch { }
+    return $null
+}
+
+function Write-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signature, [string[]]$Repositories) {
+    $path = Get-SgGitHubRepositoryIndexPath $Config
+    $key = "$([IO.Path]::GetFullPath([string]$Config.Workspace).ToLowerInvariant())|$($path.ToLowerInvariant())"
+    $index = [pscustomobject]@{
+        schemaVersion = 1
+        workspace = [IO.Path]::GetFullPath([string]$Config.Workspace).TrimEnd('\','/')
+        generatedAt = [DateTimeOffset]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+        signature = $Signature
+        repositories = @($Repositories | Sort-Object -Unique)
+    }
+    $script:GitHubRepositoryIdentityMemory[$key] = $index
+    $temp = "$path.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        Ensure-SgDirectory (Split-Path -Parent $path)
+        $json = ConvertTo-Json -InputObject $index -Depth 5
+        [IO.File]::WriteAllText($temp, $json, [Text.UTF8Encoding]::new($false))
+        if (Test-Path -LiteralPath $path -PathType Leaf) {
+            try { [IO.File]::Replace($temp, $path, $null) }
+            catch { Move-Item -LiteralPath $temp -Destination $path -Force -ErrorAction Stop }
+        } else {
+            [IO.File]::Move($temp, $path)
+        }
+        Remove-Item -LiteralPath "$path.stale" -Force -ErrorAction SilentlyContinue
+    } catch {
+        # The index is an optimization; the freshly computed identities remain usable.
+    } finally {
+        if (Test-Path -LiteralPath $temp -PathType Leaf) { Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue }
+    }
+}
+
+function Clear-SgGitHubRepositoryIdentityIndex([object]$Config) {
+    $path = Get-SgGitHubRepositoryIndexPath $Config
+    $key = "$([IO.Path]::GetFullPath([string]$Config.Workspace).ToLowerInvariant())|$($path.ToLowerInvariant())"
+    [void]$script:GitHubRepositoryIdentityMemory.Remove($key)
+    if (Test-Path -LiteralPath $path -PathType Leaf) {
+        try { [IO.File]::WriteAllText("$path.stale", 'stale', [Text.UTF8Encoding]::new($false)) } catch { }
+    }
+}
+
 function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$GitPath = '') {
     $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
     if ([string]::IsNullOrWhiteSpace($GitPath)) {
@@ -748,6 +903,11 @@ function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$Git
     }
     if (-not (Test-Path -LiteralPath $GitPath -PathType Leaf)) { return @() }
 
+    # Prefer the five-minute identity cache before inspecting every repository's
+    # .git metadata. Clone and catalog invalidation still marks it stale.
+    $cachedIndex = Read-SgGitHubRepositoryIdentityIndex $Config '' -AllowCachedSignature
+    if ($cachedIndex) { return @($cachedIndex.repositories) }
+
     $candidatePaths = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
     try {
         foreach ($directory in @(Get-ChildItem -LiteralPath $workspace -Directory -Force -ErrorAction Stop)) {
@@ -755,7 +915,9 @@ function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$Git
             [void]$candidatePaths.Add([IO.Path]::GetFullPath($directory.FullName).TrimEnd('\','/'))
         }
     } catch [UnauthorizedAccessException] { }
-    foreach ($entry in @(Get-SgProjectCatalog $Config)) {
+    # The clone picker only needs project paths to exclude already installed
+    # repositories; reconciling every managed process here delays the picker.
+    foreach ($entry in @(Get-SgProjectCatalog $Config -SkipProcessReconciliation)) {
         $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } elseif ($entry.PSObject.Properties['path']) { [string]$entry.path } else { '' }
         if ($rootPath) {
             try { [void]$candidatePaths.Add([IO.Path]::GetFullPath($rootPath).TrimEnd('\','/')) } catch { }
@@ -763,20 +925,21 @@ function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$Git
     }
 
     $workspacePrefix = $workspace.TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
-    $repositoryRoots = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    $repositoryPaths = @($candidatePaths | Where-Object {
+        ($_.Equals($workspace, [StringComparison]::OrdinalIgnoreCase) -or $_.StartsWith($workspacePrefix, [StringComparison]::OrdinalIgnoreCase)) -and
+        (Test-Path -LiteralPath (Join-Path $_ '.git'))
+    } | Sort-Object -Unique)
+    $signature = Get-SgGitHubRepositoryIndexSignature $repositoryPaths
+    if ($signature) {
+        $cachedIndex = Read-SgGitHubRepositoryIdentityIndex $Config $signature
+        if ($cachedIndex) { return @($cachedIndex.repositories) }
+    }
     $identities = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
     $previousPreference = $ErrorActionPreference
     try {
         $ErrorActionPreference = 'Continue'
-        foreach ($candidatePath in $candidatePaths) {
-            $repositoryRootOutput = @(& $GitPath -C $candidatePath rev-parse --show-toplevel 2>$null)
-            $repositoryRootExitCode = $LASTEXITCODE
-            $repositoryRoot = $repositoryRootOutput | Select-Object -First 1
-            if ($repositoryRootExitCode -ne 0 -or [string]::IsNullOrWhiteSpace([string]$repositoryRoot)) { continue }
-            try { $repositoryRoot = [IO.Path]::GetFullPath([string]$repositoryRoot).TrimEnd('\','/') } catch { continue }
-            if (-not ($repositoryRoot.Equals($workspace, [StringComparison]::OrdinalIgnoreCase) -or $repositoryRoot.StartsWith($workspacePrefix, [StringComparison]::OrdinalIgnoreCase))) { continue }
-            if (-not $repositoryRoots.Add($repositoryRoot)) { continue }
-            $originOutput = @(& $GitPath -C $repositoryRoot remote get-url origin 2>$null)
+        foreach ($candidatePath in $repositoryPaths) {
+            $originOutput = @(& $GitPath -C $candidatePath remote get-url origin 2>$null)
             $originExitCode = $LASTEXITCODE
             $origin = $originOutput | Select-Object -First 1
             if ($originExitCode -ne 0) { continue }
@@ -786,7 +949,9 @@ function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$Git
     } finally {
         $ErrorActionPreference = $previousPreference
     }
-    return @($identities | Sort-Object)
+    $result = @($identities | Sort-Object)
+    if ($signature) { Write-SgGitHubRepositoryIdentityIndex $Config $signature $result }
+    return $result
 }
 
 function Select-SgGitHubCloneCandidates([object[]]$Repositories, [string[]]$InstalledRepositoryIdentities = @()) {
@@ -896,6 +1061,7 @@ function Write-SgProjectIndex([object]$Config, [object[]]$Projects) {
 }
 
 function Clear-SgProjectCatalogCache([object]$Config) {
+    Clear-SgGitHubRepositoryIdentityIndex $Config
     $key = Get-SgProjectCatalogCacheKey $Config
     [void]$script:ProjectCatalogMemory.Remove($key)
     $path = Get-SgProjectIndexPath $Config
@@ -936,13 +1102,14 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
     $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
     $manifests = @{'package.json'=$true;'pyproject.toml'=$true;'requirements.txt'=$true;'pubspec.yaml'=$true}
     $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true}
-    # ripgrep is optional: use it when available for an unbounded, pruned scan;
-    # the native walker below preserves the same discovery semantics otherwise.
+    # Keep the workspace depth and hidden-directory boundary identical whether
+    # ripgrep or the native walker is available.
     $ripgrep = Get-Command rg -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($ripgrep) {
         $arguments = @(
-            '--files','--no-messages','--no-ignore',
+            '--files','--no-messages','--no-ignore','--maxdepth',[string]($script:ProjectCatalogMaxWorkspaceDepth + 1),
             '-g','package.json','-g','pyproject.toml','-g','requirements.txt','-g','pubspec.yaml',
+            '-g','!**/.*',
             '-g','!**/.git/**','-g','!**/node_modules/**','-g','!**/venv/**','-g','!**/.venv/**',
             '-g','!**/__pycache__/**','-g','!**/target/**','-g','!**/.next/**','-g','!**/.nuxt/**',
             '-g','!**/dist/**','-g','!**/.cache/**','-g','!**/.pnpm/**','-g','!**/.yarn/**',
@@ -954,6 +1121,9 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
         $projects = New-Object 'System.Collections.Generic.List[object]'
         foreach ($manifestPath in $manifestPaths) {
             $path = ConvertTo-SgCanonicalPath (Split-Path -Parent $manifestPath)
+            $relative = $path.Substring($workspace.Length).TrimStart('\','/')
+            $segments = @($relative -split '[\\/]' | Where-Object { $_ -and $_ -ne '.' })
+            if ($segments.Count -gt $script:ProjectCatalogMaxWorkspaceDepth) { continue }
             $identity = $path.ToLowerInvariant()
             if ($seen.ContainsKey($identity)) { continue }
             $seen[$identity] = $true
@@ -961,9 +1131,7 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
             $rootPath = $path
             if ($path.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
                 $path.Equals($workspace, [StringComparison]::OrdinalIgnoreCase)) {
-                $relative = $path.Substring($workspace.Length).TrimStart('\','/')
                 $cursor = $workspace
-                $segments = @($relative -split '[\\/]' | Where-Object { $_ -and $_ -ne '.' })
                 foreach ($segment in $segments) {
                     if ([IO.Directory]::Exists([IO.Path]::Combine($cursor, '.git')) -or
                         ($manifests.Keys | Where-Object { [IO.File]::Exists([IO.Path]::Combine($cursor, $_)) } | Select-Object -First 1)) {
@@ -994,12 +1162,14 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
 
     $paths = New-Object 'System.Collections.Generic.Queue[string]'
     $roots = New-Object 'System.Collections.Generic.Queue[string]'
-    $paths.Enqueue($workspace); $roots.Enqueue('')
+    $depths = New-Object 'System.Collections.Generic.Queue[int]'
+    $paths.Enqueue($workspace); $roots.Enqueue(''); $depths.Enqueue(0)
     $seen = @{}
     $projects = New-Object 'System.Collections.Generic.List[object]'
     while ($paths.Count -gt 0) {
         $path = $paths.Dequeue()
         $rootPath = $roots.Dequeue()
+        $depth = $depths.Dequeue()
         if (-not [IO.Directory]::Exists($path)) { continue }
         $hasManifest = $false
         try {
@@ -1040,12 +1210,13 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
         try { $directories = [IO.Directory]::EnumerateDirectories($path) }
         catch [UnauthorizedAccessException] { continue }
         catch [IO.IOException] { continue }
+        if ($depth -ge $script:ProjectCatalogMaxWorkspaceDepth) { continue }
         foreach ($directoryPath in $directories) {
             $directoryName = [IO.Path]::GetFileName($directoryPath)
             if ($directoryName.StartsWith('.') -or $pruneDirs.ContainsKey($directoryName)) { continue }
             try { $attributes = [IO.File]::GetAttributes($directoryPath) } catch { continue }
             if ($attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
-            $paths.Enqueue($directoryPath); $roots.Enqueue($rootPath)
+            $paths.Enqueue($directoryPath); $roots.Enqueue($rootPath); $depths.Enqueue($depth + 1)
         }
     }
     return @($projects.ToArray() | Sort-Object -Property path)
@@ -1337,7 +1508,9 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             $toolchainText = Get-Content -LiteralPath $toolchainConfig -Raw
             if ($toolchainText -match 'rust\s*=\s*\{\s*version\s*=\s*"([0-9.]+)"') { $toolchainPrefix = "set `"RUSTUP_TOOLCHAIN=$($Matches[1])`" && " }
         }
-        $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri dev"
+        $devConfig = Join-Path $ProjectPath 'src-tauri\tauri.dev.conf.json'
+        $devConfigArgument = if (Test-Path -LiteralPath $devConfig -PathType Leaf) { ' --config "src-tauri\tauri.dev.conf.json"' } else { '' }
+        $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri dev$devConfigArgument"
         return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri dev'; Interactive=$false; FlutterSdkRoot=$null }
     }
     $signature = Get-SgCommandSignature $ProjectPath $Kind $Port
@@ -1490,6 +1663,49 @@ function Start-SgDetachedProcess([string]$FilePath,[string[]]$ArgumentList,[stri
     return [pscustomobject]@{Id=[int]$creation.ProcessId;CommandSignature=$encoded.Substring($encoded.Length-$identityLength);JobName=$jobName}
 }
 
+function Complete-SgManagedProcessExit([object]$Config, [string]$ProjectPath, [int]$Pid, [string]$StartTimeUtc) {
+    if ([string]::IsNullOrWhiteSpace($ProjectPath) -or $Pid -le 0 -or [string]::IsNullOrWhiteSpace($StartTimeUtc)) { return }
+    Invoke-SgRegistryMutation $Config {
+        param($registry)
+        $entry = @($registry.projects | Where-Object { $_.path -eq $ProjectPath })[0]
+        if (-not $entry -or [int]$entry.pid -ne $Pid -or [string]$entry.startTimeUtc -ne $StartTimeUtc) { return }
+        # An explicit stop clears the PID first. This watcher therefore only
+        # records an unrequested exit of the exact process it was assigned to.
+        if ($entry.status -in @('starting', 'running')) {
+            $entry.status = 'error'
+            $entry.pid = 0
+            $entry.startTimeUtc = $null
+            $entry | Add-Member -NotePropertyName lastError -NotePropertyValue 'Managed application process exited unexpectedly. Inspect the project logs before restarting.' -Force
+            if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
+            if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+        }
+    } | Out-Null
+}
+
+function Start-SgManagedProcessExitMonitor([object]$Config, [string]$ProjectPath, [int]$Pid, [string]$StartTimeUtc) {
+    if ($Pid -le 0 -or [string]::IsNullOrWhiteSpace($StartTimeUtc)) { throw 'A managed process exit monitor requires a verified process identity.' }
+    $modulePath = $MyInvocation.MyCommand.Module.Path
+    $configLiteral = ConvertTo-SgPowerShellLiteral $Config.RuntimeDirectory
+    $projectLiteral = ConvertTo-SgPowerShellLiteral $ProjectPath
+    $startLiteral = ConvertTo-SgPowerShellLiteral $StartTimeUtc
+    $moduleLiteral = ConvertTo-SgPowerShellLiteral $modulePath
+    $script = @(
+        "`$ErrorActionPreference='Stop'",
+        "Wait-Process -Id $Pid -ErrorAction SilentlyContinue",
+        "Import-Module $moduleLiteral -Force -DisableNameChecking",
+        "`$config=Get-SgDevConfig; if([IO.Path]::GetFullPath(`$config.RuntimeDirectory)-ine[IO.Path]::GetFullPath($configLiteral)){exit 0}",
+        "Complete-SgManagedProcessExit `$config $projectLiteral $Pid $startLiteral"
+    ) -join '; '
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
+    $powershell = Resolve-SgPowerShellExecutable
+    $creation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
+        CommandLine = "`"$powershell`" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded"
+        CurrentDirectory = $Config.RuntimeDirectory
+        ProcessStartupInformation = (New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly -Property @{ ShowWindow = [uint16]0 })
+    }
+    if (-not $creation -or [int]$creation.ReturnValue -ne 0 -or [int]$creation.ProcessId -le 0) { throw 'Managed process exit monitor could not be created.' }
+}
+
 function Test-SgHttpReady([int]$Port) {
     try {
         Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$Port" -TimeoutSec 2 -ErrorAction Stop | Out-Null
@@ -1593,7 +1809,18 @@ function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$
         if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
             return [pscustomobject]@{ Ready=$false; AppId=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
         }
-        if ((Test-SgHttpReady $Port) -and (-not $ProcessEntry -or (Test-SgProcessIdentity $ProcessEntry))) { return [pscustomobject]@{ Ready=$true; AppId=$null; Error=$null } }
+        if ((Test-SgHttpReady $Port) -and (-not $ProcessEntry -or (Test-SgProcessIdentity $ProcessEntry))) {
+            if ($Kind -eq 'tauri') {
+                Start-Sleep -Milliseconds 1200
+                if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
+                    return [pscustomobject]@{ Ready=$false; AppId=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
+                }
+                if (-not (Test-SgHttpReady $Port)) {
+                    return [pscustomobject]@{ Ready=$false; AppId=$null; Error=(Get-SgStartupFailure $ErrorLogPath 'Tauri dev server stopped during startup.') }
+                }
+            }
+            return [pscustomobject]@{ Ready=$true; AppId=$null; Error=$null }
+        }
         if ((Get-Date) -ge $deadline) { break }
         Start-Sleep -Milliseconds 250
     } while ($true)
@@ -1757,7 +1984,7 @@ function Reconcile-SgRegistry([object]$Config) {
                 }
             }
             if ($live) {
-                if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Get-SgOwnedFlutterNativePids $entry).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}else{$entry.status = 'running'}
+                if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Get-SgOwnedFlutterNativePids $entry).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(Test-SgHttpReady ([int]$entry.port)){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Managed process is alive, but its local service port is not responding.' -Force}}else{$entry.status = 'running'}
                 if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
                 if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
             } elseif (-not $freshReservation) {
@@ -2047,8 +2274,9 @@ function Install-SgFlutterDevShortcut([object]$Entry, [string]$DesktopPath = '',
     if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) { throw 'The managed ShipGlows DevServer launcher is unavailable.' }
     $displayName = [string]$Entry.name
     if ([string]::IsNullOrWhiteSpace($displayName) -or $displayName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) { throw 'The project name cannot be used for a Windows Dev shortcut.' }
-    $path = Join-Path $desktop ("ShipGlows - $displayName - Dev.lnk")
+    $path = Join-Path $desktop ("$displayName - Dev.lnk")
     $marker = "ShipGlows managed Flutter Dev shortcut v1 | $([string]$Entry.path)"
+    $legacyPath = Join-Path $desktop ("ShipGlows - $displayName - Dev.lnk")
     if (Test-Path -LiteralPath $path -PathType Leaf) {
         $existing = (New-Object -ComObject WScript.Shell).CreateShortcut($path)
         if ([string]$existing.Description -cne $marker) { throw "Existing shortcut is not owned by ShipGlows: $path" }
@@ -2063,6 +2291,12 @@ function Install-SgFlutterDevShortcut([object]$Entry, [string]$DesktopPath = '',
         $shortcut.Save()
         Move-Item -LiteralPath $temporary -Destination $path -Force
     } finally { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
+    if ((Test-Path -LiteralPath $legacyPath -PathType Leaf) -and $legacyPath -ne $path) {
+        try {
+            $legacy = (New-Object -ComObject WScript.Shell).CreateShortcut($legacyPath)
+            if ([string]$legacy.Description -ceq $marker) { Remove-Item -LiteralPath $legacyPath -Force }
+        } catch { }
+    }
     Write-SgInfo "Flutter Dev shortcut ready: $([IO.Path]::GetFileNameWithoutExtension($path))"
     return $path
 }
@@ -2213,6 +2447,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $entryData.flutterAppId = $readiness.AppId
         if($readiness.PSObject.Properties['DaemonPid']){$entryData.flutterDaemonPid=[int]$readiness.DaemonPid}
         Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData
+        try { Start-SgManagedProcessExitMonitor $Config $entry.path ([int]$snapshot.Pid) ([string]$snapshot.StartTimeUtc) } catch { Write-SgWarn "Process exit monitoring could not start: $($_.Exception.Message)" }
         if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')) { [void](Install-SgFlutterDevShortcut $entryData) }
     } else {
         $entryData.status = 'error'
@@ -2440,5 +2675,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Complete-SgManagedProcessExit,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

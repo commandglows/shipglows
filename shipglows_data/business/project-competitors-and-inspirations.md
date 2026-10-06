@@ -37,6 +37,21 @@ supersedes: []
 next_review: "2026-09-13"
 next_step: "/009-sg-marketing market update project competitors"
 ---
+TODO  
+https://github.com/EfficientStreet/hindsight
+https://github.com/Artistsyn/cortex_suite
+https://github.com/rodaddy/ai-marketing-panel
+https://github.com/openai/plugins/tree/main/plugins
+https://sourcegraph.com/
+https://github.com/humanlayer/skills/tree/main/plugins
+https://github.com/blader/humanizer
+https://github.com/sulabhdubey/rta-smriti-brain
+https://github.com/affaan-m/ECC
+https://github.com/DietrichGebert/ponytail
+https://github.com/tt-a1i/archify
+https://github.com/img2threejs/img2threejs
+https://github.com/reticlehq/reticle
+https://github.com/JayPokale/Chisle
 
 # Project Competitors And Inspirations
 

@@ -8,6 +8,13 @@ source_skill: sg-veille
 scope: "inspirations techniques pour ShipGlows CLI, serveur et skills"
 confidence: medium
 ---
+https://github.com/volcengine/OpenViking
+https://github.com/semantica-agi/semantica
+https://trailhq.com/graft
+https://github.com/edonadei/caliper
+https://github.com/ibelick/ui-skills
+
+
 
 # Concurrents et inspirations — ShipGlows
 

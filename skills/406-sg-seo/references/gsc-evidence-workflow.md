@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-10"
-updated: "2026-08-10"
+updated: "2026-09-30"
 status: active
 source_skill: 406-sg-seo
 scope: seo-gsc-evidence-workflow
@@ -21,8 +21,9 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Official Google Search Console API and client-library documentation reviewed 2026-08-10."
-  - "No Google-maintained GSC CLI or MCP and no OpenAI-maintained GSC Codex plugin identified in official documentation."
+  - "Official Google Search Console Search Analytics query and authorization documentation reviewed 2026-09-30."
+  - "ShipGlows' read-only GSC CLI and SEO evidence path were verified on 2026-09-30."
+  - "The ChatGPT plugin directory listed third-party GSC Wizard by 11 Internet on 2026-09-30; it is a separate integration and not part of this workflow."
 next_review: "2026-11-10"
 next_step: "/103-sg-verify google-search-console-api-cli"
 ---
@@ -48,7 +49,7 @@ Use only the smallest queries needed for the requested outcome:
 - `inspect`: inspect only explicit fully qualified URLs attached to the selected property.
 - `sites`: establish accessible properties and permission levels; do not expose unrelated property names in a user-facing report.
 
-Recent GSC data can be incomplete and aggregated. Treat changes as signals, not proof of causality. Distinguish missing rows from zero performance, and do not call average position a live rank.
+Recent GSC data can be incomplete and aggregated. A successful API response without rows is not an API failure and must not be reported as proven zero performance; check whether the property is new, the requested period is ready, and the exact property identifier is correct. Treat changes as signals, not proof of causality, and do not call average position a live rank.
 
 ## Security And Failure Handling
 

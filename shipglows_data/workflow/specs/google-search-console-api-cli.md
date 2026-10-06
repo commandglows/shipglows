@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-07-14"
 created_at: "2026-07-14 18:55:00 UTC"
-updated: "2026-08-04"
-updated_at: "2026-08-12 00:00:00 UTC"
-status: ready
+updated: "2026-09-30"
+updated_at: "2026-09-30 14:24:09 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
 scope: "official Google Search Console API command-line client"
@@ -33,10 +33,12 @@ depends_on:
 supersedes: []
 evidence:
   - "Wave 20 reclassifies Google Search Console API as an external linked system; documentation-freshness-gate remains the local executable dependency governing current official-source verification."
-  - "Local Codex configuration contains a disabled third-party GSC MCP; ShipGlows has no canonical first-party GSC CLI."
+  - "The ShipGlows-owned read-only CLI is implemented in tools/shipglows_gsc.py and exposed through cli/shipglows-gsc.sh."
+  - "On 2026-09-30 the authorized CLI listed the selected domain property and completed a bounded Search Analytics request; Google returned no rows while the new property was processing data."
+  - "The ChatGPT plugin directory listed GSC Wizard by third-party developer 11 Internet on 2026-09-30; this is separate from the ShipGlows CLI and is not an authorized integration."
   - "Google official docs expose OAuth-protected Search Analytics, Sites, Sitemaps, and URL Inspection endpoints."
   - "Research report: shipglows_data/workflow/research/google-search-console-mcp-api-cli-audit.md"
-next_step: "/102-sg-start google-search-console-api-cli"
+next_step: "/103-sg-verify google-search-console-api-cli"
 ---
 
 # Google Search Console API CLI
@@ -47,7 +49,7 @@ Google Search Console API CLI
 
 ## Status
 
-Ready for implementation.
+Implemented. The CLI and SEO evidence route exist; see the technical guide for invocation and current limits. Independent verification remains tracked below.
 
 ## User Story
 
@@ -74,11 +76,11 @@ As a ShipGlows operator, I want a local CLI that reads my verified Google Search
 
 ## Problem
 
-The current SEO role can audit local content but cannot obtain the GSC evidence that distinguishes a promising page update from a generic recommendation. A third-party MCP is configured but disabled; it is not a governed, official integration path.
+At design time, the SEO role could audit local content but lacked a governed way to obtain GSC evidence. The CLI and its read-only SEO evidence workflow now address that gap.
 
 ## Solution
 
-Add a ShipGlows-owned Python standard-library CLI wrapping the official Search Console REST API. Keep v1 read-only, OAuth-scoped minimally, and explicit about the profile and property used.
+ShipGlows owns a Python standard-library CLI wrapping the official Search Console REST API. Keep it read-only, OAuth-scoped minimally, and explicit about the profile and property used.
 
 ## Scope In
 
@@ -86,7 +88,7 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
 - OAuth installed-app login, logout, and status using an operator-provided client-secret file.
 - Read-only `sites`, `performance`, `sitemaps`, and `inspect` commands.
 - Strict secret redaction, file-permission handling, validation, tests, README/operator guidance, and installer wrapper registration.
-- A JSON evidence format that `406-sg-seo` can consume in a later follow-up.
+- JSON responses that `406-sg-seo` can consume through the documented read-only evidence workflow.
 
 ## Scope Out
 
@@ -94,14 +96,14 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
 - Google Cloud project/client creation, consent-screen publication, or operator account setup.
 - Sitemap submission, URL indexing requests, deletion, or any other GSC write action.
 - GA4, DataForSEO, scheduling, database storage, dashboards, or automatic changes to site content.
-- Automatic use by `406-sg-seo` until an explicit evidence-ingestion contract is added.
+- Automatic OAuth login, property selection, or write actions by `406-sg-seo`.
 
 ## Constraints
 
 - Python 3 standard library only; no global package installation.
 - Official endpoints only: `www.googleapis.com/webmasters/v3` and `searchconsole.googleapis.com/v1`.
 - Default scope: `https://www.googleapis.com/auth/webmasters.readonly`.
-- Token directory: `${XDG_CONFIG_HOME:-$HOME/.config}/shipglows/gsc/`, never a repository path.
+- Credentials stay in the user's local configuration directory, never in a repository path. POSIX mode bits are requested by the implementation; Windows privacy depends on effective NTFS ACLs.
 - OAuth requires an operator-owned Google OAuth desktop-client JSON file and property access; this is a documented precondition, not a secret ShipGlows can fabricate.
 
 ## Test Contract
@@ -119,8 +121,8 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
 
 ## Dependencies
 
-- Google Search Console API, official current docs: `https://developers.google.com/webmaster-tools/v1/api_reference_index` and `https://developers.google.com/webmaster-tools/v1/how-tos/authorizing`.
-- Fresh-docs verdict: `fresh-docs checked` on 2026-07-14; OAuth 2.0 is required for GSC user data and the selected endpoints support the read-only scope.
+- Google Search Console API, official current docs: `https://developers.google.com/webmaster-tools/v1/api_reference_index`, `https://developers.google.com/webmaster-tools/v1/searchanalytics/query`, and `https://developers.google.com/webmaster-tools/v1/how-tos/authorizing`.
+- Fresh-docs verdict: reviewed 2026-09-30; the query endpoint returns zero or more rows, accepts inclusive PT date boundaries and supports `webmasters.readonly`.
 
 ## Invariants
 
@@ -132,16 +134,16 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
 
 ## Links & Consequences
 
-- `tools/shipglows_gsc.py` becomes the implementation source of truth.
+- `tools/shipglows_gsc.py` is the implementation source of truth.
 - `cli/shipglows-gsc.sh` is the repository wrapper; installer creates `/usr/local/bin/shipglows-gsc` and `gsc` aliases when present.
 - `README.md` and `shipglows_data/technical/runtime-cli.md` must document the client’s local-only credential model.
-- `406-sg-seo` remains unchanged in v1 except for a documented future handoff path; it must not claim live data access until an explicit ingestion invocation exists.
+- `406-sg-seo` has a read-only evidence workflow; it must use an already authorized profile and an exactly matched property and must not initiate OAuth login during routine monitoring.
 
 ## Documentation Coherence
 
 - Update `README.md` with prerequisites, read-only scope, commands, and security boundary.
-- Update `shipglows_data/technical/runtime-cli.md` and `shipglows_data/technical/code-docs-map.md` for new CLI ownership and validation.
-- Create a focused technical guide for OAuth setup and command examples.
+- `shipglows_data/technical/runtime-cli.md` links operators to the canonical implementation and focused guide; `shipglows_data/technical/code-docs-map.md` routes the CLI source to its owner doc and checks.
+- The focused technical guide documents OAuth setup, commands, Windows invocation, privacy boundaries, and evidence interpretation.
 
 ## Edge Cases
 
@@ -180,12 +182,14 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
 
 ## Acceptance Criteria
 
-- [ ] Given a valid desktop OAuth client-secret file, when an operator runs `auth login`, then consent is requested with only `webmasters.readonly` and a mode-`0600` credential profile is created outside the repository.
-- [ ] Given a valid authorized profile, when an operator runs `sites`, then the CLI emits valid JSON containing only API response data and no secrets.
-- [ ] Given a property and date range, when an operator runs `performance`, then the request uses `searchAnalytics/query` and returns clicks, impressions, CTR, position, keys, and Google metadata where present.
+- [ ] Given a valid desktop OAuth client-secret file, when an operator runs `auth login`, then consent is requested with only `webmasters.readonly` and a credential profile is created outside the repository with POSIX mode `0600` or verified owner-only Windows ACLs.
+- [x] Given a valid authorized profile, when an operator runs `sites`, then the CLI emits valid JSON containing accessible properties.
+- [x] Given a property and date range, when an operator runs `performance`, then the request uses `searchAnalytics/query` and returns Google's JSON response; rows may be absent when Google has none available.
 - [ ] Given a URL-prefix or domain property, when an operator requests `sitemaps` or `inspect`, then the property identifier is URL encoded correctly and read-only API endpoints are used.
 - [ ] Given missing/revoked authorization or an invalid input, when any protected command runs, then it exits non-zero, explains the remediation, and creates no partial state.
 - [x] Given a repository checkout, when unit tests and wrapper syntax checks run, then all pass without network access or OAuth credentials.
+
+Known implementation gaps discovered during documentation reconciliation (2026-09-30): `auth status` includes a `token_path` JSON field despite the redaction requirement, and Windows `chmod` calls do not themselves establish NTFS ACL privacy. Keep those requirements open until the implementation and focused tests prove them; the local credential ACL was checked separately for the current machine.
 
 ## Test Strategy
 
