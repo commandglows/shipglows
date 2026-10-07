@@ -27,9 +27,9 @@ load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before selec
 the build and proof route. Treat its recorded mobile and Windows toolchain decisions
 as environment evidence, while current-turn discovery remains the callability authority.
 
-When browser-extension implementation selects APIs, permissions, injection or
-messaging, load `$SHIPGLOWS_ROOT/skills/references/webextension-api-contract.md`
-for compatibility, trust boundaries and capability-specific proof.
+For Obsidian plugins, load `$SHIPGLOWS_ROOT/skills/references/obsidian-plugin-workflow.md`.
+For browser-extension build or host proof, load `$SHIPGLOWS_ROOT/skills/references/browser-extension-lab.md`;
+for API, permission, injection or messaging decisions, also load `$SHIPGLOWS_ROOT/skills/references/webextension-api-contract.md`.
 
 `excellence` is a hidden public shortcut, not a catalog mode. For
 `sg-development excellence [task or scope]`, resolve the current work from

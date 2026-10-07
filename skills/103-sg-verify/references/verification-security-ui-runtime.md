@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-10-06"
+updated: "2026-10-07"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-security-ui-runtime
@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/103-sg-verify/SKILL.md
   - skills/references/webextension-api-contract.md
+  - skills/references/obsidian-plugin-workflow.md
 depends_on: []
 supersedes: []
 evidence:
@@ -55,3 +56,11 @@ to assess the browser/version matrix, permission and message trust boundaries,
 restart behavior and observable API outcome. Chromium lifecycle lab evidence
 remains scoped to its documented collectors and scenarios; missing API-specific
 or other-browser proof stays partial.
+
+## Obsidian Plugins
+
+Use `skills/references/obsidian-plugin-workflow.md` for explicit artifact/build
+and vault boundaries. Verify actual host loading, the requested interaction,
+diagnostics and cleanup separately in an authorized disposable host environment.
+Build or copy success never proves plugin loading; unavailable host evidence
+remains partial. Do not infer dev's Windows Lab commands exist on this branch.
