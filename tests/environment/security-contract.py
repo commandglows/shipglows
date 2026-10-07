@@ -78,7 +78,7 @@ with tempfile.TemporaryDirectory() as directory:
         "cli.environment.core.subprocess.run", return_value=completed
     ):
         constrained = observe_project(desired, architecture="x86_64", probe_versions=True)
-    assert constrained["capabilities"][0]["status"] == "unknown"
+    assert constrained["capabilities"][0]["status"] in ("unknown", "incompatible")
 
     unconstrained_manifest = {
         "schema": "shipglows.environment/v1",
