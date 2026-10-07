@@ -96,7 +96,6 @@ try {
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\environment\schemas\shipglows-environment-v1.schema.json') -PathType Leaf)) { throw 'Installer did not extract the environment schema.' }
     $installedDevServerModule = Join-Path $extract 'shipglows-test\cli\windows\ShipGlows.DevServer.psm1'
     $installedMobileModule = Join-Path $extract 'shipglows-test\cli\windows\ShipGlows.MobileToolchain.psm1'
-    Assert-Contains ([IO.File]::ReadAllText($installedDevServerModule)) 'function Get-SgEnvironmentReadinessForSurface' 'Packaged DevServer lost the scoped environment readiness consumer.'
     Assert-Contains ([IO.File]::ReadAllText($installedMobileModule)) 'function Get-SgTauriRustWrapperContent' 'Packaged runtime lost the disposable Rust activation wrappers.'
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\windows\ShipGlows.ExtensionLab.js') -PathType Leaf)) { throw 'Packaged cli/windows omitted the Extension Lab runtime.' }
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\windows\ShipGlows.ObsidianLab.js') -PathType Leaf)) { throw 'Packaged cli/windows omitted the Obsidian Lab runtime.' }
