@@ -491,7 +491,7 @@ function Get-SgObsidianBratArtifactReport([string]$ProjectPath) {
         if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { continue }
         $item = Get-Item -LiteralPath $file -Force
         if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { $errors.Add("Artifact is a reparse point: $name"); continue }
-        $rootPrefix = $root.TrimEnd('\\','/') + [IO.Path]::DirectorySeparatorChar
+        $rootPrefix = $root.TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
         if (-not $item.FullName.StartsWith($rootPrefix,[StringComparison]::OrdinalIgnoreCase)) { $errors.Add("Artifact escapes the plugin root: $name"); continue }
         $files.Add([pscustomobject]@{ Name=$name; Bytes=[int64]$item.Length; Sha256=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash })
     }
