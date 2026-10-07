@@ -252,7 +252,7 @@ for windows_file in 'ShipGlows\.CliLauncher\.cs' 'ShipGlows\.DevServer\.psm1' 'S
 done
 rg -F -n 'ShipGlows.ExtensionLab.js' "$BOOTSTRAP"
 rg -F -n 'ShipGlows.ObsidianLab.js' "$BOOTSTRAP"
-rg -F -n 'ShipGlows\.CliLauncher\.cs|ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.ExtensionLab\.js|ShipGlows\.ObsidianLab\.js|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-environment-provider\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -n 'ShipGlows\.CliLauncher\.cs|ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.ExtensionLab\.js|ShipGlows\.ObsidianLab\.js|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-environment-provider\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
 rg -n 'cli/install-turso-cloud\\?\.sh|cli/install-turso-cloud\.sh' "$BOOTSTRAP"
 rg -n '\$entries\.Count -ne 37|shipglows-version\.json' "$BOOTSTRAP"
 rg -n 'InstallSurface.*corpus|SHIPGLOWS_INSTALL_COMPONENTS|Install-SgDeveloperCheckout|Enable-SgWindowsDeveloperChannel' "$BOOTSTRAP"
@@ -299,6 +299,6 @@ rg -n 'function Show-SgWindowsDashboard|No projects discovered in the ShipGlows 
 rg -n "backOption = '0  Back to menu'|\[0\] Back to menu|if \(\$selected -eq \$backOption\)|if \(\$choice -eq '0'\)" "$ENTRYPOINT"
 rg -n "'0  Quit ShipGlows'|0\) Quit ShipGlows|s x      Quit ShipGlows" "$ENTRYPOINT"
 rg -n "'n  Navigate to a project'|n\) Navigate" "$ENTRYPOINT"
-rg -F -n "'n' { Invoke-Navigate }" "$ENTRYPOINT"
+rg -n "'n' \{ Invoke-Navigate \}" "$ENTRYPOINT"
 
 echo "Windows DevServer static contract: OK"
