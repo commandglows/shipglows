@@ -299,6 +299,6 @@ rg -n 'function Show-SgWindowsDashboard|No projects discovered in the ShipGlows 
 rg -n "backOption = '0  Back to menu'|\[0\] Back to menu|if \(\$selected -eq \$backOption\)|if \(\$choice -eq '0'\)" "$ENTRYPOINT"
 rg -n "'0  Quit ShipGlows'|0\) Quit ShipGlows|s x      Quit ShipGlows" "$ENTRYPOINT"
 rg -n "'n  Navigate to a project'|n\) Navigate" "$ENTRYPOINT"
-rg -n "'n' \{ Invoke-Navigate \}" "$ENTRYPOINT"
+rg -F -n "'n' { Invoke-Navigate }" "$ENTRYPOINT"
 
 echo "Windows DevServer static contract: OK"
