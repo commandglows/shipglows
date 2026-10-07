@@ -21,40 +21,53 @@ WSL_TURSO_MODULE="$ROOT/cli/windows/ShipGlows.WslTurso.psm1"
 TURSO_INSTALLER="$ROOT/cli/install-turso-cloud.sh"
 ENVIRONMENT_CLI="$ROOT/cli/environment/shipglows_environment.py"
 SHIPGLOWS_COMMAND="$ROOT/cli/windows/shipglows.ps1"
+NATIVE_LAUNCHER="$ROOT/cli/windows/ShipGlows.CliLauncher.cs"
+MANAGED_PWSH="$HOME/.shipglows/toolchains/powershell/7.6.5/win-x64/pwsh.exe"
 
-for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$INSTALLER_ENGINE_MODULE" "$INSTALLER_CONSOLE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$WSL_TURSO_MODULE" "$TURSO_INSTALLER" "$ENVIRONMENT_CLI" "$SHIPGLOWS_COMMAND"; do
+if [[ ! -x "$MANAGED_PWSH" ]]; then
+  export SHIPGLOWS_RUNTIME_MODULE="$WINDOWS_DIR/ShipGlows.PowerShellRuntime.psm1"
+  powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \
+    '$ErrorActionPreference="Stop"; Import-Module $env:SHIPGLOWS_RUNTIME_MODULE -Force -DisableNameChecking; [void](Ensure-SgPowerShellRuntime)'
+fi
+test -x "$MANAGED_PWSH"
+run_ps() { "$MANAGED_PWSH" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$@"; }
+
+for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$INSTALLER_ENGINE_MODULE" "$INSTALLER_CONSOLE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$WSL_TURSO_MODULE" "$TURSO_INSTALLER" "$ENVIRONMENT_CLI" "$SHIPGLOWS_COMMAND" "$NATIVE_LAUNCHER"; do
   test -f "$file"
 done
 
-for environment_contract in schema-contract.py state-contract.py plan-contract.py executor-contract.py security-contract.py preparation-contract.py; do
+for environment_contract in executor-contract.py inferred-project-contract.py mise-backend-contract.py plan-contract.py preparation-contract.py schema-contract.py security-contract.py state-contract.py version-contract.py windows-tauri-backend-contract.py; do
   python "$ROOT/tests/environment/$environment_contract"
 done
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-observation.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-mise-adapter.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-installed-runtime.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/wsl-turso.ps1"
+run_ps "$ROOT/tests/windows/environment-observation.ps1"
+run_ps "$ROOT/tests/windows/environment-mise-adapter.ps1"
+run_ps "$ROOT/tests/windows/environment-provider-contract.ps1"
+run_ps "$ROOT/tests/windows/environment-installed-runtime.ps1"
+run_ps "$ROOT/tests/windows/wsl-turso.ps1"
 bash "$ROOT/tests/cli/turso-cloud-installer.sh"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/runtime-update-transaction.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/runtime-status.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/update-command.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/process-snapshot.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/installer-engine-ui.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/mobile-toolchain.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/required-gate-paths.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/agent-instructions.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/auth-playwright.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/install-surface-contract.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/powershell-runtime.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/rio-tab-rename.ps1"
+run_ps "$ROOT/tests/windows/runtime-update-transaction.ps1"
+run_ps "$ROOT/tests/windows/runtime-status.ps1"
+run_ps "$ROOT/tests/windows/installer-engine-ui.ps1"
+run_ps "$ROOT/tests/windows/codex-playwright-mcp.ps1"
+run_ps "$ROOT/tests/windows/mobile-toolchain.ps1"
+run_ps "$ROOT/tests/windows/required-gate-paths.ps1"
+run_ps "$ROOT/tests/windows/agent-instructions.ps1"
+run_ps "$ROOT/tests/windows/auth-playwright.ps1"
+run_ps "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
+run_ps "$ROOT/tests/windows/install-surface-contract.ps1"
+run_ps "$ROOT/tests/windows/powershell-runtime.ps1"
+run_ps "$ROOT/tests/windows/rio-tab-rename.ps1"
 for regression in \
+  browser-extension-lab.ps1 \
   browser-extension-project.ps1 \
+  obsidian-plugin.ps1 \
+  obsidian-plugin-lab.ps1 \
   devserver-user-guidance.ps1 \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
   devserver-port-reservation.ps1 \
   devserver-cli-performance.ps1 \
+  native-cli-launcher.ps1 \
   project-environment-schema.ps1 \
   devserver-registry-migration.ps1 \
   devserver-flutter-background.ps1 \
@@ -65,16 +78,11 @@ for regression in \
   devserver-project-catalog.ps1 \
   github-clone-filter.ps1 \
   devserver-start-detach.ps1 \
-  devserver-detached-streams.ps1 \
-  devserver-flutter-stop-budget.ps1 \
   devserver-start-state.ps1 \
   devserver-stop-behavior.ps1; do
-  powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"
+  run_ps "$ROOT/tests/windows/$regression"
 done
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command '$ErrorActionPreference="Stop"; Import-Module ./cli/windows/ShipGlows.PowerShellRuntime.psm1 -Force -DisableNameChecking; $managed=Ensure-SgPowerShellRuntime; foreach($regression in @("devserver-start-detach.ps1","devserver-detached-streams.ps1","devserver-flutter-stop-budget.ps1")){ & $managed -NoLogo -NoProfile -File "./tests/windows/$regression"; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE} }'
 bash "$ROOT/tests/install/playwright-mcp-contract.sh"
-pwsh -NoLogo -NoProfile -File "$ROOT/tests/windows/flutter-state-atomic.ps1"
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/flutter-configuration.ps1"
 rg -n 'Install-SgPlaywrightChromiumForAgents|Get-SgNativeNpxPath|npm.*view.*@playwright/mcp.*version|Get-SgPlaywrightChromiumExecutable|Playwright Chromium was not proven' "$INSTALLER"
 rg -n 'mcp_servers\.playwright|PlaywrightVersion|ChromiumPath|exact resolved package version|--headless.*--browser.*chromium' "$CODEX_MCP_MODULE"
 ! rg -n '@playwright/mcp@latest|supabase@latest' "$INSTALLER" "$CODEX_MCP_MODULE" "$MOBILE_MODULE"
@@ -92,8 +100,9 @@ rg -n "gumVersion = '0\.17\.0'|gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A
 rg -n 'Get-FileHash .*SHA256|github\.com/charmbracelet/gum/releases/download' "$INSTALLER"
 rg -n 'gum_\$\{gumVersion\}_Windows_x86_64/gum\.exe' "$INSTALLER"
 rg -n 'Get-SgGumCommand|Get-SgFzfCommand|gum choose|Read-SgChoice' "$ENTRYPOINT"
-rg -n 'choiceUiAvailable|fzf.*--height=~60%.*--layout=reverse.*--border|Prefer it over Gum' "$ENTRYPOINT"
-rg -n 'newline-delimited stdin|\$lines -join \[Environment\]::NewLine.*\| & \$gum choose|replace .\[\\r\\n\]\+' "$ENTRYPOINT"
+rg -n 'choiceUiAvailable|fzf.*--height=~60%.*--layout=reverse.*--border|Gum is the canonical Windows picker' "$ENTRYPOINT"
+rg -n 'Invoke-SgGum|ArgumentList.Add|Exact ProcessStartInfo arguments|replace .\[\\r\\n\]\+' "$ENTRYPOINT"
+rg -n -F "'--height', [string]\$lines.Count" "$ENTRYPOINT"
 rg -n -- "--item\.foreground.*255|--item\.background.*0|--cursor\.foreground.*0|--cursor\.background.*212|--selected\.foreground.*0|--selected\.background.*212" "$ENTRYPOINT"
 rg -n 'ValueFromRemainingArguments|Resolve-SgAction|Show-SgShortcutHelp' "$ENTRYPOINT"
 rg -n "'m n' = 'navigate'|'m r' = 'select-restart'|'m t' = 'select-stop'|'m o' = 'stop-all'|'m l' = 'select-logs'|'e'   = 'select-start'" "$ENTRYPOINT"
@@ -163,7 +172,9 @@ rg -n 'Preparing coding-agent CLIs and MCPs|Test-SgToolRuns.*codex|Test-SgToolRu
 rg -n '@google/gemini-cli|Get-SgGeminiMcpAddArguments|Get-SgGeminiMcpConfigState|Gemini.*MCP readiness|[.]gemini\\GEMINI[.]md' "$INSTALLER" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE"
 rg -n "'auth'|s a.*Manage CLI authentication|Authentication" "$ENTRYPOINT"
 rg -n 'Get-SgAuthenticationDefinitions|Get-SgAuthenticationState|interactive-cli|project-required' "$AUTH_MODULE"
-rg -F -n "foreach (\$launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1'))" "$INSTALLER"
+rg -F -n "foreach (\$launcherModule in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1'))" "$INSTALLER"
+rg -n '\$windowsFiles = .*ShipGlows[.]ExtensionLab[.]js.*ShipGlows[.]ObsidianLab[.]js' "$BOOTSTRAP"
+rg -F -n "'bin/ShipGlows.ExtensionLab.js','bin/ShipGlows.ObsidianLab.js'" "$BOOTSTRAP"
 test -f "$RUNTIME_STATUS_MODULE"
 rg -n 'shipglows-version\.json|ShipGlows\.RuntimeStatus\.psm1|version=\[string\]\$versionDocument\.version' "$INSTALLER"
 rg -n 'versionDestination|GetFullPath\(\$versionSource\).*GetFullPath\(\$versionDestination\)' "$WINDOWS_DIR/install-devserver.ps1"
@@ -185,7 +196,7 @@ rg -n '\[Console\]::IsInputRedirected|non-interactive installation' "$INSTALLER"
 rg -n 'keep this window open|WinGet can take several minutes|\| Out-Host' "$INSTALLER"
 rg -n 'function Write-SgInstallerWarning|WARNING:.*ForegroundColor Yellow|--disable-interactivity.*\| Out-Null' "$INSTALLER"
 ! rg -n 'Write-Warning|winget\.Source install.*\| Out-Host' "$INSTALLER"
-rg -n 'Install-SgCommandWrappers|Add-SgRuntimeToUserPath|shipglows-dev\.cmd|s\.cmd|Short command installed: s' "$INSTALLER"
+rg -n 'Install-SgCommandWrappers|Add-SgRuntimeToUserPath|shipglows-dev\.cmd|s\.cmd|Native short commands installed: s, sg' "$INSTALLER"
 rg -n 'Install-SgApplicationCommandWrapper|@call "\$target" %\*|Application command installed:' "$INSTALLER"
 rg -n "Install-SgApplicationCommandWrapper '(npm|npx|corepack|pnpm|codex|claude|opencode|kilo|kilocode|gemini)'" "$INSTALLER"
 rg -n 'Install-SgAgentShortcut|%~dp0\$TargetName\.cmd|Agent shortcut installed:' "$INSTALLER"
@@ -236,12 +247,14 @@ test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$lega
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, 3, or 0\.' \}" "$BOOTSTRAP"
-for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.RuntimeStatus\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.FlutterConfiguration\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.BuildArtifacts\.psm1' 'shipglows-build-artifacts\.ps1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'ShipGlows\.PowerShellRuntime\.psm1' 'ShipGlows\.PowerShellRuntime\.json' 'ShipGlows\.PowerShellBootstrap\.ps1' 'ShipGlows\.WslTurso\.psm1' 'shipglows-devserver\.ps1' 'shipglows\.ps1' 'install-devserver\.ps1'; do
+for windows_file in 'ShipGlows\.CliLauncher\.cs' 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.RuntimeStatus\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.BuildArtifacts\.psm1' 'shipglows-build-artifacts\.ps1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'ShipGlows\.ObsidianLab\.js' 'ShipGlows\.PowerShellRuntime\.psm1' 'ShipGlows\.PowerShellRuntime\.json' 'ShipGlows\.PowerShellBootstrap\.ps1' 'ShipGlows\.WslTurso\.psm1' 'shipglows-environment-provider\.ps1' 'shipglows-devserver\.ps1' 'shipglows\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
-rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.FlutterConfiguration\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -F -n 'ShipGlows.ExtensionLab.js' "$BOOTSTRAP"
+rg -F -n 'ShipGlows.ObsidianLab.js' "$BOOTSTRAP"
+rg -n 'ShipGlows\.CliLauncher\.cs|ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.ExtensionLab\.js|ShipGlows\.ObsidianLab\.js|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-environment-provider\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
 rg -n 'cli/install-turso-cloud\\?\.sh|cli/install-turso-cloud\.sh' "$BOOTSTRAP"
-rg -n '\$entries\.Count -ne 31|shipglows-version\.json' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 37|shipglows-version\.json' "$BOOTSTRAP"
 rg -n 'InstallSurface.*corpus|SHIPGLOWS_INSTALL_COMPONENTS|Install-SgDeveloperCheckout|Enable-SgWindowsDeveloperChannel' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|preparation\.py|cli/environment/.*shipglows_environment' "$BOOTSTRAP"

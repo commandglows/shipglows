@@ -33,6 +33,9 @@ Route skill/workflow selection to `000-shipglows`, active-work continuation to `
 
 ## Runtime-Adaptive Retrieval
 
+For runtime-dependent context, use the selected surface and fresh registry
+status from `agent-runtime-awareness.md`; missing evidence stays unknown.
+
 Inspect directly exposed tools and the host's deferred/searchable tool catalog
 before classifying current-turn capabilities; configuration alone is not
 availability, and absence from the first visible list is not non-availability.

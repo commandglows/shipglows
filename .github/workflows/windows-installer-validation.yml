@@ -113,28 +113,13 @@ jobs:
         shell: bash
         run: bash tests/windows/devserver-contract.sh
 
-      - name: Exercise selective archive extraction
+      - name: Exercise exact-revision local and full archive extraction
         if: steps.impact.outputs.windows_changed == 'true'
         shell: powershell
-        env:
-          SHIPGLOWS_TEST_REF: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $target = Join-Path $env:RUNNER_TEMP ("shipglows-bootstrap-test-" + [guid]::NewGuid().ToString('N'))
-          try {
-            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-shipglows.ps1 -Branch $env:SHIPGLOWS_TEST_REF -ShipglowsDir $target -DownloadOnly
-            if ($LASTEXITCODE -ne 0) {
-              throw "Windows bootstrap exited with code $LASTEXITCODE"
-            }
-            $installed = Join-Path $target 'local\install_local.ps1'
-            if (Test-Path -LiteralPath $installed) {
-              throw "Download-only validation unexpectedly installed: $installed"
-            }
-          } finally {
-            if (Test-Path -LiteralPath $target) {
-              Remove-Item -LiteralPath $target -Force -Recurse -ErrorAction SilentlyContinue
-            }
-          }
+        # The repository is private: anonymous archive downloads do not prove
+        # packaging. Export the exact checked-out SHA and verify both inventories.
+        # Network-download and live-install proof remain separate obligations.
+        run: ./tests/windows/bootstrap-archive.ps1
 
       - name: Prove failure propagation when requested
         if: github.event_name == 'workflow_dispatch' && inputs.force_failure

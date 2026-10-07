@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-08-11"
+updated: "2026-10-07"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -22,9 +22,12 @@ linked_systems:
   - skills/references/identity-provider-selection.md
   - skills/references/backend-data-provider-selection.md
   - skills/references/cross-platform-runtime-selection.md
+  - skills/references/browser-extension-lab.md
+  - skills/references/obsidian-plugin-workflow.md
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-10-07: selectively recovered the 2026-09-03 extension and Obsidian presets from dev; Windows runtime capabilities and historical validation are not imported."
   - "Existing ShipGlows Auth SDK Policy: apps use Flutter, sites use Astro, backend/data uses Convex, scripts/jobs/tools use Python, and auth is mostly Clerk."
   - "Operator correction 2026-07-17: public/SEO sites habitually use Astro and application surfaces use Flutter."
   - "Operator decision 2026-07-16: Vercel is the default web host; the dedicated-server deployment matrix applies only when a separate server runtime is genuinely required."
@@ -33,7 +36,7 @@ evidence:
   - "Operator decision 2026-08-11: portfolio-scale free-project limits, Flutter/Windows support, server authority, and billing cliffs must be evaluated separately for identity and backend/data providers."
   - "Operator decision 2026-08-11: universal Flutter targets Web, Android, iOS, Windows, macOS, and Linux; Firebase Auth owns identity, Convex HTTP owns backend/data, and Rust is reserved for a justified native engine."
   - "Operator decision 2026-08-11: Auth0 is a strong OIDC exception but fails the many-free-products default on Linux coverage, tenant isolation, and paid-plan cost."
-next_review: "2026-09-11"
+next_review: "2026-11-07"
 next_step: "none"
 ---
 
@@ -109,6 +112,41 @@ second independently shipped extension is added later, migrate to
 contracts together.
 
 Deployment entrypoints such as Vercel build commands should be expressible from the monorepo root without relying on nested package discovery unless the project documents a durable exception.
+
+### Browser extensions
+
+- Greenfield preset: WXT, strict TypeScript, pnpm and Manifest V3.
+- Derive launch browsers from the accepted product footprint; prepare distinct
+  browser outputs without treating shared source as runtime parity.
+- Keep simple UI native. Use Vue 3 only for rich reactive UI; keep background
+  logic framework-free. React is not the default.
+- Use explicit popup, options, background and content-script entrypoints;
+  request only the permissions justified by the accepted behavior.
+- Disable WXT's automatic browser startup in the project configuration so host
+  validation retains explicit ownership of disposable profiles.
+- Use `browser-extension-lab.md` for build/host proof and
+  `webextension-api-contract.md` for API decisions. The existing source lab
+  covers scoped Chromium lifecycle diagnostics, not every supported browser.
+
+Preserve an accepted existing stack. CRXJS remains a documented exception;
+the preset alone never authorizes a migration or dependency installation.
+
+### Obsidian plugins
+
+- Greenfield preset: the official `obsidian` TypeScript API, strict TypeScript,
+  pnpm and an esbuild-compatible artifact build.
+- Support desktop and mobile by default. `isDesktopOnly: true` requires an
+  essential verified Node.js or Electron dependency with no portable API path.
+- Keep simple UI in Obsidian components, views, settings, DOM helpers and theme
+  variables. Add Vue 3 only for rich reactive views, settings or modals.
+- Mount UI inside host-owned containers and unmount it on surface close and
+  plugin unload. Commands, vault access and registration remain host-owned.
+- Use `src/main.ts` for the entry point, separate domain and host adapters, and
+  keep the build's supported manifest, JavaScript and optional style artifacts
+  explicit. Use `obsidian-plugin-workflow.md` for build, vault and host proof.
+
+These presets select architecture, not current runtime capabilities. Missing
+host-validation tooling remains a proof gap rather than an invented command.
 
 ### Supporting defaults
 

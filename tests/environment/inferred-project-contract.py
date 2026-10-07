@@ -36,7 +36,7 @@ with tempfile.TemporaryDirectory() as directory:
     targets = {item["id"]: item for item in desired["manifest"]["capabilities"]["targets"]}
     assert tools["node"]["constraint"] == ">=24.0.0 <25"
     assert tools["pnpm"]["constraint"] == "8.11.0"
-    assert "cargo" in tools and "tauri" in targets
+    assert "cargo" in tools and "tauri-windows" in targets
     flox = next(source for source in desired["sources"] if source["kind"] == "flox")
     assert flox["compatibility"] == "incompatible"
     assert "Windows" in flox["reason"]
@@ -44,8 +44,8 @@ with tempfile.TemporaryDirectory() as directory:
     plan = build_plan(desired, platform_name="windows", architecture="x86_64")
     operations = {item["capability"]["id"]: item for item in plan["operations"]}
     assert operations["cargo"]["status"] == "blocked"
-    assert "Rust" in operations["cargo"]["reason"]
-    assert operations["tauri"]["status"] == "blocked"
+    assert operations["cargo"]["reason"]
+    assert operations["tauri-windows"]["status"] == "blocked"
     assert plan["operations"]
 
     observed = observe_project(desired, platform_name="windows")

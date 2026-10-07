@@ -31,8 +31,10 @@ $sourceDir = Join-Path $ShipglowsDir 'cli\windows'
 $runtimeDir = Join-Path $ShipglowsDir 'bin'
 $environmentCli = Join-Path $ShipglowsDir 'cli\environment\shipglows_environment.py'
 $environmentSchema = Join-Path $ShipglowsDir 'cli\environment\schemas\shipglows-environment-v1.schema.json'
+$environmentProvider = Join-Path $sourceDir 'shipglows-environment-provider.ps1'
 if (-not (Test-Path -LiteralPath $environmentCli -PathType Leaf)) { throw "Missing environment control-plane command: $environmentCli" }
 if (-not (Test-Path -LiteralPath $environmentSchema -PathType Leaf)) { throw "Missing environment control-plane schema: $environmentSchema" }
+if (-not (Test-Path -LiteralPath $environmentProvider -PathType Leaf)) { throw "Missing Windows environment provider: $environmentProvider" }
 try { [void]([IO.File]::ReadAllText($environmentSchema) | ConvertFrom-Json) }
 catch { throw "Invalid environment control-plane schema: $environmentSchema" }
 $codexMcpModule = Join-Path $sourceDir 'ShipGlows.CodexMcp.psm1'
@@ -124,7 +126,7 @@ function Get-SgInstallerDiagnosticExcerpt {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
+foreach ($launcherModule in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -302,16 +304,51 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.
     Add-SgRuntimeToUserPath
 
     $shortCommand = Join-Path $runtimeDir 's.cmd'
+    $shortExecutable = Join-Path $runtimeDir 's.exe'
     $existing = Get-Command s -ErrorAction SilentlyContinue | Select-Object -First 1
     $canUseShortCommand = -not $existing
     if ($existing -and $existing.Source) {
-        try { $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortCommand) } catch { }
+        try {
+            $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -in @(
+                [IO.Path]::GetFullPath($shortCommand),
+                [IO.Path]::GetFullPath($shortExecutable)
+            )
+        } catch { }
     }
     if ($canUseShortCommand) {
         Set-Content -LiteralPath $shortCommand -Value $wrapper -Encoding ASCII
-        Write-Host 'Short command installed: s' -ForegroundColor Green
     } else {
         Write-SgInstallerWarning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
+    }
+
+    $launcherSource = Join-Path $runtimeDir 'ShipGlows.CliLauncher.cs'
+    $compiler = @(
+        (Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'),
+        (Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe')
+    ) | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+    if (-not $compiler) { throw 'The Windows .NET Framework C# compiler required for the native ShipGlows launcher is unavailable.' }
+    if (-not (Test-Path -LiteralPath $launcherSource -PathType Leaf)) { throw "Missing native ShipGlows launcher source: $launcherSource" }
+
+    $compiledLauncher = Join-Path $runtimeDir ('ShipGlows.CliLauncher.' + [guid]::NewGuid().ToString('N') + '.exe')
+    try {
+        & $compiler /nologo /target:exe /optimize+ "/out:$compiledLauncher" $launcherSource
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $compiledLauncher -PathType Leaf)) {
+            throw 'The native ShipGlows launcher did not compile.'
+        }
+
+        foreach ($nativeCommand in @('shipglows-dev.exe','sg.exe')) {
+            Copy-Item -LiteralPath $compiledLauncher -Destination (Join-Path $runtimeDir $nativeCommand) -Force
+        }
+        if ($canUseShortCommand) {
+            try {
+                Copy-Item -LiteralPath $compiledLauncher -Destination $shortExecutable -Force
+                Write-Host 'Native short commands installed: s, sg' -ForegroundColor Green
+            } catch [IO.IOException] {
+                Write-SgInstallerWarning "The running s.exe launcher is locked. Run 'shipglows update runtime' outside s to refresh the native launcher."
+            }
+        }
+    } finally {
+        Remove-Item -LiteralPath $compiledLauncher -Force -ErrorAction SilentlyContinue
     }
 
     $shipglowsCommand = Join-Path $runtimeDir 'shipglows.cmd'
@@ -396,10 +433,20 @@ function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName
     }
     if (-not $target) { return $false }
 
+    $nodeRustActivation = if ($Name -in @('npm','npx','corepack','pnpm')) { @'
+@if exist "%~dp0cargo.cmd" if exist "%USERPROFILE%\.cargo\bin\cargo.exe" (
+  @set "RUSTUP_TOOLCHAIN=1.97.1"
+  @set "CARGO=%USERPROFILE%\.cargo\bin\cargo.exe"
+  @set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
+)
+'@ } else { '' }
     $wrapper = @"
 @echo off
+@setlocal DisableDelayedExpansion
+$nodeRustActivation
 @call "$target" %*
-@exit /b %ERRORLEVEL%
+@set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"
+@endlocal & exit /b %SHIPGLOWS_EXIT_CODE%
 # cmd-shim-target=$target
 "@
     Set-Content -LiteralPath $wrapperPath -Value $wrapper -Encoding ASCII
@@ -749,7 +796,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
 }
 
 function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$EnvironmentDirectory) {
-    $pythonFiles = @('__init__.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
+    $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','versions.py','windows_tauri_backend.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
     # Windows PowerShell 5.1 removes embedded double quotes while rebuilding a
     # native argv. Python accepts single-quoted literals, which survive that
     # boundary and keep the -c program intact.
@@ -1401,28 +1448,6 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     return $diagnostic
 }
 
-function Resolve-SgTrustedMisePath {
-    $packageRoot = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages\jdx.mise_Microsoft.Winget.Source_8wekyb3d8bbwe'
-    $allowedRoot = [IO.Path]::GetFullPath($packageRoot).TrimEnd('\') + '\'
-    $candidates = New-Object Collections.Generic.List[string]
-    $command = Get-Command mise.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($command -and $command.Source) { $candidates.Add([string]$command.Source) }
-    if (Test-Path -LiteralPath $packageRoot -PathType Container) {
-        foreach ($item in @(Get-ChildItem -LiteralPath $packageRoot -Recurse -Filter mise.exe -File -ErrorAction SilentlyContinue)) { $candidates.Add($item.FullName) }
-    }
-    foreach ($candidate in @($candidates | Select-Object -Unique)) {
-        try {
-            $full = [IO.Path]::GetFullPath($candidate)
-            if (-not $full.StartsWith($allowedRoot,[StringComparison]::OrdinalIgnoreCase)) { continue }
-            $item = Get-Item -LiteralPath $full -Force
-            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
-            $check = Invoke-SgBoundedProcess $full @('--version') 30
-            if (Test-SgMiseVersionResult $check) { return $full }
-        } catch { }
-    }
-    return ''
-}
-
 function Install-SgOfficialMise {
     $mise = Resolve-SgTrustedMisePath
     if ($mise) { return $mise }
@@ -1444,25 +1469,22 @@ function Install-SgOfficialMiseForTauri { return Install-SgOfficialMise }
 
 function Invoke-SgManagedTauriMise {
     param([string]$MisePath, [string]$ToolchainRoot, [string[]]$Arguments, [int]$TimeoutSeconds = 120, [switch]$Visible, [string]$OperationId = 'tool.rust.tauri', [string]$Label = 'Installing the validated Rust toolchain')
-    $names = @('MISE_SAFE','MISE_NO_HOOKS','MISE_NO_ENV','MISE_AUTO_INSTALL','MISE_EXEC_AUTO_INSTALL','MISE_NOT_FOUND_AUTO_INSTALL','MISE_RUN_AUTO_INSTALL','MISE_OVERRIDE_CONFIG_FILENAMES','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES','MISE_CONFIG_DIR','MISE_CEILING_PATHS','MISE_SYSTEM_DEPS')
-    $previous = @{}; foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
-    try {
-        $emptyConfig = Join-Path $ToolchainRoot '.shipglows-no-user-mise-config'; New-Item -ItemType Directory -Path $emptyConfig -Force | Out-Null
-        $env:MISE_SAFE='1'; $env:MISE_NO_HOOKS='1'; $env:MISE_NO_ENV='1'; $env:MISE_AUTO_INSTALL='false'; $env:MISE_EXEC_AUTO_INSTALL='false'; $env:MISE_NOT_FOUND_AUTO_INSTALL='false'; $env:MISE_RUN_AUTO_INSTALL='false'; $env:MISE_OVERRIDE_CONFIG_FILENAMES='mise.toml'; $env:MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES='none'; $env:MISE_CONFIG_DIR=$emptyConfig; $env:MISE_CEILING_PATHS=(Split-Path $ToolchainRoot -Parent); $env:MISE_SYSTEM_DEPS='ignore'
-        Push-Location $ToolchainRoot
-        try {
-            if ($Visible) { return Invoke-SgVisibleBoundedProcess -OperationId $OperationId -Label $Label -File $MisePath -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
-            return Invoke-SgBoundedProcess $MisePath $Arguments $TimeoutSeconds
-        } finally { Pop-Location }
-    } finally { foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')} }
+    $runner = if($Visible){
+        $visibleRunner = { param($file,$arguments,$timeout) Invoke-SgVisibleBoundedProcess -OperationId $OperationId -Label $Label -File $file -Arguments $arguments -TimeoutSeconds $timeout }.GetNewClosure()
+        $visibleRunner
+    }else{
+        { param($file,$arguments,$timeout) Invoke-SgBoundedProcess $file $arguments $timeout }
+    }
+    return Invoke-SgIsolatedTauriMise -MisePath $MisePath -ToolchainRoot $ToolchainRoot -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds -Runner $runner
 }
 
 function Test-SgTauriRustToolchain {
     param([string]$MisePath, [string]$ToolchainRoot, $Baseline = (Get-SgTauriAndroidBaseline))
     if (-not $MisePath -or -not (Test-Path -LiteralPath (Join-Path $ToolchainRoot 'mise.toml') -PathType Leaf)) { return $false }
-    $rust = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','rustc','--version') 60
-    $cargo = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','cargo','--version') 60
-    $targets = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','rustup','target','list','--installed') 60
+    $coordinate="rust@$($Baseline.RustToolchainVersion)"
+    $rust = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustc','--version') 60
+    $cargo = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','cargo','--version') 60
+    $targets = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustup','target','list','--installed') 60
     if ($rust.TimedOut -or $rust.ExitCode -ne 0 -or $rust.Output -notmatch "(?m)^rustc $([regex]::Escape([string]$Baseline.RustToolchainVersion))\b" -or $cargo.TimedOut -or $cargo.ExitCode -ne 0) { return $false }
     return @($Baseline.RustTargets | Where-Object { $targets.Output -notmatch "(?m)^$([regex]::Escape([string]$_))\r?$" }).Count -eq 0
 }
@@ -1497,7 +1519,7 @@ function Install-SgTauriAndroidToolchain {
                 $temporary = "$configPath.tmp-$([guid]::NewGuid().ToString('N'))"
                 [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
             }
-            $install = Invoke-SgManagedTauriMise $mise $root @('install','rust') 1800 -Visible
+            $install = Invoke-SgManagedTauriMise $mise $root @('install',"rust@$($baseline.RustToolchainVersion)") 1800 -Visible
             if ($install.TimedOut -or $install.ExitCode -ne 0) { Write-SgInstallerWarning 'Validated Tauri Rust installation failed or timed out.' }
             $targetAdd = Invoke-SgManagedTauriMise $mise $root (Get-SgTauriRustTargetAddArguments -Baseline $baseline) 1800 -Visible -OperationId 'tool.rust-targets.tauri' -Label 'Installing the validated Rust Android targets'
             if (-not (Test-SgTauriRustTargetAddResult $targetAdd)) { Write-SgInstallerWarning 'Validated Tauri Rust Android target installation failed or timed out.' }
@@ -1855,11 +1877,11 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
                 $temporary = "$configPath.tmp-$([guid]::NewGuid().ToString('N'))"
                 [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
             }
+            $locked = Invoke-SgManagedTauriMise $mise $root @('lock','--platform','windows-x64') 300 -OperationId 'tool.machine-toolbox.lock' -Label 'Locking the ShipGlows machine CLI toolbox'
+            if ($locked.TimedOut -or $locked.ExitCode -ne 0) { Write-SgInstallerWarning "Machine CLI toolbox lockfile refresh failed or timed out (exit=$($locked.ExitCode)); exact config pins remain active." }
             $installed = Invoke-SgManagedTauriMise $mise $root @('install') 1800 -Visible -OperationId 'tool.machine-toolbox' -Label 'Installing the ShipGlows machine CLI toolbox'
             $toolboxInstalled = -not $installed.TimedOut -and $installed.ExitCode -eq 0
             if (-not $toolboxInstalled) { Write-SgInstallerWarning "Machine CLI toolbox installation failed or timed out (exit=$($installed.ExitCode)); each CLI will be converged independently." }
-            $locked = Invoke-SgManagedTauriMise $mise $root @('lock','--platform','windows-x64') 300 -OperationId 'tool.machine-toolbox.lock' -Label 'Locking the ShipGlows machine CLI toolbox'
-            if ($locked.TimedOut -or $locked.ExitCode -ne 0) { Write-SgInstallerWarning "Machine CLI toolbox lockfile refresh failed or timed out (exit=$($locked.ExitCode)); exact config pins remain active." }
             foreach ($item in $plan) {
                 $wrapper = Join-Path $runtimeDir "$($item.Command).cmd"
                 $content = Get-SgMachineToolboxWrapperContent -MisePath $mise -ToolboxRoot $root -Command $item.Command

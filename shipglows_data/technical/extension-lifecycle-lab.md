@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-09-05"
+updated: "2026-10-06"
 status: active
 source_skill: 900-shipglows-core
 scope: extension-lifecycle-lab
@@ -17,6 +17,7 @@ linked_systems:
   - tools/extension_lab.mjs
   - tools/test_extension_lab.mjs
   - skills/108-sg-browser/references/browser-proof-playbook.md
+  - skills/references/webextension-api-contract.md
 next_review: "2026-10-05"
 depends_on: []
 supersedes: []
@@ -36,6 +37,11 @@ This is a source tool, not an installed `s extension-lab` or `s extension-inspec
 command. It does not install dependencies, launch a DevServer, or use Chrome's
 personal profile. Node and Playwright with its full bundled Chromium must already
 be available. Firefox and MV2 are outside this tool's scope.
+
+API selection and behavioral proof are governed by
+`skills/references/webextension-api-contract.md`. This lab provides scoped
+Chromium lifecycle evidence; it does not prove cross-browser compatibility or
+the behavior of an API that the product scenario does not exercise.
 
 ## Run an extension
 
