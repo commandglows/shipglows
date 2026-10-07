@@ -2684,8 +2684,8 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
             $sync = Sync-SgObsidianPluginArtifacts $obsidianDescriptor $obsidianVault.VaultPath
             $entryData.surfaceState = 'ready'
             $entryData.validationState = 'validation-unavailable'
-            $entryData.obsidianPluginPath = [string]$sync.TargetPath
-            $entryData.obsidianArtifactPaths = @($readiness.ArtifactPaths)
+            $entryData | Add-Member -NotePropertyName obsidianPluginPath -NotePropertyValue ([string]$sync.TargetPath) -Force
+            $entryData | Add-Member -NotePropertyName obsidianArtifactPaths -NotePropertyValue @($readiness.ArtifactPaths) -Force
         }
         if($kind-eq'flutter-web'){$entryData.flutterStartupState='running'}
         $entryData.flutterAppId = $readiness.AppId
