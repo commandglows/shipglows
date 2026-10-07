@@ -262,7 +262,8 @@ function Get-SgRuntimeUpdateOperation {
         if (-not (Test-SgManagedRelativePath $relative)) { return 'repair' }
         $target = Join-Path $RuntimeRoot $relative.Replace('/','\')
         if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { return 'repair' }
-        if ($generated -notcontains $relative -and $relative -ne $generatedHashState) {
+        if ($relative -eq $generatedHashState) { continue }
+        if ($generated -notcontains $relative) {
             $source = Join-Path $PayloadRoot $relative.Replace('/','\')
             if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { return 'repair' }
             if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -cne (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash) { return 'repair' }
