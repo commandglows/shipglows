@@ -17,7 +17,7 @@ Process role: `lifecycle`.
 
 ## Mode Detection
 
-No mode or `mode=standard` selects `standard` and makes no excellence claim: verify métier correctness, contract, proof, risk, and ship readiness. `mode=excellence` or an unambiguous natural-language request selects `excellence`: run standard, then a fresh second pass. conflicting/unknown `mode=` values or unreliable scope stop as `not verified` or `blocked`; do not guess.
+No mode or `mode=standard` selects `standard` and makes no excellence claim. `mode=excellence` or an unambiguous natural-language request selects `excellence`: standard, then a fresh second pass. conflicting/unknown `mode=` values or unreliable scope stop as `not verified` or `blocked`; never guess.
 
 ```text
 standard: Is this work proven enough to move forward, and who owns missing proof?
@@ -35,7 +35,7 @@ excellence: Once readiness passes, what material quality gap remains, and who ow
 
 ## Progressive Verification Packs
 
-For central identity/consent/access integration, load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md`. For actual Auth0 integration proof, load `$SHIPGLOWS_ROOT/skills/references/auth0-integration-playbook.md` directly. Email-work-routing selects Postmark/newsletter proof only for those surfaces; an unrelated auth or email-address field does not load the integration pack.
+Central identity/consent/access proof loads `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md`; actual Auth0 proof loads `$SHIPGLOWS_ROOT/skills/references/auth0-integration-playbook.md`. Email-work-routing selects Postmark/newsletter proof only for those surfaces, never unrelated auth/email fields.
 
 Local leaves never chain. `references/verification-gates.md` is only a compatibility index.
 
@@ -77,9 +77,9 @@ Report `not verified` or `blocked` when scope/contract is unreliable; a high/cri
 
 ## Chantier And Reporting
 
-For one unique spec, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, read history/flow, append the current mode/result without rewriting earlier rows, and update flow. Never rewrite or erase an earlier `verified` row when a later excellence pass opens bounded follow-up. Without one unique spec, do not write a spec; use `(local)`.
+For one unique spec, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, read history/flow, append mode/result and update flow. Never rewrite or erase an earlier `verified` row for later excellence bounded follow-up. Without one unique spec, use `(local)`; write no spec.
 
-Before the final report load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`; failures also load `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md`. Default to concise findings-first `report=user`; use `report=agent` for handoff, blocked, or explicit detail. Make focus, verdict, evidence limits, and concrete owner routes visible.
+Final reports load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`; failures also load `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md`. Use findings-first `report=user`; `report=agent` needs explicit detail/handoff. Show focus, verdict, proof limits and owner routes.
 
 ## Validation
 
