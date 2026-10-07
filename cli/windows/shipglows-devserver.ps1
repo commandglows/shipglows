@@ -9,6 +9,14 @@ param(
     [switch]$Offline,
     [string]$RepositoryUrl = '',
     [int]$Port = 0,
+    [switch]$Json,
+    [switch]$Headless,
+    [string]$TargetUrl = '',
+    [string]$Browser = 'Chromium',
+    [string]$InteractionCommand = '',
+    [string]$ClickSelector = '',
+    [string]$VisualSelector = '',
+    [switch]$Screenshot,
     [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
     [string]$FlutterDeviceId = ''
 )
@@ -103,6 +111,9 @@ function Show-SgShortcutHelp {
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
     Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>]'
+    Write-Host '  s extension-inspect [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Json]'
+    Write-Host '  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
+    Write-Host '  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s reload -ProjectPath <path>      Hot reload an attached managed Flutter session'
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
     Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
@@ -128,7 +139,8 @@ function Show-SgShortcutHelp {
     Write-Host '  Flutter app      Start live (Windows by default when supported) -> Develop/reload -> Stop'
     Write-Host '                   .shipglows.env can explicitly select windows, android, chrome, or web-server.' -ForegroundColor DarkGray
     Write-Host '  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop'
-    Write-Host '  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.' -ForegroundColor DarkGray
+    Write-Host '  Managed WXT/CRXJS projects use their declared development contract; build scripts are never run implicitly.' -ForegroundColor DarkGray
+    Write-Host '  Obsidian plugins require one declared vault and keep live host loading as a separate proof.' -ForegroundColor DarkGray
     Write-Host ''
     Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
 }
@@ -171,7 +183,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -990,6 +1002,21 @@ try {
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject $entry } }
+        'extension-inspect' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            $descriptor = Get-SgBrowserExtensionDescriptor $path $Browser
+            if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $path" }
+            if ($Json) { $descriptor | ConvertTo-Json -Depth 4 -Compress }
+            else { Write-SgInfo "$($descriptor.Name) | $($descriptor.Mode) | Manifest V$($descriptor.ManifestVersion) | $($descriptor.RelativeManifestPath)" }
+        }
+        'extension-lab' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl -Screenshot:$Screenshot -Browser $Browser -ClickSelector $ClickSelector -VisualSelector $VisualSelector -Config $config
+        }
+        'obsidian-lab' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            [void](Invoke-SgObsidianPluginLab $config $path -Headless:$Headless -Json:$Json -InteractionCommand $InteractionCommand -Screenshot:$Screenshot -ClickSelector $ClickSelector -VisualSelector $VisualSelector)
+        }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         'select-stop' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
