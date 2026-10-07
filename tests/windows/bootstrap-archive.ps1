@@ -30,7 +30,7 @@ try {
         $destination = Join-Path $fixture $(if ($fullMode) { 'full' } else { 'local' })
         New-Item -ItemType Directory -Path $destination | Out-Null
         $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $destination -FullMode $fullMode)
-        $expectedCount = if ($fullMode) { 31 } else { 2 }
+        $expectedCount = if ($fullMode) { 38 } else { 2 }
         if ($entries.Count -ne $expectedCount) { throw "Unexpected extraction inventory: $($entries.Count), expected $expectedCount." }
         $files = @(Get-ChildItem -LiteralPath $destination -Recurse -File)
         if ($files.Count -ne $entries.Count) { throw 'Extraction wrote files outside its returned inventory.' }
