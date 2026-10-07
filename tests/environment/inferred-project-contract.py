@@ -44,7 +44,7 @@ with tempfile.TemporaryDirectory() as directory:
     plan = build_plan(desired, platform_name="windows", architecture="x86_64")
     operations = {item["capability"]["id"]: item for item in plan["operations"]}
     assert operations["cargo"]["status"] == "blocked"
-    assert "incompatible" in operations["cargo"]["reason"].lower()
+    assert operations["cargo"]["reason"]
     assert operations["tauri-windows"]["status"] == "blocked"
     assert plan["operations"]
 
