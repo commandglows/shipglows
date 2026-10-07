@@ -74,7 +74,7 @@ Status surfaces render `development` as `Dev` and both live postures as `Live`. 
 - `delivery_posture` answers how mature and operationally sensitive the product is.
 - `development_mode` from `project-development-mode.md` answers where changed behavior can be validated authoritatively.
 - `provider_state` answers what Git, process, URL, and hosting configuration has actually been observed and belongs in operational evidence surfaces, not in business posture.
-- Repository frontmatter fields `task_branch_policy` and `worktree_policy`, read by `tools/project_git_policy.py`, govern temporary branch and worktree creation independently. Missing or invalid values resolve to `forbidden`; when policy forbids creation, ShipGlows does not create silently. `allowed` is permission, never a requirement or preference. Existing branch or worktree artifacts remain governed by the applicable Git safety rules.
+- Repository frontmatter fields `task_branch_policy` and `worktree_policy`, read by `tools/project_git_policy.py`, govern temporary branch and worktree creation independently. Missing or invalid values resolve to `forbidden`; when policy forbids creation, ShipGlows does not create silently. `allowed` is permission, never a requirement or preference. Existing branch and worktree artifacts remain governed by the applicable Git safety rules.
 
 One axis never overrides another. A local validation surface does not waive remote persistence. A successful push does not prove preview, staging, deployment, or production behavior. A detected provider does not authorize Git, non-Git environment, or deployment changes.
 
