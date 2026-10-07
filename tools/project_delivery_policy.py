@@ -88,6 +88,12 @@ def _canonical_scalar(frontmatter: str, name: str) -> tuple[str | None, str | No
     return value, None
 
 
+def _field(frontmatter: str, name: str) -> str | None:
+    """Read an optional launch-protection field conservatively."""
+    value, issue = _canonical_scalar(frontmatter, name)
+    return None if issue else value
+
+
 def inspect_project(project: Path) -> DeliveryPolicy:
     root = project.resolve()
     source = root / CANONICAL_RELATIVE
