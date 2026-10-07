@@ -65,7 +65,7 @@ foreach ($value in @($tauriBaseline.RustToolchainVersion,$tauriBaseline.TauriCli
     Assert-Sg (-not [string]::IsNullOrWhiteSpace([string]$value) -and [string]$value -notmatch '(?i)latest|stable|nightly|beta|[x*^~<>]') 'Tauri Android baseline must contain exact validated coordinates only.'
 }
 $targetAddArguments = @(Get-SgTauriRustTargetAddArguments -Baseline $tauriBaseline)
-Assert-Sg (($targetAddArguments -join "`0") -ceq ((@('exec','--','rustup','target','add') + @($tauriBaseline.RustTargets)) -join "`0")) 'Tauri Rust Android targets must use exact argv without a shell command string.'
+Assert-Sg (($targetAddArguments -join "`0") -ceq ((@('exec',"rust@$($tauriBaseline.RustToolchainVersion)",'--','rustup','target','add') + @($tauriBaseline.RustTargets)) -join "`0")) 'Tauri Rust Android targets must use exact argv pinned to the declared Rust toolchain without a shell command string.'
 Assert-Sg (Test-SgTauriRustTargetAddResult ([pscustomobject]@{ExitCode=0;Output='info: component rust-std is up to date';TimedOut=$false})) 'Successful bounded rustup target add must converge.'
 Assert-Sg (-not (Test-SgTauriRustTargetAddResult ([pscustomobject]@{ExitCode=1;Output='target unavailable';TimedOut=$false}))) 'Failed rustup target add must remain pending.'
 Assert-Sg (-not (Test-SgTauriRustTargetAddResult ([pscustomobject]@{ExitCode=0;Output='';TimedOut=$true}))) 'Timed-out rustup target add must remain pending.'
