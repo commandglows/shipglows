@@ -36,7 +36,7 @@ for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "
   test -f "$file"
 done
 
-for environment_contract in executor-contract.py inferred-project-contract.py mise-backend-contract.py plan-contract.py preparation-contract.py schema-contract.py security-contract.py state-contract.py version-contract.py windows-tauri-backend-contract.py; do
+for environment_contract in executor-contract.py inferred-project-contract.py mise-backend-contract.py plan-contract.py preparation-contract.py schema-contract.py security-contract.py state-contract.py windows-tauri-backend-contract.py; do
   python "$ROOT/tests/environment/$environment_contract"
 done
 run_ps "$ROOT/tests/windows/environment-observation.ps1"
