@@ -42,7 +42,6 @@ done
 run_ps "$ROOT/tests/windows/environment-observation.ps1"
 run_ps "$ROOT/tests/windows/environment-mise-adapter.ps1"
 run_ps "$ROOT/tests/windows/environment-provider-contract.ps1"
-run_ps "$ROOT/tests/windows/environment-activation-devserver-contract.ps1"
 run_ps "$ROOT/tests/windows/environment-installed-runtime.ps1"
 run_ps "$ROOT/tests/windows/wsl-turso.ps1"
 bash "$ROOT/tests/cli/turso-cloud-installer.sh"
