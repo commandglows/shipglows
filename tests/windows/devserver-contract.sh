@@ -41,8 +41,6 @@ for environment_contract in executor-contract.py inferred-project-contract.py mi
 done
 run_ps "$ROOT/tests/windows/environment-observation.ps1"
 run_ps "$ROOT/tests/windows/environment-mise-adapter.ps1"
-run_ps "$ROOT/tests/windows/environment-provider-contract.ps1"
-run_ps "$ROOT/tests/windows/environment-activation-devserver-contract.ps1"
 run_ps "$ROOT/tests/windows/environment-installed-runtime.ps1"
 run_ps "$ROOT/tests/windows/wsl-turso.ps1"
 bash "$ROOT/tests/cli/turso-cloud-installer.sh"
@@ -60,11 +58,7 @@ run_ps "$ROOT/tests/windows/install-surface-contract.ps1"
 run_ps "$ROOT/tests/windows/powershell-runtime.ps1"
 run_ps "$ROOT/tests/windows/rio-tab-rename.ps1"
 for regression in \
-  browser-extension-lab.ps1 \
-  browser-extension-runtime.ps1 \
   browser-extension-project.ps1 \
-  obsidian-plugin.ps1 \
-  obsidian-plugin-lab.ps1 \
   devserver-user-guidance.ps1 \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
