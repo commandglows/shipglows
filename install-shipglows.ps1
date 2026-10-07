@@ -242,6 +242,7 @@ function Get-SgRuntimeUpdateOperation {
         [string]$PayloadRoot,
         [string[]]$ManagedRelativePaths,
         [string[]]$ActionGeneratedRelativePaths = @(),
+        [string]$GeneratedHashStateRelativePath = '',
         [string]$SourceCommit
     )
     if (-not (Test-Path -LiteralPath $RuntimeRoot -PathType Container)) { return 'install' }
@@ -252,6 +253,8 @@ function Get-SgRuntimeUpdateOperation {
     if ([string]$state.sourceCommit -cne $SourceCommit) { return 'update' }
     $managed = @($ManagedRelativePaths | ForEach-Object { $_.Replace('\','/') } | Sort-Object -Unique)
     $generated = @($ActionGeneratedRelativePaths | ForEach-Object { $_.Replace('\','/') } | Sort-Object -Unique)
+    $generatedHashState = $GeneratedHashStateRelativePath.Replace('\','/')
+    if ($generatedHashState -and (-not (Test-SgManagedRelativePath $generatedHashState) -or $managed -notcontains $generatedHashState -or $generated -contains $generatedHashState)) { return 'repair' }
     foreach ($relative in $generated) {
         if (-not (Test-SgManagedRelativePath $relative) -or $managed -notcontains $relative) { return 'repair' }
     }
@@ -259,10 +262,18 @@ function Get-SgRuntimeUpdateOperation {
         if (-not (Test-SgManagedRelativePath $relative)) { return 'repair' }
         $target = Join-Path $RuntimeRoot $relative.Replace('/','\')
         if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { return 'repair' }
-        if ($generated -notcontains $relative) {
+        if ($generated -notcontains $relative -and $relative -ne $generatedHashState) {
             $source = Join-Path $PayloadRoot $relative.Replace('/','\')
             if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { return 'repair' }
             if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -cne (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash) { return 'repair' }
+        } else {
+            $expectedHash = $null
+            $generatedHashesProperty = $state.PSObject.Properties['actionGeneratedHashes']
+            if ($generatedHashesProperty -and $generatedHashesProperty.Value) {
+                $hashProperty = $generatedHashesProperty.Value.PSObject.Properties[$relative]
+                if ($hashProperty) { $expectedHash = [string]$hashProperty.Value }
+            }
+            if ($expectedHash -notmatch '^[A-Fa-f0-9]{64}$' -or (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -cne $expectedHash) { return 'repair' }
         }
     }
     return 'no-op'
@@ -274,6 +285,7 @@ function Invoke-SgRuntimePayloadTransaction {
         [Parameter(Mandatory=$true)][string]$RuntimeRoot,
         [Parameter(Mandatory=$true)][string[]]$ManagedRelativePaths,
         [string[]]$ActionGeneratedRelativePaths = @(),
+        [string]$GeneratedHashStateRelativePath = '',
         [string]$ManagedManifestName = '.shipglows-runtime-files.json',
         [Parameter(Mandatory=$true)][scriptblock]$Action
     )
@@ -357,6 +369,25 @@ function Invoke-SgRuntimePayloadTransaction {
         foreach ($relative in $generated) {
             $target = Join-Path $runtimeFull $relative.Replace('/','\')
             if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "Action-generated runtime file is missing: $relative" }
+        }
+        if ($generated.Count -and $GeneratedHashStateRelativePath) {
+            $stateRelative = $GeneratedHashStateRelativePath.Replace('\','/')
+            if (-not (Test-SgManagedRelativePath $stateRelative) -or $managed -notcontains $stateRelative -or $generated -contains $stateRelative) { throw 'Generated-file hash state path must be a distinct managed runtime file.' }
+            $stateFile = Join-Path $runtimeFull $stateRelative.Replace('/','\')
+            if (-not (Test-Path -LiteralPath $stateFile -PathType Leaf)) { throw "Generated-file hash state is missing: $stateRelative" }
+            try { $installState = [IO.File]::ReadAllText($stateFile) | ConvertFrom-Json }
+            catch { throw 'Generated-file hash state is invalid after runtime activation.' }
+            $generatedHashes = [ordered]@{}
+            foreach ($relative in $generated) {
+                $target = Join-Path $runtimeFull $relative.Replace('/','\')
+                $generatedHashes[$relative] = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
+            }
+            if ($installState.PSObject.Properties['actionGeneratedHashes']) {
+                $installState.actionGeneratedHashes = $generatedHashes
+            } else {
+                $installState | Add-Member -NotePropertyName actionGeneratedHashes -NotePropertyValue $generatedHashes
+            }
+            [IO.File]::WriteAllText($stateFile,($installState | ConvertTo-Json -Compress -Depth 8),[Text.UTF8Encoding]::new($false))
         }
         $manifestContent = $managed | ConvertTo-Json -Compress
         if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf) -or [IO.File]::ReadAllText($manifestPath) -cne $manifestContent) {
@@ -482,11 +513,11 @@ try {
     $installState = [ordered]@{ schemaVersion=1; sourceCommit=$source.Commit; version=[string]$versionDocument.version; installMode=$InstallMode; installSurface=$InstallSurface }
     [IO.File]::WriteAllText((Join-Path $payloadRoot '.shipglows-install.json'),($installState | ConvertTo-Json -Compress),[Text.UTF8Encoding]::new($false))
     $managedRelativePaths = @($managedRelativePaths) + @('.shipglows-install.json')
-    $runtimeOperation = Get-SgRuntimeUpdateOperation -RuntimeRoot $ShipglowsDir -PayloadRoot $payloadRoot -ManagedRelativePaths $managedRelativePaths -ActionGeneratedRelativePaths $actionGeneratedRelativePaths -SourceCommit $source.Commit
+    $runtimeOperation = Get-SgRuntimeUpdateOperation -RuntimeRoot $ShipglowsDir -PayloadRoot $payloadRoot -ManagedRelativePaths $managedRelativePaths -ActionGeneratedRelativePaths $actionGeneratedRelativePaths -GeneratedHashStateRelativePath '.shipglows-install.json' -SourceCommit $source.Commit
     Write-Info "Source commit: $($source.Commit)"
     Write-Info "Runtime operation: $runtimeOperation"
     if ($DownloadOnly) { Write-Info 'Download-only validation completed without changing the installed runtime.'; exit 0 }
-    Invoke-SgRuntimePayloadTransaction -PayloadRoot $payloadRoot -RuntimeRoot $ShipglowsDir -ManagedRelativePaths $managedRelativePaths -ActionGeneratedRelativePaths $actionGeneratedRelativePaths -ManagedManifestName ".shipglows-runtime-files.$InstallMode.json" -Action {
+    Invoke-SgRuntimePayloadTransaction -PayloadRoot $payloadRoot -RuntimeRoot $ShipglowsDir -ManagedRelativePaths $managedRelativePaths -ActionGeneratedRelativePaths $actionGeneratedRelativePaths -GeneratedHashStateRelativePath '.shipglows-install.json' -ManagedManifestName ".shipglows-runtime-files.$InstallMode.json" -Action {
         if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultRuntimeRoot) {
             $hiddenParentItem = Get-Item -LiteralPath $defaultHiddenParent -Force
             $hiddenParentItem.Attributes = $hiddenParentItem.Attributes -bor [IO.FileAttributes]::Hidden

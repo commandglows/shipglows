@@ -58,19 +58,21 @@ try {
     $generatedPayload = Join-Path $fixture 'generated-payload'
     New-Item -ItemType Directory -Path (Join-Path $generatedPayload 'cli\windows') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $generatedPayload 'cli\windows\current.ps1'),'generated-source')
-    $generatedManaged = @('cli/windows/current.ps1','bin/generated.exe')
+    [IO.File]::WriteAllText((Join-Path $generatedPayload '.shipglows-install.json'),('{"schemaVersion":1,"sourceCommit":"' + ('c' * 40) + '"}'))
+    $generatedManaged = @('cli/windows/current.ps1','.shipglows-install.json','bin/generated.exe')
     $generatedPaths = @('bin/generated.exe')
-    Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action {
+    Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -Action {
         New-Item -ItemType Directory -Path (Join-Path $generatedRuntime 'bin') -Force | Out-Null
         [IO.File]::WriteAllText((Join-Path $generatedRuntime 'bin\generated.exe'),'generated-binary')
     }
     if ([IO.File]::ReadAllText((Join-Path $generatedRuntime 'bin\generated.exe')) -cne 'generated-binary') { throw 'Transaction did not retain the action-generated file.' }
     $generatedManifestJson = [IO.File]::ReadAllText((Join-Path $generatedRuntime '.shipglows-runtime-files.json'))
     if (-not $generatedManifestJson.Contains('"bin/generated.exe"')) { throw 'Managed manifest omitted the action-generated file.' }
-    [IO.File]::WriteAllText((Join-Path $generatedRuntime '.shipglows-install.json'),('{"sourceCommit":"' + ('c' * 40) + '"}'))
-    if ((Get-SgRuntimeUpdateOperation -RuntimeRoot $generatedRuntime -PayloadRoot $generatedPayload -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -SourceCommit ('c' * 40)) -ne 'no-op') { throw 'Existing action-generated files must support no-op classification.' }
+    if ((Get-SgRuntimeUpdateOperation -RuntimeRoot $generatedRuntime -PayloadRoot $generatedPayload -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -SourceCommit ('c' * 40)) -ne 'no-op') { throw 'Existing action-generated files must support no-op classification.' }
     $generatedFirstDigest = Get-TreeDigest $generatedRuntime
-    Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action {
+    [IO.File]::WriteAllText((Join-Path $generatedRuntime 'bin\generated.exe'),'tampered-binary')
+    if ((Get-SgRuntimeUpdateOperation -RuntimeRoot $generatedRuntime -PayloadRoot $generatedPayload -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -SourceCommit ('c' * 40)) -ne 'repair') { throw 'A changed action-generated file must classify as repair.' }
+    Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -Action {
         [IO.File]::WriteAllText((Join-Path $generatedRuntime 'bin\generated.exe'),'generated-binary')
     }
     if ((Get-TreeDigest $generatedRuntime) -cne $generatedFirstDigest) { throw 'Action-generated activation is not byte-idempotent.' }
@@ -80,9 +82,8 @@ try {
     [IO.File]::WriteAllText((Join-Path $missingGeneratedRuntime 'unrelated.txt'),'preserve')
     $beforeMissingGenerated = Get-TreeDigest $missingGeneratedRuntime
     $missingGeneratedFailed = $false
-    try {
-        Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $missingGeneratedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action { }
-    } catch { $missingGeneratedFailed = $_.Exception.Message -match 'Action-generated runtime file is missing: bin/generated.exe' }
+    try { Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $missingGeneratedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -Action { } }
+    catch { $missingGeneratedFailed = $_.Exception.Message -match 'Action-generated runtime file is missing: bin/generated.exe' }
     if (-not $missingGeneratedFailed) { throw 'Missing action-generated output was not rejected.' }
     if ((Get-TreeDigest $missingGeneratedRuntime) -cne $beforeMissingGenerated) { throw 'Missing action-generated output did not restore the runtime byte-for-byte.' }
 
@@ -90,11 +91,12 @@ try {
     New-Item -ItemType Directory -Path (Join-Path $generatedFailureRuntime 'cli\windows'),(Join-Path $generatedFailureRuntime 'bin') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime 'cli\windows\current.ps1'),'old-source')
     [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime 'bin\generated.exe'),'old-binary')
+    [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime '.shipglows-install.json'),('{"schemaVersion":1,"sourceCommit":"' + ('d' * 40) + '"}'))
     [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime '.shipglows-runtime-files.json'),'["cli/windows/current.ps1","bin/generated.exe"]')
     $beforeGeneratedFailure = Get-TreeDigest $generatedFailureRuntime
     $generatedFailure = $false
     try {
-        Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedFailureRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action {
+        Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedFailureRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -Action {
             [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime 'bin\generated.exe'),'new-binary')
             throw 'failure after generation'
         }
