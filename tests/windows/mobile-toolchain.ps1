@@ -218,8 +218,9 @@ exit /b 23
     Assert-Sg ($wrapperRun.Output -match 'SAFE=1 HOOKS=1 ENV=1 AUTO=false') 'Tauri Rust wrapper did not reproduce the managed safe environment.'
     Assert-Sg ($wrapperRun.Output -match ('MISE_CONFIG_DIR=' + [regex]::Escape((Join-Path $fakeToolchain '.shipglows-no-user-mise-config')))) 'Tauri Rust wrapper did not isolate the mise config directory.'
     Assert-Sg ($wrapperRun.Output -match ('MISE_CEILING_PATHS=' + [regex]::Escape((Split-Path $fakeToolchain -Parent)))) 'Tauri Rust wrapper did not preserve the mise ceiling boundary.'
-    Assert-Sg ($wrapperRun.Output -match 'ARGS=-C .*toolchain root & safe.* exec rust@1[.]97[.]1 -- cargo "?alpha"? "space value" "amp&ersand"') 'Tauri Rust wrapper changed its pinned mise argv or forwarded argument boundaries.'
     $wrapperText = [IO.File]::ReadAllText($cargoWrapper)
+    Assert-Sg ($wrapperRun.Output -match '(?m)^ARGS=.*exec rust@1[.]97[.]1 -- cargo') 'Tauri Rust wrapper did not pass the exact pinned mise command argv.'
+    Assert-Sg ($wrapperText.Contains('exec rust@1.97.1 -- cargo %*')) 'Tauri Rust wrapper must forward child arguments through the exact command boundary.'
     foreach ($requiredWrapperSetting in @('setlocal DisableDelayedExpansion','MISE_EXEC_AUTO_INSTALL=false','MISE_NOT_FOUND_AUTO_INSTALL=false','MISE_RUN_AUTO_INSTALL=false','MISE_OVERRIDE_CONFIG_FILENAMES=mise.toml','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES=none','MISE_SYSTEM_DEPS=ignore','endlocal & exit /b')) {
         Assert-Sg ($wrapperText.Contains($requiredWrapperSetting)) "Tauri Rust wrapper omitted isolation or exit preservation: $requiredWrapperSetting"
     }
