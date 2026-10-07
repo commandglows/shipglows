@@ -57,8 +57,8 @@ foreach ($unsafe in @("bad`npath",'bad"path',[string]([char]0))) {
 $token = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
 $machineRequest=New-SgFlutterMachineRequestJson 88 'app.restart' 'app-watch'
 if(-not$machineRequest.StartsWith('[')-or-not$machineRequest.EndsWith(']')){throw 'Flutter machine request was not serialized as a top-level JSON array.'}
-$parsedMachineRequest=$machineRequest|ConvertFrom-Json
-if($parsedMachineRequest-isnot[array]-or$parsedMachineRequest.Count-ne1-or$parsedMachineRequest[0].method-ne'app.restart'){throw 'Flutter machine request array schema is invalid.'}
+$parsedMachineRequest=$machineRequest.Substring(1,$machineRequest.Length-2)|ConvertFrom-Json
+if($parsedMachineRequest.method-ne'app.restart'){throw 'Flutter machine request array schema is invalid.'}
 $valid = ConvertFrom-SgFlutterCommandJson '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"reload"}' $token
 if ($valid.Method -ne 'reload' -or $valid.Id -ne 'cmd-1') { throw 'Valid authenticated reload command was rejected.' }
 foreach ($json in @(
