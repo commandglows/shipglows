@@ -5,7 +5,11 @@ uses an injected observation only; it never launches PowerShell or installs a
 toolchain.
 """
 
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
 
 from cli.environment.windows_tauri_backend import plan_operations
 
