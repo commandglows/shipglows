@@ -36,11 +36,13 @@ for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "
   test -f "$file"
 done
 
-for environment_contract in executor-contract.py inferred-project-contract.py mise-backend-contract.py plan-contract.py preparation-contract.py schema-contract.py security-contract.py state-contract.py windows-tauri-backend-contract.py; do
+for environment_contract in executor-contract.py inferred-project-contract.py mise-backend-contract.py plan-contract.py preparation-contract.py schema-contract.py security-contract.py state-contract.py version-contract.py windows-tauri-backend-contract.py; do
   python "$ROOT/tests/environment/$environment_contract"
 done
 run_ps "$ROOT/tests/windows/environment-observation.ps1"
 run_ps "$ROOT/tests/windows/environment-mise-adapter.ps1"
+run_ps "$ROOT/tests/windows/environment-provider-contract.ps1"
+run_ps "$ROOT/tests/windows/environment-activation-devserver-contract.ps1"
 run_ps "$ROOT/tests/windows/environment-installed-runtime.ps1"
 run_ps "$ROOT/tests/windows/wsl-turso.ps1"
 bash "$ROOT/tests/cli/turso-cloud-installer.sh"
@@ -58,7 +60,11 @@ run_ps "$ROOT/tests/windows/install-surface-contract.ps1"
 run_ps "$ROOT/tests/windows/powershell-runtime.ps1"
 run_ps "$ROOT/tests/windows/rio-tab-rename.ps1"
 for regression in \
+  browser-extension-lab.ps1 \
+  browser-extension-runtime.ps1 \
   browser-extension-project.ps1 \
+  obsidian-plugin.ps1 \
+  obsidian-plugin-lab.ps1 \
   devserver-user-guidance.ps1 \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
