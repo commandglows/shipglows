@@ -113,7 +113,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Could not create the incomplete installer fixture archive.' }
     $rejected = $false
     try { [void](Extract-ShipglowsWindowsFiles -ArchivePath $incompleteArchive -DestinationPath $extract -FullMode $true) }
-    catch { $rejected = $_.Exception.Message -match 'missing the native CLI launcher, Windows DevServer.*environment control-plane, or private-data control-plane files' }
+    catch { $rejected = $_.Exception.Message -match 'The ShipGlows archive is missing' }
     if (-not $rejected) { throw 'Installer accepted an incomplete environment package archive.' }
 
     $runtime = Join-Path $tempRoot 'runtime'
