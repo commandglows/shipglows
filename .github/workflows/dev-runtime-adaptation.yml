@@ -10,6 +10,10 @@ on:
       - tools/agent_runtime_envelope.py
       - tools/test_agent_runtime_envelope.py
       - tools/test_context_quality_contract.py
+      - tools/project_delivery_policy.py
+      - tools/project_git_policy.py
+      - tools/test_project_delivery_policy_reader.py
+      - tools/test_project_git_policy.py
       - cli/windows/ShipGlows.AgentInstructions.psm1
       - tests/windows/agent-instructions.ps1
       - skills/**
@@ -39,10 +43,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Test host observation and context contracts
-        run: python -m unittest tools.test_agent_runtime_envelope tools.test_context_quality_contract tools.test_metier_first_public_skills_contract tools.test_skill_activation_budget tools.test_high_traffic_activation_profiles tools.test_103_sg_verify_compaction_contract
+        run: python -m unittest tools.test_agent_runtime_envelope tools.test_context_quality_contract tools.test_project_delivery_policy_reader tools.test_project_git_policy tools.test_metier_first_public_skills_contract tools.test_skill_activation_budget tools.test_high_traffic_activation_profiles tools.test_103_sg_verify_compaction_contract
 
       - name: Validate adapted reference metadata
-        run: python tools/shipglows_metadata_lint.py skills/references/browser-extension-lab.md skills/references/obsidian-plugin-workflow.md skills/references/preferred-stacks.md skills/103-sg-verify/references/verification-security-ui-runtime.md
+        run: python tools/shipglows_metadata_lint.py skills/references/browser-extension-lab.md skills/references/obsidian-plugin-workflow.md skills/references/project-delivery-policy.md skills/305-sg-init/references/bootstrap-entrypoint-and-dev-mode.md skills/references/preferred-stacks.md skills/103-sg-verify/references/verification-security-ui-runtime.md
 
       - name: Validate skill activation budgets and code index
         run: |

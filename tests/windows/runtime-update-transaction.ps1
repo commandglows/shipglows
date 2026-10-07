@@ -54,6 +54,64 @@ try {
     Invoke-SgRuntimePayloadTransaction -PayloadRoot $payload -RuntimeRoot $runtime -ManagedRelativePaths $managed -Action { }
     if ((Get-TreeDigest $runtime) -cne $firstDigest) { throw 'Second upgrade pass is not byte-idempotent.' }
 
+    $generatedRuntime = Join-Path $fixture 'generated-runtime'
+    $generatedPayload = Join-Path $fixture 'generated-payload'
+    New-Item -ItemType Directory -Path (Join-Path $generatedPayload 'cli\windows') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $generatedPayload 'cli\windows\current.ps1'),'generated-source')
+    $generatedManaged = @('cli/windows/current.ps1','bin/generated.exe')
+    $generatedPaths = @('bin/generated.exe')
+    Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action {
+        New-Item -ItemType Directory -Path (Join-Path $generatedRuntime 'bin') -Force | Out-Null
+        [IO.File]::WriteAllText((Join-Path $generatedRuntime 'bin\generated.exe'),'generated-binary')
+    }
+    if ([IO.File]::ReadAllText((Join-Path $generatedRuntime 'bin\generated.exe')) -cne 'generated-binary') { throw 'Transaction did not retain the action-generated file.' }
+    $generatedManifestJson = [IO.File]::ReadAllText((Join-Path $generatedRuntime '.shipglows-runtime-files.json'))
+    if (-not $generatedManifestJson.Contains('"bin/generated.exe"')) { throw 'Managed manifest omitted the action-generated file.' }
+    [IO.File]::WriteAllText((Join-Path $generatedRuntime '.shipglows-install.json'),('{"sourceCommit":"' + ('c' * 40) + '"}'))
+    if ((Get-SgRuntimeUpdateOperation -RuntimeRoot $generatedRuntime -PayloadRoot $generatedPayload -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -SourceCommit ('c' * 40)) -ne 'no-op') { throw 'Existing action-generated files must support no-op classification.' }
+    $generatedFirstDigest = Get-TreeDigest $generatedRuntime
+    Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action {
+        [IO.File]::WriteAllText((Join-Path $generatedRuntime 'bin\generated.exe'),'generated-binary')
+    }
+    if ((Get-TreeDigest $generatedRuntime) -cne $generatedFirstDigest) { throw 'Action-generated activation is not byte-idempotent.' }
+
+    $missingGeneratedRuntime = Join-Path $fixture 'missing-generated-runtime'
+    New-Item -ItemType Directory -Path $missingGeneratedRuntime -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $missingGeneratedRuntime 'unrelated.txt'),'preserve')
+    $beforeMissingGenerated = Get-TreeDigest $missingGeneratedRuntime
+    $missingGeneratedFailed = $false
+    try {
+        Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $missingGeneratedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action { }
+    } catch { $missingGeneratedFailed = $_.Exception.Message -match 'Action-generated runtime file is missing: bin/generated.exe' }
+    if (-not $missingGeneratedFailed) { throw 'Missing action-generated output was not rejected.' }
+    if ((Get-TreeDigest $missingGeneratedRuntime) -cne $beforeMissingGenerated) { throw 'Missing action-generated output did not restore the runtime byte-for-byte.' }
+
+    $generatedFailureRuntime = Join-Path $fixture 'generated-failure-runtime'
+    New-Item -ItemType Directory -Path (Join-Path $generatedFailureRuntime 'cli\windows'),(Join-Path $generatedFailureRuntime 'bin') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime 'cli\windows\current.ps1'),'old-source')
+    [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime 'bin\generated.exe'),'old-binary')
+    [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime '.shipglows-runtime-files.json'),'["cli/windows/current.ps1","bin/generated.exe"]')
+    $beforeGeneratedFailure = Get-TreeDigest $generatedFailureRuntime
+    $generatedFailure = $false
+    try {
+        Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $generatedFailureRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -Action {
+            [IO.File]::WriteAllText((Join-Path $generatedFailureRuntime 'bin\generated.exe'),'new-binary')
+            throw 'failure after generation'
+        }
+    } catch { $generatedFailure = $_.Exception.Message -match 'failure after generation' }
+    if (-not $generatedFailure) { throw 'Failure after action generation was not propagated.' }
+    if ((Get-TreeDigest $generatedFailureRuntime) -cne $beforeGeneratedFailure) { throw 'Failure after action generation did not restore the runtime byte-for-byte.' }
+
+    $missingStagedRuntime = Join-Path $fixture 'missing-staged-runtime'
+    New-Item -ItemType Directory -Path $missingStagedRuntime -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $missingStagedRuntime 'unrelated.txt'),'preserve')
+    $beforeMissingStaged = Get-TreeDigest $missingStagedRuntime
+    $missingStagedFailed = $false
+    try { Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $missingStagedRuntime -ManagedRelativePaths @('cli/windows/missing.ps1','bin/generated.exe') -ActionGeneratedRelativePaths $generatedPaths -Action { throw 'action must not run' } }
+    catch { $missingStagedFailed = $_.Exception.Message -match 'Staged runtime file is missing: cli/windows/missing.ps1' }
+    if (-not $missingStagedFailed) { throw 'Missing ordinary staged source was not rejected before mutation.' }
+    if ((Get-TreeDigest $missingStagedRuntime) -cne $beforeMissingStaged) { throw 'Missing ordinary staged source mutated the runtime.' }
+
     [IO.File]::WriteAllText((Join-Path $runtime 'unrelated.txt'),'preserve')
     $beforeFailure = Get-TreeDigest $runtime
     [IO.File]::WriteAllText((Join-Path $payload 'cli\windows\current.ps1'),'broken-new')
@@ -89,6 +147,10 @@ try {
     foreach ($unsafe in @('..\outside','C:\outside','cli/../outside','')) {
         if (Test-SgManagedRelativePath $unsafe) { throw "Unsafe managed path was accepted: $unsafe" }
     }
+    $unmanagedGeneratedFailed = $false
+    try { Invoke-SgRuntimePayloadTransaction -PayloadRoot $payload -RuntimeRoot $runtime -ManagedRelativePaths $managed -ActionGeneratedRelativePaths @('bin/unmanaged.exe') -Action { } }
+    catch { $unmanagedGeneratedFailed = $_.Exception.Message -match 'Action-generated runtime path is not managed' }
+    if (-not $unmanagedGeneratedFailed) { throw 'Unmanaged action-generated path was accepted.' }
     Write-Host 'Windows runtime update transaction: OK' -ForegroundColor Green
 } finally {
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }

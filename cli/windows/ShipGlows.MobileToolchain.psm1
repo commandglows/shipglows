@@ -815,10 +815,11 @@ function Get-SgTauriRustWrapperContent {
     param(
         [Parameter(Mandatory=$true)][string]$MisePath,
         [Parameter(Mandatory=$true)][string]$ToolchainRoot,
-        [ValidateSet('cargo','rustc','rustup')][string]$Command
+        [ValidateSet('cargo','rustc','rustup')][string]$Command,
+        [string]$RustVersion='1.97.1'
     )
+    if (-not (Test-SgExactVersionCoordinate $RustVersion)) { throw 'Tauri Rust wrapper version must be exact.' }
     $mise = ConvertTo-SgBatchQuotedPath $MisePath 'mise executable'
-    $root = ConvertTo-SgBatchQuotedPath $ToolchainRoot 'Tauri toolchain'
     $config = ConvertTo-SgBatchQuotedPath (Join-Path $ToolchainRoot '.shipglows-no-user-mise-config') 'mise config directory'
     $ceiling = ConvertTo-SgBatchQuotedPath (Split-Path $ToolchainRoot -Parent) 'mise ceiling'
     return (@(
@@ -836,7 +837,7 @@ function Get-SgTauriRustWrapperContent {
         "set `"MISE_CONFIG_DIR=$config`"",
         "set `"MISE_CEILING_PATHS=$ceiling`"",
         'set "MISE_SYSTEM_DEPS=ignore"',
-        "@`"$mise`" -C `"$root`" exec -- $Command %*",
+        "@`"$mise`" exec rust@$RustVersion -- $Command %*",
         'set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"',
         'endlocal & exit /b %SHIPGLOWS_EXIT_CODE%'
     ) -join "`r`n") + "`r`n"
@@ -848,7 +849,150 @@ function Get-SgTauriRustTargetAddArguments {
     if ($targets.Count -eq 0 -or $targets.Count -gt 16 -or @($targets | Where-Object { $_ -notmatch '^[a-z0-9_]+(?:-[a-z0-9_]+)+$' }).Count -gt 0 -or @($targets | Select-Object -Unique).Count -ne $targets.Count) {
         throw 'Invalid validated Tauri Rust target baseline.'
     }
-    return @('exec','--','rustup','target','add') + $targets
+    return @('exec',"rust@$($Baseline.RustToolchainVersion)",'--','rustup','target','add') + $targets
+}
+
+function Get-SgTauriDesktopBaseline {
+    [pscustomobject]@{ RustToolchainVersion='1.97.1'; TauriCliVersion='2.11.4' }
+}
+
+function Get-SgTauriDesktopMiseConfig {
+    param($Baseline = (Get-SgTauriDesktopBaseline))
+    if (-not (Test-SgExactVersionCoordinate ([string]$Baseline.RustToolchainVersion))) { throw 'Tauri desktop Rust toolchain baseline must be exact.' }
+    return "[tools]`nrust = { version = `"$($Baseline.RustToolchainVersion)`", profile = `"default`" }`n"
+}
+
+function Resolve-SgTrustedMisePath {
+    $packageRoot = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages\jdx.mise_Microsoft.Winget.Source_8wekyb3d8bbwe'
+    $allowedRoot = [IO.Path]::GetFullPath($packageRoot).TrimEnd('\') + '\'
+    $candidates = New-Object Collections.Generic.List[string]
+    $command = Get-Command mise.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command -and $command.Source) { $candidates.Add([string]$command.Source) }
+    if (Test-Path -LiteralPath $packageRoot -PathType Container) {
+        foreach ($item in @(Get-ChildItem -LiteralPath $packageRoot -Recurse -Filter mise.exe -File -ErrorAction SilentlyContinue)) { $candidates.Add($item.FullName) }
+    }
+    foreach ($candidate in @($candidates | Select-Object -Unique)) {
+        try {
+            $full = [IO.Path]::GetFullPath($candidate)
+            if (-not $full.StartsWith($allowedRoot,[StringComparison]::OrdinalIgnoreCase)) { continue }
+            $item = Get-Item -LiteralPath $full -Force
+            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
+            $check = Invoke-SgBoundedProcess $full @('--version') 30
+            if (Test-SgMiseVersionResult $check) { return $full }
+        } catch { }
+    }
+    return ''
+}
+
+function Resolve-SgTrustedWingetIdentity {
+    $windowsApps=Join-Path ([Environment]::GetFolderPath('ProgramFiles')) 'WindowsApps'
+    if(-not (Test-Path -LiteralPath $windowsApps -PathType Container)){return $null}
+    foreach($package in @(Get-ChildItem -LiteralPath $windowsApps -Directory -Filter 'Microsoft.DesktopAppInstaller_*__8wekyb3d8bbwe' -ErrorAction SilentlyContinue | Sort-Object Name -Descending)){
+        $candidate=Join-Path $package.FullName 'winget.exe'
+        try{
+            $item=Get-Item -LiteralPath $candidate -Force -ErrorAction Stop
+            if(($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $item.Length -le 0){continue}
+            $hash=(Get-FileHash -LiteralPath $item.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            if($hash -match '^[0-9a-f]{64}$'){return [pscustomobject]@{Path=$item.FullName;Sha256=$hash}}
+        }catch{}
+    }
+    return $null
+}
+
+function Invoke-SgIsolatedTauriMise {
+    param([string]$MisePath,[string]$ToolchainRoot,[string[]]$Arguments,[int]$TimeoutSeconds=120,[scriptblock]$Runner=$null)
+    if (-not $Runner) { $Runner = { param($file,$arguments,$timeout) Invoke-SgBoundedProcess -File $file -Arguments $arguments -TimeoutSeconds $timeout } }
+    if ([string]::IsNullOrWhiteSpace($ToolchainRoot) -or -not [IO.Path]::IsPathRooted($ToolchainRoot) -or $ToolchainRoot -match '[\r\n\0]') { throw 'Isolated mise requires an absolute managed toolchain root.' }
+    $resolvedRoot = [IO.Path]::GetFullPath($ToolchainRoot)
+    $environment = @{
+        MISE_SAFE='1'; MISE_NO_HOOKS='1'; MISE_NO_ENV='1'; MISE_AUTO_INSTALL='false';
+        MISE_EXEC_AUTO_INSTALL='false'; MISE_NOT_FOUND_AUTO_INSTALL='false'; MISE_RUN_AUTO_INSTALL='false';
+        MISE_OVERRIDE_CONFIG_FILENAMES='mise.toml'; MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES='none';
+        MISE_CONFIG_DIR=(Join-Path $resolvedRoot '.shipglows-no-user-mise-config');
+        MISE_CEILING_PATHS=(Split-Path $resolvedRoot -Parent); MISE_SYSTEM_DEPS='ignore'
+    }
+    New-Item -ItemType Directory -Path $environment.MISE_CONFIG_DIR -Force | Out-Null
+    $previous=@{}; $present=@{}; $processEnvironment=[Environment]::GetEnvironmentVariables('Process')
+    foreach($name in $environment.Keys){$present[$name]=$processEnvironment.Contains($name);$previous[$name]=[Environment]::GetEnvironmentVariable($name,'Process');[Environment]::SetEnvironmentVariable($name,$environment[$name],'Process')}
+    try { & $Runner $MisePath (@('-C',$resolvedRoot) + @($Arguments)) $TimeoutSeconds }
+    finally { foreach($name in $environment.Keys){if($present[$name]){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')}else{Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue}} }
+}
+
+function Test-SgTauriDesktopRustToolchain {
+    param([string]$MisePath,[string]$ToolchainRoot,$Baseline=(Get-SgTauriDesktopBaseline),[scriptblock]$Runner=$null)
+    if (-not $MisePath -or -not (Test-Path -LiteralPath (Join-Path $ToolchainRoot 'mise.toml') -PathType Leaf)) { return $false }
+    $coordinate="rust@$($Baseline.RustToolchainVersion)"
+    $rust = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustc','--version') 60 $Runner
+    $cargo = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','cargo','--version') 60 $Runner
+    $rustup = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustup','--version') 60 $Runner
+    return -not $rust.TimedOut -and $rust.ExitCode -eq 0 -and $rust.Output -match "(?m)^rustc $([regex]::Escape([string]$Baseline.RustToolchainVersion))\b" -and -not $cargo.TimedOut -and $cargo.ExitCode -eq 0 -and -not $rustup.TimedOut -and $rustup.ExitCode -eq 0
+}
+
+function Test-SgTauriDesktopRustWrappers {
+    param(
+        [string]$MisePath,
+        [string]$ToolchainRoot,
+        [string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'}),
+        $Baseline=(Get-SgTauriDesktopBaseline)
+    )
+    foreach($command in @('cargo','rustc','rustup')){
+        $path=Join-Path (Join-Path $RuntimeRoot 'bin') "$command.cmd"
+        if(-not(Test-Path -LiteralPath $path -PathType Leaf)){return $false}
+        $expected=Get-SgTauriRustWrapperContent $MisePath $ToolchainRoot $command $Baseline.RustToolchainVersion
+        if([IO.File]::ReadAllText($path) -cne $expected){return $false}
+    }
+    return $true
+}
+
+function Install-SgTauriDesktopRustToolchain {
+    param([string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'}),[scriptblock]$Runner=$null)
+    $baseline=Get-SgTauriDesktopBaseline; $root=Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows'; $mise=Resolve-SgTrustedMisePath
+    if (-not $mise) { return [pscustomobject]@{status='partial';reason='mise is unavailable';completed=@()} }
+    New-Item -ItemType Directory -Path $root -Force | Out-Null
+    $config=Join-Path $root 'mise.toml'; $expected=Get-SgTauriDesktopMiseConfig $baseline
+    if (-not (Test-Path -LiteralPath $config -PathType Leaf) -or [IO.File]::ReadAllText($config).Replace("`r`n","`n") -cne $expected.Replace("`r`n","`n")) { [IO.File]::WriteAllText($config,$expected,[Text.UTF8Encoding]::new($false)) }
+    $install=Invoke-SgIsolatedTauriMise $mise $root @('install',"rust@$($baseline.RustToolchainVersion)") 1800 $Runner
+    if ($install.TimedOut) { return [pscustomobject]@{status='timeout';reason='Rust installation timed out';completed=@()} }
+    if ($install.ExitCode -ne 0) { return [pscustomobject]@{status='partial';reason="Rust installation exited $($install.ExitCode)";completed=@()} }
+    $rustReady=$false
+    foreach($attempt in 1..3){if(Test-SgTauriDesktopRustToolchain $mise $root $baseline $Runner){$rustReady=$true;break};if($attempt-lt3){Start-Sleep -Milliseconds 500}}
+    if (-not $rustReady) { return [pscustomobject]@{status='partial';reason='Rust post-install observation failed';completed=@('install_rust')} }
+    $bin=Join-Path $RuntimeRoot 'bin'; New-Item -ItemType Directory -Path $bin -Force | Out-Null
+    foreach($command in @('cargo','rustc','rustup')){[IO.File]::WriteAllText((Join-Path $bin "$command.cmd"),(Get-SgTauriRustWrapperContent $mise $root $command $baseline.RustToolchainVersion),[Text.Encoding]::ASCII)}
+    [pscustomobject]@{status='applied';completed=@('install_rust','wrappers');next_action='replan'}
+}
+
+function Get-SgWindowsWebView2State {
+    $guid='{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+    foreach($path in @("HKCU:\Software\Microsoft\EdgeUpdate\Clients\$guid","HKLM:\Software\Microsoft\EdgeUpdate\Clients\$guid","HKLM:\Software\WOW6432Node\Microsoft\EdgeUpdate\Clients\$guid")){
+        try{$version=[string](Get-ItemPropertyValue -LiteralPath $path -Name pv -ErrorAction Stop);if($version -match '^\d+(?:[.]\d+){3}$' -and $version -ne '0.0.0.0'){return [pscustomobject]@{Status='ready';Version=$version}}}catch{}
+    }
+    [pscustomobject]@{Status='pending';Version=''}
+}
+
+function Get-SgTauriWindowsEnvironmentObservation {
+    param(
+        [string]$ProjectRoot,
+        [string]$Scope='.',
+        [string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'})
+    )
+    $baseline=Get-SgTauriDesktopBaseline; $toolchain=Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows'; $mise=Resolve-SgTrustedMisePath
+    $rustReady=(Test-SgTauriDesktopRustToolchain $mise $toolchain $baseline) -and (Test-SgTauriDesktopRustWrappers $mise $toolchain -RuntimeRoot $RuntimeRoot -Baseline $baseline)
+    $project=if($Scope -eq '.'){[IO.Path]::GetFullPath($ProjectRoot)}else{[IO.Path]::GetFullPath((Join-Path $ProjectRoot $Scope))}
+    $tauriPackage=Join-Path $project 'node_modules\@tauri-apps\cli\package.json'; $tauriVersion=''
+    if(Test-Path -LiteralPath $tauriPackage -PathType Leaf){try{$tauriVersion=[string](([IO.File]::ReadAllText($tauriPackage)|ConvertFrom-Json).version)}catch{}}
+    $vswhere=Join-Path ([Environment]::GetFolderPath('ProgramFilesX86')) 'Microsoft Visual Studio\Installer\vswhere.exe'; $msvc=if(Test-Path -LiteralPath $vswhere -PathType Leaf){Get-SgVisualStudioCppState -VsWherePath $vswhere}else{[pscustomobject]@{Ready=$false}}
+    # Keep the SDK pending until a versioned header and link-library proof is implemented.
+    $sdkReady=$false
+    $webview=Get-SgWindowsWebView2State; $winget=Resolve-SgTrustedWingetIdentity
+    [ordered]@{
+        status='ok'; mise=@{status=if($mise){'ready'}else{'pending'};path=$mise}; winget=@{status=if($winget){'ready'}else{'pending'};path=if($winget){$winget.Path}else{''};sha256=if($winget){$winget.Sha256}else{''}};
+        rustc=@{status=if($rustReady){'ready'}else{'pending'};version=if($rustReady){$baseline.RustToolchainVersion}else{''}};
+        cargo=@{status=if($rustReady){'ready'}else{'pending'}}; rustup=@{status=if($rustReady){'ready'}else{'pending'}};
+        'tauri-cli'=@{status=if($tauriVersion -eq $baseline.TauriCliVersion){'ready'}else{'pending'};version=$tauriVersion};
+        msvc=@{status=if($msvc.Ready){'ready'}else{'pending'}}; 'windows-sdk'=@{status=if($sdkReady){'ready'}else{'pending'}};
+        webview2=@{status=$webview.Status;version=$webview.Version}
+    }
 }
 
 function Test-SgTauriRustTargetAddResult {
@@ -1144,7 +1288,11 @@ function Start-SgEncodedProcess {
         }
         $psi.UseShellExecute = $false
         $psi.CreateNoWindow = [bool]$Capture
-        if ($Capture) { $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true }
+        if ($Capture) {
+            $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+            $psi.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
+            $psi.StandardErrorEncoding = [Text.UTF8Encoding]::new($false)
+        }
         if ($InputText) { $psi.RedirectStandardInput = $true }
         $process = New-Object Diagnostics.Process
         $process.StartInfo = $psi
@@ -1256,4 +1404,5 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgTauriDesktopBaseline,Get-SgTauriDesktopMiseConfig,Resolve-SgTrustedMisePath,Invoke-SgIsolatedTauriMise,Test-SgTauriDesktopRustToolchain,Test-SgTauriDesktopRustWrappers,Install-SgTauriDesktopRustToolchain,Get-SgWindowsWebView2State,Get-SgTauriWindowsEnvironmentObservation,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Resolve-SgTrustedWingetIdentity

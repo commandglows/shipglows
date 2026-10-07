@@ -64,17 +64,17 @@ function Compare-SgSemanticVersion([string]$InstalledVersion,[string]$AvailableV
 
 function Get-SgShipGlowsUpdateAssessment([string]$InstalledVersion,[string]$AvailableVersion,[string]$InstalledCommit='',[string]$SourceCommit='') {
     if ($InstalledVersion -notmatch $script:SgRuntimeVersionPattern) {
-        return [pscustomobject]@{ Level='unknown'; Message='Version ShipGlows indisponible - lancez s update.'; Available=$false }
+        return [pscustomobject]@{ Level='unknown'; Message='Version ShipGlows indisponible - lancez shipglows update runtime.'; Available=$false }
     }
     $comparison = Compare-SgSemanticVersion $InstalledVersion $AvailableVersion
     if ($comparison -gt 0) {
         $installed = [version]($InstalledVersion -replace '-.*$','')
         $available = [version]($AvailableVersion -replace '-.*$','')
         $level = if ($available.Major -gt $installed.Major -or $available.Minor -gt $installed.Minor) { 'major-update' } else { 'update' }
-        return [pscustomobject]@{ Level=$level; Message="Nouvelle version disponible: v${AvailableVersion} - lancez s update."; Available=$true }
+        return [pscustomobject]@{ Level=$level; Message="Nouvelle version disponible: v${AvailableVersion} - lancez shipglows update runtime."; Available=$true }
     }
     if ($comparison -eq 0 -and $InstalledCommit -and $SourceCommit -and $InstalledCommit -ne $SourceCommit) {
-        return [pscustomobject]@{ Level='update'; Message='Une source development plus recente est disponible - lancez s update.'; Available=$true }
+        return [pscustomobject]@{ Level='update'; Message='Une source development plus recente est disponible - lancez shipglows update runtime.'; Available=$true }
     }
     return [pscustomobject]@{ Level='current'; Message='ShipGlows est a jour.'; Available=$false }
 }
@@ -91,7 +91,10 @@ function Read-SgShipGlowsStatusCache([object]$Config) {
 
 function Test-SgShipGlowsStatusCacheFresh([object]$Cache) {
     if (-not $Cache) { return $false }
-    try { return ((Get-Date).ToUniversalTime() - [datetime]::Parse([string]$Cache.checkedAt).ToUniversalTime()).TotalMinutes -lt $script:SgRuntimeStatusCacheTtlMinutes }
+    try {
+        $checkedAt = if ($Cache.checkedAt -is [datetime]) { ([datetime]$Cache.checkedAt).ToUniversalTime() } else { [datetime]::Parse([string]$Cache.checkedAt,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind).ToUniversalTime() }
+        return ((Get-Date).ToUniversalTime() - $checkedAt).TotalMinutes -lt $script:SgRuntimeStatusCacheTtlMinutes
+    }
     catch { return $false }
 }
 
