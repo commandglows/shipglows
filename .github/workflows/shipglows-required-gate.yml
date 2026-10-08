@@ -18,7 +18,7 @@ concurrency:
 jobs:
   required:
     name: ShipGlows required gate
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
     steps:
       - name: Check out the exact tested revision
