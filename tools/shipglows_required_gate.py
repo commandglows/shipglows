@@ -17,6 +17,7 @@ from urllib.parse import quote
 
 
 REQUIRED_CHECK = "ShipGlows required gate"
+DEFAULT_RUNNER = "blacksmith-4vcpu-ubuntu-2404"
 WORKFLOW_RELATIVE = Path(".github/workflows/shipglows-required-gate.yml")
 CONFIG_RELATIVE = Path(".shipglows/required-gate.json")
 CHECKOUT_PIN = "3d3c42e5aac5ba805825da76410c181273ba90b1"  # v7.0.1
@@ -47,6 +48,7 @@ class Lane:
 @dataclass(frozen=True)
 class ProjectContract:
     production_branch: str
+    runner: str
     lanes: tuple[Lane, ...]
     source: str
 
@@ -125,12 +127,15 @@ def _configured_contract(project: Path, config: Path) -> ProjectContract:
     branch = str(raw.get("production_branch", "main"))
     if not re.fullmatch(r"[A-Za-z0-9._/-]+", branch) or branch.startswith("/") or ".." in branch:
         raise GateError(f"Invalid production branch: {branch!r}")
+    runner = str(raw.get("runner", DEFAULT_RUNNER)).strip()
+    if not re.fullmatch(r"blacksmith-[a-z0-9][a-z0-9._-]{0,79}", runner):
+        raise GateError(f"Runner must be a Blacksmith runner label: {runner!r}")
     lanes = tuple(_validate_lane(item) for item in raw["lanes"] if isinstance(item, dict))
     if len(lanes) != len(raw["lanes"]) or not lanes:
         raise GateError("Every configured lane must be an object and at least one lane is required")
     if len({lane.id for lane in lanes}) != len(lanes):
         raise GateError("Configured lane ids must be unique")
-    return ProjectContract(branch, lanes, str(config.relative_to(project).as_posix()))
+    return ProjectContract(branch, runner, lanes, str(config.relative_to(project).as_posix()))
 
 
 def _declared_production_branch(project: Path) -> str:
@@ -261,7 +266,7 @@ def inspect_project(project: Path) -> ProjectContract:
     ids = [lane.id for lane in lanes]
     if len(ids) != len(set(ids)):
         raise GateError(f"Detected lane ids collide: {ids}; use an explicit project declaration")
-    return ProjectContract(_declared_production_branch(project), tuple(lanes), "detected")
+    return ProjectContract(_declared_production_branch(project), DEFAULT_RUNNER, tuple(lanes), "detected")
 
 
 def _yaml_quote(value: str) -> str:
@@ -292,7 +297,7 @@ def render_workflow(contract: ProjectContract) -> str:
         "jobs:",
         "  required:",
         f"    name: {REQUIRED_CHECK}",
-        "    runs-on: ubuntu-latest",
+        f"    runs-on: {contract.runner}",
         "    timeout-minutes: 45",
         "    steps:",
         "      - name: Check out the exact tested revision",
