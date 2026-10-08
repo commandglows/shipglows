@@ -23,7 +23,7 @@ concurrency:
 jobs:
   required:
     name: ShipGlows required gate
-    runs-on: windows-latest
+    runs-on: blacksmith-4vcpu-windows-2025
     timeout-minutes: 45
     steps:
       - name: Check out the exact tested revision
