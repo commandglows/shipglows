@@ -1,0 +1,33 @@
+version: 2
+# Mensuel + groupe : 1 PR par ecosysteme et par mois (les alertes securite restent immediates).
+updates:
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    groups:
+      github_actions_all:
+        patterns:
+          - "*"
+  - package-ecosystem: "npm"
+    directories:
+      - "/tui"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    groups:
+      npm_all:
+        patterns:
+          - "*"
+  - package-ecosystem: "pip"
+    directories:
+      - "/cli/.shipglows-tmp-fastapi-proof"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    groups:
+      pip_all:
+        patterns:
+          - "*"
