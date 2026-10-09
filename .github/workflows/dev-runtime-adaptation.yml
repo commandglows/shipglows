@@ -1,23 +1,7 @@
 name: Validate dev runtime adaptation
 
 on:
-  push:
-    branches: [codex/adapt-dev-runtime-contracts]
-  pull_request:
-    branches: [main]
-    paths:
-      - .github/workflows/dev-runtime-adaptation.yml
-      - tools/agent_runtime_envelope.py
-      - tools/test_agent_runtime_envelope.py
-      - tools/test_context_quality_contract.py
-      - tools/project_delivery_policy.py
-      - tools/project_git_policy.py
-      - tools/test_project_delivery_policy_reader.py
-      - tools/test_project_git_policy.py
-      - cli/windows/ShipGlows.AgentInstructions.psm1
-      - tests/windows/agent-instructions.ps1
-      - skills/**
-      - shipglows_data/technical/extension-lifecycle-lab.md
+  # CI manuelle (evite les couts) : Actions > Run workflow, ou `gh workflow run <fichier>`.
   workflow_dispatch:
 
 permissions:
