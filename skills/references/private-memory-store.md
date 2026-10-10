@@ -15,14 +15,10 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/references/source-intake-classification.md
-  - shipglows_data/business/portfolio-project-pitch-links.md
   - skills/references/shipglows-terms.md
   - shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md
   - skills/references/email-sequence-storage.md
-depends_on:
-  - artifact: "shipglows_data/business/portfolio-project-pitch-links.md"
-    artifact_version: "0.1.0"
-    required_status: draft
+depends_on: []
 supersedes: []
 evidence:
   - "Operator approval 2026-06-29: declare an explicit private folder, hidden under the current user's home, for caching all project pitches and other reusable private material."
@@ -131,7 +127,7 @@ Not allowed:
 
 ## Portfolio Pitch Cache
 
-Use `shipglows_data/business/portfolio-project-pitch-links.md` as the public index of project names and pitch URLs.
+The portfolio index of project names and pitch URLs lives in the private data repository (`projects/index.md`), never in this public repo.
 
 Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}/projects/` as the private cache for the fetched or summarized pitch contents.
 
@@ -183,7 +179,7 @@ Stop and ask before persisting when:
 Validate references after edits with:
 
 ```bash
-python3 tools/shipglows_metadata_lint.py skills/references/private-memory-store.md skills/references/source-intake-classification.md shipglows_data/business/portfolio-project-pitch-links.md shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md skills/references/shipglows-terms.md
+python3 tools/shipglows_metadata_lint.py skills/references/private-memory-store.md skills/references/source-intake-classification.md shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md skills/references/shipglows-terms.md
 rg -n "private-memory-store|SHIPGLOWS_PRIVATE_DATA_DIR|\\.shipglows/data|project-pitches|projects/|source-cache" skills/references shipglows_data/business shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md
 test -d "${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}"
 ```

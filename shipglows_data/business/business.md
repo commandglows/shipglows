@@ -28,7 +28,6 @@ linked_artifacts:
   - "shipglows_data/business/product.md"
   - "shipglows_data/business/gtm.md"
   - "shipglows_data/branding/branding.md"
-  - "shipglows_data/business/portfolio-project-pitch-links.md"
 depends_on: []
 supersedes: []
 next_review: "2026-09-13"

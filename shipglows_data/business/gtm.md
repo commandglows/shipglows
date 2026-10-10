@@ -27,7 +27,6 @@ linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/branding/branding.md"
   - "shipglows_data/business/product.md"
-  - "shipglows_data/business/portfolio-project-pitch-links.md"
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.5.0"
