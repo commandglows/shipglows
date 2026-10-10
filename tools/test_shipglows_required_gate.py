@@ -177,6 +177,57 @@ class RequiredGateContractTests(unittest.TestCase):
         self.assertEqual(2, result)
         api.assert_not_called()
 
+    def manual_contract(self) -> gate.ProjectContract:
+        self.write(
+            ".shipglows/required-gate.json",
+            json.dumps({
+                "production_branch": "main",
+                "trigger": "manual",
+                "lanes": [{"id": "site", "runtime": "shell", "root": "site", "paths": ["site/**"], "commands": ["npm run check"]}],
+            }),
+        )
+        return gate.inspect_project(self.project)
+
+    def test_auto_trigger_is_the_default(self):
+        contract = self.configured_contract()
+        self.assertEqual("auto", contract.trigger)
+        self.assertIn("  pull_request:", gate.render_workflow(contract))
+
+    def test_manual_trigger_renders_dispatch_only(self):
+        contract = self.manual_contract()
+        workflow = gate.render_workflow(contract)
+        self.assertEqual("manual", contract.trigger)
+        self.assertIn('"on":\n  workflow_dispatch:\n', workflow)
+        self.assertNotRegex(workflow, r"(?m)^  (push|pull_request):")
+        self.assertIn("name: ShipGlows required gate", workflow)
+
+    def test_manual_generate_then_audit_is_compliant(self):
+        self.manual_contract()
+        self.assertEqual(0, gate.main(["generate", "--project", str(self.project)]))
+        audit = gate.audit_project(self.project)
+        self.assertTrue(audit["compliant"], audit["findings"])
+        self.assertEqual("manual", audit["trigger"])
+
+    def test_auto_to_manual_regeneration_removes_automatic_triggers(self):
+        self.configured_contract()
+        self.assertEqual(0, gate.main(["generate", "--project", str(self.project)]))
+        self.manual_contract()
+        self.assertEqual(0, gate.main(["generate", "--project", str(self.project)]))
+        self.assertNotRegex((self.project / gate.WORKFLOW_RELATIVE).read_text(encoding="utf-8"), r"(?m)^  (push|pull_request):")
+
+    def test_invalid_trigger_is_rejected(self):
+        self.write(".shipglows/required-gate.json", json.dumps({"trigger": "nightly", "lanes": [{"id": "site", "runtime": "shell", "paths": ["**"], "commands": ["npm test"]}]}))
+        with self.assertRaisesRegex(gate.GateError, "Invalid gate trigger"):
+            gate.inspect_project(self.project)
+
+    def test_manual_gate_cannot_be_ruleset_protected(self):
+        contract = self.manual_contract()
+        self.write(str(gate.WORKFLOW_RELATIVE), gate.render_workflow(contract))
+        with mock.patch.object(gate, "gh_api") as api:
+            with self.assertRaisesRegex(gate.GateError, "Manual gate cannot be a required status check"):
+                gate.build_ruleset_plan(self.project, "owner/repo", 42)
+        api.assert_not_called()
+
     def test_owner_surfaces_share_the_canonical_policy(self):
         root = Path(__file__).resolve().parents[1]
         delivery = (root / "skills/references/project-delivery-policy.md").read_text(encoding="utf-8")
