@@ -20,6 +20,8 @@ FIXTURE = ROOT / "tools" / "fixtures" / "design-inspiration" / "sample-sales-pag
 RECORD_SCHEMA = ROOT / "skills" / "references" / "design-inspiration" / "record.schema.yaml"
 INDEX_SCHEMA = ROOT / "skills" / "references" / "design-inspiration" / "index.schema.yaml"
 SAMPLE_RECORD = ROOT / "skills" / "references" / "design-inspiration" / "sample-record.yaml"
+MOTION_CONTRACT = ROOT / "skills" / "references" / "design-inspiration-motion-evidence-contract.md"
+PLAYWRIGHT_BRIDGE = ROOT / "tools" / "capture_design_inspiration_playwright.js"
 
 
 def read_yaml(path: Path):
@@ -227,7 +229,7 @@ class NodePlaywrightBridgeTests(unittest.TestCase):
 
 
 class ImageAndIntegrationTests(unittest.TestCase):
-    def run_fixture(self, output: Path, reference_id: str = "sample-sales-page", url: str | None = None) -> tuple[int, str, str]:
+    def run_fixture(self, output: Path, reference_id: str = "sample-sales-page", url: str | None = None, *extra: str) -> tuple[int, str, str]:
         argv = [
             "--fixture",
             str(FIXTURE),
@@ -239,6 +241,7 @@ class ImageAndIntegrationTests(unittest.TestCase):
         ]
         if url:
             argv.extend(["--url", url])
+        argv.extend(extra)
         stdout = io.StringIO()
         stderr = io.StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
@@ -272,6 +275,38 @@ class ImageAndIntegrationTests(unittest.TestCase):
                 self.assertEqual(file_sha256(bundle / relative), checksum)
             self.assertEqual(record["checksums"]["bundle"], capture.bundle_checksum(record["checksums"]["files"]))
             self.assertFalse((bundle / "source.html").exists())
+
+    def test_motion_success_keeps_static_capture_and_records_a_bounded_private_webm(self) -> None:
+        motion = capture.MotionResult(status="captured", content=b"synthetic-webm", duration_ms=2400, scroll_steps=4, max_scroll_distance_px=2400)
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(capture, "capture_motion", return_value=motion):
+            corpus = Path(temporary) / "corpus"
+            code, stdout, stderr = self.run_fixture(corpus, "motion-fixture", None, "--motion")
+            self.assertEqual((code, stderr), (0, ""))
+            self.assertIn("motion_status=captured", stdout)
+            record = read_yaml(corpus / "references" / "motion-fixture" / "record.yaml")
+            self.assertEqual(record["capture_status"], "captured")
+            self.assertEqual(record["motion"]["artifact"], "motion.webm")
+            self.assertEqual(record["checksums"]["files"]["motion.webm"], record["motion"]["checksum"])
+            self.assertFalse(record["motion"]["audio"])
+
+    def test_motion_rejects_multiple_sources_before_capture(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(capture, "capture_one") as capture_one:
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                code = capture.run(["--output", str(Path(temporary) / "corpus"), "--url", "https://example.invalid/one", "--url", "https://example.invalid/two", "--motion"])
+            self.assertEqual(code, 2)
+            self.assertIn("motion_single_source_required", stderr.getvalue())
+            capture_one.assert_not_called()
+
+    def test_motion_contract_and_bridge_forbid_state_reuse_and_arbitrary_interaction(self) -> None:
+        contract = MOTION_CONTRACT.read_text(encoding="utf-8")
+        bridge = PLAYWRIGHT_BRIDGE.read_text(encoding="utf-8")
+        for value in ("disabled by default", "no audio", "cookies", "localStorage", "sessionStorage", "No hover scripting"):
+            self.assertIn(value, contract)
+        self.assertIn("recordVideo", bridge)
+        self.assertLess(bridge.index("await context.close()"), bridge.index("await video.path()"))
+        for forbidden in ("storageState", "recordHar", ".hover(", "page.click("):
+            self.assertNotIn(forbidden, bridge)
 
     def test_sync_reports_pending_without_failing_a_local_capture(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -30,6 +30,9 @@ if (-not $env:SHIPGLOWS_MANAGED_PWSH -or [IO.Path]::GetFullPath($env:SHIPGLOWS_M
 $sourceDir = Join-Path $ShipglowsDir 'cli\windows'
 $runtimeDir = Join-Path $ShipglowsDir 'bin'
 $environmentCli = Join-Path $ShipglowsDir 'cli\environment\shipglows_environment.py'
+$readwiseCli = Join-Path $ShipglowsDir 'cli\shipglows_readwise.py'
+if (-not (Test-Path -LiteralPath $readwiseCli -PathType Leaf)) { throw "Missing Readwise entry point: $readwiseCli" }
+if (-not (Test-Path -LiteralPath (Join-Path $ShipglowsDir 'cli\readwise_oauth.py') -PathType Leaf)) { throw 'Missing Readwise OAuth adapter.' }
 $environmentSchema = Join-Path $ShipglowsDir 'cli\environment\schemas\shipglows-environment-v1.schema.json'
 $environmentProvider = Join-Path $sourceDir 'shipglows-environment-provider.ps1'
 if (-not (Test-Path -LiteralPath $environmentCli -PathType Leaf)) { throw "Missing environment control-plane command: $environmentCli" }
@@ -414,6 +417,7 @@ call exit /b %%errorlevel%%
 )
 '@
         Set-SgLauncherContent $shipglowsCommand $shipglowsWrapper
+        Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-readwise.cmd') -Destination (Join-Path $runtimeDir 'shipglows-readwise.cmd') -Force
         Write-Host 'ShipGlows command installed: shipglows' -ForegroundColor Green
     } else {
         Write-SgInstallerWarning "The command 'shipglows' is already used by $($existingShipglows.Source). ShipGlows preserved it."

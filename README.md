@@ -764,7 +764,7 @@ The local menu stores the remote host, SSH user, and SSH auth mode used by
 `shipglows-blacksmith-login`. Legacy `shipglows-*` aliases remain available for
 compatibility. You can leave the key path blank to use the normal
 SSH config or agent, or switch to password mode for servers that do not use a
-key. ShipGlows does not store OAuth tokens; Codex, Clerk, Blacksmith, and the
+key. These SSH tunnel helpers do not store OAuth tokens; Codex, Clerk, Blacksmith, and the
 provider own the token exchange. See
 [local/README.md](./local/README.md) for the guided setup and troubleshooting
 flow.
@@ -1425,6 +1425,7 @@ shipglows/
 - `cli/shipglows-gsc.sh` — installed launcher for the read-only Google Search Console CLI
 - `cli/shipglows-serp.sh` — installed launcher for the one-query SerpApi Google SERP CLI
 - `cli/shipglows-parallel.sh` — installed launcher for the Parallel Web Search CLI
+- `shipglows readwise` / `shipglows-readwise` — official Readwise/Reader commands with ShipGlows browser OAuth on a dynamic loopback port; [setup, commands and verification limits](shipglows_data/technical/readwise-cli.md)
 - `install-shipglows.sh` — remote/bootstrap install helper
 - `install-shipglows.ps1` — native Windows bootstrap helper
 - `shipglows-site/` — Astro public website deployed to `https://shipglows.com`

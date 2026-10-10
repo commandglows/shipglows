@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.8.1"
+artifact_version: "0.8.2"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-17"
+updated: "2026-10-07"
 status: draft
 source_skill: manual
 scope: "agent-entrypoint"
@@ -27,6 +27,19 @@ next_step: "/sg-docs update AGENT.md"
 Ce fichier est le point d'entree rapide pour un agent qui arrive dans le repo. Il ne doit pas dupliquer toute la doc. Il doit diriger vers le bon contexte le plus vite possible.
 
 ## Read Order
+
+### Project execution: Doppler NONE
+
+Explicit operator decision, 2026-10-07: build, test and launch this ShipGlows CLI
+project directly, without Doppler. Do not create, select or borrow a Doppler
+configuration to execute this project. This overrides the general Doppler
+build/run instruction for this repository. Be concise and preserve unrelated work.
+
+External web research keeps its dedicated environment: use Parallel through
+`doppler run --project dotfiles --config dev -- shipglows-parallel search`.
+That research-only configuration does not apply to project execution.
+
+### Context routing
 
 1. Lire `CLAUDE.md` pour les contraintes du repo.
 2. Lire `shipglows_data/technical/context.md` pour la carte operative du projet.

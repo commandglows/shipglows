@@ -2220,6 +2220,7 @@ configure_command_wrappers() {
     local gsc_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-gsc.sh"
     local serp_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-serp.sh"
     local parallel_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-parallel.sh"
+    local readwise_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-readwise.sh"
     local turso_login_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-login.sh"
     local turso_ssh_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-ssh.sh"
     local bin_dir="$SHIPGLOWS_SYSTEM_BIN_DIR"
@@ -2235,6 +2236,10 @@ configure_command_wrappers() {
     fi
     if [ -f "$parallel_target" ]; then
         ln -sf "$parallel_target" "$bin_dir/shipglows-parallel"
+    fi
+    if [ -f "$readwise_target" ]; then
+        chmod +x "$readwise_target"
+        ln -sf "$readwise_target" "$bin_dir/shipglows-readwise"
     fi
     if [ -f "$turso_login_target" ]; then
         ln -sf "$turso_login_target" "$bin_dir/shipglows-turso-login"
@@ -2265,6 +2270,9 @@ configure_command_wrappers() {
     fi
     if [ -x "$bin_dir/shipglows-parallel" ]; then
         echo -e "  ${GREEN}✅ Commande Parallel Web Search disponible :${NC} /usr/local/bin/shipglows-parallel"
+    fi
+    if [ -x "$bin_dir/shipglows-readwise" ]; then
+        echo -e "  ${GREEN}✅ Commande Readwise / Reader disponible :${NC} shipglows readwise · shipglows-readwise"
     fi
 }
 

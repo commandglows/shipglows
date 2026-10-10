@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-06"
+updated: "2026-10-07"
 status: reviewed
 source_skill: sg-start
 scope: technical-docs-index
@@ -83,6 +83,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `google-search-console-cli.md` | `tools/shipglows_gsc.py`, `cli/shipglows-gsc.sh`, OAuth setup, read-only GSC commands, and evidence limits |
 | `serpapi-google-serp-cli.md` | `tools/shipglows_serp.py`, `cli/shipglows-serp.sh`, environment-only API key handling, localized SERP queries, quota, and distinction from GSC metrics |
 | `parallel-web-search-cli.md` | `tools/shipglows_parallel.py`, `cli/shipglows-parallel.sh`, Parallel Search, Extract, Task, and Monitor APIs; environment-only key handling and limits |
+| `readwise-cli.md` | `shipglows readwise`, official Reader/highlights commands, maintained dynamic-port OAuth, Doppler NONE, setup and authentication proof limits |
 | `runtime-cli.md` | `shipglows.sh`, `lib.sh`, `config.sh`, PM2/Flox/Caddy/DuckDNS flows |
 | `cross-platform-cli-cobra-spec.md` | Future Cobra-based cross-platform CLI contract, Linux/Windows adapters, and deferred migration decisions |
 | `terminal-tui.md` | `tui/`, read-only dashboard behavior, task/audit/spec readers, and operator visibility rules |
@@ -140,7 +141,7 @@ Update this index when a technical doc is added, renamed, removed, or when a maj
 ## Cross-product analytics
 
 The separate engine owns shared contracts and the agent CLI. Read
-`../shipglows-analytics-engine/shipglows_data/technical/code-docs-map.md` and
-`../shipglows-analytics-engine/shipglows_data/technical/agent-cli.md` relative to
+`../analytics-engine/shipglows_data/technical/code-docs-map.md` and
+`../analytics-engine/shipglows_data/technical/agent-cli.md` relative to
 this repository root. `runtime-cli.md` documents local command discovery and the
 boundary with GSC, SERP and Parallel. Hosted analytics/MCP access is not yet proven.

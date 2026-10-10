@@ -1,7 +1,7 @@
 ---
 name: 800-tmux-capture-conversation
-description: "Capture tmux panes to cleaned Markdown transcripts."
-argument-hint: [optional --tab N, title, destination]
+description: "Capture the active Codex, KiloCode, or tmux conversation as project-local Markdown."
+argument-hint: "[optional: --dry-run or Linux tmux tab]"
 ---
 
 # tmux Capture Conversation
@@ -21,9 +21,9 @@ This skill captures a local terminal transcript and does not write to chantier s
 
 Default to the current tmux pane when the user does not provide a tab/window number. The bundled script captures tmux scrollback with wrapped-line joining and can prefer the alternate screen when it contains a richer conversation transcript than normal scrollback.
 
-This skill answers one operator question: which tmux pane should be exported to a Markdown transcript, under what title, and to which destination?
+This skill answers which active Codex or KiloCode session, or tmux pane, should be exported to a Markdown transcript and which project owns it.
 
-It owns raw transcript export only: target pane selection, title/destination inference, confirmation, and deterministic Markdown capture through the bundled script.
+It owns faithful transcript export only: exact active-session selection, project-root resolution, privacy boundaries, and deterministic Markdown capture through the bundled adapters.
 
 Keep the boundary explicit:
 - stay here when the user wants to export a tmux conversation into a Markdown transcript
@@ -31,6 +31,16 @@ Keep the boundary explicit:
 - hand off to `007-sg-content repurpose <source>` only when the user explicitly wants the captured transcript turned into downstream content
 
 `800-tmux-capture-conversation` does not clean transcript content beyond capture planning, does not rewrite the exported conversation for readability, and does not become a content strategy skill.
+
+## Runtime Selection
+
+Capture the active conversation into `<git-root>/shipglows_data/workflow/conversations/` without asking for a title or destination. Include only visible user and assistant message text. Exclude instructions, tool calls and results, reasoning, and other internal runtime data.
+
+- On Windows Codex, require the exact `CODEX_THREAD_ID` and run `scripts/capture_codex_conversation.py`. It resolves one matching local journal and uses its session working directory to find the owning Git root. The journal format is locally verified, not a public Codex API; unknown or ambiguous visible-message formats fail closed.
+- In KiloCode, invoke the installed `shipglows_capture_conversation` plugin tool. It passes the active session ID, directory, and worktree to `scripts/capture_kilo_conversation.py`, which validates those values against `kilo export`. Never choose a session by recency or read `kilo.db` directly.
+- In Linux tmux, retain the existing pane, scrollback, tab, title, and destination behavior below.
+
+Codex and KiloCode exports are intentionally unredacted. Keep them local until a separate review authorizes publication.
 
 Ask for a tab/window number only when the user wants to capture a different tab and has not identified which one.
 
@@ -69,6 +79,10 @@ For `000-shipglows` preset, resolve `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
 The confirmation prompt must include the inferred title and full destination. It should also surface enough capture context to catch the wrong pane early, especially capture mode plus the first/last detected prompts when available. If any of that looks generic, stale, or misplaced, fix it before asking the user to approve.
 
 ## Workflow
+
+For Codex or KiloCode, use the exact active session supplied by the runtime and write directly to its owning Git repository's canonical conversation directory. Use `--dry-run` only when diagnosis is requested; it must not print message bodies or create files.
+
+For tmux, continue with the existing steps:
 
 1. Extract the tab number from the request when present. If absent, plan to capture the current tmux pane.
 2. Infer missing values:

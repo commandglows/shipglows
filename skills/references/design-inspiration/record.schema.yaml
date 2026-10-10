@@ -52,6 +52,27 @@ properties:
       reason_code: {type: [string, "null"]}
       reason: {type: [string, "null"]}
       unsupported_elements: {type: array, items: {type: string}}
+  motion:
+    type: object
+    required: [requested, status, artifact, checksum, format, mime_type, audio, sequence, viewport, video_size, duration_ms, duration_limit_ms, scroll_steps, max_scroll_distance_px, scroll_distance_limit_px, reason_code, reason]
+    properties:
+      requested: {type: boolean}
+      status: {type: string, enum: [not_requested, captured, unavailable, failed]}
+      artifact: {type: [string, "null"]}
+      checksum: {type: [string, "null"]}
+      format: {type: string, enum: [webm]}
+      mime_type: {type: string, enum: [video/webm]}
+      audio: {type: boolean, enum: [false]}
+      sequence: {type: array, items: {type: string}}
+      viewport: {type: object}
+      video_size: {type: object}
+      duration_ms: {type: [integer, "null"]}
+      duration_limit_ms: {type: integer}
+      scroll_steps: {type: integer}
+      max_scroll_distance_px: {type: integer}
+      scroll_distance_limit_px: {type: integer}
+      reason_code: {type: [string, "null"]}
+      reason: {type: [string, "null"]}
   taxonomy:
     type: object
     required: [page_type, audience, styles, sections, copy_patterns, conversion_goals]
@@ -64,6 +85,8 @@ properties:
   artifacts:
     type: object
     required: [page_markdown, full_page_image, thumbnail_image, segments]
+    properties:
+      motion_video: {type: [string, "null"]}
   checksums:
     type: object
     required: [algorithm, files, bundle]

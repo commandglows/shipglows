@@ -42,6 +42,9 @@ Only after a substantive multi-phase lifecycle is selected, load `$SHIPGLOWS_ROO
 - Unsettled pasted source/email/URL/transcript/note/article/example: `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md`.
 - Canonical owner choice/handoff: `$SHIPGLOWS_ROOT/skills/references/content-owner-handoffs.md`.
 - Public governance/schema/claims: `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` and `$SHIPGLOWS_ROOT/skills/references/public-first-content-default.md` for Diane unless explicitly internal.
+- Article and CMS architecture, publication lifecycle, localization, or editorial access: `$SHIPGLOWS_ROOT/skills/references/blog-and-cms-experience-contract.md`.
+- Public author identity, bylines, social profiles, or structured author data: `$SHIPGLOWS_ROOT/skills/references/public-author-and-social-identity-contract.md`.
+- Creative assets adopted into public content: `$SHIPGLOWS_ROOT/skills/references/creative-asset-provenance-contract.md`.
 - Audit/final draft/final repurpose/enrichment/verification score: `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`.
 - Durable source-faithful memory: `$SHIPGLOWS_ROOT/skills/references/repurpose-pack-storage.md`.
 - Current external platform, SEO/AEO, crawler, analytics, framework, SDK, or provider claims: `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` and official sources.

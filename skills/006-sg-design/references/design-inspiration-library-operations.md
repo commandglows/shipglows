@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-24"
+updated: "2026-10-07"
 status: active
 source_skill: 006-sg-design
 scope: design-inspiration-library-operations
@@ -16,11 +16,15 @@ docs_impact: yes
 linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/references/design-inspiration-library.md
+  - skills/references/design-inspiration-motion-evidence-contract.md
   - tools/capture_design_inspiration.py
   - tools/vivaldi_bookmarks.py
 depends_on:
   - artifact: skills/references/design-inspiration-library.md
-    artifact_version: "1.9.0"
+    artifact_version: "2.3.0"
+    required_status: active
+  - artifact: skills/references/design-inspiration-motion-evidence-contract.md
+    artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:
@@ -30,8 +34,9 @@ evidence:
   - "Operator correction 2026-08-07: approval supplies explicit, searchable creative taxonomy rather than leaving candidate defaults in the index."
   - "Live recovery 2026-08-07: add an explicit retry route for failed artifact-free candidates after shared runtime repair."
   - "Operator approval 2026-08-24: expose the complete privately configured Vivaldi bookmark collection and allow reversible offline edits with backup and checksum guards."
-next_review: "2026-08-15"
-next_step: "/103-sg-verify sales-page-reference-library"
+  - "2026-10-07: library add can request one bounded private WebM while preserving static fallback and Git LFS checks."
+next_review: "2026-11-07"
+next_step: "Verify optional motion capture on the approved synthetic fixture."
 ---
 
 # Design Inspiration Library Operations

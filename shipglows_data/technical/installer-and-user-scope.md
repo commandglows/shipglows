@@ -383,6 +383,19 @@ For behavioral changes, prefer a disposable host/container or a narrowly scoped 
   that Codex still writes the provider as disabled by default.
 - User targeting changed -> check installer ownership specs.
 
+## Readwise / Reader
+
+Windows payloads include `cli/shipglows_readwise.py`, `cli/readwise_oauth.py` and
+`cli/windows/shipglows-readwise.cmd`; the native installer exposes the standalone
+launcher beside `shipglows.cmd`. Linux installs a `shipglows-readwise` symlink.
+Both expose `shipglows readwise` without DevServer initialization. Installation
+of the official npm package is a separate explicit `shipglows readwise setup`
+operation, which pins version 0.5.10 and activates the provider's readonly mode.
+Browser OAuth is owned by the maintained loopback adapter; reinstalling the
+official npm package preserves the dynamic-port fix. Library commands and token
+refresh continue using the official package and its session format.
+No Readwise credentials or library data are bundled. See [Readwise CLI](readwise-cli.md).
+
 ## Maintenance Rule
 
 Update this doc when install privilege, user targeting, package/tool list, symlink/alias behavior, MCP setup, Codex/Claude config, or `shipglows_data` bootstrap behavior changes.

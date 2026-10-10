@@ -58,6 +58,8 @@ Never guess between `copy` and `copywriting`: `copy` asks whether wording is cle
 ## Conditional Shared Gates
 
 - Load `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` when writing or auditing product-interface copy and interactions; evaluate care and emotional fit alongside clarity and truth. Market research alone does not activate it.
+- Load `$SHIPGLOWS_ROOT/skills/references/public-author-and-social-identity-contract.md` when public authorship, project identity, or social profile claims affect content or campaigns.
+- Load `$SHIPGLOWS_ROOT/skills/references/portfolio-commercial-catalog-contract.md` before comparing or changing portfolio offers, plan names, prices, or entitlements.
 Load `$SHIPGLOWS_ROOT/skills/references/interface-voice-examples.md` directly only when drafting or revising interface wording.
 Load only gates required by the selected mode:
 

@@ -227,7 +227,7 @@ Parallel's Search, Extract, Task, and Monitor client is `tools/shipglows_paralle
 
 ## Shared analytics agent CLI
 
-`shipglows-analytics` is owned by the separate local `shipglows-analytics-engine`
+`shipglows-analytics` is owned by the separate local `analytics-engine`
 repository, not by this runtime or the general ShipGlows installer. Its Windows
 user-local wrapper points to that checkout; repository launchers exist for
 Windows and POSIX. It reads the ContentGlows opportunities API and prepares
@@ -235,7 +235,7 @@ review-only briefs using explicit backend project/period/opportunity/snapshot ID
 Apps and CLI share the API context; they do not share authentication sessions.
 
 Read the canonical guide at
-`../shipglows-analytics-engine/shipglows_data/technical/agent-cli.md` (relative to
+`../analytics-engine/shipglows_data/technical/agent-cli.md` (relative to
 this repository root). Existing host bearer credentials come from the approved
 local secret environment; no login/token provisioning is implemented. Six local
 fake-transport tests and Windows help launchers passed; deployed routes and real
@@ -1052,6 +1052,16 @@ package binaries.
   tokens, cookies, signing keys, or private headers into reports.
 - Turso auth status may be checked through `turso auth whoami`; token files
   under `~/.config/turso` must not be read or printed by the runtime menu.
+
+## Readwise / Reader
+
+`shipglows readwise` et `shipglows-readwise` donnent accès au CLI officiel
+Readwise/Reader, indépendamment du démarrage DevServer sous Windows et Linux.
+`--help`, `setup`, `status` et la connexion navigateur à port loopback dynamique
+sont gérés par ShipGlows ; les opérations de bibliothèque et le renouvellement
+de session restent délégués au fournisseur. Voir [installation, authentification
+locale et limites du mode readonly](readwise-cli.md). Ce projet utilise le choix
+**Doppler : NONE**, enregistré dans `AGENT.md` ; ses commandes se lancent directement.
 
 ## Validation
 

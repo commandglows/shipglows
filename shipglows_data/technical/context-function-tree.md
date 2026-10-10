@@ -37,6 +37,7 @@ Ce document sert de point d'entree rapide pour comprendre la structure fonctionn
 
 ```text
 cli/shipglows.sh
+  -> readwise -> cli/shipglows-readwise.sh -> cli/shipglows_readwise.py (before DevServer bootstrap)
   -> source cli/lib.sh
   -> source cli/shipglows_devserver_gum.sh or cli/shipglows_devserver_bash.sh
   -> main()

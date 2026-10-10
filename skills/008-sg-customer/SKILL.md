@@ -57,6 +57,8 @@ Load at gate:
 | `documentation-freshness-gate.md` | Guidance depends on current permissions/billing/accessibility/SDK/provider/policy. |
 | `source-intake-classification.md` | External competitor/customer feedback informs advice/audit. |
 | `ux-reference-intelligence.md` | Needs cross-source journey conventions; shared `ux-reference-connectors.md` only before external source selection/use. |
+| `authenticated-experience-ui-contract.md` | Design or review sign-in, account menus, private navigation, session loss, or recovery in signed-in UI. |
+| `human-centered-interaction-heuristics.md` | An audit or recommendation explicitly uses cognitive laws, heuristics, checklists, principles, or pattern libraries. |
 
 Load `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` for durable first-success/activation measurement.
 

@@ -61,6 +61,12 @@ if [ "${1:-}" = "private-data" ]; then
     exec python3 "$SCRIPT_DIR/private_data.py" "$@"
 fi
 
+# Readwise is independent from the DevServer and its prerequisites.
+if [ "${1:-}" = "readwise" ]; then
+    shift
+    exec bash "$SCRIPT_DIR/shipglows-readwise.sh" "$@"
+fi
+
 source "$SCRIPT_DIR/lib.sh"
 
 # Load the right menu frontend

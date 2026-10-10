@@ -40,6 +40,15 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-proof-and-reporting.md` for design completion and handoff evidence.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/reference-driven-frontend-playbook.md` when screenshots, mockups, appshots, or visual references define the frontend target.
 - `$SHIPGLOWS_ROOT/skills/references/design-inspiration-library.md` when visual direction changes or an explicit inspiration request exists.
+- `$SHIPGLOWS_ROOT/skills/references/design-inspiration-motion-evidence-contract.md` when a private inspiration capture requests motion evidence.
+- `$SHIPGLOWS_ROOT/skills/references/interactive-3d-experience-contract.md` for 3D, WebGL, product scenes, or immersive experiences.
+- `$SHIPGLOWS_ROOT/skills/references/interactive-animation-runtime-contract.md` when selecting, integrating, migrating, or auditing an animation runtime or export format.
+- `$SHIPGLOWS_ROOT/skills/references/human-centered-interaction-heuristics.md` when an audit uses cognitive laws, usability heuristics, checklists, design principles, or pattern-library examples.
+- `$SHIPGLOWS_ROOT/skills/references/web-image-performance-contract.md` when creating, selecting, transforming, or auditing raster or SVG delivery assets.
+- `$SHIPGLOWS_ROOT/skills/references/web-typography-contract.md` when selecting, implementing, migrating, or auditing typography and font delivery.
+- `$SHIPGLOWS_ROOT/skills/references/product-iconography-contract.md` when selecting, creating, replacing, or mapping product icons.
+- `$SHIPGLOWS_ROOT/skills/references/product-color-system-contract.md` when creating or changing semantic colors, themes, contrast, or platform mappings.
+- `$SHIPGLOWS_ROOT/skills/references/creative-asset-provenance-contract.md` when adopting, creating, transforming, licensing, redistributing, migrating, or retiring creative assets.
 - `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` when a material journey, navigation model, common interaction, or visual direction needs cross-source convention evidence; load the shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md` only before selecting or using an external connector.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when defining experience principles, critical moments, desired/avoided emotion, or a design direction that changes product intent.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.

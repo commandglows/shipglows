@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-08-22"
+updated: "2026-10-07"
 status: active
 source_skill: 010-sg-technical
 scope: performance-audit-playbook
@@ -15,7 +15,15 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/010-sg-technical/SKILL.md
-depends_on: []
+  - skills/references/web-image-performance-contract.md
+  - skills/references/web-typography-contract.md
+depends_on:
+  - artifact: skills/references/web-image-performance-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
+  - artifact: skills/references/web-typography-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Transferred exhaustively from the retired performance skill during the 010-sg-technical consolidation."
@@ -26,6 +34,8 @@ next_step: "/103-sg-verify consolidate technical skills under sg-technical"
 # Performance Audit Playbook
 
 Load this playbook only for `010-sg-technical performance`. It preserves the retired performance contract; its former invocation is provenance, not an alias.
+
+When web image delivery is in scope, load `$SHIPGLOWS_ROOT/skills/references/web-image-performance-contract.md` before choosing formats, responsive delivery, tools, budgets, safety checks, or proof. When fonts, typography loading, fallback rendering, subsets, or font-related layout shift are in scope, load `$SHIPGLOWS_ROOT/skills/references/web-typography-contract.md`. Keep both gates conditional; they add no package or provider by default.
 
 ## Canonical Paths
 

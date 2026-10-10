@@ -48,6 +48,7 @@ It does not own generic browser proof, full manual QA logging, deployment discov
 ## Required References
 
 - `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` for auth/session checks, OAuth/browser callbacks, token refresh, sign-in, sign-out, or any delayed provider operation.
+- `$SHIPGLOWS_ROOT/skills/references/authenticated-experience-ui-contract.md` when the reported defect concerns sign-in, sign-out, account UI, private navigation, session loss, or recovery behavior.
 
 Load shared references only at their gate and local references by mode:
 

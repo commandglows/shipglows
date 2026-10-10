@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-24"
+updated: "2026-10-07"
 status: active
 source_skill: 102-sg-start
 scope: design-inspiration-library
@@ -17,6 +17,7 @@ linked_systems:
   - skills/references/ux-reference-intelligence.md
   - skills/references/ux-reference-connectors.md
   - skills/references/design-inspiration/
+  - skills/references/design-inspiration-motion-evidence-contract.md
   - tools/capture_design_inspiration.py
   - tools/capture_design_inspiration_playwright.js
   - skills/006-sg-design/SKILL.md
@@ -30,6 +31,9 @@ depends_on:
   - artifact: skills/references/private-data-repo-contract.md
     artifact_version: "2.0.0"
     required_status: active
+  - artifact: skills/references/design-inspiration-motion-evidence-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Ready spec sales-page-reference-library.md and its exploration source."
@@ -40,12 +44,13 @@ evidence:
   - "Operator request 2026-08-07: server migration is governed by a reusable install and restore playbook with a paired checklist."
   - "Operator correction 2026-08-07: taxonomy exists only when a reference is explicitly classified at approval; empty candidate tags are not a usable creative search index."
   - "Live recovery 2026-08-07: an explicit retry replaces only a failed candidate with no artifacts after a shared capture-runtime repair, preserving the prior reason in private metadata."
-  - "Live capture 2026-08-07: very tall pages proportionally downscale only full-page WebP while retaining high-resolution segments; the current bundle remains a static visual snapshot and does not record animation timelines."
+  - "Live capture 2026-08-07: very tall pages proportionally downscale only full-page WebP while retaining high-resolution segments. Bounded motion evidence is an optional separate artifact."
   - "Operator decision 2026-08-11: the separate corpus moves from ~/.shipglows/private/design-inspiration-library to the sibling path ~/.shipglows/design-inspiration-library."
   - "Operator decision 2026-08-24: this private corpus acts as one stricter first-party adapter inside a provider-neutral UX reference system; external sources remain replaceable."
   - "Operator decision 2026-08-24: connector facts moved to one shared catalog so construction, specification, design, and experience use the same source eligibility decisions."
-next_review: "2026-09-24"
-next_step: "/103-sg-verify extensible UX reference intelligence"
+  - "2026-10-07: optional bounded WebM evidence integrates into the private corpus; static capture remains the default and legacy records without motion metadata remain readable."
+next_review: "2026-11-07"
+next_step: "Verify optional motion capture on the approved synthetic fixture."
 ---
 
 # Design Inspiration Library
@@ -210,12 +215,13 @@ If a page exceeds the WebP maximum dimension, `full-page.webp` is proportionally
 
 1. Capture only an explicit URL or bounded newline-delimited input list. The tool default limit is 50 URLs per run.
 2. New entries start as `candidate` and retain source attribution.
-3. Capture public content in a fresh ephemeral browser context without credentials or persisted storage. Scroll once with bounded waits for lazy loading.
+3. Capture public content in a fresh ephemeral browser context without credentials or persisted storage. Scroll once with bounded waits for lazy loading. Motion is off by default; one explicit `--motion` request records a short, silent, bounded initial/scroll/return-to-top WebM in that same isolated context.
 4. Record `captured`, `partial`, `failed`, `blocked`, or `auth_required` explicitly. Never invent missing artifacts.
-5. Retry only an explicitly named `candidate` whose prior capture failed, was blocked, or required authentication and produced no artifacts. Store the prior attempt's status and reason in the replacement record; never overwrite a successful or partial capture.
-6. Review taxonomy, rights notes, transferable patterns, and anti-copy guidance before promotion.
-7. Promote to `approved` only after operator review. Set `rejected`, `blocked`, or `removed` when appropriate.
-8. If a skill discovers a useful URL outside a curation task, report its redacted URL and rationale; do not add it to the corpus until curation is in scope or the operator confirms.
+5. Apply the fixed motion bounds and access checks in `design-inspiration-motion-evidence-contract.md`; no hover scripting, clicks, stored state, cookies, or audio. Preserve static capture when video is unavailable.
+6. Retry only an explicitly named `candidate` whose prior capture failed, was blocked, or required authentication and produced no artifacts. Store the prior attempt's status and reason in the replacement record; never overwrite a successful or partial capture.
+7. Review taxonomy, rights notes, transferable patterns, and anti-copy guidance before promotion.
+8. Promote to `approved` only after operator review. Set `rejected`, `blocked`, or `removed` when appropriate.
+9. If a skill discovers a useful URL outside a curation task, report its redacted URL and rationale; do not add it to the corpus until curation is in scope or the operator confirms.
 
 The normal operator entrypoint is `/006-sg-design library add <public-url>`, followed by `/006-sg-design library approve <reference-id>`. Use `/006-sg-design library retry <reference-id>` only after a failed candidate's capture runtime was repaired. The curation tool, not a hand edit, writes retry/promotion metadata and synchronizes `index.yaml`. `library list` and `library status` read only the bounded index. See `skills/006-sg-design/references/design-inspiration-library-operations.md` for the activation contract.
 

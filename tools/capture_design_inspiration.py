@@ -39,6 +39,12 @@ DEFAULT_SEGMENT_HEIGHT = 1600
 DEFAULT_SEGMENT_OVERLAP = 160
 THUMBNAIL_WIDTH = 480
 MAX_WEBP_DIMENSION = 16_383
+MOTION_MAX_DURATION_MS = 12_000
+MOTION_MAX_SCROLL_STEPS = 6
+MOTION_MAX_SCROLL_DISTANCE_PX = 3_600
+MOTION_VIDEO_WIDTH = 960
+MOTION_VIDEO_HEIGHT = 600
+MOTION_SEQUENCE = ["initial", "bounded_scroll", "return_top"]
 CAPTURE_STATUSES = {
     "captured",
     "partial",
@@ -105,6 +111,18 @@ class TextBlock:
 
 
 @dataclass
+class MotionResult:
+    requested: bool = True
+    status: str = "failed"
+    content: bytes | None = None
+    duration_ms: int | None = None
+    scroll_steps: int = 0
+    max_scroll_distance_px: int = 0
+    reason_code: str | None = None
+    reason: str | None = None
+
+
+@dataclass
 class CaptureResult:
     markdown: str | None = None
     image: Image.Image | None = None
@@ -116,6 +134,7 @@ class CaptureResult:
     reason: str | None = None
     warnings: list[str] = field(default_factory=list)
     unsupported_elements: list[str] = field(default_factory=list)
+    motion: MotionResult = field(default_factory=lambda: MotionResult(requested=False, status="not_requested"))
 
 
 @dataclass(frozen=True)
@@ -564,7 +583,14 @@ def discover_node_playwright_runtime() -> NodePlaywrightRuntime:
     return NodePlaywrightRuntime(Path(node).resolve(), Path(cli).resolve(), package_json.resolve())
 
 
-def run_node_capture(runtime: NodePlaywrightRuntime, url: str, png_path: Path) -> dict[str, Any]:
+def run_node_capture(
+    runtime: NodePlaywrightRuntime,
+    url: str,
+    png_path: Path,
+    *,
+    motion_path: Path | None = None,
+    fixture_html: str | None = None,
+) -> dict[str, Any]:
     helper = Path(__file__).with_name("capture_design_inspiration_playwright.js").resolve()
     if not helper.is_file():
         raise CaptureToolError("playwright_bridge_missing", f"Playwright bridge helper is missing: {helper}")
@@ -575,11 +601,26 @@ def run_node_capture(runtime: NodePlaywrightRuntime, url: str, png_path: Path) -
         str(png_path),
         str(DEFAULT_VIEWPORT_WIDTH),
         str(DEFAULT_VIEWPORT_HEIGHT),
+        str(motion_path) if motion_path else "",
     ]
+    bridge_input: dict[str, Any] = {"url": url}
+    if motion_path is not None:
+        bridge_input.update({
+            "mode": "motion",
+            "fixtureHtml": fixture_html,
+            "noNetwork": fixture_html is not None,
+            "motion": {
+                "durationLimitMs": MOTION_MAX_DURATION_MS,
+                "maxScrollSteps": MOTION_MAX_SCROLL_STEPS,
+                "maxScrollDistancePx": MOTION_MAX_SCROLL_DISTANCE_PX,
+                "videoWidth": MOTION_VIDEO_WIDTH,
+                "videoHeight": MOTION_VIDEO_HEIGHT,
+            },
+        })
     try:
         completed = subprocess.run(
             command,
-            input=json.dumps({"url": url}),
+            input=json.dumps(bridge_input),
             check=False,
             capture_output=True,
             text=True,
@@ -611,9 +652,31 @@ def run_node_capture(runtime: NodePlaywrightRuntime, url: str, png_path: Path) -
                 "The shared Playwright package could not be loaded by Node. Repair the global installation; do not install it in this project."
             ),
             "browser_error": "shared Playwright browser capture failed; inspect the server-wide Playwright installation and browser runtime libraries",
+            "motion_access_forbidden": "motion capture stopped because the public page resolved to an authentication or access block",
+            "motion_video_finalize_failed": "Playwright did not finalize a usable WebM recording",
+            "motion_duration_exceeded": "motion capture exceeded its configured duration bound",
         }
         raise CaptureToolError(code if code in messages else "browser_error", messages.get(code, messages["browser_error"]))
     return payload
+
+
+def capture_motion(url: str, *, fixture_html: str | None = None) -> MotionResult:
+    runtime = discover_node_playwright_runtime()
+    with tempfile.TemporaryDirectory(prefix="shipglows-inspiration-motion-") as temporary:
+        root = Path(temporary)
+        motion_path = root / "motion.webm"
+        payload = run_node_capture(runtime, url, root / "unused.png", motion_path=motion_path, fixture_html=fixture_html)
+        if payload.get("motionStatus") != "captured" or not motion_path.is_file():
+            raise CaptureToolError(str(payload.get("code") or "motion_video_finalize_failed"), "Playwright did not return a finalized motion capture")
+        size = motion_path.stat().st_size
+        duration_ms = int(payload.get("durationMs", 0))
+        scroll_steps = int(payload.get("scrollSteps", 0))
+        max_scroll = int(payload.get("maxScrollDistancePx", 0))
+        if size <= 0 or duration_ms <= 0 or duration_ms > MOTION_MAX_DURATION_MS:
+            raise CaptureToolError("motion_duration_exceeded", "motion capture is outside its configured duration or size bound")
+        if not (0 <= scroll_steps <= MOTION_MAX_SCROLL_STEPS and 0 <= max_scroll <= MOTION_MAX_SCROLL_DISTANCE_PX):
+            raise CaptureToolError("motion_bounds_invalid", "motion scroll evidence exceeded its configured bound")
+        return MotionResult(status="captured", content=motion_path.read_bytes(), duration_ms=duration_ms, scroll_steps=scroll_steps, max_scroll_distance_px=max_scroll)
 
 
 def detect_access_state(url: str, title: str, visible_text: str, status_code: int | None) -> tuple[str, str | None]:
@@ -823,13 +886,14 @@ def artifact_paths(staging: Path, segments: list[str]) -> dict[str, Any]:
         "page_markdown": "page.md" if (staging / "page.md").exists() else None,
         "full_page_image": "full-page.webp" if (staging / "full-page.webp").exists() else None,
         "thumbnail_image": "thumbnail.webp" if (staging / "thumbnail.webp").exists() else None,
+        "motion_video": "motion.webm" if (staging / "motion.webm").exists() else None,
         "segments": segments,
     }
 
 
 def artifact_checksums(staging: Path, artifacts: dict[str, Any]) -> dict[str, str]:
     names: list[str] = []
-    for key in ("page_markdown", "full_page_image", "thumbnail_image"):
+    for key in ("page_markdown", "full_page_image", "thumbnail_image", "motion_video"):
         value = artifacts[key]
         if value:
             names.append(value)
@@ -894,6 +958,26 @@ def make_record(
             "reason": result.reason,
             "unsupported_elements": result.unsupported_elements,
         },
+        "motion": {
+            "requested": result.motion.requested,
+            "status": result.motion.status,
+            "artifact": artifacts["motion_video"],
+            "checksum": checksums.get("motion.webm"),
+            "format": "webm",
+            "mime_type": "video/webm",
+            "audio": False,
+            "sequence": MOTION_SEQUENCE,
+            "viewport": {"width": DEFAULT_VIEWPORT_WIDTH, "height": DEFAULT_VIEWPORT_HEIGHT, "device_scale_factor": 1},
+            "video_size": {"width": MOTION_VIDEO_WIDTH, "height": MOTION_VIDEO_HEIGHT},
+            "duration_ms": result.motion.duration_ms,
+            "duration_limit_ms": MOTION_MAX_DURATION_MS,
+            "scroll_steps": result.motion.scroll_steps,
+            "max_scroll_steps": MOTION_MAX_SCROLL_STEPS,
+            "max_scroll_distance_px": result.motion.max_scroll_distance_px,
+            "scroll_distance_limit_px": MOTION_MAX_SCROLL_DISTANCE_PX,
+            "reason_code": result.motion.reason_code,
+            "reason": result.motion.reason,
+        },
         "taxonomy": {
             "page_type": "sales-page",
             "audience": [],
@@ -947,8 +1031,24 @@ def validate_record(record: dict[str, Any]) -> None:
     files = record["checksums"].get("files", {})
     if record["capture_status"] in {"failed", "blocked", "auth_required", "rejected", "removed"} and not files:
         artifacts = record["artifacts"]
-        if any((artifacts.get("page_markdown"), artifacts.get("full_page_image"), artifacts.get("thumbnail_image"), artifacts.get("segments"))):
+        if any((artifacts.get("page_markdown"), artifacts.get("full_page_image"), artifacts.get("thumbnail_image"), artifacts.get("motion_video"), artifacts.get("segments"))):
             raise CaptureToolError("invalid_record", "failure record declares artifacts without checksums")
+    motion = record.get("motion")
+    if motion is None:
+        if record.get("artifacts", {}).get("motion_video") or files.get("motion.webm"):
+            raise CaptureToolError("invalid_record", "legacy records cannot declare unvalidated motion artifacts")
+        return
+    if motion.get("status") not in {"not_requested", "captured", "unavailable", "failed"} or motion.get("audio") is not False:
+        raise CaptureToolError("invalid_record", "motion evidence has an invalid status or audio setting")
+    if motion.get("requested") is False and motion.get("status") != "not_requested":
+        raise CaptureToolError("invalid_record", "unrequested motion evidence must remain not_requested")
+    if motion.get("requested") is True and motion.get("sequence") != MOTION_SEQUENCE:
+        raise CaptureToolError("invalid_record", "motion evidence must use the fixed bounded sequence")
+    if motion.get("status") == "captured":
+        if motion.get("artifact") != "motion.webm" or files.get("motion.webm") != motion.get("checksum"):
+            raise CaptureToolError("invalid_record", "captured motion requires a checksummed motion.webm")
+    elif motion.get("artifact") is not None or motion.get("checksum") is not None:
+        raise CaptureToolError("invalid_record", "non-captured motion must not declare a video artifact")
 
 
 def index_entry(record: dict[str, Any]) -> dict[str, Any]:
@@ -1080,6 +1180,7 @@ def capture_one(
     reference_id: str,
     fixture: Path | None,
     wayback_url: str | None = None,
+    motion: bool = False,
 ) -> tuple[dict[str, Any] | None, str]:
     normalized = normalize_url(url)
     existing, reason = duplicate_match(index, reference_id, normalized)
@@ -1130,6 +1231,18 @@ def capture_one(
                     candidate.unlink(missing_ok=True)
                 shutil.rmtree(staging / "segments", ignore_errors=True)
                 segments = []
+
+        if motion:
+            if result.access_status == "public" and result.capture_status in {"captured", "partial"}:
+                try:
+                    result.motion = capture_motion(result.final_url or url, fixture_html=fixture.read_text(encoding="utf-8") if fixture else None)
+                except (CaptureToolError, OSError, UnicodeError) as exc:
+                    code = exc.code if isinstance(exc, CaptureToolError) else "motion_fixture_read_failed"
+                    result.motion = MotionResult(status="unavailable" if code.startswith("playwright_") or code == "node_unavailable" else "failed", reason_code=code, reason=str(exc))
+            else:
+                result.motion = MotionResult(status="failed", reason_code="motion_static_access_unavailable", reason="motion capture requires public static evidence")
+        if result.motion.status == "captured" and result.motion.content is not None:
+            (staging / "motion.webm").write_bytes(result.motion.content)
 
         artifacts = artifact_paths(staging, segments)
         checksums = artifact_checksums(staging, artifacts)
@@ -1358,10 +1471,10 @@ def sync_private_corpus(root: Path, changed_paths: list[Path], operation: str) -
 
     visual_paths: list[str] = []
     for path in changed_paths:
-        if path.is_file() and path.suffix.lower() == ".webp":
+        if path.is_file() and path.suffix.lower() in {".webp", ".webm"}:
             visual_paths.append(str(path.resolve().relative_to(root.resolve())))
         elif path.is_dir():
-            visual_paths.extend(str(image.relative_to(root.resolve())) for image in path.rglob("*.webp"))
+            visual_paths.extend(str(image.relative_to(root.resolve())) for extension in ("*.webp", "*.webm") for image in path.rglob(extension))
     if visual_paths:
         attributes = subprocess.run(
             ["git", "-C", str(root), "check-attr", "filter", "--", *visual_paths],
@@ -1436,6 +1549,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--copy-pattern", action="append", default=[], help="Required copy pattern tag for --approve; use lower-case kebab-case and repeat as needed.")
     parser.add_argument("--conversion-goal", action="append", default=[], help="Required conversion-goal tag for --approve; use lower-case kebab-case and repeat as needed.")
     parser.add_argument("--wayback-url", help="Optional existing Wayback URL for one capture; never fetched or created automatically.")
+    parser.add_argument("--motion", action="store_true", help="Optionally record one short bounded private WebM; valid only for exactly one capture source.")
     parser.add_argument("--sync", action="store_true", help="Commit and push just-written private corpus files when Git LFS and a private origin are configured; local capture remains valid if sync is pending.")
     parser.add_argument("--no-network", action="store_true", help="Forbid network access; required with --fixture and invalid for live URLs.")
     parser.add_argument("--fixture", help="Synthetic local HTML fixture. Requires --no-network and temporary --output.")
@@ -1457,11 +1571,11 @@ def run(argv: list[str] | None = None) -> int:
         if args.status_only and args.list:
             raise CaptureToolError("read_mode_conflict", "--status-only and --list cannot be combined")
         taxonomy_arguments = (args.page_type, args.audience, args.style, args.section, args.copy_pattern, args.conversion_goal)
-        if read_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.approve, args.retry, args.summary, args.what_to_borrow, args.what_not_to_copy, args.sync, *taxonomy_arguments)):
+        if read_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.motion, args.approve, args.retry, args.summary, args.what_to_borrow, args.what_not_to_copy, args.sync, *taxonomy_arguments)):
             raise CaptureToolError("read_mode_conflict", "--status-only and --list cannot be combined with capture or curation arguments")
-        if curation_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url)):
+        if curation_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.motion)):
             raise CaptureToolError("approval_conflict", "--approve cannot be combined with capture arguments")
-        if retry_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.approve, args.summary, args.what_to_borrow, args.what_not_to_copy, *taxonomy_arguments)):
+        if retry_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.motion, args.approve, args.summary, args.what_to_borrow, args.what_not_to_copy, *taxonomy_arguments)):
             raise CaptureToolError("retry_conflict", "--retry cannot be combined with capture, approval, review, or taxonomy arguments")
         if not curation_mode and any((args.summary, args.what_to_borrow, args.what_not_to_copy, *taxonomy_arguments)):
             raise CaptureToolError("approval_arguments_without_approve", "review and taxonomy fields require --approve")
@@ -1506,6 +1620,8 @@ def run(argv: list[str] | None = None) -> int:
             return 0 if status in {"captured", "partial"} else 1
 
         urls = collect_urls(args)
+        if args.motion and len(urls) != 1:
+            raise CaptureToolError("motion_single_source_required", "--motion requires exactly one URL or fixture per invocation")
         if args.reference_id and len(urls) != 1:
             raise CaptureToolError("id_batch_conflict", "--id is valid only with exactly one URL or fixture")
         if args.wayback_url and len(urls) != 1:
@@ -1524,13 +1640,15 @@ def run(argv: list[str] | None = None) -> int:
                 reference_id=reference_id,
                 fixture=fixture,
                 wayback_url=args.wayback_url,
+                motion=args.motion,
             )
             if record is None:
                 duplicates += 1
                 print(f"id={reference_id} status={status} source={redact_url(url)}")
                 continue
             changed_paths.append(root / "references" / reference_id)
-            print(f"id={reference_id} status={status} source={redact_url(url)} record={root / 'references' / reference_id / 'record.yaml'}")
+            motion_status = f" motion_status={record['motion']['status']}" if args.motion else ""
+            print(f"id={reference_id} status={status}{motion_status} source={redact_url(url)} record={root / 'references' / reference_id / 'record.yaml'}")
             if status == "captured":
                 captured += 1
             else:

@@ -1,5 +1,17 @@
 # Skills Refresh Log
 
+## 2026-10-07 — conversation capture, design evidence, and shared product contracts
+
+**Added:** exact-session Codex and KiloCode conversation capture alongside the existing tmux exporter, with project-root validation, visible-text filtering, dry-run behavior, and collision-safe local output.
+
+**Added:** optional bounded silent WebM motion evidence for the private design-inspiration corpus; static screenshots remain the default, and legacy records without motion metadata remain readable.
+
+**Recovered:** conditional contracts for authenticated experience, blog/CMS, creative asset provenance, human-centered interaction, 3D, animation runtimes, image delivery, typography, iconography, colors, public identity, product-access UI, and portfolio commercial authority. Existing workflow owners load them only when their gates apply.
+
+**Deferred:** the portfolio-wide commercial validator and public-author readiness tool remain outside the runtime because their old portfolio and default-author registries are not supported by current project-owned authority.
+
+**Sources:** 0 URLs consulted; recovered from the local ShipGlows checkout and reconciled against current code and governance.
+
 ## 2026-09-01 — shared question, approval, and Git lifecycle contracts
 
 **Updated:** product and experience questions are proactive partnership, while purely technical questions and validation requests are exceptional and never turn the operator into an implementation supervisor.
