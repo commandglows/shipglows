@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.2"
 project: "ShipGlows"
 created: "2026-05-11"
-updated: "2026-08-13"
+updated: "2026-10-10"
 status: reviewed
 source_skill: 205-sg-veille
 scope: "project-competitors-and-inspirations"
@@ -23,6 +23,7 @@ evidence:
   - "Operator flagged https://grabltd.com/products/agentica as a probable competitor and requested tracking on 2026-08-09."
   - "Checked Agentica official landing site https://astarlabshub.com/ and verified core product claims on 2026-08-09."
   - "ShipGlows positioning decision SG-BIZ-2026-08-13-01 changes the comparison axis from infrastructure lifecycle control to business-aware outcome ownership."
+  - "Operator listed https://sourcegraph.com/ as a raw TODO URL; homepage checked on 2026-10-10 and the entry added to the registry."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.3.0"
@@ -42,7 +43,6 @@ https://github.com/EfficientStreet/hindsight
 https://github.com/Artistsyn/cortex_suite
 https://github.com/rodaddy/ai-marketing-panel
 https://github.com/openai/plugins/tree/main/plugins
-https://sourcegraph.com/
 https://github.com/humanlayer/skills/tree/main/plugins
 https://github.com/blader/humanizer
 https://github.com/sulabhdubey/rta-smriti-brain
@@ -106,6 +106,7 @@ Il sert a eviter que ces references restent seulement dans une conversation. Une
 | ShipGlows | inspiration | Divhunt | https://divhunt.com/ | Operator-supplied inspiration; not analysed in this register entry. | Later product and workflow review | No positioning conclusion recorded. | 2026-08-17 | Operator | candidate | Review only when it informs a concrete decision. |
 | ShipGlows | inspiration | DevHunt | https://devhunt.org/ | Operator-supplied inspiration; not analysed in this register entry. | Later product and workflow review | No positioning conclusion recorded. | 2026-08-17 | Operator | candidate | Review only when it informs a concrete decision. |
 | ShipGlows | inspiration | Vexp | https://vexp.dev/docs | Local-first context engine combining a live code dependency graph, task-scoped context capsules, cross-session observations, and symbol-linked staleness warnings. The 2026-08-25 review already inspired ShipGlows Context Head, Git-state invalidation, significant-event history, and changelog continuity. | Agent context selection, code-impact discovery, cross-repository context, and continuity | Keep ShipGlows governance artifacts and canonical truth as the authority. Build the remaining dependency-aware retrieval and symbol-level staleness capabilities as an evolutionary, proprietary ShipGlows layer; Vexp remains inspiration only and is not an integration or purchase candidate. | 2026-08-30 | Operator | reference | Use the native ShipGlows context-graph backlog item when a representative monorepo or multi-repo case justifies implementation. |
+| ShipGlows | indirect competitor | Sourcegraph | https://sourcegraph.com/ | Sells an agent context layer over indexed multi-repo codebases (Deep Search, MCP server with SCIP context, Code Search, Code Insights, Agentic Batch Changes), with enterprise security claims (SOC2 Type II, ISO27001, zero data retention). | Agent context across repositories, multi-repo change orchestration, code-intelligence benchmark | Their unit is an enterprise index over very large monorepos and multi-repo estates, sold to 200+ engineering teams; ours is the operator's local, governed environment where artifacts and canonical truth stay the authority. Do not claim parity on scale or code search. | 2026-10-10 | Operator | candidate | Compare their MCP context retrieval and batch-change model against codebase-mcp and the cross-repo context backlog item; classification inferred from the homepage, to confirm. |
 
 ## Entry Template
 
