@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: "ShipGlows"
 created: "2026-07-13"
 created_at: "2026-07-13 21:00:14 UTC"
-updated: "2026-08-12"
-updated_at: "2026-08-12 00:00:00 UTC"
-status: ready
+updated: "2026-08-26"
+updated_at: "2026-08-26 00:00:00 UTC"
+status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: "cross-project source-analysis contract and email adapters"
@@ -30,6 +30,7 @@ linked_systems:
   - "/home/claude/contentglowz/lab/api/services/project_generation_context.py"
   - "/home/claude/contentglowz/lab/api/services/pydantic_ai_runtime.py"
   - "/home/claude/contentglowz/lab/status/service.py"
+  - "shipglows_data/technical/decisions/provider-agnostic-source-ingestion-with-readwise-reader-pilot.md"
 depends_on:
   - artifact: "skills/references/source-intake-classification.md"
     artifact_version: "1.4.0"
@@ -40,8 +41,12 @@ depends_on:
   - artifact: "shipglows_data/workflow/explorations/2026-06-29-mail-source-intake-automation.md"
     artifact_version: "1.1.0"
     required_status: draft
+  - artifact: "shipglows_data/technical/decisions/provider-agnostic-source-ingestion-with-readwise-reader-pilot.md"
+    artifact_version: "1.0.0"
+    required_status: reviewed
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-26 puts Mail Intelligence feature development on hold, preserves the code as a fallback, and requires provider-neutral ingestion with Readwise Reader as the first pilot adapter."
   - "Wave 20 reclassifies the external Mail Intelligence spec as a linked multi-repository system and removes ContentGlowz architecture/branding from ShipGlows dependency governance; their body mentions remain historical implementation context only."
   - "Operator request 2026-07-13: pre-enrich every reviewed email with proposed content angles and likely next actions before the operator opens it."
   - "Operator request 2026-07-13: inspect ContentGlowz email capabilities and avoid implementing the same analysis engine twice."
@@ -54,12 +59,12 @@ evidence:
   - "The current local Codex model cache exposes gpt-5.4-mini with medium as its default reasoning level."
   - "Current official PydanticAI output documentation checked on 2026-07-13 confirms typed output_type validation; current official Sentry Python documentation confirms before_send scrubbing and that local variables, request data, and breadcrumbs are sensitive event surfaces."
   - "Installed Avante commit 2183acf00831a3ab366265ee35eef1a342716694 supports ACP streaming through avante.llm, while avante.api AskOptions still does not accept a per-request model or provider field."
-next_step: "/102-sg-start shared source analysis contract and email adapters"
+next_step: "/100-sg-spec revise shared source analysis for provider-neutral ingestion and Reader pilot"
 ---
 
 # Spec: Shared Source Analysis Contract And Email Adapters
 
-🟢 [ShipGlows] spec: Shared Source Analysis Contract And Email Adapters | status: ready | path: shipglows_data/workflow/specs/shared-source-analysis-contract-and-email-adapters.md | next: /102-sg-start shared source analysis contract and email adapters
+🟡 [ShipGlows] spec: Shared Source Analysis Contract And Email Adapters | status: draft | path: shipglows_data/workflow/specs/shared-source-analysis-contract-and-email-adapters.md | next: revise around provider-neutral ingestion and the Reader pilot
 
 ## Title
 
@@ -67,7 +72,7 @@ Shared Source Analysis Contract And Email Adapters
 
 ## Status
 
-Ready. The contract passed the readiness, adversarial, security, freshness, proof, and cross-repository scope gates. No product code has been changed by the spec/readiness runs.
+Returned to draft on 2026-08-26. The provider-neutral `SourceEnvelope` and `SourceAnalysis` direction remains valid, but the ready implementation plan assumed Maildir and IMAP-first triggers and active Mail Intelligence development. The selected pilot now requires a generic source-provider adapter contract and Readwise Reader as the first adapter. Mail Intelligence is preserved as an inactive fallback and receives no new feature work during the pilot.
 
 ## User Story
 

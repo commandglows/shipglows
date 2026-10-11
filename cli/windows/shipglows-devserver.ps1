@@ -9,6 +9,14 @@ param(
     [switch]$Offline,
     [string]$RepositoryUrl = '',
     [int]$Port = 0,
+    [switch]$Json,
+    [switch]$Headless,
+    [string]$TargetUrl = '',
+    [string]$Browser = 'Chromium',
+    [string]$InteractionCommand = '',
+    [string]$ClickSelector = '',
+    [string]$VisualSelector = '',
+    [switch]$Screenshot,
     [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
     [string]$FlutterDeviceId = '',
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
@@ -118,6 +126,9 @@ function Show-SgShortcutHelp {
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
     Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>]'
+    Write-Host '  s extension-inspect [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Json]'
+    Write-Host '  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
+    Write-Host '  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s reload -ProjectPath <path>      Hot reload an attached managed Flutter session'
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
     Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
@@ -143,7 +154,8 @@ function Show-SgShortcutHelp {
     Write-Host '  Flutter app      Start live (Windows by default when supported) -> Develop/reload -> Stop'
     Write-Host '                   .shipglows.env can explicitly select windows, android, chrome, or web-server.' -ForegroundColor DarkGray
     Write-Host '  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop'
-    Write-Host '  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.' -ForegroundColor DarkGray
+    Write-Host '  Managed WXT/CRXJS projects use their declared development contract; build scripts are never run implicitly.' -ForegroundColor DarkGray
+    Write-Host '  Obsidian plugins require one declared vault and keep live host loading as a separate proof.' -ForegroundColor DarkGray
     Write-Host ''
     Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
 }
@@ -186,7 +198,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -258,6 +270,25 @@ $git = $null
 $gh = $null
 $curl = $null
 
+function Invoke-SgGum([string[]]$Arguments) {
+    if (-not $gum) { return $null }
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $gum
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    foreach ($argument in $Arguments) { [void]$startInfo.ArgumentList.Add([string]$argument) }
+    $process = [Diagnostics.Process]::Start($startInfo)
+    if (-not $process) { throw 'Gum did not start.' }
+    try {
+        $value = $process.StandardOutput.ReadToEnd().Trim()
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) { return $null }
+        return $value
+    } finally {
+        $process.Dispose()
+    }
+}
+
 function Initialize-SgGitTools([switch]$IncludeGitHub) {
     if (-not $git) { $script:git = Get-SgApplication 'git.exe' @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe')) }
     if ($IncludeGitHub -and -not $gh) { $script:gh = Get-SgApplication 'gh.exe' @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe')) }
@@ -277,13 +308,10 @@ function Get-SgSelectedIndex([string[]]$Labels, [string]$Selected) {
 }
 
 function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
-    # Once fzf is available, avoid Bubble Tea console capture altogether.
-    if ($fzf -or -not $gum) { return Read-Host $Prompt }
+    if (-not $gum) { return Read-Host $Prompt }
     $arguments = @('input','--prompt',"$Prompt ")
     if ($Placeholder) { $arguments += @('--placeholder',$Placeholder) }
-    $value = (& $gum @arguments | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) { return $null }
-    return $value
+    return Invoke-SgGum $arguments
 }
 
 function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$IdentityByLabel = $null) {
@@ -291,10 +319,9 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
     $lines = @($Options | ForEach-Object { "$_" -replace '[\r\n]+', ' ' } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     if ($lines.Count -eq 0) { return $null }
 
-    # fzf has reliable redirected-input/output behavior in Windows PowerShell.
-    # Prefer it over Gum, whose Bubble Tea console redraw can lose rows on some
-    # managed Windows terminals (including Shadow + WezTerm).
-    if ($fzf) {
+    # Gum is the canonical Windows picker. fzf remains a recovery backend when
+    # the bundled, checksum-verified Gum executable is unavailable.
+    if (-not $gum -and $fzf) {
         $value = (($lines -join [Environment]::NewLine) | & $fzf --height=~60% --layout=reverse --border --prompt "$Header > " --no-multi | Out-String).Trim()
         if ($LASTEXITCODE -ne 0) { return $null }
         if ($IdentityByLabel) {
@@ -304,11 +331,14 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
         return $value
     }
 
-    # Gum on Windows can collapse a PowerShell-splatted array into one option.
-    # Its newline-delimited stdin contract preserves one selectable item per line.
-    # Explicit colors prevent invisible black-on-black items on managed Windows
-    # terminals whose inherited ANSI defaults differ from a normal console.
-    $style = @(
+    # Exact ProcessStartInfo arguments avoid PowerShell pipeline/array transport
+    # bugs while preserving Gum's direct access to the interactive console.
+    $arguments = @(
+        'choose',
+        '--header', $Header,
+        '--height', [string]$lines.Count,
+        '--cursor-prefix', '> ',
+        '--selected-prefix', '* ',
         '--item.foreground', '255',
         '--item.background', '0',
         '--cursor.foreground', '0',
@@ -317,9 +347,9 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
         '--selected.background', '212',
         '--header.foreground', '255',
         '--header.background', '0'
-    )
-    $value = (($lines -join [Environment]::NewLine) | & $gum choose --header $Header --cursor-prefix '> ' --selected-prefix '* ' @style | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) { return $null }
+    ) + $lines
+    $value = Invoke-SgGum $arguments
+    if (-not $value) { return $null }
     if ($IdentityByLabel) {
         if (-not $IdentityByLabel.ContainsKey($value)) { throw 'The selected item could not be resolved to an exact identity.' }
         return [string]$IdentityByLabel[$value]
@@ -977,7 +1007,10 @@ try {
         }
         'refresh' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null; Show-SgWindowsDashboard }
         'clone' { Invoke-Clone }
-        'register' { Invoke-SgRegisterProject $ProjectPath }
+        'register' {
+            $path = if ($ProjectPath) { $ProjectPath } else { Read-SgInput 'Project path' $config.Workspace }
+            if ($path) { Invoke-SgRegisterProject $path }
+        }
         'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
             if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
@@ -999,6 +1032,21 @@ try {
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject $entry } }
+        'extension-inspect' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            $descriptor = Get-SgBrowserExtensionDescriptor $path $Browser
+            if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $path" }
+            if ($Json) { $descriptor | ConvertTo-Json -Depth 4 -Compress }
+            else { Write-SgInfo "$($descriptor.Name) | $($descriptor.Mode) | Manifest V$($descriptor.ManifestVersion) | $($descriptor.RelativeManifestPath)" }
+        }
+        'extension-lab' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl -Screenshot:$Screenshot -Browser $Browser -ClickSelector $ClickSelector -VisualSelector $VisualSelector -Config $config
+        }
+        'obsidian-lab' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            [void](Invoke-SgObsidianPluginLab $config $path -Headless:$Headless -Json:$Json -InteractionCommand $InteractionCommand -Screenshot:$Screenshot -ClickSelector $ClickSelector -VisualSelector $VisualSelector)
+        }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         'select-stop' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }

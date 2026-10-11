@@ -175,7 +175,7 @@ jobs:
         working-directory: app
 ```
 
-Adapt runner names, stack setup, and build commands to the project. Do not copy this as a release workflow without adding the project's signing, permissions, and artifact retention requirements.
+Adapt the Blacksmith runner label, stack setup, and build commands to the project. ShipGlows-generated required gates accept Blacksmith runner labels only. Do not copy this as a release workflow without adding the project's signing, permissions, and artifact retention requirements.
 
 ## Deploy And Secrets
 

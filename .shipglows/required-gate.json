@@ -1,5 +1,6 @@
 {
   "production_branch": "main",
+  "runner": "blacksmith-4vcpu-ubuntu-2404",
   "lanes": [
     {
       "id": "tui-bun",

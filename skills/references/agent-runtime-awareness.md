@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "3.11.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-10-04"
+updated: "2026-10-06"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -14,6 +14,8 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
+  - tools/agent_runtime_envelope.py
+  - tools/test_agent_runtime_envelope.py
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/install-devserver.ps1
   - cli/windows/ShipGlows.AgentInstructions.psm1
@@ -46,12 +48,33 @@ next_step: "/103-sg-verify Windows runtime awareness"
 
 # Agent Runtime Awareness
 
+## Host Observation
+
+When host identity affects a decision, record operating system, agent surface,
+terminal host, session location and machine kind from current evidence. Keep
+unknown values explicit. Only where script execution is authorized, the helper
+`tools/agent_runtime_envelope.py --format json` can provide bounded ancestry
+hints. Do not run it on a no-local-workload host; use available session evidence.
+Its output is not proof of Desktop identity, native transport or tool callability.
+It exports no process paths or command lines. A missing SSH or CI marker proves
+neither a local session nor a physical machine. Transport reachability requires
+separate authorized current-turn evidence; never recommend a restart solely
+from a process-name hint. Helper tests and Windows observation remain subject
+to validation in a separate development environment.
+
 Before work depends on a local server or runtime-specific tool on Windows:
 
 1. Read `%USERPROFILE%\.shipglows\environment.md` for the global development environment.
-2. Resolve the registered project root from the current directory and read `<project-root>\ENVIRONMENT.md` for its durable ShipGlows-assigned URL.
+2. Resolve the registered project and selected managed surface from the current directory and requested target. Read that entry's `launchPath\ENVIRONMENT.md` when present, otherwise its `rootPath\ENVIRONMENT.md`; for legacy entries use the registered `path`. A missing root-level summary does not prove the selected surface lacks one. If multiple entries match and the requested target does not distinguish them, retain the ambiguity rather than using another surface's URL.
 3. Read the matching entry in `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json` for live `running`, `starting`, `stopped`, or `error` status.
 4. Use the assigned URL only while that registry entry is `running` or `starting`.
+
+The matching entry's current `status` is the live-state authority. Retained
+PIDs, daemon IDs, `flutterStartupState`, timestamps and earlier observations
+never override `stopped` or `error`. Missing or unrecognized status remains
+unknown. Re-read the matching entry before a runtime-dependent verdict and
+after a state transition, failed probe or contradictory observation; reading
+the registry must not start the CLI or an application.
 
 Do not derive the URL from `package.json`, framework defaults such as Astro/Vite `4321`, a remembered port, or another project. `.shipglows.env` remains the optional committed runtime-policy file; it is not the environment summary or live-state authority.
 
@@ -190,12 +213,18 @@ Use these exact state meanings:
 
 Absence from the first visible tool list is not proof of `not exposed`. If Chromium is installed and the Playwright MCP is configured but remains undiscovered after all host-supported discovery, report `Playwright configuré, outil non exposé dans ce tour`; never call Python, Chromium, or Playwright absent solely because no matching tool was visible initially.
 
-If a source is missing or contradicts another source, stop only the dependent action and report the mismatch. Do not launch a second server to guess the URL. Durable assignment comes from `ENVIRONMENT.md`; live state comes from the registry.
+If a source is missing or contradicts another source, refresh only the selected
+surface's summary, matching registry entry and affected current-turn capability
+evidence. If the mismatch persists, stop only the dependent action and report
+the conflicting sources. Do not launch a second server to guess the URL or
+recommend a generic restart without evidence of the component that needs it.
+Durable assignment comes from the selected surface's `ENVIRONMENT.md`; live
+state comes from its registry entry.
 
 Operator redirect:
 
 ```text
 Lance `$shipglows context`. Lis %USERPROFILE%\.shipglows\environment.md,
-<racine-projet>\ENVIRONMENT.md et l'état live du registre ShipGlows. Utilise
+le fichier ENVIRONMENT.md de la surface sélectionnée et son entrée live du registre ShipGlows. Utilise
 uniquement l'URL attribuée à ce projet et les outils exposés par le tour courant.
 ```

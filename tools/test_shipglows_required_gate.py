@@ -40,6 +40,7 @@ class RequiredGateContractTests(unittest.TestCase):
     def test_gate_always_on_without_top_level_paths(self):
         workflow = gate.render_workflow(self.configured_contract())
         self.assertIn("name: ShipGlows required gate", workflow)
+        self.assertIn("    runs-on: blacksmith-4vcpu-ubuntu-2404", workflow)
         self.assertIn('"on":\n  push:', workflow)
         self.assertIn("  pull_request:", workflow)
         self.assertIn("  workflow_dispatch:", workflow)
@@ -83,12 +84,14 @@ class RequiredGateContractTests(unittest.TestCase):
         self.write("app/test/example_test.dart", "void main() {}\n")
         contract = gate.inspect_project(self.project)
         self.assertEqual(["app-flutter", "site-node"], sorted(lane.id for lane in contract.lanes))
+        self.assertEqual(gate.DEFAULT_RUNNER, contract.runner)
         app_lane = next(lane for lane in contract.lanes if lane.id == "app-flutter")
         site = next(lane for lane in contract.lanes if lane.id == "site-node")
         self.assertEqual(("corepack enable && pnpm install --frozen-lockfile", "pnpm run check", "pnpm run test:unit", "pnpm run build"), site.commands)
         self.assertEqual("24", site.node_version)
         self.assertEqual("stable", app_lane.flutter_version)
         self.assertIn('node-version: "24"', gate.render_workflow(contract))
+        self.assertIn(f"    runs-on: {gate.DEFAULT_RUNNER}", gate.render_workflow(contract))
 
     def test_detects_node_version_from_package_engines(self):
         self.write("package.json", json.dumps({"engines": {"node": ">=24.0.0 <25"}, "scripts": {"test": "node --test"}}))
@@ -110,6 +113,29 @@ class RequiredGateContractTests(unittest.TestCase):
         contract = gate.inspect_project(self.project)
         self.assertEqual("3.47.1", contract.lanes[0].flutter_version)
         self.assertIn('flutter-version: "3.47.1"', gate.render_workflow(contract))
+
+    def test_project_can_select_a_blacksmith_runner(self):
+        config = {
+            "runner": "blacksmith-2vcpu-ubuntu-2404",
+            "lanes": [
+                {"id": "app", "runtime": "flutter", "root": "app", "paths": ["app/**"], "commands": ["flutter test"]},
+            ],
+        }
+        self.write(".shipglows/required-gate.json", json.dumps(config))
+        contract = gate.inspect_project(self.project)
+        self.assertEqual("blacksmith-2vcpu-ubuntu-2404", contract.runner)
+        self.assertIn("    runs-on: blacksmith-2vcpu-ubuntu-2404", gate.render_workflow(contract))
+
+    def test_non_blacksmith_runner_is_rejected(self):
+        config = {
+            "runner": "ubuntu-latest",
+            "lanes": [
+                {"id": "app", "runtime": "flutter", "root": "app", "paths": ["app/**"], "commands": ["flutter test"]},
+            ],
+        }
+        self.write(".shipglows/required-gate.json", json.dumps(config))
+        with self.assertRaisesRegex(gate.GateError, "must be a Blacksmith runner"):
+            gate.inspect_project(self.project)
 
     def test_rejects_node_lane_without_declared_version(self):
         self.write("package.json", json.dumps({"scripts": {"test": "node --test"}}))

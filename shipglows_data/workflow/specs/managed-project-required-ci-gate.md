@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.3"
+artifact_version: "1.2.4"
 project: ShipGlows
 created: "2026-08-27"
 created_at: "2026-08-27 23:08:06 UTC"
-updated: "2026-08-28"
-updated_at: "2026-08-28 11:57:29 UTC"
+updated: "2026-10-08"
+updated_at: "2026-10-08 11:04:00 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -42,6 +42,7 @@ evidence:
   - "Operator decision 2026-08-28: make protective CI mandatory across ShipGlows-managed projects, beginning with a Core contract and a ContentGlows pilot."
   - "Editorial correction 2026-08-28: the verified Core capability is material public trust proof; the canonical claim register and bilingual article, docs, and FAQ require aligned wording without implying completed fleet rollout."
   - "ShipGlows App rollout 2026-08-28: Node lanes now resolve a project-declared .node-version, .nvmrc, or engines.node contract instead of forcing Node 22; focused Core proof passes 16 tests."
+  - "Operator decision 2026-10-08: use Blacksmith for generated required gates across managed projects; non-Blacksmith runner labels are rejected."
 next_step: "Migrate ContentGlows under project-context authority, prove its exact gate, then reconcile its ruleset."
 ---
 
@@ -99,7 +100,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 
 ## Scope Out
 
-- Mutating ContentGlows or another managed project from Core context.
+- Mutating a managed project without project-context authority. The explicitly authorized ContentGlows pilot configures and regenerates only its own gate contract and workflow.
 - Bulk fleet rollout, pull-request merge, release, deploy, branch deletion, force push, credential changes, or production mutation.
 - Inventing stack checks when a project does not expose a safe conventional or declared command.
 - Requiring a second human reviewer for solo-maintainer development or published projects.
@@ -112,6 +113,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - The production branch defaults to `main` only when project policy does not declare an alternative.
 - Audit is read-only. Workflow generation writes only the explicit output path. Provider apply is separately explicit and preconditioned by fresh provider evidence.
 - Generated workflows use least-privileged read permissions, exact revision checkout, pinned maintained actions, bounded timeouts, and no secrets.
+- Generated required gates run on Blacksmith. Project configuration may select a Blacksmith runner label; non-Blacksmith runners are rejected.
 - Generated Node lanes use the nearest `.node-version` or `.nvmrc`, then `package.json#engines.node`; generation fails when no Node runtime contract is declared.
 - Flutter lanes use `stable` by default when auto-detected, and can be overridden with an explicit `flutter_version` in `.shipglows/required-gate.json`.
 - `trigger` in `.shipglows/required-gate.json` is `auto` (default) or `manual`; `manual` renders `workflow_dispatch` only, and `ruleset-plan`/`ruleset-apply` refuse it.
@@ -127,6 +129,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - [x] Run independent verification and closure bookkeeping.
 - [x] Deliver the exact-scope closure commit and ordinary push.
 - [x] Hand off ContentGlows as the first project-context pilot without mutating it here.
+- [x] Make Blacksmith the only supported runner provider for generated gates and regenerate the explicitly authorized ContentGlows pilot.
 - [x] Correct the editorial verdict and propagate the evidence-bounded capability to the public EN/FR article, docs, and FAQ.
 
 ## Test Contract

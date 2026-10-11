@@ -12,10 +12,13 @@ import shutil
 import subprocess
 import threading
 import time
+import tomllib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, unquote, urlencode, urlsplit, urlunsplit
+
+from .versions import evaluate_version_constraint
 
 
 MANIFEST_NAME = "shipglows.environment.json"
@@ -25,6 +28,7 @@ PLAN_SCHEMA = "shipglows.environment-plan/v1"
 CAPABILITY_GROUPS = ("tools", "targets", "agents", "integrations")
 STATUS_VALUES = {
     "ready",
+    "incompatible",
     "pending",
     "blocked",
     "degraded",
@@ -39,7 +43,7 @@ MAX_SOURCE_BYTES = 8 * 1024 * 1024
 STATE_LOCK_STALE_SECONDS = 30.0
 ROOT_FIELDS = {"schema", "project", "capabilities", "backends", "policies", "extensions"}
 PROJECT_FIELDS = {"id", "name"}
-CAPABILITY_FIELDS = {"id", "constraint", "platforms"}
+CAPABILITY_FIELDS = {"id", "constraint", "platforms", "scope"}
 BACKEND_PLATFORMS = {"windows", "unix", "container"}
 BACKEND_FIELDS = {"mise", "flox", "winget_configuration", "devcontainer"}
 POLICY_FIELDS = {"native_host_required", "consent", "secrets"}
@@ -82,6 +86,7 @@ OBSERVATION_FIELDS = {
     "consumer",
     "resolved_version",
     "integrity",
+    "scope",
 }
 STATE_FIELDS = {
     "schema",
@@ -96,7 +101,28 @@ STATE_FIELDS = {
 }
 SECRET_KEY = re.compile(r"(?:token|secret|password|passwd|api[_-]?key|authorization|cookie|credential)", re.I)
 CREDENTIAL_VALUE = re.compile(
-    r"^(?:Bearer\s+\S+|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{16,}|AIza[A-Za-z0-9_-]{20,}|xox[baprs]-\S+)$",
+    r"^(?:(?:Bearer|Basic)\s+\S+|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{16,}|AIza[A-Za-z0-9_-]{20,}|xox[baprs]-\S+)$",
+    re.I,
+)
+HTTP_URL = re.compile(r"https?://[^\s<>\"']+", re.I)
+QUOTED_OR_ATOM = r'(?:"[^"\r\n]*"|\'[^\'\r\n]*\'|[^\s,;]+)'
+AUTHORIZATION_CREDENTIAL = re.compile(
+    r"\b(authorization\s*(?::|=)?\s*(?:bearer|basic)\s+)" + QUOTED_OR_ATOM,
+    re.I,
+)
+BEARER_CREDENTIAL = re.compile(r"\b(bearer\s+)" + QUOTED_OR_ATOM, re.I)
+SECRET_ASSIGNMENT = re.compile(
+    r"\b((?:token|secret|password|passwd|api[_-]?key|cookie|credential)\s*(?::|=)\s*)"
+    + QUOTED_OR_ATOM,
+    re.I,
+)
+AUTHORIZATION_ASSIGNMENT = re.compile(
+    r"\b(authorization\s*(?::|=)\s*)(?!(?:bearer|basic)\b)" + QUOTED_OR_ATOM,
+    re.I,
+)
+SECRET_QUOTED_VALUE = re.compile(
+    r"\b((?:token|secret|password|passwd|api[_-]?key|cookie|credential)\s+)"
+    r'(?:"[^"\r\n]*"|\'[^\'\r\n]*\')',
     re.I,
 )
 CAPABILITY_ID = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
@@ -113,7 +139,26 @@ SAFE_TOOL_PROBES = {
     "mise": ("mise",),
     "flox": ("flox",),
     "pnpm": ("pnpm",),
+    "npm": ("npm",),
     "cargo": ("cargo",),
+    "rustc": ("rustc",),
+    "rustup": ("rustup",),
+}
+DISCOVERY_MAX_DEPTH = 3
+DISCOVERY_IGNORED_DIRECTORIES = {
+    ".git",
+    ".gradle",
+    ".idea",
+    ".next",
+    ".pnpm-store",
+    ".turbo",
+    ".venv",
+    "build",
+    "coverage",
+    "dist",
+    "node_modules",
+    "target",
+    "vendor",
 }
 
 
@@ -213,7 +258,23 @@ def resolve_project_reference(project_root: Path, reference: str) -> Path:
     return candidate
 
 
-def _validate_capabilities(value: Any) -> Dict[str, List[Dict[str, Any]]]:
+def _normalize_scope(value: Any, context: str) -> str:
+    scope = _require_nonempty_string(value, context)
+    if scope == ".":
+        return scope
+    if "\\" in scope or scope.startswith("/") or any(ord(character) < 32 for character in scope):
+        raise ContractError(f"{context} must be a canonical project-relative scope")
+    parts = scope.split("/")
+    if any(not part or part in (".", "..") for part in parts) or re.match(r"^[A-Za-z]:", scope):
+        raise ContractError(f"{context} must be a canonical project-relative scope")
+    return "/".join(parts)
+
+
+def _capability_key(value: Mapping[str, Any]) -> tuple[str, str]:
+    return str(value.get("id", "")), str(value.get("scope", "."))
+
+
+def _validate_capabilities(value: Any, project_root: Optional[Path] = None) -> Dict[str, List[Dict[str, Any]]]:
     capabilities = _require_object(value, "capabilities")
     _reject_unknown(capabilities, set(CAPABILITY_GROUPS), "capabilities")
     normalized: Dict[str, List[Dict[str, Any]]] = {group: [] for group in CAPABILITY_GROUPS}
@@ -228,10 +289,24 @@ def _validate_capabilities(value: Any) -> Dict[str, List[Dict[str, Any]]]:
             identifier = _require_nonempty_string(entry.get("id"), f"capabilities.{group}[{index}].id")
             if not CAPABILITY_ID.fullmatch(identifier):
                 raise ContractError(f"invalid capability id: {identifier}")
-            if identifier in seen:
-                raise ContractError(f"duplicate capability id in {group}: {identifier}")
-            seen.add(identifier)
             normalized_entry: Dict[str, Any] = {"id": identifier}
+            if "scope" in entry:
+                scope = _normalize_scope(entry["scope"], f"capabilities.{group}[{index}].scope")
+                if project_root is not None:
+                    try:
+                        scoped_path = (project_root / scope).resolve(strict=False)
+                        scoped_path.relative_to(project_root.resolve())
+                    except (OSError, RuntimeError, ValueError) as exc:
+                        raise ContractError(
+                            f"capabilities.{group}[{index}].scope escapes project root"
+                        ) from exc
+                normalized_entry["scope"] = scope
+            key = _capability_key(normalized_entry)
+            if key in seen:
+                raise ContractError(
+                    f"duplicate capability in {group}: {identifier} at scope {key[1]}"
+                )
+            seen.add(key)
             if "constraint" in entry:
                 normalized_entry["constraint"] = _require_nonempty_string(
                     entry["constraint"], f"capabilities.{group}[{index}].constraint"
@@ -244,7 +319,7 @@ def _validate_capabilities(value: Any) -> Dict[str, List[Dict[str, Any]]]:
                     raise ContractError(f"capabilities.{group}[{index}].platforms is invalid")
                 normalized_entry["platforms"] = sorted(platforms)
             normalized[group].append(normalized_entry)
-        normalized[group].sort(key=lambda item: item["id"])
+        normalized[group].sort(key=lambda item: _capability_key(item))
     return normalized
 
 
@@ -268,7 +343,7 @@ def load_manifest(path: Path, project_root: Optional[Path] = None) -> Dict[str, 
         if field in project_value:
             project_normalized[field] = _require_nonempty_string(project_value[field], f"project.{field}")
     normalized["project"] = project_normalized
-    normalized["capabilities"] = _validate_capabilities(manifest.get("capabilities", {}))
+    normalized["capabilities"] = _validate_capabilities(manifest.get("capabilities", {}), root)
 
     backends = _require_object(manifest.get("backends", {}), "backends")
     _reject_unknown(backends, BACKEND_PLATFORMS, "backends")
@@ -413,6 +488,8 @@ def validate_plan_record(value: Any) -> Dict[str, Any]:
             raise ContractError(f"{context}.capability kind is invalid")
         if not CAPABILITY_ID.fullmatch(str(capability["id"])):
             raise ContractError(f"{context}.capability id is invalid")
+        if "scope" in capability:
+            _normalize_scope(capability["scope"], f"{context}.capability.scope")
         if operation["owner"] is not None and not isinstance(operation["owner"], str):
             raise ContractError(f"{context}.owner must be null or a string")
         if not isinstance(operation["references"], list) or any(
@@ -425,7 +502,7 @@ def validate_plan_record(value: Any) -> Dict[str, Any]:
             raise ContractError(f"{context}.executable must be a boolean")
         _require_nonempty_string(operation["reason"], f"{context}.reason")
         action = operation.get("action")
-        if action is not None and action not in ("acquire_mise", "install_node", "install_pnpm"):
+        if action is not None and action not in ("acquire_mise", "install_node", "install_pnpm", "install_rust"):
             raise ContractError(f"{context}.action is invalid")
         approval = operation.get("approval")
         if approval is not None and approval not in ("required", "not_required"):
@@ -494,6 +571,8 @@ def _validate_state_record(value: Any) -> Dict[str, Any]:
             raise ContractError(f"{context}.id is invalid")
         if capability["status"] not in STATUS_VALUES:
             raise ContractError(f"{context}.status is invalid")
+        if "scope" in capability:
+            _normalize_scope(capability["scope"], f"{context}.scope")
         _require_nonempty_string(capability["source"], f"{context}.source")
     if not isinstance(state["observed_at"], str):
         raise ContractError("environment state observed_at must be a string")
@@ -517,6 +596,184 @@ def project_identity(project_root: Path) -> Dict[str, str]:
     root = project_root.resolve()
     normalized = os.path.normcase(str(root))
     return {"id": hashlib.sha256(normalized.encode("utf-8")).hexdigest(), "root": str(root)}
+
+
+def _bounded_native_files(root: Path) -> List[Path]:
+    found: List[Path] = []
+    for current, directories, files in os.walk(root, followlinks=False):
+        current_path = Path(current)
+        depth = len(current_path.relative_to(root).parts)
+        directories[:] = sorted(
+            name
+            for name in directories
+            if name not in DISCOVERY_IGNORED_DIRECTORIES
+            and not name.startswith(".")
+            and not (current_path / name).is_symlink()
+            and depth < DISCOVERY_MAX_DEPTH
+        )
+        for name in sorted(files):
+            if name not in ("package.json", "Cargo.toml", "tauri.conf.json"):
+                continue
+            candidate = current_path / name
+            if not candidate.is_symlink():
+                found.append(candidate)
+    return sorted(found, key=lambda item: item.relative_to(root).as_posix().casefold())
+
+
+def _scope_for_path(root: Path, directory: Path) -> str:
+    relative = directory.relative_to(root).as_posix()
+    return relative or "."
+
+
+def _merge_detected_capability(
+    capabilities: Dict[str, List[Dict[str, Any]]], group: str, entry: Dict[str, Any]
+) -> None:
+    key = _capability_key(entry)
+    if any(
+        _capability_key(existing) == key
+        or (
+            group == "targets"
+            and entry.get("id") in ("tauri", "tauri-windows")
+            and existing.get("id") in ("tauri", "tauri-windows")
+            and existing.get("scope", ".") == entry.get("scope", ".")
+        )
+        for existing in capabilities[group]
+    ):
+        return
+    capabilities[group].append(entry)
+
+
+def _read_cargo_document(path: Path) -> Dict[str, Any]:
+    try:
+        if path.stat().st_size > MAX_SOURCE_BYTES:
+            raise ContractError(f"source file exceeds the {MAX_SOURCE_BYTES}-byte size limit: {path}")
+        with path.open("rb") as handle:
+            value = tomllib.load(handle)
+    except ContractError:
+        raise
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        raise ContractError(f"could not read Cargo manifest {path}: {type(exc).__name__}") from exc
+    return value if isinstance(value, dict) else {}
+
+
+def _read_cargo_msrv(path: Path, project_root: Path) -> Optional[str]:
+    value = _read_cargo_document(path)
+    package = value.get("package") if isinstance(value.get("package"), dict) else {}
+    msrv = package.get("rust-version")
+    if isinstance(msrv, str) and msrv.strip():
+        return msrv.strip()
+    if not (isinstance(msrv, dict) and msrv.get("workspace") is True):
+        return None
+    root = project_root.resolve()
+    for parent in path.parent.parents:
+        if parent == root.parent:
+            break
+        candidate = parent / "Cargo.toml"
+        if candidate == path or not candidate.is_file():
+            continue
+        workspace = _read_cargo_document(candidate).get("workspace")
+        workspace_package = workspace.get("package") if isinstance(workspace, dict) else None
+        inherited = workspace_package.get("rust-version") if isinstance(workspace_package, dict) else None
+        if isinstance(inherited, str) and inherited.strip():
+            return inherited.strip()
+    return None
+
+
+def _infer_native_capabilities(root: Path, files: Iterable[Path]) -> Dict[str, List[Dict[str, Any]]]:
+    inferred: Dict[str, List[Dict[str, Any]]] = {group: [] for group in CAPABILITY_GROUPS}
+    packages: Dict[str, Dict[str, Any]] = {}
+    cargo_scopes: Dict[str, Path] = {}
+    generic_cargo_scopes = set()
+    tauri_config_scopes = set()
+    for path in files:
+        relative = path.relative_to(root)
+        if path.name == "package.json":
+            scope = _scope_for_path(root, path.parent)
+            try:
+                value = load_json_strict(path, MAX_SOURCE_BYTES, "package.json")
+            except ContractError:
+                continue
+            if isinstance(value, dict):
+                packages[scope] = value
+        elif path.name == "Cargo.toml" and path.parent.name == "src-tauri":
+            cargo_scopes[_scope_for_path(root, path.parent.parent)] = path
+        elif path.name == "Cargo.toml":
+            generic_cargo_scopes.add(_scope_for_path(root, path.parent))
+        elif path.name == "tauri.conf.json" and path.parent.name == "src-tauri":
+            tauri_config_scopes.add(_scope_for_path(root, path.parent.parent))
+
+    tauri_scopes = set(cargo_scopes) | tauri_config_scopes
+    for scope, package in packages.items():
+        engines = package.get("engines") if isinstance(package.get("engines"), dict) else {}
+        node_constraint = engines.get("node")
+        if isinstance(node_constraint, str) and node_constraint.strip():
+            _merge_detected_capability(
+                inferred,
+                "tools",
+                {"id": "node", "constraint": node_constraint.strip(), "scope": scope},
+            )
+        package_manager = package.get("packageManager")
+        if isinstance(package_manager, str):
+            manager = re.fullmatch(r"(pnpm|npm)@([^\s]+)", package_manager.strip())
+            if manager:
+                _merge_detected_capability(
+                    inferred,
+                    "tools",
+                    {"id": manager.group(1), "constraint": manager.group(2), "scope": scope},
+                )
+        dependencies: Dict[str, Any] = {}
+        for field in ("dependencies", "devDependencies"):
+            if isinstance(package.get(field), dict):
+                dependencies.update(package[field])
+        tauri_cli = dependencies.get("@tauri-apps/cli")
+        if isinstance(tauri_cli, str) and tauri_cli.strip():
+            _merge_detected_capability(
+                inferred,
+                "tools",
+                {"id": "tauri-cli", "constraint": tauri_cli.strip().lstrip("="), "scope": scope},
+            )
+
+    for scope in sorted(tauri_scopes):
+        cargo_path = cargo_scopes.get(scope)
+        msrv = _read_cargo_msrv(cargo_path, root) if cargo_path else None
+        for identifier, constraint in (
+            ("cargo", "*"),
+            ("rustup", "*"),
+            ("rustc", f">={msrv}" if msrv else "*"),
+        ):
+            _merge_detected_capability(
+                inferred,
+                "tools",
+                {"id": identifier, "constraint": constraint, "scope": scope, "platforms": ["windows"]},
+            )
+        _merge_detected_capability(
+            inferred,
+            "targets",
+            {"id": "tauri-windows", "scope": scope, "platforms": ["windows"]},
+        )
+        for identifier in ("msvc", "windows-sdk", "webview2"):
+            _merge_detected_capability(
+                inferred,
+                "integrations",
+                {"id": identifier, "scope": scope, "platforms": ["windows"]},
+            )
+    for scope in sorted(generic_cargo_scopes):
+        if any(
+            scope == ("src-tauri" if tauri_scope == "." else f"{tauri_scope}/src-tauri")
+            or scope.startswith(
+                ("src-tauri/" if tauri_scope == "." else f"{tauri_scope}/src-tauri/")
+            )
+            for tauri_scope in tauri_scopes
+        ):
+            continue
+        _merge_detected_capability(
+            inferred,
+            "tools",
+            {"id": "cargo", "constraint": "*", "scope": scope},
+        )
+    for group in CAPABILITY_GROUPS:
+        inferred[group].sort(key=_capability_key)
+    return inferred
 
 
 def discover_project(project_root: Path) -> Dict[str, Any]:
@@ -587,56 +844,59 @@ def discover_project(project_root: Path) -> Dict[str, Any]:
                 )
             sources.append(source)
 
-    package_path = resolve_project_reference(root, "package.json")
-    if package_path.is_file():
+    native_files = _bounded_native_files(root)
+    for package_path in (path for path in native_files if path.name == "package.json"):
         sources.append(
-            {"kind": "npm", "role": "native_manifest", "path": str(package_path), "explicit": False, "precedence": 50, "exists": True, "sha256": _sha256_file(package_path)}
+            {
+                "kind": "npm",
+                "role": "native_manifest",
+                "scope": _scope_for_path(root, package_path.parent),
+                "path": str(package_path),
+                "explicit": False,
+                "precedence": 50,
+                "exists": True,
+                "sha256": _sha256_file(package_path),
+            }
         )
-        try:
-            package = load_json_strict(package_path, MAX_SOURCE_BYTES, "package.json")
-        except ContractError:
-            package = None
-        if isinstance(package, dict) and management != "explicit":
-            inferred_tools = manifest["capabilities"]["tools"]
-            known_tool_ids = {item["id"] for item in inferred_tools}
-            node_constraint = package.get("engines", {}).get("node") if isinstance(package.get("engines"), dict) else None
-            if isinstance(node_constraint, str) and node_constraint.strip() and "node" not in known_tool_ids:
-                inferred_tools.append({"id": "node", "constraint": node_constraint.strip()})
-                known_tool_ids.add("node")
-            package_manager = package.get("packageManager")
-            if isinstance(package_manager, str):
-                manager_match = re.fullmatch(r"pnpm@([^\s]+)", package_manager.strip())
-                if manager_match and "pnpm" not in known_tool_ids:
-                    inferred_tools.append({"id": "pnpm", "constraint": manager_match.group(1)})
-                    known_tool_ids.add("pnpm")
-
-            dependencies = {}
-            for field in ("dependencies", "devDependencies"):
-                if isinstance(package.get(field), dict):
-                    dependencies.update(package[field])
-            tauri_detected = "@tauri-apps/cli" in dependencies
-        else:
-            tauri_detected = False
-    else:
-        tauri_detected = False
-
-    cargo_path = resolve_project_reference(root, "src-tauri/Cargo.toml")
-    if cargo_path.is_file():
+    for cargo_path in (path for path in native_files if path.name == "Cargo.toml"):
+        cargo_scope = (
+            cargo_path.parent.parent if cargo_path.parent.name == "src-tauri" else cargo_path.parent
+        )
         sources.append(
-            {"kind": "cargo", "role": "native_manifest", "path": str(cargo_path), "explicit": False, "precedence": 50, "exists": True, "sha256": _sha256_file(cargo_path)}
+            {
+                "kind": "cargo",
+                "role": "native_manifest",
+                "scope": _scope_for_path(root, cargo_scope),
+                "path": str(cargo_path),
+                "explicit": False,
+                "precedence": 50,
+                "exists": True,
+                "sha256": _sha256_file(cargo_path),
+            }
         )
-        if management != "explicit":
-            tauri_detected = True
-    if tauri_detected and management != "explicit":
-        tools = manifest["capabilities"]["tools"]
-        if not any(item["id"] == "cargo" for item in tools):
-            tools.append({"id": "cargo"})
-        targets = manifest["capabilities"]["targets"]
-        if not any(item["id"] == "tauri" for item in targets):
-            targets.append({"id": "tauri"})
+    for tauri_config in (
+        path for path in native_files if path.name == "tauri.conf.json" and path.parent.name == "src-tauri"
+    ):
+        sources.append(
+            {
+                "kind": "tauri",
+                "role": "native_manifest",
+                "scope": _scope_for_path(root, tauri_config.parent.parent),
+                "path": str(tauri_config),
+                "explicit": False,
+                "precedence": 50,
+                "exists": True,
+                "sha256": _sha256_file(tauri_config),
+            }
+        )
+
+    inferred = _infer_native_capabilities(root, native_files)
+    for group in CAPABILITY_GROUPS:
+        for capability in inferred[group]:
+            _merge_detected_capability(manifest["capabilities"], group, capability)
 
     for group in CAPABILITY_GROUPS:
-        manifest["capabilities"][group].sort(key=lambda item: item["id"])
+        manifest["capabilities"][group].sort(key=_capability_key)
     if management == "unmanaged" and sources:
         management = "inferred"
     sources.sort(key=lambda item: (-item["precedence"], item["kind"], item["path"], item["role"]))
@@ -669,11 +929,57 @@ def _redact_url(value: str) -> str:
         if port:
             host = f"{host}:{port}"
         netloc = host
+    def contains_credential(component: str) -> bool:
+        decoded = unquote(component)
+        return any(
+            pattern.search(decoded)
+            for pattern in (
+                AUTHORIZATION_CREDENTIAL,
+                BEARER_CREDENTIAL,
+                AUTHORIZATION_ASSIGNMENT,
+                SECRET_ASSIGNMENT,
+                SECRET_QUOTED_VALUE,
+            )
+        )
+
     query = []
     for query_key, query_value in parse_qsl(parts.query, keep_blank_values=True):
-        query.append((query_key, "[REDACTED]" if SECRET_KEY.search(query_key) else query_value))
-    fragment = "[REDACTED]" if SECRET_KEY.search(parts.fragment) else parts.fragment
-    return urlunsplit((parts.scheme, netloc, parts.path, urlencode(query), fragment))
+        query.append(
+            (
+                query_key,
+                "[REDACTED]"
+                if SECRET_KEY.search(unquote(query_key)) or contains_credential(query_value)
+                else query_value,
+            )
+        )
+    path = "[REDACTED]" if contains_credential(parts.path) else parts.path
+    fragment = (
+        "[REDACTED]"
+        if SECRET_KEY.search(unquote(parts.fragment)) or contains_credential(parts.fragment)
+        else parts.fragment
+    )
+    return urlunsplit((parts.scheme, netloc, path, urlencode(query, safe="[]"), fragment))
+
+
+def _redact_text(value: str) -> str:
+    """Mask credentials inside diagnostics while retaining actionable context."""
+
+    redacted_urls: List[str] = []
+
+    def hold_url(match: re.Match[str]) -> str:
+        marker = f"\x00SGURL{len(redacted_urls)}\x00"
+        redacted_urls.append(_redact_url(match.group(0)))
+        return marker
+
+    result = HTTP_URL.sub(hold_url, value)
+    result = AUTHORIZATION_CREDENTIAL.sub(r"\1[REDACTED]", result)
+    result = BEARER_CREDENTIAL.sub(r"\1[REDACTED]", result)
+    result = AUTHORIZATION_ASSIGNMENT.sub(r"\1[REDACTED]", result)
+    result = SECRET_ASSIGNMENT.sub(r"\1[REDACTED]", result)
+    result = SECRET_QUOTED_VALUE.sub(r"\1[REDACTED]", result)
+    for index, safe_url in enumerate(redacted_urls):
+        result = result.replace(f"\x00SGURL{index}\x00", safe_url)
+    return result
 
 
 def redact(value: Any, key: str = "") -> Any:
@@ -686,28 +992,50 @@ def redact(value: Any, key: str = "") -> Any:
     if isinstance(value, str):
         if CREDENTIAL_VALUE.fullmatch(value.strip()):
             return "[REDACTED]"
-        return _redact_url(value)
+        return _redact_text(value)
     return value
 
 
+def _version_evidence(output: str, identifier: str = "") -> str:
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+    for line in lines:
+        if re.fullmatch(r"v?\d+(?:\.\d+)+(?:[-+][0-9A-Za-z.-]+)?", line):
+            return line[:240]
+    if identifier in ("cargo", "rustc", "rustup"):
+        pattern = re.compile(rf"^{re.escape(identifier)}\s+(\d+(?:\.\d+){{2,3}})(?:\s|$)", re.I)
+        for line in lines:
+            match = pattern.search(line)
+            if match:
+                return match.group(1)
+    return lines[0][:240] if lines else ""
+
+
 def _tool_observation(
-    identifier: str, probe_version: bool = False, constraint: Optional[str] = None
+    identifier: str,
+    probe_version: bool = False,
+    constraint: Optional[str] = None,
+    scope: Optional[str] = None,
 ) -> Dict[str, Any]:
     candidates = SAFE_TOOL_PROBES.get(identifier)
     if candidates is None:
-        return {
+        evidence = {
             "kind": "tool",
             "id": identifier,
             "status": "unknown",
             "source": "no_trusted_probe",
             "reason": "the foundation does not execute repository-provided capability names",
         }
+        if scope is not None:
+            evidence["scope"] = scope
+        return evidence
     executable = None
     for candidate in candidates:
         executable = shutil.which(candidate)
         if executable:
             break
     evidence: Dict[str, Any] = {"kind": "tool", "id": identifier, "status": "pending", "source": "trusted_process_probe"}
+    if scope is not None:
+        evidence["scope"] = scope
     if not executable:
         evidence["reason"] = "not visible in the current process PATH"
         return evidence
@@ -733,18 +1061,18 @@ def _tool_observation(
             check=False,
             shell=False,
         )
-        evidence["version"] = (process.stdout or "").strip().splitlines()[0][:240] if process.stdout else ""
+        evidence["version"] = _version_evidence(process.stdout or "", identifier)
         if process.returncode != 0:
             evidence.update({"status": "degraded", "reason": f"version probe exited {process.returncode}"})
         elif not evidence["version"]:
             evidence.update({"status": "degraded", "reason": "version probe returned no version evidence"})
         elif constraint:
-            evidence.update(
-                {
-                    "status": "unknown",
-                    "reason": "version captured; constraint evaluation requires an active capability adapter",
-                }
-            )
+            version_status = evaluate_version_constraint(evidence["version"], constraint)
+            evidence["status"] = version_status
+            if version_status == "unknown":
+                evidence["reason"] = "version captured; the declared constraint grammar is unsupported"
+            elif version_status == "incompatible":
+                evidence["reason"] = f"observed version does not satisfy {constraint}"
         else:
             evidence["status"] = "ready"
     except (OSError, subprocess.SubprocessError) as exc:
@@ -762,34 +1090,36 @@ def observe_project(
 ) -> Dict[str, Any]:
     platform_value = platform_name or current_platform()
     architecture_value = architecture or platform.machine().lower() or "unknown"
-    pilot_observations = None
+    adapter_observations = None
+    adapter_owned = set()
     if probe_versions and platform_value == "windows":
-        from .mise_backend import SubprocessRunner, observe_node
+        from .adapters import default_windows_runner, observe_windows
 
-        pilot_observations = observe_node(
-            desired,
-            architecture_value,
-            runner or SubprocessRunner(),
-            offline=offline,
+        adapter_result = observe_windows(
+            desired, architecture_value, runner or default_windows_runner(), offline=offline
         )
+        adapter_observations = adapter_result["observations"]
+        adapter_owned = adapter_result["owned"]
     observations: List[Dict[str, Any]] = []
     capabilities = desired["manifest"]["capabilities"]
     for group in CAPABILITY_GROUPS:
         for capability in capabilities[group]:
             applicable = not capability.get("platforms") or platform_value in capability["platforms"]
             if not applicable:
-                observations.append(
-                    {"kind": group[:-1], "id": capability["id"], "status": "not_applicable", "source": "platform"}
-                )
+                item = {"kind": group[:-1], "id": capability["id"], "status": "not_applicable", "source": "platform"}
+                if "scope" in capability:
+                    item["scope"] = capability["scope"]
+                observations.append(item)
             elif (
-                group == "tools"
-                and capability["id"] in ("node", "pnpm")
-                and pilot_observations is not None
+                adapter_observations is not None
+                and (group[:-1], capability["id"], capability.get("scope", ".")) in adapter_owned
             ):
                 observations.extend(
                     item
-                    for item in pilot_observations
-                    if item["id"] == capability["id"]
+                    for item in adapter_observations
+                    if item["kind"] == group[:-1]
+                    and item["id"] == capability["id"]
+                    and item.get("scope", ".") == capability.get("scope", ".")
                 )
             elif group == "tools":
                 observations.append(
@@ -797,19 +1127,28 @@ def observe_project(
                         capability["id"],
                         probe_version=probe_versions,
                         constraint=capability.get("constraint"),
+                        scope=capability.get("scope"),
                     )
                 )
             else:
-                observations.append(
-                    {
-                        "kind": group[:-1],
-                        "id": capability["id"],
-                        "status": "unknown",
-                        "source": "no_active_backend",
-                        "reason": "no observation adapter is active in the foundation slice",
-                    }
-                )
-    observations.sort(key=lambda item: (CAPABILITY_GROUPS.index(item["kind"] + "s"), item["id"]))
+                item = {
+                    "kind": group[:-1],
+                    "id": capability["id"],
+                    "status": "unknown",
+                    "source": "no_active_backend",
+                    "reason": "no observation adapter is active in the foundation slice",
+                }
+                if "scope" in capability:
+                    item["scope"] = capability["scope"]
+                observations.append(item)
+    observations.sort(
+        key=lambda item: (
+            CAPABILITY_GROUPS.index(item["kind"] + "s"),
+            item["id"],
+            item.get("scope", "."),
+            item.get("consumer", ""),
+        )
+    )
     if not observations:
         overall = "unknown"
     elif all(item["status"] in ("ready", "not_applicable") for item in observations):
@@ -841,71 +1180,54 @@ def build_plan(
     if not isinstance(architecture_value, str) or not architecture_value.strip():
         raise ContractError("architecture fact must be a non-empty string")
     operations: List[Dict[str, Any]] = []
+    owned = set()
     pilot = None
     if platform_value == "windows":
-        from .mise_backend import (
-            MISE_EXEC_DOC,
-            MISE_INSTALL_DOC,
-            MISE_LOCK_DOC,
-            MISE_OFFLINE_DOC,
-            SubprocessRunner,
-            plan_operations,
-        )
+        from .adapters import default_windows_runner, plan_windows
 
-        pilot_result = plan_operations(
-            desired,
-            architecture_value,
-            runner or SubprocessRunner(),
-            offline=offline,
+        adapter_result = plan_windows(
+            desired, architecture_value, runner or default_windows_runner(), offline=offline
         )
-        if pilot_result is not None:
-            operations = pilot_result["operations"]
-            pilot = {
-                "backend": "mise",
-                "capability": "node@24+pnpm@10",
-                "offline": offline,
-                "documentation": {
-                    "install": MISE_INSTALL_DOC,
-                    "exec": MISE_EXEC_DOC,
-                    "lock": MISE_LOCK_DOC,
-                    "offline": MISE_OFFLINE_DOC,
-                },
-            }
+        operations.extend(adapter_result["operations"])
+        owned = adapter_result["owned"]
+        pilot = adapter_result["pilot"]
     capabilities = desired["manifest"]["capabilities"]
     platform_backends = desired["manifest"].get("backends", {}).get(platform_value, {})
     references = sorted(platform_backends)
-    if pilot is None:
-        for group in CAPABILITY_GROUPS:
-            for capability in capabilities[group]:
-                applicable = not capability.get("platforms") or platform_value in capability["platforms"]
-                ownership_conflict = applicable and len(references) > 1
-                missing_tauri_toolchain = applicable and (
-                    (group == "tools" and capability["id"] == "cargo")
-                    or (group == "targets" and capability["id"] == "tauri")
-                )
-                operations.append(
-                    {
-                        "capability": {"kind": group[:-1], **capability},
-                        "owner": references[0] if len(references) == 1 else None,
-                        "references": references,
-                        "status": "blocked" if ownership_conflict or missing_tauri_toolchain else ("pending" if applicable else "not_applicable"),
-                        "executable": False,
-                        "reason": (
-                            "multiple backend references exist and no explicit capability owner is selected"
-                            if ownership_conflict
-                            else "Rust and Cargo are required for the detected Tauri project; install a supported Rust toolchain, then rerun verify"
-                            if missing_tauri_toolchain and group == "tools"
-                            else "Tauri cannot be ready until its Cargo capability is ready"
-                            if missing_tauri_toolchain and group == "targets"
-                            else "backend adapters are not active outside the bounded Windows mise pilot"
-                            if applicable
-                            else f"capability does not apply to {platform_value}"
-                        ),
-                    }
-                )
+    for group in CAPABILITY_GROUPS:
+        for capability in capabilities[group]:
+            key = (group[:-1], capability["id"], capability.get("scope", "."))
+            if key in owned:
+                continue
+            applicable = not capability.get("platforms") or platform_value in capability["platforms"]
+            ownership_conflict = applicable and len(references) > 1
+            missing_tauri_toolchain = applicable and (
+                (group == "tools" and capability["id"] in ("cargo", "rustc", "rustup"))
+                or (group == "targets" and capability["id"] in ("tauri", "tauri-windows"))
+            )
+            operations.append(
+                {
+                    "capability": {"kind": group[:-1], **capability},
+                    "owner": references[0] if len(references) == 1 else None,
+                    "references": references,
+                    "status": "blocked" if ownership_conflict or missing_tauri_toolchain else ("pending" if applicable else "not_applicable"),
+                    "executable": False,
+                    "reason": (
+                        "multiple backend references exist and no explicit capability owner is selected"
+                        if ownership_conflict
+                        else "Rust, Cargo, and rustup are required for the detected Tauri project; the Windows adapter is not active yet"
+                        if missing_tauri_toolchain and group == "tools"
+                        else "Tauri Windows cannot be ready until its Rust and host capabilities are ready"
+                        if missing_tauri_toolchain and group == "targets"
+                        else "backend adapters are not active for this capability"
+                        if applicable
+                        else f"capability does not apply to {platform_value}"
+                    ),
+                }
+            )
     executable = any(operation["executable"] for operation in operations)
     network = any(
-        operation.get("action") in ("acquire_mise", "install_node", "install_pnpm")
+        operation.get("action") in ("acquire_mise", "install_node", "install_pnpm", "install_rust")
         and operation["executable"]
         for operation in operations
     )
@@ -944,12 +1266,6 @@ def apply_plan(plan: Mapping[str, Any], approved_digest: str, runner=None) -> Di
         validate_plan_record(plan)
     except ContractError as exc:
         raise ApplyRefused("invalid_plan", f"plan validation failed; no operation was started: {exc}") from exc
-    if plan.get("pilot") is None:
-        raise ApplyRefused(
-            "no_active_backend",
-            "apply is unavailable outside the bounded Windows mise Node 24 and pnpm 10 pilot",
-        )
-
     root = Path(plan["project"]["root"]).resolve()
     if project_identity(root) != plan["project"]:
         raise ApplyRefused("invalid_plan", "plan project identity is invalid; no operation was started")
@@ -959,6 +1275,56 @@ def apply_plan(plan: Mapping[str, Any], approved_digest: str, runner=None) -> Di
         raise ApplyRefused("stale_plan", f"project sources cannot be revalidated: {exc}") from exc
     if desired["source_digest"] != plan["source_digest"]:
         raise ApplyRefused("stale_plan", "project sources changed after approval; no operation was started")
+
+    effective_runner = runner
+    if effective_runner is None and plan["platform"]["name"] == "windows":
+        from .adapters import default_windows_runner
+        effective_runner = default_windows_runner()
+
+    tauri_owned = [item for item in plan["operations"] if item.get("owner") == "windows_tauri"]
+    executable = [item for item in plan["operations"] if item.get("executable")]
+    tauri_executable = [item for item in executable if item.get("owner") == "windows_tauri"]
+    if tauri_owned and (tauri_executable or not executable):
+        fresh_plan = build_plan(
+            desired,
+            platform_name=plan["platform"]["name"],
+            architecture=plan["platform"]["architecture"],
+            runner=effective_runner,
+            offline=False,
+        )
+        approved_other = [item for item in plan["operations"] if item.get("owner") != "windows_tauri"]
+        fresh_other = [item for item in fresh_plan["operations"] if item.get("owner") != "windows_tauri"]
+        if approved_other != fresh_other or plan.get("pilot") != fresh_plan.get("pilot"):
+            raise ApplyRefused("invalid_plan", "non-Tauri adapter semantics changed after approval")
+        if any(item.get("owner") != "windows_tauri" for item in executable):
+            raise ApplyRefused("invalid_backend", "mixed adapter operations require separate approval and replan")
+        if not executable:
+            if any(item["status"] != "ready" for item in tauri_owned):
+                raise ApplyRefused("plan_blocked", "Windows Tauri plan has no executable recovery operation")
+            return {"status": "converged", "operations": 0}
+        from .windows_tauri_backend import WindowsTauriError, apply_operations as apply_windows_tauri
+
+        try:
+            return apply_windows_tauri(plan, desired, effective_runner)
+        except WindowsTauriError as exc:
+            message = str(exc)
+            if "timed out" in message:
+                code = "backend_timeout"
+            elif "offline" in message:
+                code = "backend_offline"
+            elif "refused" in message:
+                code = "backend_refused"
+            elif "changed" in message or "identity" in message:
+                code = "backend_drift"
+            else:
+                code = "backend_failed"
+            raise ApplyRefused(code, f"Windows Tauri adapter refused: {message}") from exc
+
+    if plan.get("pilot") is None:
+        raise ApplyRefused(
+            "no_active_backend",
+            "apply is unavailable because no fixed adapter owns an executable operation",
+        )
 
     from .mise_backend import (
         MisePilotError,
@@ -978,8 +1344,20 @@ def apply_plan(plan: Mapping[str, Any], approved_digest: str, runner=None) -> Di
             raise MisePilotError(
                 "plan no longer matches the bounded mise Node 24 and pnpm 10 pilot"
             )
-        validate_apply_semantics(plan, contract)
-        return apply_operations(plan, runner or SubprocessRunner())
+        legacy_plan = dict(plan)
+        legacy_plan["operations"] = [
+            item for item in plan["operations"] if item.get("owner") in ("mise", "winget")
+        ]
+        legacy_executable = [item for item in legacy_plan["operations"] if item.get("executable")]
+        legacy_plan["executable"] = bool(legacy_executable)
+        legacy_plan["effects"] = {
+            "network": bool(legacy_executable),
+            "download": bool(legacy_executable),
+            "privilege": any(item.get("action") == "acquire_mise" for item in legacy_executable),
+            "consent": bool(legacy_executable),
+        }
+        validate_apply_semantics(legacy_plan, contract)
+        return apply_operations(legacy_plan, effective_runner or SubprocessRunner())
     except MisePilotError as exc:
         message = str(exc)
         if "timed out" in message:
@@ -1131,6 +1509,8 @@ def status_project(project_root: Path, state_root: Optional[Path] = None, max_ag
         desired = discover_project(project_root)
         return {"schema": STATE_SCHEMA, "project": desired["project"], "management": desired["management"], "status": "unknown", "reason": "verify has not recorded evidence"}
     status = state.get("observed", {}).get("status", "unknown")
+    current_desired = discover_project(project_root)
+    source_changed = current_desired["source_digest"] != state.get("source_digest")
     try:
         observed_at = datetime.fromisoformat(str(state["observed_at"]).replace("Z", "+00:00"))
         age = max(0.0, (datetime.now(timezone.utc) - observed_at).total_seconds())
@@ -1138,7 +1518,15 @@ def status_project(project_root: Path, state_root: Optional[Path] = None, max_ag
         age = float("inf")
     if age > max_age_seconds:
         status = "drifted" if status == "ready" else "unknown"
-    return {**state, "status": status, "evidence_age_seconds": None if math.isinf(age) else round(age, 3)}
+    result = {**state, "status": status, "evidence_age_seconds": None if math.isinf(age) else round(age, 3)}
+    if source_changed:
+        result.update(
+            {
+                "status": "drifted",
+                "reason": "project environment sources changed after verify",
+            }
+        )
+    return result
 
 
 def render_attestation(state: Mapping[str, Any]) -> str:
@@ -1164,6 +1552,8 @@ def render_attestation(state: Mapping[str, Any]) -> str:
     else:
         for capability in capabilities:
             label = f"{capability.get('kind')}/{capability.get('id')}"
+            if capability.get("scope"):
+                label += f" @{capability['scope']}"
             if capability.get("consumer"):
                 label += f" [{capability['consumer']}]"
             details = []

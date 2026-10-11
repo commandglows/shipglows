@@ -91,7 +91,7 @@ load `shipglows-terms.md` and matching explicit gates; source intake loads
 `operator-partnership-contract.md` through the intention core.
 
 URL/browser/MCP/app/connector/runtime-dependent work loads `agent-runtime-awareness.md`:
-read the global environment, managed project ENVIRONMENT and matching live registry.
+read the global environment, selected surface's ENVIRONMENT and matching registry.
 Current-turn direct/deferred tools determine callability, not recorded installation.
 Never start a replacement server or guess a default URL.
 

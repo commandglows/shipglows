@@ -15,6 +15,7 @@ business_model: "[business model]"
 target_audience: "[target audience]"
 value_proposition: "[value proposition]"
 market: "[market]"
+delivery_posture: "[development | published | sensitive-production]"
 security_impact: unknown
 docs_impact: yes
 evidence: []
@@ -62,6 +63,12 @@ next_step: "/sg-docs audit"
 ## Decisions, Hypotheses And Unknowns
 
 <!-- Keep these three states explicit so another agent knows what is settled and what to ask next. -->
+
+`delivery_posture` is a product decision: `development` means non-live,
+`published` means live, and `sensitive-production` means live with stronger
+safeguards. Record one value only after the operator confirms current product
+status. Do not infer it from hosting, runtime, repository visibility, or branch
+names. A missing value remains an open decision.
 
 ## Risks
 

@@ -11,6 +11,8 @@ scope: guidelines
 owner: "[owner]"
 confidence: medium
 risk_level: medium
+task_branch_policy: forbidden
+worktree_policy: forbidden
 linked_systems: []
 security_impact: yes
 docs_impact: yes
@@ -26,6 +28,12 @@ next_step: "/sg-docs audit"
 ## Stack
 
 ## Critical Rules
+
+`task_branch_policy` and `worktree_policy` independently govern silent creation
+of temporary branches and worktrees. Missing or invalid values default to
+`forbidden`. `allowed` is durable permission, never a requirement or
+preference. This setting does not authorize unrelated Git writes or override
+applicable `AGENTS.md` and execution-posture rules.
 
 ## Preferred Patterns
 

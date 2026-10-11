@@ -100,6 +100,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
                 self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", flat)
                 engine = " ".join((SKILLS / runtime_skill / "SKILL.md").read_text(encoding="utf-8").split())
                 self.assertIn("Shared references: `$SHIPGLOWS_ROOT/skills/references/`", engine)
+                self.assertIn("never substitute project shadows or memory", engine)
                 self.assertIn("Non-trivial routing loads `intent-to-outcome-autonomy.md`", engine)
 
 

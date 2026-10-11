@@ -78,7 +78,7 @@ with tempfile.TemporaryDirectory() as directory:
         "cli.environment.core.subprocess.run", return_value=completed
     ):
         constrained = observe_project(desired, architecture="x86_64", probe_versions=True)
-    assert constrained["capabilities"][0]["status"] == "unknown"
+    assert constrained["capabilities"][0]["status"] != "ready"
 
     unconstrained_manifest = {
         "schema": "shipglows.environment/v1",
@@ -96,7 +96,7 @@ with tempfile.TemporaryDirectory() as directory:
     copied_root = fixture / "copied-runtime"
     copied_environment = copied_root / "cli" / "environment"
     copied_environment.mkdir(parents=True)
-    for name in ("__init__.py", "core.py", "preparation.py", "shipglows_environment.py"):
+    for name in ("__init__.py", "core.py", "preparation.py", "shipglows_environment.py", "versions.py"):
         shutil.copy2(ROOT / "cli" / "environment" / name, copied_environment / name)
     process = subprocess.run(
         [sys.executable, str(copied_environment / "shipglows_environment.py"), "inspect", "--project", str(project), "--state-root", str(state_root)],

@@ -51,8 +51,10 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _emit(value, stream=sys.stdout):
-    json.dump(value, stream, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
+def _emit(value, stream=None):
+    if stream is None:
+        stream = sys.stdout
+    json.dump(redact(value), stream, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
     stream.write("\n")
 
 
@@ -105,7 +107,7 @@ def main(argv=None) -> int:
                 )
             plan = build_plan(discover_project(project), offline=arguments.offline)
             applied = apply_plan(plan, arguments.plan_digest)
-            result = redact({"command": "apply", "result": applied, "mutated": applied["status"] == "applied"})
+            result = redact({"command": "apply", "result": applied, "mutated": bool(applied.get("completed"))})
         _emit(result)
         return exit_code
     except ApplyRefused as exc:

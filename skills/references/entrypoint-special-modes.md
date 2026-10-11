@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-09-05"
+updated: "2026-10-06"
 status: active
 source_skill: 900-shipglows-core
 scope: entrypoint-special-modes
@@ -37,8 +37,9 @@ channel is invalid, the checkout is dirty, or its upstream is unresolved.
 
 `shipglows context` is a direct read-only context refresh. The canonical router is already loaded; load `agent-runtime-awareness.md`, read
 `%USERPROFILE%\.shipglows\environment.md`, resolve
-the current ShipGlows-managed project root, and read
-`<project-root>\ENVIRONMENT.md` plus the matching DevServer registry entry. Report the exact managed URL and live status,
+the current ShipGlows-managed project and selected surface, and read its
+`ENVIRONMENT.md` plus the matching DevServer registry entry using the path
+selection and freshness rules in `agent-runtime-awareness.md`. Report the exact managed URL and live status,
 architecture, Python availability through `uv`, Playwright/Chromium installation
 and MCP verification evidence, the relevant mobile and Windows toolchain state
 and exact next action, and current-turn callable tools. For Flutter, also report
