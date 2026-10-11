@@ -21,6 +21,8 @@ Process role: `lifecycle`.
 
 Before execution, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. Continue one matching active spec and update its history/flow; without a unique spec, do not write one and use a `(local)` chantier header. Before the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. Default `report=user` is concise and outcome-first; detailed internal evidence is `report=agent` or handoff only.
 
+Before launching, restarting or reusing a managed app, or selecting a test that needs its backend, load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` and apply its backend-information gate.
+
 ## Mission And Early Route
 
 Answer: what product change should be built now, and how is it carried to verified ship without losing lifecycle discipline?

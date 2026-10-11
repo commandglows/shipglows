@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-owned paths. Project artifacts resolve from project root.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-owned paths. Project artifacts use project root.
 
 ## Chantier Tracking
 
@@ -21,14 +21,14 @@ For one ready spec, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md
 
 `102-sg-start` implements one bounded work item; it does not merely plan or claim verification, closure, commit, push, or ship.
 
-Before classifying the request, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-workflow.md`.
+For request classification, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-workflow.md`.
 
 - Clear bounded direct execution with few enumerable actions/targets and no material directional choice stays outside `102-sg-start` unless explicitly invoked; execute it directly with focused proof.
 - Clear bounded work uses `direct` mode with a silent mini-contract, regardless of local/remote location or model reasoning effort.
 - Unknown outcomes, unbounded actions/targets, or work requiring material product, architecture, auth/data/migration/API/security, external-integration, or cross-domain direction uses `spec-first` and requires one matching `ready` spec.
 - Missing or unready contract routes to `100-sg-spec` then `101-sg-ready`; do not write.
 
-Before reading ShipGlows-owned references or running its tools, apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md`.
+Before owned reads or tools, apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md`.
 
 ## Result And Auto-Verify Boundaries
 
@@ -36,12 +36,14 @@ Before reading ShipGlows-owned references or running its tools, apply `$SHIPGLOW
 
 Auto-verify may report `auto-verify: run` only at an explicit checkpoint when one ready spec owns the work, implementation and local checks pass, and all remaining proof is local, tool-backed, non-destructive, decision-free, and already defined. Report `auto-verify: skipped` with `owner_skill`, `scenario`, and `target_or_environment` whenever proof needs preview, production, auth/browser flow, Sentry, device/manual QA, secrets, commit, push, ship, provider action, data mutation, or another external side effect. Local auto-verify never runs `104-sg-end` or `005-sg-ship`; `001-sg-build` retains full lifecycle ownership.
 
+For managed app launch/restart/reuse or backend-dependent tests, load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md`.
+
 ## Progressive References
 
-Load each local reference directly from this activation contract; local references never load one another.
+Load local references directly; they never load one another.
 
-- Before deriving an execution contract, load `references/execution-contract.md`.
-- Before topology selection, load `references/execution-topology.md`, `decision-quality-contract.md`, `master-delegation-semantics.md`, and canonical model routing.
+- For the execution contract, load `references/execution-contract.md`.
+- For topology, load `references/execution-topology.md`, `decision-quality-contract.md`, `master-delegation-semantics.md`, and canonical model routing.
 - Before first code write, load `implementation-excellence-preflight.md`; classify and emit its `🛡️ GARDE-FOUS` receipt. Load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` and directly applicable `task-application-loop.md`, `spec-driven-development-discipline.md`, `zombies-edge-case-heuristic.md`, `clean-code-quality-contract.md`, `design-system-token-contract.md`, or `owasp-application-security-awareness.md`.
 - After approval, load `reporting-contract.md`; emit its start card once before substantive work. Before reporting, load `references/execution-report.md`; reuse it.
 

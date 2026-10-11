@@ -35,8 +35,9 @@ if ($moduleSource -notmatch [regex]::Escape('function Get-SgProcessSnapshotMap')
 foreach ($required in @('function Start-SgBackgroundCatalogRefresh','Test-SgProjectCatalogRefreshRequired $config','[Diagnostics.Process]::Start($startInfo)','Clear-SgProjectCatalogMemoryCache $config','function Complete-SgBackgroundCatalogRefresh')) {
     if ($source -notmatch [regex]::Escape($required)) { throw "The non-blocking catalogue refresh contract is missing: $required" }
 }
-if ([regex]::Matches($source, [regex]::Escape('Get-SgProjectCatalogForDisplay $config')).Count -lt 2) { throw 'Dashboard and picker do not share the consistent display catalogue.' }
-if ($source -match [regex]::Escape('Get-SgProjectCatalog $config -SkipProcessReconciliation')) { throw 'A displayed project list still bypasses process reconciliation.' }
+if ($source -notmatch [regex]::Escape('Get-SgProjectCatalogForDisplay $config')) { throw 'The dashboard no longer uses its reconciled display catalogue.' }
+if ($source -notmatch [regex]::Escape('Get-SgProjectCatalog $config -SkipProcessReconciliation')) { throw 'The name-only picker still probes all projects before rendering.' }
+if ($source -notmatch [regex]::Escape('Resolve-SgProjectCatalogEntry $config $identity')) { throw 'Picker selections no longer resolve their authoritative identity before dispatch.' }
 $displayCatalogSource = [regex]::Match($moduleSource,'(?s)function Get-SgProjectCatalogForDisplay\([^)]*\)\s*\{(.*?)\r?\n\}')
 if (-not $displayCatalogSource.Success -or $displayCatalogSource.Value -notmatch 'Get-SgProjectCatalog \$Config\)') { throw 'Displayed project lists do not consume the prepared catalogue snapshot.' }
 if ($displayCatalogSource.Value -match 'ForceRefresh') { throw 'Displayed project lists still force a synchronous workspace rescan.' }

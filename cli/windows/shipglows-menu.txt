@@ -1,0 +1,15 @@
+1  Clone a repository
+2  Register a local project
+3  Start a project
+4  Stop a project
+5  Restart a project
+6  View logs
+7  Open / load project
+8  Stop all projects
+9  Unregister a project
+n  Navigate to a project
+a  Authentication
+r  Refresh
+t  Update developer tools
+u  Update ShipGlows
+0  Quit ShipGlows

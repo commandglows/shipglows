@@ -11,6 +11,7 @@ $devServer = Join-Path $repoRoot 'cli\windows\shipglows-devserver.ps1'
 $runtimeStatus = Join-Path $repoRoot 'cli\windows\ShipGlows.RuntimeStatus.psm1'
 $entrypointText = [IO.File]::ReadAllText($entrypoint)
 $devServerText = [IO.File]::ReadAllText($devServer)
+$menuItems = @(Get-Content -LiteralPath (Join-Path $repoRoot 'cli\windows\shipglows-menu.txt'))
 $bootstrap = Join-Path $repoRoot 'install-shipglows.ps1'
 $installer = Join-Path $repoRoot 'cli\windows\install-devserver.ps1'
 $bootstrapText = [IO.File]::ReadAllText($bootstrap)
@@ -57,7 +58,7 @@ Assert-Sg ($devServerText.Contains("if (`$choice -eq 'u') { return }")) 'The int
 Assert-Sg ($devServerText.Contains("'update status' = 'update-status'")) 'DevServer must expose a read-only update-status route.'
 Assert-Sg ($devServerText.Contains("if (`$Action -notin @('skills-update','update','update-status'))")) 'Update recovery routes must bypass capability-snapshot refresh in an older installed runtime.'
 Assert-Sg (($devServerText.IndexOf("try { `$Action = Resolve-SgAction") -lt $devServerText.IndexOf('Write-SgCliCapabilitySnapshot $config')) -and ($devServerText.IndexOf("if (`$Action -notin @('update','update-status'))") -lt $devServerText.IndexOf('Write-SgCliCapabilitySnapshot $config'))) 'DevServer must resolve the action before capability refresh so update recovery can run.'
-Assert-Sg ($devServerText.Contains("'u  Update ShipGlows'")) 'DevServer menu must retain its visible ShipGlows update entry.'
+Assert-Sg ($menuItems -contains 'u  Update ShipGlows') 'DevServer menu must retain its visible ShipGlows update entry.'
 Assert-Sg ($devServerText.Contains('Start-SgBackgroundUpdateStatusRefresh')) 'DevServer must refresh ShipGlows status outside the first paint.'
 Assert-Sg ($devServerText.Contains('Show-SgShipGlowsStatus')) 'DevServer dashboard must render ShipGlows version status.'
 
@@ -68,8 +69,8 @@ Assert-Sg ($devServerText.Contains("'tools update' = 'tools-update'")) 'DevServe
 Assert-Sg ($devServerText.Contains('function Show-SgDeveloperToolsStatus')) 'Developer-tool status must have a dedicated read-only implementation.'
 Assert-Sg ($devServerText.Contains("@('list','--id',`$definition.PackageId,'--exact','--source','winget','--upgrade-available'")) 'Developer-tool status must inspect only exact allowlisted WinGet package IDs.'
 Assert-Sg ($devServerText.Contains('function Invoke-SgDeveloperToolsUpdate')) 'Developer-tool mutation must have a dedicated implementation.'
-Assert-Sg ($devServerText.Contains('Update ShipGlows')) 'ShipGlows self-update must remain visibly distinct.'
-Assert-Sg ($devServerText.Contains('Update developer tools')) 'The interactive menu must expose the separate global developer-tool action.'
+Assert-Sg ($menuItems -contains 'u  Update ShipGlows') 'ShipGlows self-update must remain visibly distinct.'
+Assert-Sg ($menuItems -contains 't  Update developer tools') 'The interactive menu must expose the separate global developer-tool action.'
 Assert-Sg ($devServerText.Contains('Update global developer tools now? [y/N]')) 'Developer-tool mutation must require explicit confirmation.'
 Assert-Sg ($devServerText.Contains("'cli\windows\install-devserver.ps1'")) 'Developer-tool update must reuse the installed full convergence engine.'
 Assert-Sg (-not $devServerText.Contains("Invoke-SgUpdate -DeveloperTools")) 'Developer-tool update must not piggyback on ShipGlows self-update.'

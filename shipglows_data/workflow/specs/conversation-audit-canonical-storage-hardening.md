@@ -56,7 +56,7 @@ En tant qu'operatrice ShipGlows, je veux que les exports et audits de conversati
 
 ## Minimal Behavior Contract
 
-Quand une capture ou un audit de conversation utilise le mode ShipGlows, le systeme resout les transcriptions et rapports depuis `${SHIPGLOWS_ROOT:-$HOME/shipglows}` et ecrit uniquement dans `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/` ou `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversation-audits/`. Si un utilisateur ou un agent tente de fournir une destination ShipGlows relative ou project-local pour ces dossiers depuis un autre repo, la commande doit refuser ou corriger vers la racine ShipGlows avec un message observable; l'edge case facile a rater est `--destination shipglows_data/workflow/conversations/...` lance depuis ReplayGlowz.
+Quand une capture ou un audit de conversation utilise le mode ShipGlows, le systeme resout les transcriptions et rapports depuis `${SHIPGLOWS_ROOT:-$HOME/shipglows}` et ecrit uniquement dans `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/` ou `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversation-audits/`. Si un utilisateur ou un agent tente de fournir une destination ShipGlows relative ou project-local pour ces dossiers depuis un autre repo, la commande doit refuser ou corriger vers la racine ShipGlows avec un message observable; l'edge case facile a rater est `--destination shipglows_data/workflow/conversations/...` lance depuis ReplayGlows.
 
 ## Success Behavior
 

@@ -28,7 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator decisions from a ReplayGlowz landing-page redesign exposed semantic repetition hidden by different section designs, inconsistent card grammar, and whole-page harmony failures."
+  - "Operator decisions from a ReplayGlows landing-page redesign exposed semantic repetition hidden by different section designs, inconsistent card grammar, and whole-page harmony failures."
   - "Operator decision on 2026-08-05: page and site design decisions require global homogeneity and harmony, not isolated section quality."
 next_review: "2026-09-05"
 next_step: "/103-sg-verify landing-page experience coherence"

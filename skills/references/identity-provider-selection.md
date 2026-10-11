@@ -65,7 +65,7 @@ Identity selection never selects Firestore implicitly.
 | Criterion | Clerk | Firebase Auth |
 | --- | --- | --- |
 | Flutter web | ClerkJS bridge: proved locally; official Flutter SDK remains beta | Official Flutter package support listed; unproven in ShipGlows as the web identity owner |
-| Flutter Android | Official Kotlin SDK behind Flutter bridge: proved locally; official Flutter SDK remains beta | Official Flutter package support listed; used by ReplayGlowz, but creates a second identity owner when web uses Clerk |
+| Flutter Android | Official Kotlin SDK behind Flutter bridge: proved locally; official Flutter SDK remains beta | Official Flutter package support listed; used by ReplayGlows, but creates a second identity owner when web uses Clerk |
 | Flutter iOS / macOS | iOS native SDK exists; Flutter bridge unproven | macOS Auth support is official beta; Google Sign-In package supports macOS; unproven in ShipGlows |
 | Flutter Windows | No proven ShipGlows native Windows flow; use ClerkJS web/PWA or an explicitly designed desktop OAuth flow | Official `firebase_auth` package lists Windows; native Google flow must still be spike-tested for the exact release target |
 | Flutter Linux | No proven native Linux flow; requires an explicitly designed browser/OIDC adapter | `firebase_auth` does not list Linux; use a reviewed REST/OIDC adapter with secure callback and token storage |

@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "shipglows-smoke",
+  "benchmarks": [
+    {
+      "id": "python-startup",
+      "command": ["python", "-c", "pass"],
+      "warmup": 1,
+      "iterations": 5,
+      "timeout_seconds": 10,
+      "tags": { "category": "runtime", "language": "python" }
+    }
+  ]
+}

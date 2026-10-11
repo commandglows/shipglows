@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shipglows.com/schemas/benchmark-result-1.0.json",
+  "title": "ShipGlows benchmark result record",
+  "oneOf": [
+    { "$ref": "#/$defs/sample" },
+    { "$ref": "#/$defs/summary" }
+  ],
+  "$defs": {
+    "base": {
+      "type": "object",
+      "required": ["schema_version", "record_type", "suite_id", "benchmark_id", "execution_id", "recorded_at", "metrics"],
+      "properties": {
+        "schema_version": { "const": "1.0" },
+        "record_type": { "enum": ["sample", "summary"] },
+        "suite_id": { "type": "string", "minLength": 1 },
+        "benchmark_id": { "type": "string", "minLength": 1 },
+        "execution_id": { "type": "string", "format": "uuid" },
+        "recorded_at": { "type": "string", "format": "date-time" },
+        "metrics": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "sample": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "properties": { "record_type": { "const": "sample" } },
+          "required": ["phase", "iteration", "command", "cwd", "status", "exit_code", "timed_out", "host", "tags"]
+        }
+      ]
+    },
+    "summary": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "properties": { "record_type": { "const": "summary" } },
+          "required": ["sample_count", "success_count", "success_rate"]
+        }
+      ]
+    }
+  }
+}

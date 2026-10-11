@@ -10,10 +10,10 @@
 | TubeFlow App | 🔄 in progress | Valider Firebase Auth + Convex + YouTube OAuth sur le déploiement Vercel/Convex |
 | WinFlowzApp | 🔄 in progress | 🟠 Ship verified persistent local clipboard fallback, then Android IME clipboard/device QA |
 | Zikflow | 🔄 in progress | 🔴 Finaliser la V1 Flutter jouable (audio temps réel + validation release) |
-| replayglowz | 🔄 in progress | Evaluate transcript worker latency only if `/transcribe` becomes an operational bottleneck |
+| replayglows | 🔄 in progress | Evaluate transcript worker latency only if `/transcribe` becomes an operational bottleneck |
 | notefinderz | 🔄 in progress | Run `/sg-prod notefinderz` against the live site, then resume English editorial recovery |
 
-## replayglowz
+## replayglows
 
 **Stack**: Flutter web app, Astro 6 marketing site, FastAPI transcript worker | **Phase**: Brand migration and hardening
 
@@ -23,19 +23,19 @@
 
 | Pri | Task | Status |
 |-----|------|--------|
-| ✅ | Remove unused `replayglowz_site/public/professional-headshot-*.png` payloads that were copied into every static build despite having no source references | ✅ done |
+| ✅ | Remove unused `replayglows_site/public/professional-headshot-*.png` payloads that were copied into every static build despite having no source references | ✅ done |
 | ✅ | Remove global `lenis` smooth-scroll dependency and layout script so the Astro site build emits no client JavaScript chunks | ✅ done |
 | ✅ | Batch `youtube:fetchPlaylistItems` calls in `syncAllPlaylists` instead of waiting for each playlist sync sequentially | ✅ done |
 | ✅ | Defer the all-notes subscription on `VideosScreen` until the Notes view is active | ✅ done |
 | ✅ | Self-host/subset the Google and Cal Sans font stack to remove remaining render-blocking remote font CSS | ✅ done |
-| ✅ | Retire legacy domain/URL compatibility variables from the app build and OAuth runtime (`TUBEFLOW_*`, `NEXT_PUBLIC_*`) so `REPLAYGLOWZ_APP_URL`, `CONVEX_URL`, `GOOGLE_CLIENT_ID` are the only supported names | ✅ done |
+| ✅ | Retire legacy domain/URL compatibility variables from the app build and OAuth runtime (`TUBEFLOW_*`, `NEXT_PUBLIC_*`) so `REPLAYGLOWS_APP_URL`, `CONVEX_URL`, `GOOGLE_CLIENT_ID` are the only supported names | ✅ done |
 | 🟡 | Evaluate transcript worker preflight/download duplication if `/transcribe` latency becomes an operational bottleneck | 📋 todo |
 
 ### Audit: Perf (2026-05-18 — Score: B)
 
 | Pri | Task | Status |
 |-----|------|--------|
-| 🟠 | Defer `convex_bridge.js` and `flutter_bootstrap.js` in `replayglowz_app/web/index.html` so third-party loading does not block first paint | ✅ done |
+| 🟠 | Defer `convex_bridge.js` and `flutter_bootstrap.js` in `replayglows_app/web/index.html` so third-party loading does not block first paint | ✅ done |
 | 🟠 | Reduce per-row note filtering overhead in `notes_screen.dart` by normalizing search query once per build | ✅ done |
 | 🟠 | Make web Convex subscriptions adaptive (fast initial poll, exponential backoff on stable/error cycles) to reduce unnecessary polling overhead | ✅ done |
 

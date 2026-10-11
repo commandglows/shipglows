@@ -419,9 +419,11 @@ The Windows DevServer discovers runnable surfaces from native manifests rather
 than folder names. A repository or explicitly registered monorepo can expose
 separate Astro, Vite, Python/FastAPI, and Flutter surfaces; each surface is
 registered with its own stable display name, persistent localhost port, logs,
-and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
-levels below a project root, and skips dependency, build, cache, and hidden
-directories. It does not claim to recognize every possible monorepo layout.
+and `ENVIRONMENT.md`. Discovery scans at most three directories below the
+workspace root and three below an explicitly selected project root. The workspace
+root is depth zero; hidden, dependency, build, and cache directories are skipped.
+Deeper surfaces can be registered directly. Discovery does not claim to recognize
+every possible monorepo layout.
 Installer migration never replaces an existing valid assigned port with
 `pending` merely because the live registry currently records zero; a later
 start recovers that durable port before allocating a new one.
@@ -491,6 +493,7 @@ On Windows, both commands run through ShipGlows-managed PowerShell; the legacy
 canonical update action. Prefer this focused `shipglows` command for runtime
 self-update instead of keeping an interactive `s.exe` process open while its
 binary is being replaced.
+`shipglows check` runs the lint and test scripts declared by `package.json` or `pubspec.yaml` in the current directory. It fails on a missing or placeholder lint script, a failing command, or a Bun lockfile, and prints a summary to paste in the pull request.
 The Windows DevServer header shows the installed ShipGlows version immediately
 and checks for a newer release in the background through a local cache; green
 is current, orange is an available patch/source update, and red is a missed
@@ -795,7 +798,9 @@ over SSH. ShipGlows does not install the unofficial Blacksmith MCP by default an
 does not patch project workflows automatically from this menu.
 
 Notes:
-- `shipglows-gsc` is the ShipGlows-owned, read-only Google Search Console CLI. It uses an operator-supplied Google OAuth desktop-client JSON and stores its refresh token only in `~/.config/shipglows/gsc/` with owner-only permissions. It never enables the third-party GSC MCP or submits sitemaps. Run `shipglows-gsc --help` after installation; see `shipglows_data/technical/google-search-console-cli.md` for setup and commands.
+- `shipglows-gsc` is the ShipGlows-owned, read-only Google Search Console CLI. Its source is `tools/shipglows_gsc.py`; `cli/shipglows-gsc.sh` is the repository launcher. It uses an operator-supplied Google OAuth desktop-client JSON and keeps authorization files in the user's local configuration directory, outside the repository. POSIX mode bits are requested; on Windows verify the effective ACL because `chmod` alone does not secure files. It does not enable a third-party GSC MCP or ChatGPT app, or submit sitemaps. See `shipglows_data/technical/google-search-console-cli.md` for setup, commands, and limits.
+- `shipglows-serp` is a separate one-query Google SERP lookup through SerpApi. It uses `SERPAPI_API_KEY` only from the current process environment, returns localized organic result snapshots, and does not collect GSC impressions or persist credentials. See `shipglows_data/technical/serpapi-google-serp-cli.md` for setup, quota, and limitations.
+- `shipglows-parallel` provides Search with source/date/location filters, Extract for selected page content, asynchronous cited research tasks, and scheduled web monitors. It uses `PARALLEL_API_KEY` from the process environment. Search relevance is not a Google SERP position. See `shipglows_data/technical/parallel-web-search-cli.md` for commands, usage, and limits.
 - `dataforseo` is configured but disabled by default in Codex unless
   `SHIPGLOWS_ENABLE_DATAFORSEO_MCP=1` and credentials are available.
 - `playwright` MCP points to the local Playwright Chromium/Headless Shell
@@ -1418,6 +1423,8 @@ shipglows/
 - `cli/config.sh` — central configuration
 - `cli/install.sh` — installation and machine setup
 - `cli/shipglows-gsc.sh` — installed launcher for the read-only Google Search Console CLI
+- `cli/shipglows-serp.sh` — installed launcher for the one-query SerpApi Google SERP CLI
+- `cli/shipglows-parallel.sh` — installed launcher for the Parallel Web Search CLI
 - `install-shipglows.sh` — remote/bootstrap install helper
 - `install-shipglows.ps1` — native Windows bootstrap helper
 - `shipglows-site/` — Astro public website deployed to `https://shipglows.com`

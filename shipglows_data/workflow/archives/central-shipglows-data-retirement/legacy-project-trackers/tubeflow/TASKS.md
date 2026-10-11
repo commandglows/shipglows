@@ -1,4 +1,4 @@
-# Tasks — replayglowz
+# Tasks — replayglows
 
 > **Priority:** 🔴 P0 blocker · 🟠 P1 high · 🟡 P2 normal · 🟢 P3 low · ⚪ deferred
 > **Status:** 📋 todo · 🔄 in progress · ✅ done · ⛔ blocked · 💤 deferred
@@ -25,7 +25,7 @@
 | 🟠 | Fix: `usePaginatedVideos` hook doesn't react to backend changes (hide/delete) — stale local state after initial load | ✅ done |
 | 🟠 | Verify transcript worker deployment and document the required setup/env flow end-to-end | 🔄 in progress |
 | 🟠 | Add verification coverage for transcript generation, provider switching, and failure handling | 🔄 in progress |
-| 🟠 | Moderniser les integrations OpenAI de ReplayGlowz (transcript payload + summary Structured Outputs + docs/tests) | 🔄 in progress |
+| 🟠 | Moderniser les integrations OpenAI de ReplayGlows (transcript payload + summary Structured Outputs + docs/tests) | 🔄 in progress |
 | 🟠 | Move all swipe actions to trailing side (right) — single swipe direction for clarity | ✅ done |
 | 🟠 | Add swipe "Add to Playlist" button on feed page with playlist picker modal | ✅ done |
 | 🟠 | Add swipe Delete on feed — removes video from all YouTube playlists + hides from feed | ✅ done |

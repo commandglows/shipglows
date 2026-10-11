@@ -83,7 +83,7 @@ echo ""
 
 run_test "Prefix generic app role" "pass" test "$(derive_pm2_app_name /home/claude/contentglowz/app)" = "contentglowz_app"
 run_test "Prefix generic site role" "pass" test "$(derive_pm2_app_name /home/claude/gocharbon/site)" = "gocharbon_site"
-run_test "Prefix generic lab role" "pass" test "$(derive_pm2_app_name /home/claude/replayglowz/lab)" = "replayglowz_lab"
+run_test "Prefix generic lab role" "pass" test "$(derive_pm2_app_name /home/claude/replayglows/lab)" = "replayglows_lab"
 run_test "Prefix generic worker role" "pass" test "$(derive_pm2_app_name /home/claude/contentglowz/worker)" = "contentglowz_worker"
 run_test "Preserve specific project name" "pass" test "$(derive_pm2_app_name /home/claude/socialglowz)" = "socialglowz"
 run_test "Preserve already-prefixed role" "pass" test "$(derive_pm2_app_name /home/claude/winglowz/winglowz_app)" = "winglowz_app"

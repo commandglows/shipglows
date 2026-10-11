@@ -26,7 +26,8 @@ function Format-SgInstallerConsoleEvent {
 function New-SgInstallerConsoleEventSink {
     param(
         [bool]$Interactive = ([Environment]::UserInteractive -and -not [Console]::IsOutputRedirected),
-        [scriptblock]$Writer
+        [scriptblock]$Writer,
+        [string]$LogPath = ''
     )
     if (-not $Writer) {
         $Writer = {
@@ -38,6 +39,17 @@ function New-SgInstallerConsoleEventSink {
     $hadProgress = $false
     return {
         param($Event)
+        # Persist outcomes, not animated ticks or full child-process output.
+        # Child output can contain credentials; retain only classified diagnostics.
+        $diagnostic = ''
+        if ($Event.Detail -match '(?i)\bEBUSY\b|resource busy or locked') { $diagnostic = 'EBUSY: executable is in use. Update not applied; retry when you choose to close the sessions using it.' }
+        elseif ($Event.Detail -match '(?i)\bEACCES\b|\bEPERM\b|access is denied') { $diagnostic = 'Access denied. Check file permissions or Windows administrator approval.' }
+        elseif ($Event.Detail -match '(?i)\bENOTFOUND\b|\bETIMEDOUT\b|\bECONNRESET\b') { $diagnostic = 'Network or registry connection failed.' }
+        if ($LogPath -and $Event.Code -ne 'INSTALL_STEP_PROGRESS') {
+            $record = [ordered]@{ time=[datetimeoffset]::UtcNow.ToString('o'); code=$Event.Code; operation=$Event.OperationId; label=$Event.Label; elapsedSeconds=$Event.ElapsedSeconds; diagnostic=$diagnostic }
+            if ($Event.PSObject.Properties['ExitCode']) { $record.exitCode = $Event.ExitCode }
+            [IO.File]::AppendAllText($LogPath, (($record | ConvertTo-Json -Compress) + [Environment]::NewLine), [Text.UTF8Encoding]::new($false))
+        }
         $formatted = Format-SgInstallerConsoleEvent -Event $Event -Interactive $Interactive
         if (-not $formatted) { return }
         if ($Interactive -and $Event.Code -eq 'INSTALL_STEP_PROGRESS') { $hadProgress = $true }
@@ -46,6 +58,8 @@ function New-SgInstallerConsoleEventSink {
             $hadProgress = $false
         }
         & $Writer $formatted.Text $formatted.NoNewline $formatted.Color
+        if ($diagnostic) { & $Writer $diagnostic $false 'Yellow' }
+        if ($Event.Code -in @('INSTALL_STEP_FAILED','INSTALL_STEP_TIMED_OUT') -and $LogPath) { & $Writer ("Diagnostic log: $LogPath") $false 'Yellow' }
     }.GetNewClosure()
 }
 

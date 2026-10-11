@@ -29,6 +29,7 @@ try {
     [IO.File]::WriteAllText((Join-Path $chrome 'package.json'), '{"scripts":{"dev":"vite","dev:chrome":"vite -c vite.chrome.config.ts"},"devDependencies":{"@crxjs/vite-plugin":"^2.7.1","vite":"^8.2.2"}}', [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $vite 'package.json'), '{"scripts":{"dev":"vite"},"devDependencies":{"vite":"^8.2.2"}}', [Text.UTF8Encoding]::new($false))
     Write-SgObsidianFixture $obsidian
+    [IO.File]::WriteAllText((Join-Path $obsidian '.shipglows.backend.json'), '{"schemaVersion":"shipglows.backend.v1","provider":"none","mode":"none","reason":"Obsidian plugin fixture without API or persistence.","command":null,"dependencies":[],"readiness":null}', [Text.UTF8Encoding]::new($false))
 
     Import-Module $modulePath -Force -DisableNameChecking
     Assert-Sg ((Get-SgProjectKind $obsidian) -eq 'obsidian-plugin') 'Obsidian was not classified before generic Vite.'

@@ -69,8 +69,8 @@
 | 2026-05-14 | notefinderz | dependencies | — | — | — | — | — | — | D | — | D | 2 critical / 15 high / 10 moderate / 2 low; Clerk auth bypass and Astro/Vercel SSR advisories; no fixes applied |
 | 2026-05-14 | notefinderz | dependencies fix pass | — | — | — | — | — | — | C | — | C | 0 critical / 3 high / 6 moderate / 3 low; compatible patches applied, remaining findings require Astro/Vercel major migration |
 | 2026-05-14 | notefinderz | Astro/Vercel major migration | — | — | — | — | — | — | B | — | B | 0 critical / 0 high / 5 moderate; Astro 6 and Vercel adapter 10 migrated, residual findings isolated to dev-only `@astrojs/check` YAML language-server chain |
-| 2026-05-14 | replayglowz | monorepo performance | — | — | — | — | — | — | — | A- | A- | 0 critical / 0 high open / 2 medium follow-ups; fixed unused 6.0 MB site payload, global Lenis JS, app playlist-sync waterfall, and eager notes subscription |
-| 2026-05-18 | replayglowz | Perf | — | — | — | — | — | — | — | B | B | 0 critical / 0 high / 2 medium, 2 fixed |
+| 2026-05-14 | replayglows | monorepo performance | — | — | — | — | — | — | — | A- | A- | 0 critical / 0 high open / 2 medium follow-ups; fixed unused 6.0 MB site payload, global Lenis JS, app playlist-sync waterfall, and eager notes subscription |
+| 2026-05-18 | replayglows | Perf | — | — | — | — | — | — | — | B | B | 0 critical / 0 high / 2 medium, 2 fixed |
 | 2026-05-24 | gocharbon | Deps | — | — | — | — | — | C- | — | — | C- | 0 critical / 2 high / 8 moderate; 2 high direct, 6 moderate transitive; major/vulnerable lines deferred via /sg-migrate |
 | 2026-05-25 | gocharbon | Deps | — | — | — | — | — | — | B- | — | B- | 0 critical / 0 high / 0 moderate / 0 low; non-major update lane resolved advisories (`astro@6.3.7`, `unstorage>h3` override); majors pending (`eslint` 10.x, `satori` 0.26.x) |
 | 2026-05-25 | gocharbon | Deps | — | — | — | — | — | B | — | B | 0 critical / 0 high / 0 moderate / 0 low; major lane updates applied (`eslint@10.4.0`, `satori@0.26.0`, `vue@3.5.34`), residual peer mismatch: `eslint-plugin-jsx-a11y@6.10.2` requires eslint ^3–9

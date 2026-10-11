@@ -13,7 +13,7 @@ function New-SgInstallerOperation {
 }
 
 function New-SgInstallerEvent {
-    param([string]$Code,[object]$Operation,[int]$ElapsedSeconds,[string]$Detail='',[int]$Tick=0)
+    param([string]$Code,[object]$Operation,[int]$ElapsedSeconds,[string]$Detail='',[int]$Tick=0,[Nullable[int]]$ExitCode=$null)
     [pscustomobject]@{
         Code = $Code
         OperationId = [string]$Operation.Id
@@ -21,6 +21,7 @@ function New-SgInstallerEvent {
         ElapsedSeconds = [Math]::Max(0,$ElapsedSeconds)
         Tick = [Math]::Max(0,$Tick)
         Detail = $Detail
+        ExitCode = $ExitCode
     }
 }
 
@@ -32,7 +33,8 @@ function Invoke-SgInstallerOperation {
     param(
         [Parameter(Mandatory=$true)][object]$Operation,
         [Parameter(Mandatory=$true)][scriptblock]$Runner,
-        [scriptblock]$EventSink
+        [scriptblock]$EventSink,
+        [int[]]$SuccessExitCodes = @(0)
     )
     $watch = [Diagnostics.Stopwatch]::StartNew()
     Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_STARTED' $Operation 0)
@@ -48,10 +50,10 @@ function Invoke-SgInstallerOperation {
         if (-not $result) { throw 'Installer operation runner returned no result.' }
         if ([bool]$result.TimedOut) {
             Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_TIMED_OUT' $Operation $elapsed ([string]$result.Output))
-        } elseif ([int]$result.ExitCode -ne 0) {
-            Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_FAILED' $Operation $elapsed ([string]$result.Output))
+        } elseif ([int]$result.ExitCode -notin $SuccessExitCodes) {
+            Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_FAILED' $Operation $elapsed ([string]$result.Output) -ExitCode $result.ExitCode)
         } else {
-            Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_COMPLETED' $Operation $elapsed)
+            Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_COMPLETED' $Operation $elapsed -ExitCode $result.ExitCode)
         }
         return $result
     } catch {

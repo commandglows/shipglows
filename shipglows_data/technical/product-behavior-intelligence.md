@@ -25,7 +25,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "ReplayGlowz product-analysis conversation showed recurring need for a reusable framework connecting behavior modeling, activation, retention, feature impact, and GTM proof."
+  - "ReplayGlows product-analysis conversation showed recurring need for a reusable framework connecting behavior modeling, activation, retention, feature impact, and GTM proof."
   - "Several projects in this workspace can benefit from a shared doctrine for turning usage signals into product and growth decisions."
 next_review: "2026-08-11"
 next_step: "/300-sg-docs audit shipglows_data/technical/product-behavior-intelligence.md"
@@ -51,7 +51,7 @@ but rather:
 - whether an assistive feature improved the workflow,
 - and which behaviors actually predict retention, adoption, or credible GTM proof.
 
-This reference was generalized from a ReplayGlowz analysis, but it is intentionally cross-project.
+This reference was generalized from a ReplayGlows analysis, but it is intentionally cross-project.
 
 ## Use When
 

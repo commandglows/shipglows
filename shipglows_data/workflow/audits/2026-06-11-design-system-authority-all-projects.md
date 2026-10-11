@@ -61,7 +61,7 @@ Six UI/app projects are missing a shipped design-system authority:
 
 - `contentglowz`
 - `gocharbon`
-- `replayglowz`
+- `replayglows`
 - `shipglows_app`
 - `socialglowz`
 - `winflowz`
@@ -74,7 +74,7 @@ Six UI/app projects are missing a shipped design-system authority:
 | `winflowz` | Astro site, Flutter app, Tailwind config | missing | `winflowz_app/lib/core/theme/winflowz_theme_tokens.dart`, `app_theme.dart`, specs for settings/design system and keyboard themes | 591 files, 1506 findings | clean at scan time | P1 | `300-sg-docs` authority with site/app scoped entries, then `503`/`504` |
 | `shipglows_app` | Astro site, Flutter app | missing | `app/lib/presentation/theme/app_theme.dart`, `app_theme_preference.dart`, theme tests | 163 files, 1190 findings | dirty app diagnostics/build files | P1 | `300-sg-docs` authority, confirm monorepo/root governance, then token audit |
 | `socialglowz` | Vite app, Astro site, Tailwind config | missing | `src/stores/theme.ts`, `themeAuto.ts`, `useTheme.ts`, `ThemeSwitch.vue` | 197 files, 1474 findings | dirty setup/native/webview files plus untracked cache/diagnostics | P1 | `300-sg-docs` authority, then classify brand/social-network color exceptions |
-| `replayglowz` | Astro site, Flutter app | missing | `replayglowz_app/lib/app/theme.dart`, theme tests | 184 files, 621 findings | dirty workflow artifacts | P2 | `300-sg-docs` authority, then migrate site/app scope |
+| `replayglows` | Astro site, Flutter app | missing | `replayglows_app/lib/app/theme.dart`, theme tests | 184 files, 621 findings | dirty workflow artifacts | P2 | `300-sg-docs` authority, then migrate site/app scope |
 | `gocharbon` | Astro site | missing | mostly theme-toggle/content-topic files; no obvious central token authority | 103 files, 1064 findings | clean at scan time | P2 | `500-sg-design-from-scratch` or `300-sg-docs` after confirming actual token source |
 | `temu` | Vite app | present locally, untracked | `shipglows_data/technical/design-system-authority.md`, canonical page alignment spec | 67 files, 427 findings | dirty UI and workflow files; authority untracked | P2 | finish/verify/ship existing authority and active redesign scope before calling compliant |
 | `shipglows` | Astro site, TUI package | present and shipped | `shipglows_data/technical/design-system-authority.md`, token contract/tooling | 49 files, 183 findings | dirty unrelated spec plus this chantier | P3/control | use as doctrine control; later clean site drift separately |
@@ -95,7 +95,7 @@ Every scanned UI project produced drift candidates. These scans are intentionall
 
 ### P2 - Monorepo/nested governance needs explicit handling
 
-`shipglows_app`, `contentglowz`, `replayglowz`, and `winflowz` mix site/app surfaces. Their authority files should live at the repo governance root with scoped entries for site/app unless a standalone subproject exception is documented.
+`shipglows_app`, `contentglowz`, `replayglows`, and `winflowz` mix site/app surfaces. Their authority files should live at the repo governance root with scoped entries for site/app unless a standalone subproject exception is documented.
 
 ### P2 - `temu` is not fully compliant until shipped
 
@@ -107,7 +107,7 @@ Every scanned UI project produced drift candidates. These scans are intentionall
 2. `winflowz`: broad app/site token surface and many design-system-related specs already exist.
 3. `shipglows_app`: close to ContentGlowz architecture, likely easy to standardize after authority.
 4. `socialglowz`: needs authority plus explicit brand/social-network color exception policy.
-5. `replayglowz`: clear site/app split, smaller drift count.
+5. `replayglows`: clear site/app split, smaller drift count.
 6. `gocharbon`: likely needs from-scratch authority or token creation because central token source is not obvious.
 7. `temu`: verify/ship current authority and redesign work, then audit components.
 8. `shipglows`: control project; clean public site drift later.
@@ -118,7 +118,7 @@ Every scanned UI project produced drift candidates. These scans are intentionall
 - `winflowz`: `/300-sg-docs technical design-system-authority winflowz`, then `/503-sg-audit-design-tokens winflowz`.
 - `shipglows_app`: `/300-sg-docs technical design-system-authority shipglows_app`, then `/503-sg-audit-design-tokens shipglows_app`.
 - `socialglowz`: `/300-sg-docs technical design-system-authority socialglowz`, then `/503-sg-audit-design-tokens socialglowz`.
-- `replayglowz`: `/300-sg-docs technical design-system-authority replayglowz`, then `/503-sg-audit-design-tokens replayglowz`.
+- `replayglows`: `/300-sg-docs technical design-system-authority replayglows`, then `/503-sg-audit-design-tokens replayglows`.
 - `gocharbon`: `/500-sg-design-from-scratch gocharbon tokens-only` if no central token source is confirmed; otherwise `/300-sg-docs technical design-system-authority gocharbon`.
 - `temu`: `/103-sg-verify temu-canonical-page-design-system-alignment`, then `/005-sg-ship` inside `temu` if scoped and safe.
 
@@ -147,7 +147,7 @@ Summary counts:
 
 - `contentglowz`: 286 files, 2010 findings.
 - `gocharbon`: 103 files, 1064 findings.
-- `replayglowz`: 184 files, 621 findings.
+- `replayglows`: 184 files, 621 findings.
 - `shipglows_app`: 163 files, 1190 findings.
 - `socialglowz`: 197 files, 1474 findings.
 - `winflowz`: 591 files, 1506 findings.

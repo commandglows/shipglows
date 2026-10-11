@@ -61,6 +61,85 @@ function Invoke-SgLinkedSkills([ValidateSet('check','repair')][string]$Mode) {
     exit $result
 }
 
+function Invoke-SgCheck {
+    # Runs the lint and test commands declared by every manifest in the current directory.
+    # Placeholder scripts (echo, exit 0, true, :) count as not configured, never as passing.
+    # Bun is refused, as in the required gate: its setup is not inferred.
+    $projectRoot = (Get-Location).ProviderPath
+    $steps = [System.Collections.Generic.List[object]]::new()
+    $placeholder = '^\s*(echo\b|exit\s+0\s*$|true\s*$|:\s*$)'
+    $manifest = Join-Path $projectRoot 'package.json'
+    $pubspec = Join-Path $projectRoot 'pubspec.yaml'
+    $hasManifest = $false
+    if (Test-Path -LiteralPath $manifest -PathType Leaf) {
+        $hasManifest = $true
+        try { $scripts = (Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json).scripts }
+        catch { Stop-SgCommand 'package.json is not valid JSON; nothing was run.' }
+        if ((Test-Path -LiteralPath (Join-Path $projectRoot 'bun.lock') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $projectRoot 'bun.lockb') -PathType Leaf)) {
+            Stop-SgCommand 'Bun setup is not inferred; run its lint and test by hand, as the required gate does.'
+        }
+        $runner = 'npm'
+        if (Test-Path -LiteralPath (Join-Path $projectRoot 'pnpm-lock.yaml') -PathType Leaf) { $runner = 'pnpm' }
+        elseif (Test-Path -LiteralPath (Join-Path $projectRoot 'yarn.lock') -PathType Leaf) { $runner = 'yarn' }
+        foreach ($name in 'lint', 'test') {
+            $body = if ($scripts -and $scripts.PSObject.Properties[$name]) { [string]$scripts.$name } else { '' }
+            if (-not $body.Trim() -or $body -match $placeholder) {
+                $steps.Add([pscustomobject]@{ Name = "node:$name"; Executable = $null; Arguments = @() })
+            } else {
+                $steps.Add([pscustomobject]@{ Name = "node:$name"; Executable = $runner; Arguments = @('run', $name) })
+            }
+        }
+    }
+    if (Test-Path -LiteralPath $pubspec -PathType Leaf) {
+        $hasManifest = $true
+        $steps.Add([pscustomobject]@{ Name = 'flutter:lint'; Executable = 'flutter'; Arguments = @('analyze') })
+        if (Test-Path -LiteralPath (Join-Path $projectRoot 'test') -PathType Container) {
+            $steps.Add([pscustomobject]@{ Name = 'flutter:test'; Executable = 'flutter'; Arguments = @('test') })
+        } else {
+            $steps.Add([pscustomobject]@{ Name = 'flutter:test'; Executable = $null; Arguments = @() })
+        }
+    }
+    if (-not $hasManifest) {
+        Stop-SgCommand 'no package.json or pubspec.yaml in this directory; nothing to check.'
+    }
+
+    Write-Output "ShipGlows check: $projectRoot"
+    $problem = $false
+    $stopped = $false
+    foreach ($step in $steps) {
+        if ($null -eq $step.Executable) {
+            Write-Output "$($step.Name): NOT CONFIGURED (no real script declared)"
+            $problem = $true
+            continue
+        }
+        if ($stopped) {
+            Write-Output "$($step.Name): SKIPPED (earlier failure)"
+            continue
+        }
+        Write-Output "== $($step.Name): $($step.Executable) $($step.Arguments -join ' ')"
+        if (-not (Get-Command -Name $step.Executable -CommandType Application, ExternalScript -ErrorAction SilentlyContinue)) {
+            Write-Output "$($step.Name): FAIL (command not found: $($step.Executable))"
+            $problem = $true
+            $stopped = $true
+            continue
+        }
+        & $step.Executable @($step.Arguments)
+        if ($LASTEXITCODE -ne 0) {
+            Write-Output "$($step.Name): FAIL (exit $LASTEXITCODE)"
+            $problem = $true
+            $stopped = $true
+            continue
+        }
+        Write-Output "$($step.Name): OK"
+    }
+    if ($problem) {
+        Write-Output 'shipglows check: NOT PASSED. Paste this summary in the PR.'
+        exit 1
+    }
+    Write-Output 'shipglows check: PASSED. Paste this summary in the PR.'
+    exit 0
+}
+
 if ($CommandArguments.Count -eq 2 -and $CommandArguments[0] -ieq 'skills' -and $CommandArguments[1] -ieq 'status') {
     Invoke-SgLinkedSkills -Mode check
 }
@@ -69,7 +148,7 @@ if ($CommandArguments.Count -eq 2 -and $CommandArguments[0] -ieq 'update' -and $
 }
 
 if ($CommandArguments.Count -lt 1) {
-    Stop-SgCommand 'expected: shipglows update [status|skills], shipglows skills status, shipglows tools <status|update>, or shipglows rename rio <name>'
+    Stop-SgCommand 'expected: shipglows update [status|skills], shipglows skills status, shipglows check, shipglows tools <status|update>, or shipglows rename rio <name>'
 }
 
 if ($CommandArguments[0] -ieq 'update') {
@@ -95,8 +174,12 @@ if ($CommandArguments[0] -ieq 'tools') {
     exit $LASTEXITCODE
 }
 
+if ($CommandArguments.Count -eq 1 -and $CommandArguments[0] -ieq 'check') {
+    Invoke-SgCheck
+}
+
 if ($CommandArguments[0] -ine 'rename') {
-    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>"
+    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows update [status], shipglows check, shipglows tools <status|update>, or shipglows rename rio <name>"
 }
 if ($CommandArguments.Count -lt 2 -or $CommandArguments[1] -ine 'rio') {
     $target = if ($CommandArguments.Count -ge 2) { $CommandArguments[1] } else { '' }

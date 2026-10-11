@@ -107,9 +107,30 @@ $tursoInstalled = Invoke-SgTursoCloudInstall -Plan $tursoPlan -WslState $ready -
 Assert-True ($tursoInstalled.Status -eq 'ready') 'Verified Turso installation was not reported ready.'
 Assert-True ([IO.Path]::GetFullPath($tursoCapture.File) -eq [IO.Path]::GetFullPath((Join-Path ([Environment]::SystemDirectory) 'wsl.exe')) -and (($tursoCapture.Arguments -join ' ') -eq '-d Ubuntu --exec /bin/bash -s --')) 'Turso execution escaped the fixed WSL Bash stdin boundary.'
 Assert-True ($tursoCapture.Input -match 'TURSO_VERSION="1\.0\.32"') 'The bundled verified installer was not sent through bounded stdin.'
+Assert-True ($tursoCapture.Input -notmatch "`r") 'The WSL Bash installer input must use Linux line endings.'
 Assert-True ($tursoCapture.Input -notmatch 'turso\s+auth|turso\s+db|turso\s+shell|latest') 'The bundled installer contains an authentication, database, shell, or unpinned latest action.'
 
 $noProof = Invoke-SgTursoCloudInstall -Plan $tursoPlan -WslState $ready -InstallerPath $installer -Runner { param($File,$Arguments,$TimeoutSeconds,$InputText) New-TestResult 0 'done' }
 Assert-True ($noProof.Status -eq 'error') 'Turso installation accepted success without pinned-version proof.'
+
+$nativeWsl = Join-Path ([Environment]::SystemDirectory) 'wsl.exe'
+if (Test-Path -LiteralPath $nativeWsl -PathType Leaf) {
+    $null = & $nativeWsl --status 2>&1
+    $nativeStatusCode = $LASTEXITCODE
+    $null = & $nativeWsl --list --quiet 2>&1
+    $nativeListCode = $LASTEXITCODE
+    if ($nativeStatusCode -eq 0 -and $nativeListCode -eq 0) {
+        Import-Module (Join-Path $root 'cli\windows\ShipGlows.MobileToolchain.psm1') -Force -DisableNameChecking
+        $boundedStatus = Invoke-SgBoundedProcess -File $nativeWsl -Arguments @('--status') -TimeoutSeconds 20
+        $boundedList = Invoke-SgBoundedProcess -File $nativeWsl -Arguments @('--list','--quiet') -TimeoutSeconds 20
+        Assert-True ($boundedStatus.ExitCode -eq 0 -and $boundedList.ExitCode -eq 0) 'The bounded process transport must preserve WSL option tokens.'
+        $liveWsl = Get-SgWslState
+        Assert-True ($liveWsl.Status -ne 'error') 'The WSL detector must classify a working native WSL installation.'
+        if ($liveWsl.Ready) {
+            $stdinProbe = Invoke-SgBoundedProcess -File $nativeWsl -Arguments @('-d',$liveWsl.Distribution,'--exec','/bin/bash','-s','--') -TimeoutSeconds 30 -InputText "set -e`nprintf 'stdin-ok'`n"
+            Assert-True ($stdinProbe.ExitCode -eq 0 -and $stdinProbe.Output -match 'stdin-ok') 'WSL Bash stdin must not receive a trailing Windows carriage return.'
+        }
+    }
+}
 
 Write-Host 'WSL and Turso Windows contracts passed.' -ForegroundColor Green

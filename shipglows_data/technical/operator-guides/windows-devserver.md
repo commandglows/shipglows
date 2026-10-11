@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.28.0"
+artifact_version: "1.30.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-09-04"
+updated: "2026-10-05"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -52,6 +52,104 @@ next_step: "/103-sg-verify Windows operator guide"
 
 # ShipGlows - Installation pour Windows
 
+## Backend obligatoire au lancement
+
+Chaque surface exécutable déclare `.shipglows.backend.json` à sa racine. Le contrat
+`shipglows.backend.v1` est fermé : les sept champs ci-dessous sont obligatoires ;
+les champs inconnus ou dupliqués sont refusés. Aucun manifeste n'est créé ou hérité
+automatiquement, même pour un site statique ou une extension. Les projets existants
+sans déclaration sont bloqués au prochain lancement ou redémarrage ; leur session
+active reste intacte en cas de refus du backend.
+
+Les skills examinent d'abord la configuration et la documentation de la surface.
+Si une information nécessaire au lancement, à la réutilisation ou à un test dépendant
+du backend reste inconnue, ambiguë ou inaccessible, ils demandent uniquement les
+faits manquants en expliquant leur utilité, sans demander de secrets. Ils poursuivent
+les travaux indépendants et préservent la session existante. Cette règle concerne
+les projets actuels et futurs ; elle ne bloque pas les checks statiques ou tests
+unitaires isolés. Une réponse renseigne le contrat mais n'autorise pas à elle seule
+une modification des projets ou une opération fournisseur.
+
+
+Exemple de backend distant (remplacer l'URL par le contrôle de santé du projet) :
+
+```json
+{
+  "schemaVersion": "shipglows.backend.v1",
+  "provider": "http",
+  "mode": "remote",
+  "reason": null,
+  "command": null,
+  "dependencies": [],
+  "readiness": {
+    "url": "https://backend.example/health",
+    "statusCode": 200,
+    "timeoutSeconds": 15
+  }
+}
+```
+
+Les fournisseurs acceptés sont `custom`, `convex`, `supabase`, `firebase` et `http`.
+Ils identifient le service ; ils ne déclenchent aucune configuration de compte ni
+commande implicite. `remote` vérifie seulement l'URL déclarée et interdit `command`.
+Le contrôle effectue un GET, exige le code 2xx exact déclaré, refuse les redirections,
+les identifiants dans l'URL, les paramètres de requête et les fragments. Le délai
+est compris entre 1 et 120 secondes ; chaque requête est bornée à trois secondes.
+La vérification distante est ponctuelle au lancement et à la réutilisation.
+
+Pour `local`, déclarer une URL loopback, `reason: null`, au moins un fichier dans
+`dependencies`, et une commande de cette forme :
+
+```json
+"command": {
+  "executable": "node.exe",
+  "arguments": ["backend/dev-server.mjs"],
+  "authorized": true
+},
+"dependencies": ["backend/dev-server.mjs", "package.json", "package-lock.json"]
+```
+
+La commande s'exécute depuis la surface. L'exécutable `.exe` est résolu sur le PATH ;
+les arguments sont transmis séparément, sans interprétation automatique par un shell.
+Une CLI distribuée en `.cmd` exige une recette explicite via un exécutable approprié ;
+aucun adaptateur fournisseur n'est deviné. Déclarer tous les scripts, configurations et
+lockfiles influant sur le backend. Les fichiers doivent rester dans la surface, sans
+jonction ni lien symbolique. Leur contenu et l'exécutable résolu participent à
+l'empreinte. Les dépendances sont vérifiées, jamais installées par ce contrat.
+Ne placer aucun secret dans le manifeste, les arguments ou les URL : la recette est
+publique et son payload de lancement est conservé dans le répertoire runtime.
+
+Le backend local démarre caché dans un Job Windows supervisé, devient prêt avant
+le lancement de l'application et s'arrête avec elle. La perte de son processus ou
+de sa disponibilité arrête l'application et enregistre une erreur. Un port déjà
+occupé n'est jamais adopté sans identité de processus et empreinte correspondantes.
+Si le superviseur lui-même est tué, la prochaine réconciliation signale la session
+en erreur ; l'arrêt explicite de l'application reste disponible.
+Un changement nécessitant le même port qu'un backend encore actif est refusé en
+préservant la session : arrêter explicitement celle-ci avant de relancer.
+
+L'exception pour une surface réellement sans backend est explicite et justifiée :
+
+```json
+{
+  "schemaVersion": "shipglows.backend.v1",
+  "provider": "none",
+  "mode": "none",
+  "reason": "Site statique sans API, compte utilisateur ni données persistantes.",
+  "command": null,
+  "dependencies": [],
+  "readiness": null
+}
+```
+
+Le registre conserve le mode, le fournisseur, l'empreinte SHA-256, l'état, l'heure de
+vérification et, pour un backend local, l'identité du processus et du Job. Une session
+réutilisée repasse le contrôle ; une ancienne entrée sans empreinte n'est pas
+considérée comme vérifiée. Les actions Redémarrer du menu et de la CLI passent par
+le même contrôle avant tout arrêt. Le contrat d'authentification Flutter reste
+obligatoire : disponibilité backend, connexion utilisateur et accès API protégé
+sont trois preuves distinctes.
+
 ## Diagnostic de configuration après clonage
 
 Après l'enregistrement, le clonage exécute `s env prepare` et affiche la classification. Pour `repairable`, examiner le plan JSON puis lancer la commande exacte `s env prepare-apply -ProjectPath <path> -PlanDigest <digest>` affichée par la CLI. ShipGlows n'applique jamais cette réparation automatiquement et ne fabrique pas les manifests du projet, lockfiles, `.env` ou secrets.
@@ -64,6 +162,17 @@ d'une application et ne déclenche aucune authentification fournisseur.
 Si le diagnostic est `blocked`, le clone reste sur disque mais la commande échoue avec une erreur contextuelle. Corriger manuellement la source invalide puis relancer `s env prepare`; toute configuration existante inconnue ou invalide est préservée plutôt que remplacée.
 
 ## Runtime PowerShell
+
+Sans argument, `s` affiche le menu fzf pendant la préparation d'une session
+PowerShell qui sera réutilisée pour les choix suivants. Un choix effectué très
+vite peut encore attendre la fin de cette préparation. Les commandes comme `s d`
+gardent leur lancement direct ; sans fzf, le menu PowerShell reste disponible.
+
+Les sélecteurs de projets affichent les noms du catalogue préparé ; le projet
+choisi est vérifié avant l'action. Le dashboard conserve les états des processus.
+Le menu Authentification affiche les outils sans interroger tous les comptes :
+l'état est vérifié à l'ouverture de l'outil choisi. Les confirmations de connexion
+et déconnexion sont conservées.
 
 Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Les commandes ciblées `shipglows update`, `shipglows update status` et `shipglows rename rio <nom>` passent elles aussi par le runtime PowerShell 7.6.5 géré par ShipGlows. L'ancienne forme `shipglows update runtime` reste acceptée et est normalisée vers la mise à jour canonique. N'utilisez pas `s update` lorsqu'une instance interactive de `s.exe` est encore ouverte, car Windows ne peut pas remplacer un exécutable en cours d'utilisation. La première installation complète en ligne peut acquérir l'archive épinglée. Le mode hors ligne ne fonctionne qu'après validation locale du runtime ; sinon, reconnectez la machine et relancez l'installateur complet. Un échec de SHA, d'archive, de sonde, de verrou ou une corruption conserve le pointeur actif précédent.
 
@@ -278,11 +387,12 @@ Une racine de dépôt ou un monorepo enregistré explicitement peut donc produir
 plusieurs surfaces. Chacune possède sa propre entrée de registre, son nom
 qualifié, son port persistant, ses journaux et son `ENVIRONMENT.md`.
 
-La recherche est volontairement bornée à quatre niveaux dans le workspace et
-trois niveaux sous une racine de projet. Elle ignore les dossiers cachés, les
-dépendances, les caches et les sorties de build. Une structure plus profonde ou
-sans manifest reconnaissable doit être enregistrée par sa surface exécutable ;
-ShipGlows ne prétend pas reconnaître toutes les conventions de monorepo.
+La recherche est volontairement bornée à trois niveaux sous la racine du
+workspace (racine = niveau zéro), et trois niveaux sous une racine de projet
+explicitement sélectionnée. Elle ignore les dossiers cachés, les dépendances,
+les caches et les sorties de build. Une surface plus profonde ou sans manifest
+reconnaissable doit être enregistrée directement ; ShipGlows ne prétend pas
+reconnaître toutes les conventions de monorepo.
 
 Le dashboard et tous les sélecteurs réutilisent le même catalogue. Un scan
 linéaire alimente un index non autoritaire en mémoire et dans
@@ -376,9 +486,9 @@ uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
 ### Flutter Windows en développement
 
-Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `ShipGlows - <Projet> - Dev`, qui démarre la session ou réutilise celle déjà active.
+Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `<Projet> - Dev`, qui démarre la session ou réutilise celle déjà active. Les anciens raccourcis Flutter gérés sous `ShipGlows - <Projet> - Dev` sont renommés au prochain démarrage du projet.
 
-Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les raccourcis `Windows - Local` et `Windows - CI` restent réservés aux builds figés validés : releases et contrôles ciblés du packaging, des plugins natifs ou du démarrage sans Flutter attaché.
+Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev.
 
 ### Flutter Android en développement
 

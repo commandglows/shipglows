@@ -1,3 +1,4 @@
+# Application/configuration core unit tests; devserver-backend.ps1 covers the public launch gate.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -38,6 +39,7 @@ try {
             Assert-Config ($first.Environment['AUTH0_DOMAIN'] -ceq 'fixture.invalid') 'Android environment projection lost.'
             Assert-Config ($env:AUTH_BYPASS -ceq 'original') 'Parent environment was not restored.'
             Assert-Config ('--no-fallback' -in $script:argsSeen -and '--preserve-env=AUTH_BYPASS' -in $script:argsSeen) 'Doppler scope/fallback policy missing.'
+            Assert-Config ($script:argsSeen[0] -ceq 'run' -and $script:argsSeen[1] -ceq '--project' -and $script:argsSeen[2] -ceq 'fixture' -and $script:argsSeen[3] -ceq '--config' -and $script:argsSeen[4] -ceq 'dev') 'Declared Doppler scope was not used.'
             $second=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
             Assert-Config ($first.Fingerprint -ceq $second.Fingerprint) 'Identical configuration fingerprint is unstable.'
             $entry=[pscustomobject]@{flutterConfigurationFingerprint=$first.Fingerprint}
@@ -75,6 +77,14 @@ try {
             Expect-Blocked {Get-SgFlutterConfiguration $Fixture $settings 3010 {param($f,$a) [pscustomobject]@{ExitCode=0;Output='{broken'}}}
             $recipe.doppler.config='production'; Save-Recipe
             Expect-Blocked {Read-SgFlutterRecipe $Fixture}
+            $recipe.doppler='NONE'; Save-Recipe
+            $noneRecipe=Read-SgFlutterRecipe $Fixture
+            Assert-Config ($noneRecipe.doppler -ceq 'NONE') 'Explicit Doppler NONE declaration was not accepted.'
+            $script:argsSeen=@()
+            $withoutDoppler=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
+            Assert-Config ($withoutDoppler.HasRecipe -and $withoutDoppler.Fingerprint -cne $first.Fingerprint) 'Doppler NONE did not produce a distinct configured launch.'
+            Assert-Config ('run' -notin $script:argsSeen -and '--project' -notin $script:argsSeen -and '--config' -notin $script:argsSeen -and '--no-fallback' -notin $script:argsSeen) 'Doppler NONE unexpectedly invoked Doppler or inherited its scope.'
+            $recipe.doppler=@{project='fixture';config='dev'}
             $recipe.doppler.config='dev'; $recipe.configurationScript='../outside.py'; Save-Recipe
             Expect-Blocked {Read-SgFlutterRecipe $Fixture}
             $recipe.configurationScript='config.py'; Save-Recipe
@@ -92,14 +102,14 @@ try {
             function Get-SgFlutterConfiguration {throw 'fixture config unavailable'}
             $script:stopCalled=$false
             function Stop-SgProject {$script:stopCalled=$true}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture}
             Assert-Config (-not $script:stopCalled) 'Preflight failure stopped a working session.'
             function Get-SgFlutterConfiguration {$first}
-            $reused=Start-SgProject ([pscustomobject]@{}) $Fixture
+            $reused=Start-SgProjectCore ([pscustomobject]@{}) $Fixture
             Assert-Config ($reused.status -eq 'running' -and -not $script:stopCalled) 'Verified same configuration should not restart.'
             function Resolve-SgPowerShellExecutable {throw 'fixture missing host'}
             function Get-SgFlutterConfiguration {$rotated}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture}
             Assert-Config (-not $script:stopCalled) 'Missing launch host stopped a working session.'
 
             # Explicit targets are transient and reach configuration resolution.
@@ -107,7 +117,7 @@ try {
             function Get-SgFlutterCommandPath {'C:\fixture\flutter.bat'}
             function Resolve-SgFlutterAndroidDevice { 'emulator-5556' }
             function Get-SgFlutterConfiguration {param($p,$s,$port) $script:observedTarget=$s.FlutterDevice;$script:observedId=$s.FlutterDeviceId;throw 'fixture stop after preflight'}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture -FlutterDevice android}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture -FlutterDevice android}
             Assert-Config ($script:observedTarget -eq 'android' -and $script:observedId -eq 'emulator-5556') 'Resolved Android device did not reach session fingerprint input.'
             Assert-Config ((Get-SgRuntimeSettings $Fixture).FlutterDevice -eq 'windows') 'Explicit target changed the durable project settings.'
 
@@ -118,7 +128,7 @@ try {
             $script:observedPort=0
             function Get-SgFlutterConfiguration {param($p,$s,$port) $script:observedPort=$port;return $first}
             function Reserve-SgProjectPort {param($c,$p,$port,$explicit) Assert-Config ($port -eq $script:observedPort -and $port -eq 32201 -and $explicit) 'Reserved Web port diverges from preflight.';throw 'fixture stop after port proof'}
-            Expect-Blocked {Start-SgProject ([pscustomobject]@{}) $Fixture -FlutterDevice chrome}
+            Expect-Blocked {Start-SgProjectCore ([pscustomobject]@{}) $Fixture -FlutterDevice chrome}
             Assert-Config ($script:observedPort -eq 32201) 'Stale stored Web port was used for configuration.'
         } finally {[Environment]::SetEnvironmentVariable('AUTH_BYPASS',$prior,'Process')}
     } $fixture

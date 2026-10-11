@@ -38,7 +38,8 @@ function Read-SgFlutterRecipe([string]$ProjectPath) {
         if ($key -cnotin $recipe.publicDefines) { throw 'Flutter required/forbidden keys must be declared public defines.' }
     }
     if ($recipe.publicDefines.Count -eq 0) { throw 'Flutter recipe has no public defines.' }
-    if ($null -eq $recipe.doppler -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'config,project' -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$') { throw 'Flutter recipe must declare an exact Doppler development or staging project/config.' }
+    $dopplerNone = $recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE'
+    if (-not $dopplerNone -and ($null -eq $recipe.doppler -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'config,project' -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$')) { throw 'Flutter recipe must declare Doppler as NONE or provide an exact development/staging project and config.' }
     $relative = [string]$recipe.configurationScript
     if ([IO.Path]::IsPathRooted($relative) -or $relative -notmatch '\.py$') { throw 'Flutter configurationScript must be a relative Python file.' }
     $scriptPath = [IO.Path]::GetFullPath((Join-Path $ProjectPath $relative))
@@ -96,21 +97,30 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
     $sourceHash = ''
     if ($recipe) {
         $python = Get-SgCommandPath @('python.exe','python3.exe')
-        $doppler = Get-SgCommandPath @('doppler.exe')
-        if (-not $python -or -not $doppler) { throw 'The declared Flutter recipe requires Python and Doppler. No unauthenticated fallback is allowed.' }
+        if (-not $python) { throw 'The declared Flutter recipe requires Python. No unauthenticated fallback is allowed.' }
         $resolverTarget = if ($target -in @('chrome','web-server')) { 'web' } elseif ($target -eq 'windows') { 'windows' } else { 'android' }
-        $arguments = @('run','--project',[string]$recipe.doppler.project,'--config',[string]$recipe.doppler.config,'--no-fallback','--no-check-version')
-        if ($recipe.forbiddenTrueDefines.Count -gt 0) { $arguments += '--preserve-env=' + ($recipe.forbiddenTrueDefines -join ',') }
-        $arguments += @('--',$python,$recipe.ScriptPath,'--configuration-json','--target',$resolverTarget)
+        $arguments = @()
+        $runnerFile = $python
+        if ($recipe.doppler -cne 'NONE') {
+            $doppler = Get-SgCommandPath @('doppler.exe')
+            if (-not $doppler) { throw 'The declared Flutter recipe requires Doppler. No unauthenticated fallback is allowed.' }
+            $arguments += @('run','--project',[string]$recipe.doppler.project,'--config',[string]$recipe.doppler.config,'--no-fallback','--no-check-version')
+            if ($recipe.forbiddenTrueDefines.Count -gt 0) { $arguments += '--preserve-env=' + ($recipe.forbiddenTrueDefines -join ',') }
+            $arguments += '--'
+            $runnerFile = $doppler
+        }
+        $arguments += @($python,$recipe.ScriptPath,'--configuration-json','--target',$resolverTarget)
         if ($origin) { $arguments += @('--web-origin',$origin) }
         if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgPublicFlutterResolver $File $Arguments } }
         $saved = @{}
         try {
-            # Public policy flags only; never enumerate, save or export Doppler secrets.
-            foreach ($key in $recipe.forbiddenTrueDefines) { $saved[$key] = [Environment]::GetEnvironmentVariable($key,'Process'); [Environment]::SetEnvironmentVariable($key,'false','Process') }
-            $result = & $Runner $doppler $arguments
+            # Public policy flags only; never enumerate, save or export secrets.
+            if ($recipe.doppler -cne 'NONE') {
+                foreach ($key in $recipe.forbiddenTrueDefines) { $saved[$key] = [Environment]::GetEnvironmentVariable($key,'Process'); [Environment]::SetEnvironmentVariable($key,'false','Process') }
+            }
+            $result = & $Runner $runnerFile $arguments
         } finally { foreach ($key in $saved.Keys) { [Environment]::SetEnvironmentVariable($key,$saved[$key],'Process') } }
-        if (-not $result -or $result.ExitCode -ne 0) { throw 'Flutter configuration preflight failed. Check the declared Doppler access and required public client configuration; the existing session was preserved.' }
+        if (-not $result -or $result.ExitCode -ne 0) { throw 'Flutter configuration preflight failed. Check the declared configuration source and required public client configuration; the existing session was preserved.' }
         if ([string]$result.Output -eq '' -or ([string]$result.Output).Length -gt 65536) { throw 'Flutter resolver returned an empty or oversized response.' }
         try { $resolved = [string]$result.Output | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Flutter resolver did not return the public configuration contract.' }
         if ($null -eq $resolved -or $resolved -is [array] -or (@($resolved.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'dartDefines,environment,schemaVersion' -or $resolved.schemaVersion -cne 'shipglows.flutter-configuration.v1') { throw 'Unsupported Flutter public configuration response.' }

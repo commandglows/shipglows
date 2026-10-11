@@ -56,10 +56,13 @@ try {
     $one = @(Get-SgProjectCatalog $edgeConfig -ForceRefresh)
     Assert-Sg ($one.Count -eq 1 -and $one[0].Name -eq 'only/site') 'One-project catalogue was not stable.'
 
-    $deep = Join-Path $edgeConfig.Workspace 'nested\one\two\three\four\five\site'
-    Write-Package $deep 'vite'
+    $atDepthLimit = Join-Path $edgeConfig.Workspace 'one\two\three'
+    $beyondDepthLimit = Join-Path $edgeConfig.Workspace 'one\two\three\four'
+    Write-Package $atDepthLimit 'vite'
+    Write-Package $beyondDepthLimit 'vite'
     $deepRefresh = @(Get-SgProjectCatalog $edgeConfig -ForceRefresh)
-    Assert-Sg (@($deepRefresh.path) -contains $deep) 'A supported project below the former scan-depth limit was not discovered.'
+    Assert-Sg (@($deepRefresh.path) -contains $atDepthLimit) 'A supported project at the workspace scan-depth limit was not discovered.'
+    Assert-Sg (@($deepRefresh.path) -notcontains $beyondDepthLimit) 'A project beyond the workspace scan-depth limit was discovered.'
 
     $cold = @(Get-SgProjectCatalog $config)
     Assert-Sg ($cold.Count -eq 2) 'Cold discovery did not return the two runnable surfaces.'

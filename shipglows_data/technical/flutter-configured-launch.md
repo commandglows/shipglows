@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: shipglows
 created: "2026-09-05"
-updated: "2026-09-06"
+updated: "2026-09-07"
 status: active
 source_skill: sg-development
 scope: flutter-configured-launch
@@ -31,22 +31,31 @@ A request to launch an app includes its declared authentication and service
 configuration. An agent must resolve that configuration, not require the user
 to repeat Doppler, Dart defines or provider setup in each prompt.
 
+The independent `.shipglows.backend.json` contract is also mandatory for every
+managed launch, including Flutter. Backend readiness is checked before entering
+this configuration resolver and before any session replacement. An explicit,
+justified `none` backend exception does not waive this authentication recipe.
+See the [Windows backend contract](operator-guides/windows-devserver.md#backend-obligatoire-au-lancement).
+Backend availability, user login and protected API access remain separate proofs.
+
 ## Project recipe
 
 An authenticated project declares `.shipglows.flutter.json` with exactly:
 
 - `schemaVersion`: `shipglows.flutter-recipe.v1`.
 - `configurationScript`: a project-relative Python resolver, no reparse paths.
-- `doppler`: exact `project` and development/staging `config`; no production.
+- `doppler`: either the exact string `"NONE"` for an explicitly local configuration source, or exact `project` and development/staging `config`; no production.
 - `publicDefines` / `publicEnvironment`: explicit public parameter allowlists.
 - `requiredDefines`: nonempty required members of `publicDefines`.
 - `forbiddenTrueDefines`: policy flags that must resolve to literal `false`.
 
 The manager runs the declared resolver with `--configuration-json --target
-windows|web|android`, adding `--web-origin` from the assigned port for Web.
-It uses Doppler `--no-fallback` and explicitly preserves disabled bypass policy
-flags. This does not change the Doppler account or persist any service secret.
-An unavailable provider/configuration fails before a running session is stopped.
+windows|web|android`, adding `--web-origin` from the assigned port for Web. With
+`doppler: "NONE"`, the resolver runs directly under Python and the recipe owner
+is responsible for its local public configuration inputs. With a Doppler scope,
+it uses Doppler `--no-fallback` and explicitly preserves disabled bypass policy
+flags. No service secret is persisted. An unavailable provider/configuration
+fails before a running session is stopped.
 
 The resolver returns exactly `schemaVersion` (`shipglows.flutter-configuration.v1`),
 `dartDefines` and `environment`. Both dictionaries contain only strings and

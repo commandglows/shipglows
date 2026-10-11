@@ -58,7 +58,7 @@ As the ShipGlows operator, I want every managed GitHub project to expose one sta
 
 ## Minimal Behavior Contract
 
-Every managed GitHub repository uses the exact protected status name `ShipGlows required gate`. The owning workflow triggers for every pull request into the production branch, every push to that branch, and manual dispatch. It deterministically classifies changed paths, runs only relevant stack checks, treats an irrelevant lane as an explicit successful no-impact result, and fails closed when classification or an applicable check fails. A ruleset may require the status only after the workflow exists on the production branch and the exact status has completed successfully.
+Every managed GitHub repository uses the exact protected status name `ShipGlows required gate`. The owning workflow triggers for every pull request into the production branch, every push to that branch, and manual dispatch by default. A project may declare `trigger: manual` in `.shipglows/required-gate.json` to keep manual dispatch only; such a gate cannot be ruleset-protected. It deterministically classifies changed paths, runs only relevant stack checks, treats an irrelevant lane as an explicit successful no-impact result, and fails closed when classification or an applicable check fails. A ruleset may require the status only after the workflow exists on the production branch and the exact status has completed successfully.
 
 ## Success Behavior
 
@@ -116,6 +116,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - Generated required gates run on Blacksmith. Project configuration may select a Blacksmith runner label; non-Blacksmith runners are rejected.
 - Generated Node lanes use the nearest `.node-version` or `.nvmrc`, then `package.json#engines.node`; generation fails when no Node runtime contract is declared.
 - Flutter lanes use `stable` by default when auto-detected, and can be overridden with an explicit `flutter_version` in `.shipglows/required-gate.json`.
+- `trigger` in `.shipglows/required-gate.json` is `auto` (default) or `manual`; `manual` renders `workflow_dispatch` only, and `ruleset-plan`/`ruleset-apply` refuse it.
 - Existing unrelated dirty work remains unstaged and byte-preserved.
 
 ## Implementation Tasks

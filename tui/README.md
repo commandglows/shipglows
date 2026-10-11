@@ -137,6 +137,8 @@ bun run typecheck
 bun test
 ```
 
+`shipglows check` cannot pass here yet: `lint` is a placeholder and Bun lockfiles are refused, so run the two commands above by hand until a real lint script exists.
+
 If the current shell cannot find Bun after install, run `export BUN_INSTALL="$HOME/.bun"; export PATH="$BUN_INSTALL/bin:$PATH"` or call `~/.bun/bin/bun` directly.
 
 ## Data Sources (read-only)

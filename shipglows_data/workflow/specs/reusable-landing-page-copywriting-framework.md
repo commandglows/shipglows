@@ -12,7 +12,7 @@ source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: "Reusable landing-page copywriting doctrine and 009-sg-marketing application"
 owner: "Diane"
-user_story: "As the ShipGlows operator, I want the effective landing-page copywriting structure identified through ReplayGlowz work to become a reusable, evidence-safe framework in 009-sg-marketing, so that future landing-page audits produce coherent reading flows without repeated sections, invented claims, or project-specific copy reuse."
+user_story: "As the ShipGlows operator, I want the effective landing-page copywriting structure identified through ReplayGlows work to become a reusable, evidence-safe framework in 009-sg-marketing, so that future landing-page audits produce coherent reading flows without repeated sections, invented claims, or project-specific copy reuse."
 confidence: high
 risk_level: medium
 security_impact: none
@@ -48,8 +48,8 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator confirmation on 2026-07-17: capitalize the landing-page copywriting structure learned through ReplayGlowz as reusable doctrine for 009-sg-marketing."
-  - "Operator boundary on 2026-07-17: do not create a new public mode and do not copy ReplayGlowz-specific text."
+  - "Operator confirmation on 2026-07-17: capitalize the landing-page copywriting structure learned through ReplayGlows as reusable doctrine for 009-sg-marketing."
+  - "Operator boundary on 2026-07-17: do not create a new public mode and do not copy ReplayGlows-specific text."
   - "Read-only discovery on 2026-07-17 found that copywriting-audit-playbook.md names persuasion structure, section roles, progression, objections, proof, and CTA strategy without defining a reusable section-sequencing or repetition-control method."
   - "Read-only discovery on 2026-07-17 confirmed that design-inspiration-library.md already owns page-type, section, copy-pattern, and inspiration-selection taxonomy, which the new doctrine must consume rather than duplicate."
 next_step: none
@@ -67,7 +67,7 @@ ready
 
 ## User Story
 
-As the ShipGlows operator, I want the effective landing-page copywriting structure identified through ReplayGlowz work to become a reusable, evidence-safe framework in `009-sg-marketing`, so that future landing-page audits produce coherent reading flows without repeated sections, invented claims, or project-specific copy reuse.
+As the ShipGlows operator, I want the effective landing-page copywriting structure identified through ReplayGlows work to become a reusable, evidence-safe framework in `009-sg-marketing`, so that future landing-page audits produce coherent reading flows without repeated sections, invented claims, or project-specific copy reuse.
 
 ## Minimal Behavior Contract
 
@@ -89,12 +89,12 @@ When `009-sg-marketing copywriting <target>` identifies a landing, sales, or off
 - Missing audience, offer, product, brand, claim, or proof context produces a visible confidence limit, `needs proof`, `claim mismatch`, or blocked result according to existing contracts.
 - Missing shared framework or required local playbook blocks the landing-specific pass with a concrete owner route; it must not fall back to an improvised generic template.
 - Inspiration references remain optional and operator-selected under `design-inspiration-library.md`; the framework must not silently load private bundles or reproduce source phrasing.
-- Must never happen: copying ReplayGlowz-specific text, inventing testimonials or conversion evidence, adding fake urgency, treating repeated wording as proof, forcing every page into one rigid sequence, running both `copy` and `copywriting`, or adding a fifth public marketing mode.
+- Must never happen: copying ReplayGlows-specific text, inventing testimonials or conversion evidence, adding fake urgency, treating repeated wording as proof, forcing every page into one rigid sequence, running both `copy` and `copywriting`, or adding a fifth public marketing mode.
 - Silent failure: Not allowed. The report must identify the failed precondition or unsupported claim and the safest next owner action.
 
 ## Problem
 
-The current copywriting playbook correctly checks persona, awareness, value proposition, persuasion structure, objections, emotional path, CTA strategy, and journey coherence. It does not define how a fresh agent should turn those checks into a coherent landing-page sequence or determine when several benefit, feature, proof, pricing, and CTA sections repeat the same message. ReplayGlowz work exposed a useful structural pattern, but leaving it in one project conversation makes the learning non-reusable, while copying its final text would create project-specific drift and unsafe claims.
+The current copywriting playbook correctly checks persona, awareness, value proposition, persuasion structure, objections, emotional path, CTA strategy, and journey coherence. It does not define how a fresh agent should turn those checks into a coherent landing-page sequence or determine when several benefit, feature, proof, pricing, and CTA sections repeat the same message. ReplayGlows work exposed a useful structural pattern, but leaving it in one project conversation makes the learning non-reusable, while copying its final text would create project-specific drift and unsafe claims.
 
 ## Solution
 
@@ -117,7 +117,7 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 ## Scope Out
 
 - A new public marketing mode, alias, lifecycle, or standalone landing-page skill.
-- Copying, embedding, publishing, or treating ReplayGlowz-specific copy as a template.
+- Copying, embedding, publishing, or treating ReplayGlows-specific copy as a template.
 - A universal fixed section order that ignores audience awareness, offer complexity, proof availability, or conversion goal.
 - Visual design, card styling, icon systems, layout implementation, component code, or design-system changes.
 - Sentence-level rewriting, page implementation, publishing, or automatic execution of `copy` mode.
@@ -158,7 +158,7 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 
 - Automated: dedicated landing-framework contract tests and the existing `009-sg-marketing` dispatcher suite.
 - Contract/integration: metadata lint, skill budget, runtime sync, and focused stale-wording/routing scans.
-- Semantic: verify that a fresh agent can choose the loader, construct a non-repetitive sequence, and reject unsupported claims without reading ReplayGlowz project copy.
+- Semantic: verify that a fresh agent can choose the loader, construct a non-repetitive sequence, and reject unsupported claims without reading ReplayGlows project copy.
 - Provider, browser, auth, device, and production evidence: not applicable.
 
 ## Dependencies
@@ -211,7 +211,7 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 - A `copywriting` target is an article, email, or persona document rather than a landing, sales, or offer page; the shared landing framework is not loaded automatically.
 - The operator requests inspiration but selects no private reference; analysis continues from project/product/brand evidence without silently choosing one.
 - A project lacks a brand or claim register; the result remains confidence-limited and routes the missing governance rather than inventing a voice or proof.
-- ReplayGlowz source material is available locally; it may support provenance in the spec but must not be loaded as reusable wording or included in the shared reference.
+- ReplayGlows source material is available locally; it may support provenance in the spec but must not be loaded as reusable wording or included in the shared reference.
 
 ## Implementation Tasks
 
@@ -221,7 +221,7 @@ Create one shared landing-page copywriting framework that defines a reader-quest
   - User story link: Converts project learning into reusable, project-neutral doctrine.
   - Depends on: None.
   - Validate with: `python3 -m unittest tools.test_landing_page_copywriting_framework_contract`
-  - Notes: Link to the inspiration, editorial, scoring, and decision-quality contracts; do not reproduce their detailed taxonomies or ReplayGlowz copy.
+  - Notes: Link to the inspiration, editorial, scoring, and decision-quality contracts; do not reproduce their detailed taxonomies or ReplayGlows copy.
 
 - [x] Task 2: Apply the framework through the existing copywriting playbook.
   - File: `skills/009-sg-marketing/references/copywriting-audit-playbook.md`
@@ -241,11 +241,11 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 
 - [x] Task 4: Add focused scenario-first mechanical coverage.
   - File: `tools/test_landing_page_copywriting_framework_contract.py`
-  - Action: Assert the canonical loader, one-playbook invariant, section-plan contract, repetition materiality, claim safety, ReplayGlowz-copy exclusion, reference layering, and `LPF-LOAD`, `LPF-SEQUENCE`, `LPF-DEDUPE`, and `LPF-CLAIMS` coverage.
+  - Action: Assert the canonical loader, one-playbook invariant, section-plan contract, repetition materiality, claim safety, ReplayGlows-copy exclusion, reference layering, and `LPF-LOAD`, `LPF-SEQUENCE`, `LPF-DEDUPE`, and `LPF-CLAIMS` coverage.
   - User story link: Prevents future compaction from reducing the framework to vague persuasion advice.
   - Depends on: Tasks 1-3.
   - Validate with: `python3 -m unittest tools.test_landing_page_copywriting_framework_contract tools.test_009_sg_marketing_contract`
-  - Notes: Inspect canonical text contracts; do not require product-specific ReplayGlowz fixtures.
+  - Notes: Inspect canonical text contracts; do not require product-specific ReplayGlows fixtures.
 
 - [x] Task 5: Run focused documentation, budget, and runtime-discovery validation.
   - File: `skills/references/landing-page-copywriting-framework.md`, `skills/009-sg-marketing/SKILL.md`, `skills/009-sg-marketing/references/copywriting-audit-playbook.md`, and the owner-written refresh trace in `skills/REFRESH_LOG.md`.
@@ -261,7 +261,7 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 - [x] AC 2 — `LPF-SEQUENCE`: Given a landing page with a known audience, awareness level, offer, conversion goal, objections, and available proof, when the framework analyzes it, then the output provides an argument spine and ordered `Landing Sequence Plan` in which each retained or created section has a distinct reader question, unique job, transition, evidence role, and CTA role.
 - [x] AC 3 — `LPF-DEDUPE`: Given the same benefit or promise appears across hero, cards, features, pricing, or CTA sections, when the repetition ledger is built, then one occurrence becomes authoritative and each later occurrence is merged, deleted, moved, or retained only with an explicit added proof, specificity, contrast, objection, recap, or decision value.
 - [x] AC 4 — `LPF-CLAIMS`: Given the desired sequence would benefit from a testimonial, user count, conversion result, guarantee, urgency, price, or capability that lacks current project evidence, when the framework builds recommendations, then it records a proof gap or claim mismatch, does not invent or strengthen the claim, and still proposes the strongest honest sequence supported by available evidence.
-- [x] AC 5: Given ReplayGlowz source copy or page structure informed the original insight, when the shared framework is written, then it contains only transferable principles and synthetic or abstract examples, with no project-specific ReplayGlowz phrasing, testimonials, product claims, or section text.
+- [x] AC 5: Given ReplayGlows source copy or page structure informed the original insight, when the shared framework is written, then it contains only transferable principles and synthetic or abstract examples, with no project-specific ReplayGlows phrasing, testimonials, product claims, or section text.
 - [x] AC 6: Given a `copywriting` target is not a landing, sales, or offer page and does not explicitly concern page-section flow, when the local playbook runs, then it follows its existing audit contract without loading or forcing the landing framework.
 - [x] AC 7: Given a request is primarily sentence-level clarity, grammar, microcopy, or rewriting, when ownership is resolved, then `copy` remains the owner and `copywriting` does not duplicate a full copy audit or run both modes automatically.
 - [x] AC 8: Given the framework needs inspiration patterns, when private references are considered, then the existing Inspiration Gate limits the shortlist to at most five IDs, requires operator selection before bundle loading, and transfers patterns without source phrasing.
@@ -271,7 +271,7 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 
 - Scenario/unit contract: `python3 -m unittest tools.test_landing_page_copywriting_framework_contract tools.test_009_sg_marketing_contract`
 - Metadata: `python3 tools/shipglows_metadata_lint.py skills/references/landing-page-copywriting-framework.md skills/009-sg-marketing/SKILL.md skills/009-sg-marketing/references/copywriting-audit-playbook.md`
-- Focused overlap and loader scan: `rg -n -i "landing|copywriting|persuasion|flow|repetition|section|claim|proof|objection|cta|ReplayGlowz" skills/references/landing-page-copywriting-framework.md skills/009-sg-marketing/SKILL.md skills/009-sg-marketing/references/copywriting-audit-playbook.md`
+- Focused overlap and loader scan: `rg -n -i "landing|copywriting|persuasion|flow|repetition|section|claim|proof|objection|cta|ReplayGlows" skills/references/landing-page-copywriting-framework.md skills/009-sg-marketing/SKILL.md skills/009-sg-marketing/references/copywriting-audit-playbook.md`
 - Forbidden public-mode scan: `rg -n "argument-hint|market <target>|gtm <target>|copy <target>|copywriting <target>|new mode|landing mode" skills/009-sg-marketing/SKILL.md tools/test_009_sg_marketing_contract.py tools/test_landing_page_copywriting_framework_contract.py`
 - Budget: `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - Runtime discovery: `tools/shipglows_sync_skills.sh --check --skill 009-sg-marketing`
@@ -286,7 +286,7 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 - `copy` and `copywriting` ownership could blur further. Mitigation: explicit local owner boundaries plus existing dispatcher regression tests.
 - Repetition control could remove useful proof or decision-stage recap. Mitigation: preserve later mentions when their added material value is named in the repetition ledger.
 - Persuasion guidance could encourage unsupported claims, fake urgency, or fabricated social proof. Mitigation: `LPF-CLAIMS`, existing claim gates, and blocked/confidence-limited error behavior.
-- Project-specific ReplayGlowz wording could leak into shared doctrine. Mitigation: no project fixtures, no copied text, synthetic/abstract examples only, and a mechanical exclusion assertion.
+- Project-specific ReplayGlows wording could leak into shared doctrine. Mitigation: no project fixtures, no copied text, synthetic/abstract examples only, and a mechanical exclusion assertion.
 - The new reference could become an implicit second local playbook. Mitigation: keep it as shared doctrine, retain exactly one local playbook selection, and test loader order.
 - Updating the shared content rubric without need could create cross-skill schema churn. Mitigation: keep it read-only and out of scope for this initial qualitative framework.
 
@@ -297,11 +297,11 @@ Create one shared landing-page copywriting framework that defines a reader-quest
 - Implementation order: shared doctrine -> local copywriting adaptation -> compact activation pointer -> focused tests -> metadata/budget/runtime checks -> conservative refresh -> verification.
 - Framework structure: activation and owner boundary stay in `SKILL.md`; landing-specific application stays in the local playbook; reusable sequence, ledger, materiality, and pressure scenarios stay in the shared reference.
 - Content-quality decision: do not edit `content-quality-rubric.md` in this chantier. Its score is optional, its current `other` surface remains usable when explicitly requested, and the sequence plan does not require a new persisted scoring schema. Route a separate spec only if future evidence shows a first-class landing surface is needed across content skills.
-- Do not load or reproduce ReplayGlowz page copy during implementation; the accepted learning is structural and already captured in this spec.
+- Do not load or reproduce ReplayGlows page copy during implementation; the accepted learning is structural and already captured in this spec.
 - Do not edit `copy-audit-playbook.md`, public docs, business contracts, project pages, site code, plugin packaging, or trackers.
 - No new package, provider, migration, runtime service, browser surface, or external documentation is needed.
 - Runtime model recommendation: `gpt-5.5` with high reasoning for the spec/readiness and shared-doctrine design; recommendation only because the current runtime cannot apply an override. Use the Codex implementation profile with medium reasoning for bounded implementation if the execution owner cannot apply the recommended model.
-- Stop and reroute if implementation requires a new public mode, changes `copy` ownership, needs project-specific ReplayGlowz copy, introduces a shared rubric schema change, weakens claim or inspiration safeguards, or cannot prove all four pressure scenarios mechanically.
+- Stop and reroute if implementation requires a new public mode, changes `copy` ownership, needs project-specific ReplayGlows copy, introduces a shared rubric schema change, weakens claim or inspiration safeguards, or cannot prove all four pressure scenarios mechanically.
 - After implementation, run `/900-shipglows-core refresh 009-sg-marketing`, then `/103-sg-verify Reusable Landing-Page Copywriting Framework` before closure.
 
 ## Open Questions

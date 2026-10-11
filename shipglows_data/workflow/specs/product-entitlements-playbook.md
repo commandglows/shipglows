@@ -1,10 +1,10 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-29"
-updated: "2026-05-29"
+updated: "2026-09-11"
 status: ready
 source_skill: sg-build
 scope: product-entitlements-playbook
@@ -16,6 +16,10 @@ docs_impact: yes
 user_story: "En tant qu'operatrice ShipGlows, je veux un playbook transverse pour les entitlements produit, afin que SocialGlowz, WinFlowz et les futurs projets ne confondent jamais compte utilisateur, paiement provider et acces produit."
 linked_systems:
   - skills/references/product-entitlements-playbook.md
+  - shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md
+  - shipglows_data/workflow/playbooks/digital-product-commerce-launch-playbook.md
+  - shipglows_data/workflow/playbooks/stripe-payments-commerce-playbook.md
+  - shipglows_data/workflow/playbooks/appsumo-licensing-commerce-playbook.md
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
@@ -28,6 +32,7 @@ supersedes: []
 evidence:
   - "WinFlowz suite-authentication docs establish the doctrine: identity is not product access; server-owned entitlements are the source of truth."
   - "SocialGlowz billing implementation exposed reusable LTD/direct/partner redemption needs that should not stay project-local."
+  - "2026-09-11 clarification: this spec created the entitlement doctrine reference; sale-readiness execution now lives in the linked workflow playbooks."
 next_step: "/sg-start product-entitlements-playbook"
 ---
 
@@ -36,6 +41,18 @@ next_step: "/sg-start product-entitlements-playbook"
 ## Intent
 
 Create a reusable ShipGlows reference for product access, billing-provider boundaries, Lifetime Deal redemption, manual grants, refunds, revocations, support triage, and smoke-test proof.
+
+## Current Placement
+
+This file is the historical spec for the entitlement doctrine. The active runtime doctrine is `skills/references/product-entitlements-playbook.md`.
+
+The newer workflow playbooks do not replace this spec. They instantiate it for commercial execution:
+
+- `shipglows_data/workflow/playbooks/digital-product-commerce-launch-playbook.md` provides a reusable sale-to-delivery launch method that this project's policy can instantiate.
+- `shipglows_data/workflow/playbooks/stripe-payments-commerce-playbook.md` captures Stripe payment execution.
+- `shipglows_data/workflow/playbooks/appsumo-licensing-commerce-playbook.md` captures AppSumo Licensing execution.
+
+Update this spec or the runtime reference when the entitlement doctrine changes. Update the workflow playbooks when the doctrine stays the same but provider execution, proof, support, or launch sequencing improves.
 
 ## Scope
 
@@ -74,3 +91,4 @@ sg-spec ✅ -> sg-ready ✅ -> sg-start ✅ -> sg-verify ✅ -> sg-end ✅ -> sg
 | 2026-05-29 23:41:42 UTC | sg-build | GPT-5 Codex | Verified metadata lint, diff hygiene, and marketplace wording boundaries for the playbook. | implemented | `/sg-ship product-entitlements-playbook` |
 | 2026-05-29 23:41:42 UTC | sg-end | GPT-5 Codex | Closed playbook documentation chantier with reference and technical lifecycle discoverability aligned. | closed | `/sg-ship product-entitlements-playbook` |
 | 2026-05-29 23:41:54 UTC | sg-ship | GPT-5 Codex | Prepared bounded ship for the product entitlements playbook reference and spec. | shipped | `Adopt playbook in future billing/entitlement chantiers` |
+| 2026-09-11 00:55:00 UTC | sg-docs | GPT-5 Codex | Clarified that this spec owns the entitlement doctrine while suite commerce, Stripe and AppSumo workflow playbooks own sale-readiness execution. | updated | `Use linked playbooks for provider launch work` |

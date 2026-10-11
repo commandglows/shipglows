@@ -29,6 +29,11 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
 
+## [Unreleased]
+
+- Added `shipglows check` to the Windows CLI: runs the lint and test scripts declared by `package.json` or `pubspec.yaml`; placeholder lint scripts count as not configured and Bun lockfiles are refused.
+- Added `trigger: manual` to `.shipglows/required-gate.json` so a managed-project gate runs on `workflow_dispatch` only; `ruleset-plan`/`ruleset-apply` refuse it, and `audit --repository --ruleset-id` flags a ruleset that still requires the gate.
+
 ## [2026-08-30]
 
 ### Added

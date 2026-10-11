@@ -1,3 +1,4 @@
+# Application/configuration core unit tests; devserver-backend.ps1 covers the public launch gate.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
@@ -20,11 +21,18 @@ try {
         function Get-SgProcessSnapshot { [pscustomobject]@{Pid=77;StartTimeUtc='2026-08-15T00:00:00Z';ExecutablePath='mock.exe';CommandLine='mock-signature'} }
         function Test-SgProcessIdentity { param($Entry) [int]$Entry.pid -eq 77 }
         function Wait-SgProjectReady { [pscustomobject]@{ Ready=$true; AppId=$null; Error=$null } }
-        Start-SgProject $Config $Surface
+        function Start-SgManagedProcessExitMonitor { }
+        Start-SgProjectCore $Config $Surface
     } $config $surface
     if ($result.status -ne 'running' -or $result.port -ne 32205) { throw 'Successful launch did not recover the durable project port when the registry port was zero.' }
     $stored = (Read-SgRegistry $config).projects | Select-Object -First 1
     if ($stored.status -ne 'running' -or $stored.pid -ne 77 -or $stored.reservationToken) { throw 'Successful launch state was not committed atomically.' }
+    Complete-SgManagedProcessExit $config $surface 77 '2026-08-15T00:00:01Z'
+    $unchanged = (Read-SgRegistry $config).projects | Select-Object -First 1
+    if ($unchanged.status -ne 'running' -or $unchanged.pid -ne 77) { throw 'An exit watcher modified a newer or mismatched process identity.' }
+    Complete-SgManagedProcessExit $config $surface 77 '2026-08-15T00:00:00Z'
+    $exited = (Read-SgRegistry $config).projects | Select-Object -First 1
+    if ($exited.status -ne 'error' -or $exited.pid -ne 0 -or $exited.lastError -notmatch 'exited unexpectedly') { throw 'An unexpected managed process exit was not durably reported.' }
     $environment = Get-SgProjectEnvironment $surface
     if (-not $environment -or $environment.Port -ne $result.port) { throw 'Successful launch did not persist its canonical surface URL.' }
 
@@ -44,7 +52,7 @@ try {
         function Stop-SgProcessTree { param($RootPid) $script:stopped += $RootPid }
         function Stop-SgOwnedFlutterBrowser { $false }
         function Wait-SgManagedExtinction { $true }
-        $result = Start-SgProject $Config $Surface
+        $result = Start-SgProjectCore $Config $Surface
         [pscustomobject]@{Result=$result;Stopped=@($script:stopped)}
     } $config $flutterSurface
     if ($failed.Result.status -ne 'error' -or $failed.Result.lastError -notmatch 'app\.started' -or $failed.Stopped.Count -ne 1 -or $failed.Stopped[0] -ne 88) { throw 'Flutter readiness timeout did not fail and clean up the managed process.' }
@@ -62,7 +70,7 @@ try {
         function Get-SgProcessSnapshot { [pscustomobject]@{Pid=89;StartTimeUtc='2026-08-15T00:00:02Z';ExecutablePath='mock.exe';CommandLine='visible-signature'} }
         function Test-SgProcessIdentity { param($Entry) [int]$Entry.pid -eq 89 }
         function Wait-SgFlutterSupervisorReady { [pscustomobject]@{Ready=$true;AppId='visible-app';Error=$null;DaemonPid=890} }
-        $result=Start-SgProject $Config $Surface 0 -FlutterVisible
+        $result=Start-SgProjectCore $Config $Surface 0 -FlutterVisible
         [pscustomobject]@{Result=$result;LaunchWasVisible=$script:launchWasVisible}
     } $config $flutterSurface
     $visibleStored=(Read-SgRegistry $config).projects|Where-Object{$_.path-eq$flutterSurface}|Select-Object -First 1
@@ -70,14 +78,14 @@ try {
 
     $astroSurface=Join-Path $fixture 'astro-site';New-Item -ItemType Directory -Path $astroSurface -Force|Out-Null
     Set-Content (Join-Path $astroSurface 'package.json') '{"dependencies":{"astro":"latest"},"scripts":{"dev":"astro dev"}}' -Encoding UTF8
-    $astroRunning=& $module { param($Config,$Surface) function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='astro-signature';Interactive=$false}};function Start-SgDetachedProcess{[pscustomobject]@{Id=99;CommandSignature='astro-signature'}};function Get-SgProcessSnapshot{[pscustomobject]@{Pid=99;StartTimeUtc='2026-08-17T00:00:00Z';ExecutablePath='mock.exe';CommandLine='astro-signature'}};function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-eq99};function Wait-SgProjectReady{[pscustomobject]@{Ready=$true;AppId=$null;Error=$null}};Start-SgProject $Config $Surface } $config $astroSurface
+    $astroRunning=& $module { param($Config,$Surface) function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='astro-signature';Interactive=$false}};function Start-SgDetachedProcess{[pscustomobject]@{Id=99;CommandSignature='astro-signature'}};function Get-SgProcessSnapshot{[pscustomobject]@{Pid=99;StartTimeUtc='2026-08-17T00:00:00Z';ExecutablePath='mock.exe';CommandLine='astro-signature'}};function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-eq99};function Wait-SgProjectReady{[pscustomobject]@{Ready=$true;AppId=$null;Error=$null}};function Start-SgManagedProcessExitMonitor{};Start-SgProjectCore $Config $Surface } $config $astroSurface
     & $module { param($Config,$Surface) Invoke-SgRegistryMutation $Config {param($data);$item=@($data.projects|Where-Object{$_.path-eq$Surface})[0];$item.status='stopped';$item.pid=0;$item.startTimeUtc=$null} | Out-Null } $config $astroSurface
-    $astroFailed=& $module { param($Config,$Surface) function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='astro-signature';Interactive=$false}};function Start-SgDetachedProcess{[pscustomobject]@{Id=100;CommandSignature='astro-signature'}};function Get-SgProcessSnapshot{[pscustomobject]@{Pid=100;StartTimeUtc='2026-08-17T00:00:01Z';ExecutablePath='mock.exe';CommandLine='astro-signature'}};function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-eq100};function Wait-SgProjectReady{[pscustomobject]@{Ready=$false;AppId=$null;Error='Astro readiness failed.'}};function Stop-SgProcessTree{};function Wait-SgManagedExtinction{$true};function Copy-SgFlutterDiagnostics{throw 'Astro touched Flutter diagnostics.'};function Stop-SgOwnedFlutterBrowser{throw 'Astro touched Flutter browser cleanup.'};function Wait-SgFlutterOwnedExtinction{throw 'Astro touched Flutter extinction.'};function Remove-SgFlutterLaunchArtifacts{throw 'Astro touched Flutter launch cleanup.'};Start-SgProject $Config $Surface } $config $astroSurface
+    $astroFailed=& $module { param($Config,$Surface) function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='astro-signature';Interactive=$false}};function Start-SgDetachedProcess{[pscustomobject]@{Id=100;CommandSignature='astro-signature'}};function Get-SgProcessSnapshot{[pscustomobject]@{Pid=100;StartTimeUtc='2026-08-17T00:00:01Z';ExecutablePath='mock.exe';CommandLine='astro-signature'}};function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-eq100};function Wait-SgProjectReady{[pscustomobject]@{Ready=$false;AppId=$null;Error='Astro readiness failed.'}};function Stop-SgProcessTree{};function Wait-SgManagedExtinction{$true};function Copy-SgFlutterDiagnostics{throw 'Astro touched Flutter diagnostics.'};function Stop-SgOwnedFlutterBrowser{throw 'Astro touched Flutter browser cleanup.'};function Wait-SgFlutterOwnedExtinction{throw 'Astro touched Flutter extinction.'};function Remove-SgFlutterLaunchArtifacts{throw 'Astro touched Flutter launch cleanup.'};Start-SgProjectCore $Config $Surface } $config $astroSurface
     if($astroFailed.status-ne'error'-or$astroFailed.port-ne$astroRunning.port){throw 'Astro readiness failure did not persist error on its assigned port.'}
     $astroStored=(Read-SgRegistry $config).projects|Where-Object{$_.path-eq$astroSurface}|Select-Object -First 1
     if($astroStored.status-ne'error'-or$astroStored.pid-ne0){throw 'Astro readiness failure left the registry starting or with a stale PID.'}
     & $module { param($Config,$Surface) Invoke-SgRegistryMutation $Config {param($data);$item=@($data.projects|Where-Object{$_.path-eq$Surface})[0];$item.status='stopped';$item.pid=0;$item.startTimeUtc=$null} | Out-Null } $config $astroSurface
-    $astroEarly=& $module { param($Config,$Surface) function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='astro-signature';Interactive=$false}};function Start-SgDetachedProcess{[pscustomobject]@{Id=101;CommandSignature='astro-signature'}};function Get-SgProcessSnapshot{[pscustomobject]@{Pid=101;StartTimeUtc='2026-08-17T00:00:02Z';ExecutablePath='mock.exe';CommandLine='astro-signature'}};function Test-SgProcessIdentity{$false};function Copy-SgFlutterDiagnostics{throw 'Astro early exit touched Flutter diagnostics.'};Start-SgProject $Config $Surface } $config $astroSurface
+    $astroEarly=& $module { param($Config,$Surface) function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='astro-signature';Interactive=$false}};function Start-SgDetachedProcess{[pscustomobject]@{Id=101;CommandSignature='astro-signature'}};function Get-SgProcessSnapshot{[pscustomobject]@{Pid=101;StartTimeUtc='2026-08-17T00:00:02Z';ExecutablePath='mock.exe';CommandLine='astro-signature'}};function Test-SgProcessIdentity{$false};function Copy-SgFlutterDiagnostics{throw 'Astro early exit touched Flutter diagnostics.'};Start-SgProjectCore $Config $Surface } $config $astroSurface
     if($astroEarly.status-ne'error'-or$astroEarly.port-ne$astroRunning.port){throw 'Astro early exit did not persist error on its assigned port.'}
 
     $stderr = Join-Path $fixture 'blocked.stderr.log'
@@ -91,6 +99,19 @@ try {
     } $stderr
     if ($earlyReadiness.Ready -or $earlyReadiness.Error -notmatch 'Application Control.*oxc-parser') { throw 'Dead startup did not preserve its actionable stderr cause.' }
     if (((Get-Date) - $startedAt).TotalSeconds -gt 2) { throw 'Dead startup waited for the generic readiness timeout.' }
+
+    $tauriFlap = & $module {
+        $script:httpChecks = 0
+        function Test-SgHttpReady {
+            $script:httpChecks++
+            return $script:httpChecks -eq 1
+        }
+        function Test-SgProcessIdentity {
+            return $true
+        }
+        Wait-SgProjectReady 'tauri' 32207 '' 10 ([pscustomobject]@{pid=405}) ''
+    }
+    if ($tauriFlap.Ready -or $tauriFlap.Error -notmatch 'Tauri dev server stopped during startup') { throw 'Tauri startup accepted a transient HTTP-ready state after the process/service exited.' }
 
     $secretValues = @('authBearerSecret','authBasicSecret','loneBearerSecret','tokenSecret','secretSecret','quoted password secret','apiKeySecret','dart secret')
     @(

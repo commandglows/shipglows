@@ -11,6 +11,14 @@ try {
         try { Get-SgLaunchSpec $project 'tauri' 3008; throw 'Mismatched port accepted.' }
         catch { if ($_.Exception.Message -notmatch 'assigned local port') { throw } }
     } $fixture
+    Set-Content (Join-Path $fixture 'src-tauri\tauri.dev.conf.json') '{"identifier":"com.fixture.dev"}'
+    $launch = & (Get-Module ShipGlows.DevServer) {
+        param($project)
+        function Get-SgNodePackageManager { [pscustomobject]@{Manager='pnpm.cmd';PrefixArguments=@()} }
+        function Get-SgCommandPath { 'C:\toolchain\cargo.exe' }
+        Get-SgLaunchSpec $project 'tauri' 3006
+    } $fixture
+    if (($launch.Arguments -join ' ') -notmatch 'tauri\.dev\.conf\.json') { throw 'An optional Tauri dev config was not passed to the development launch.' }
     Set-Content (Join-Path $fixture '.shipglows.runtime.json') '{"surface":"unknown"}'
     try { Get-SgProjectKind $fixture; throw 'Unknown surface accepted.' }
     catch { if ($_.Exception.Message -notmatch 'Unsupported runtime surface') { throw } }

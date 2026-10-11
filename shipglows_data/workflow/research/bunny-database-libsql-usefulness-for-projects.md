@@ -138,7 +138,7 @@ Store article opportunities, keywords, status, publication URL, internal-link ta
 - Risk: medium if it becomes the only canonical editorial tracker.
 - Verdict: useful if treated as operational tracker, not legal/business source of truth.
 
-### 4. TubeFlow / ReplayGlowz demo metadata
+### 4. TubeFlow / ReplayGlows demo metadata
 
 Store non-critical demo metadata: sample videos, generated summaries, transcript status, playlist examples, benchmark runs, public demo fixtures.
 

@@ -59,8 +59,11 @@ Use this folder when the document answers:
 - `content-publication-and-editorial-operations-playbook.md`
 - `production-health-and-operations-playbook.md`
 - `maintenance-freshness-and-dependency-operations-playbook.md`
-  - `technical-project-readiness-and-operations-playbook.md`
-  - `design-inspiration-library-server-migration-playbook.md`
+- `technical-project-readiness-and-operations-playbook.md`
+- `design-inspiration-library-server-migration-playbook.md`
+- `digital-product-commerce-launch-playbook.md`
+- `stripe-payments-commerce-playbook.md`
+- `appsumo-licensing-commerce-playbook.md`
 
 ## Transversal Domain Boundary
 
@@ -73,7 +76,8 @@ controls into one task list.
 
 Current detailed playbooks include technical/site launch, cybersecurity,
 technical SEO, performance, analytics, marketing, copywriting, content,
-production and maintenance. The marketing, copywriting and content masters
+production, maintenance, digital product commerce, Stripe payments,
+and AppSumo Licensing. The marketing, copywriting, content and commerce masters
 are initial operating contracts and should be refined with their domain owner
 when a real project instantiates them.
 

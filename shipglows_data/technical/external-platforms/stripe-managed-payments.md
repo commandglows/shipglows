@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.0.1"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-11"
+updated: "2026-09-25"
 status: active
 source_skill: sg-docs
 scope: external-platform-stripe-managed-payments
@@ -29,6 +29,7 @@ evidence:
   - "Lemon Squeezy update of 2026-01-28 describes Stripe Managed Payments as the forward Merchant of Record platform and a future migration destination."
   - "Operator decision on 2026-08-11: use Stripe Managed Payments by default for CommandGlows and future eligible Glows digital products."
   - "Operator decision later on 2026-08-11 superseding provider exceptions: Stripe Managed Payments is the only active direct-payment provider for every current and future suite product."
+  - "Operator clarification on 2026-09-25: the common Stripe provider policy uses a separate merchant account for each business."
 next_review: "2026-09-11"
 next_step: "Recheck public-preview status, eligibility, pricing and webhook contracts before each first production integration."
 ---
@@ -67,6 +68,7 @@ of Record or if local code assumes Lemon Squeezy event/API compatibility.
 ## ShipGlows Decision Rules
 
 - Require Stripe Managed Payments for every current and future suite product.
+- Use a separate Stripe merchant account for each business. Products within one business may share its account; the common provider policy does not create a suite-wide merchant account.
 - Do not select a fallback provider. If eligibility, geography, capability,
   pricing, availability, migration, platform-store policy, or release risk
   prevents adoption, stop for a new operator decision.
