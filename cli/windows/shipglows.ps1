@@ -62,35 +62,44 @@ function Invoke-SgLinkedSkills([ValidateSet('check','repair')][string]$Mode) {
 }
 
 function Invoke-SgCheck {
-    # Runs the project's declared lint and test commands from the current directory.
-    # A lint script that only echoes a placeholder counts as not configured, never as passing.
+    # Runs the lint and test commands declared by every manifest in the current directory.
+    # Placeholder scripts (echo, exit 0, true, :) count as not configured, never as passing.
+    # Bun is refused, as in the required gate: its setup is not inferred.
     $projectRoot = (Get-Location).ProviderPath
     $steps = [System.Collections.Generic.List[object]]::new()
+    $placeholder = '^\s*(echo\b|exit\s+0\s*$|true\s*$|:\s*$)'
     $manifest = Join-Path $projectRoot 'package.json'
     $pubspec = Join-Path $projectRoot 'pubspec.yaml'
+    $hasManifest = $false
     if (Test-Path -LiteralPath $manifest -PathType Leaf) {
+        $hasManifest = $true
         try { $scripts = (Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json).scripts }
         catch { Stop-SgCommand 'package.json is not valid JSON; nothing was run.' }
+        if ((Test-Path -LiteralPath (Join-Path $projectRoot 'bun.lock') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $projectRoot 'bun.lockb') -PathType Leaf)) {
+            Stop-SgCommand 'Bun setup is not inferred; run its lint and test by hand, as the required gate does.'
+        }
         $runner = 'npm'
-        if ((Test-Path -LiteralPath (Join-Path $projectRoot 'bun.lock') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $projectRoot 'bun.lockb') -PathType Leaf)) { $runner = 'bun' }
-        elseif (Test-Path -LiteralPath (Join-Path $projectRoot 'pnpm-lock.yaml') -PathType Leaf) { $runner = 'pnpm' }
+        if (Test-Path -LiteralPath (Join-Path $projectRoot 'pnpm-lock.yaml') -PathType Leaf) { $runner = 'pnpm' }
         elseif (Test-Path -LiteralPath (Join-Path $projectRoot 'yarn.lock') -PathType Leaf) { $runner = 'yarn' }
         foreach ($name in 'lint', 'test') {
             $body = if ($scripts -and $scripts.PSObject.Properties[$name]) { [string]$scripts.$name } else { '' }
-            if (-not $body.Trim() -or $body -match '^\s*echo\b') {
-                $steps.Add([pscustomobject]@{ Name = $name; Executable = $null; Arguments = @() })
+            if (-not $body.Trim() -or $body -match $placeholder) {
+                $steps.Add([pscustomobject]@{ Name = "node:$name"; Executable = $null; Arguments = @() })
             } else {
-                $steps.Add([pscustomobject]@{ Name = $name; Executable = $runner; Arguments = @('run', $name) })
+                $steps.Add([pscustomobject]@{ Name = "node:$name"; Executable = $runner; Arguments = @('run', $name) })
             }
         }
-    } elseif (Test-Path -LiteralPath $pubspec -PathType Leaf) {
-        $steps.Add([pscustomobject]@{ Name = 'lint'; Executable = 'flutter'; Arguments = @('analyze') })
+    }
+    if (Test-Path -LiteralPath $pubspec -PathType Leaf) {
+        $hasManifest = $true
+        $steps.Add([pscustomobject]@{ Name = 'flutter:lint'; Executable = 'flutter'; Arguments = @('analyze') })
         if (Test-Path -LiteralPath (Join-Path $projectRoot 'test') -PathType Container) {
-            $steps.Add([pscustomobject]@{ Name = 'test'; Executable = 'flutter'; Arguments = @('test') })
+            $steps.Add([pscustomobject]@{ Name = 'flutter:test'; Executable = 'flutter'; Arguments = @('test') })
         } else {
-            $steps.Add([pscustomobject]@{ Name = 'test'; Executable = $null; Arguments = @() })
+            $steps.Add([pscustomobject]@{ Name = 'flutter:test'; Executable = $null; Arguments = @() })
         }
-    } else {
+    }
+    if (-not $hasManifest) {
         Stop-SgCommand 'no package.json or pubspec.yaml in this directory; nothing to check.'
     }
 

@@ -506,13 +506,33 @@ def _ruleset_targets_branch(current: dict[str, Any], branch: str) -> bool:
     return "~DEFAULT_BRANCH" in include or f"refs/heads/{branch}" in include
 
 
+def ruleset_findings(repository: str, ruleset_id: int) -> list[str]:
+    """Read-only: report a remote ruleset that still requires the gate check."""
+    current = gh_api(repository, f"rulesets/{ruleset_id}")
+    rules = current.get("rules", [])
+    if not isinstance(rules, list):
+        raise GateError(f"Ruleset {ruleset_id} has no usable rules array")
+    required = any(
+        isinstance(rule, dict)
+        and rule.get("type") == "required_status_checks"
+        and any(
+            isinstance(check, dict) and check.get("context") == REQUIRED_CHECK
+            for check in (rule.get("parameters") or {}).get("required_status_checks", [])
+        )
+        for rule in rules
+    )
+    if required:
+        return [f"ruleset {ruleset_id} still requires {REQUIRED_CHECK!r}; remove that requirement before switching to manual"]
+    return []
+
+
 def build_ruleset_plan(project: Path, repository: str, ruleset_id: int) -> dict[str, Any]:
-    if inspect_project(project).trigger == "manual":
-        # A manual gate never reports on pull requests, so requiring it would block every merge.
-        raise GateError("Manual gate cannot be a required status check; set trigger to auto before protecting the branch")
     audit = audit_project(project)
     if not audit["compliant"]:
         raise GateError("Local workflow is not compliant: " + "; ".join(audit["findings"]))
+    if audit["trigger"] == "manual":
+        # A manual gate never reports on pull requests, so requiring it would block every merge.
+        raise GateError("Manual gate cannot be a required status check; set trigger to auto before protecting the branch")
     branch = audit["production_branch"]
     encoded_branch = quote(branch, safe="")
     remote_workflow = gh_api(repository, f"contents/{WORKFLOW_RELATIVE.as_posix()}?ref={encoded_branch}")
@@ -584,6 +604,9 @@ def build_parser() -> argparse.ArgumentParser:
         command.add_argument("--format", choices=("text", "json"), default="text")
         if name == "generate":
             command.add_argument("--output", type=Path)
+        if name == "audit":
+            command.add_argument("--repository", help="Optional owner/repo: also check the remote ruleset for a manual gate")
+            command.add_argument("--ruleset-id", type=int, help="Ruleset to check together with --repository")
     for name in ("ruleset-plan", "ruleset-apply"):
         command = subparsers.add_parser(name)
         command.add_argument("--project", type=Path, required=True)
@@ -600,6 +623,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     try:
         if args.command == "audit":
             result = audit_project(args.project)
+            if args.repository and args.ruleset_id is not None and result["trigger"] == "manual":
+                result["findings"].extend(ruleset_findings(args.repository, args.ruleset_id))
+                result["compliant"] = not result["findings"]
             _print_result(result, args.format)
             return 0 if result["compliant"] else 1
         if args.command == "generate":

@@ -228,6 +228,29 @@ class RequiredGateContractTests(unittest.TestCase):
                 gate.build_ruleset_plan(self.project, "owner/repo", 42)
         api.assert_not_called()
 
+    def test_manual_audit_flags_remote_ruleset_still_requiring_the_check(self):
+        self.manual_contract()
+        self.write(str(gate.WORKFLOW_RELATIVE), gate.render_workflow(gate.inspect_project(self.project)))
+        ruleset = {"rules": [{"type": "required_status_checks", "parameters": {"required_status_checks": [{"context": gate.REQUIRED_CHECK}]}}]}
+        argv = ["audit", "--project", str(self.project), "--repository", "owner/repo", "--ruleset-id", "42", "--format", "json"]
+        with mock.patch.object(gate, "gh_api", return_value=ruleset) as api, contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(1, gate.main(argv))
+        api.assert_called_once_with("owner/repo", "rulesets/42")
+        self.assertIn("still requires", json.loads(out.getvalue())["findings"][0])
+
+    def test_manual_audit_passes_when_remote_ruleset_has_no_gate_check(self):
+        self.manual_contract()
+        self.write(str(gate.WORKFLOW_RELATIVE), gate.render_workflow(gate.inspect_project(self.project)))
+        with mock.patch.object(gate, "gh_api", return_value={"rules": []}), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(0, gate.main(["audit", "--project", str(self.project), "--repository", "owner/repo", "--ruleset-id", "42"]))
+
+    def test_auto_audit_never_calls_the_remote_ruleset(self):
+        self.configured_contract()
+        self.write(str(gate.WORKFLOW_RELATIVE), gate.render_workflow(gate.inspect_project(self.project)))
+        with mock.patch.object(gate, "gh_api") as api, contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(0, gate.main(["audit", "--project", str(self.project), "--repository", "owner/repo", "--ruleset-id", "42"]))
+        api.assert_not_called()
+
     def test_owner_surfaces_share_the_canonical_policy(self):
         root = Path(__file__).resolve().parents[1]
         delivery = (root / "skills/references/project-delivery-policy.md").read_text(encoding="utf-8")

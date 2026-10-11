@@ -35,14 +35,14 @@ next_step: "/103-sg-verify managed-project required CI policy"
 
 ## Invariant
 
-Every active ShipGlows-managed GitHub repository protects its production branch with one exact status identity: `ShipGlows required gate`. The workflow that owns this status runs on every pull request into the production branch, every push to that branch, and `workflow_dispatch`. Never put top-level `paths` or `paths-ignore` filters on this workflow.
+Every active ShipGlows-managed GitHub repository protects its production branch with one exact status identity: `ShipGlows required gate`. The workflow that owns this status runs on every pull request into the production branch, every push to that branch, and `workflow_dispatch` by default (`trigger: auto`). A project may opt into `trigger: manual` in `.shipglows/required-gate.json`: the workflow then runs on `workflow_dispatch` only and is never ruleset-protected. Never put top-level `paths` or `paths-ignore` filters on this workflow.
 
 Path selectivity belongs inside the workflow. Relevant lanes run their declared checks; irrelevant lanes report explicit no-impact success. Classification errors, unknown commands, and applicable check failures fail the terminal status. Stack-specific or deploy jobs may keep their own path filters, but branch protection never requires them directly.
 
 ## Proportional Project Contract
 
 - Detect Node, Flutter, and Python roots from project manifests and lockfiles.
-- Use only conventional validation commands that are present and non-destructive. A project with different commands declares them in `.shipglows/required-gate.json`.
+- Use only conventional validation commands that are present and non-destructive. A project with different commands declares them in `.shipglows/required-gate.json`, which may also set `"trigger": "auto"` (default) or `"manual"`.
 - Keep generated CI least-privileged with `contents: read`, exact-revision checkout, pinned maintained actions, bounded timeout, no secrets, and no privileged pull-request event.
 - Default the production branch to `main` only when the delivery policy does not declare another branch.
 - Archived, non-GitHub, generated mirror, or intentionally unprotected repositories require an explicit documented exception and remain visible as non-compliant until that exception is reviewed.
@@ -70,7 +70,7 @@ Lane IDs use lowercase letters, digits, and hyphens. Supported runtimes are `she
 
 Run the Core-owned `tools/shipglows_required_gate.py` through the resolved `$SHIPGLOWS_ROOT`; for example, `python "$SHIPGLOWS_ROOT/tools/shipglows_required_gate.py" audit --project <path>`. Audit is local and read-only. It reports missing, drifted, unsupported, or compliant state. `generate` writes only the explicit workflow output after safe project inspection.
 
-Provider inspection uses `ruleset-plan` and fresh GitHub API state. Provider mutation is never implicit: `ruleset-apply` requires its exact confirmation token, an explicit repository and ruleset ID, a locally compliant workflow, the workflow present on the production branch, and a successful exact `ShipGlows required gate` check on that branch. It preserves existing rules and adds missing pull-request, deletion, non-fast-forward, and required-status protections without requiring a human approval for the solo-maintainer default.
+Provider inspection uses `ruleset-plan` and fresh GitHub API state. Provider mutation is never implicit: `ruleset-apply` requires its exact confirmation token, an explicit repository and ruleset ID, a locally compliant workflow, the workflow present on the production branch, and a successful exact `ShipGlows required gate` check on that branch. It preserves existing rules and adds missing pull-request, deletion, non-fast-forward, and required-status protections without requiring a human approval for the solo-maintainer default. `ruleset-plan` and `ruleset-apply` refuse a manual gate. Before switching a project to manual, run `audit --repository <owner/repo> --ruleset-id <id>`: it reads that ruleset (read-only) and reports it while it still requires `ShipGlows required gate`. Remove that requirement first, or every pull request stays blocked.
 
 Install and prove the workflow before protecting it. A missing or unsuccessful status blocks reconciliation; never weaken existing protection to recover from a lockout.
 

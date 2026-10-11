@@ -493,6 +493,7 @@ On Windows, both commands run through ShipGlows-managed PowerShell; the legacy
 canonical update action. Prefer this focused `shipglows` command for runtime
 self-update instead of keeping an interactive `s.exe` process open while its
 binary is being replaced.
+`shipglows check` runs the lint and test scripts declared by `package.json` or `pubspec.yaml` in the current directory. It fails on a missing or placeholder lint script, a failing command, or a Bun lockfile, and prints a summary to paste in the pull request.
 The Windows DevServer header shows the installed ShipGlows version immediately
 and checks for a newer release in the background through a local cache; green
 is current, orange is an available patch/source update, and red is a missed

@@ -197,7 +197,7 @@ or unrelated residue remain `blocked`, `deferred`, or `retained` with reason.
 
 `fix` mode may combine the safe actions above, but only after reporting the exact repos and branches it will mutate.
 
-For an active GitHub-managed repository, include the canonical required-gate audit in `audit`, `reconcile`, or `fix` whenever CI or protection is in scope. Treat a directly required path-filtered job, a missing `ShipGlows required gate`, workflow drift, or protection enabled before successful gate proof as `needs-review`, never `merge-ready`. Resolve the Core-owned `tools/shipglows_required_gate.py` from `$SHIPGLOWS_ROOT` and use `ruleset-plan` for fresh read-only provider evidence. `ruleset-apply` remains an explicit provider mutation inside the approved reconciliation scope and must satisfy the policy's install-before-protect preconditions.
+For an active GitHub-managed repository, include the canonical required-gate audit in `audit`, `reconcile`, or `fix` whenever CI or protection is in scope. Treat a directly required path-filtered job, a missing `ShipGlows required gate`, workflow drift, or protection enabled before successful gate proof as `needs-review`, never `merge-ready`. Resolve the Core-owned `tools/shipglows_required_gate.py` from `$SHIPGLOWS_ROOT` and use `ruleset-plan` for fresh read-only provider evidence. `ruleset-apply` remains an explicit provider mutation inside the approved reconciliation scope and must satisfy the policy's install-before-protect preconditions. A `trigger: manual` gate is never ruleset-protected; `audit --repository --ruleset-id` flags a ruleset that still requires it.
 
 ## Action Rules
 

@@ -197,12 +197,12 @@ When a workflow is skipped because `paths` filters do not match, branch protecti
 For active ShipGlows-managed GitHub repositories, use the canonical pattern from `skills/references/managed-project-ci-policy.md`:
 
 - Require only the exact `ShipGlows required gate` status.
-- Trigger its owning workflow on every pull request into the production branch, every push to that branch, and `workflow_dispatch`; never use top-level `paths` or `paths-ignore` there.
+- Trigger its owning workflow on every pull request into the production branch, every push to that branch, and `workflow_dispatch` (`trigger: auto`, the default). A project may set `"trigger": "manual"` in `.shipglows/required-gate.json` to keep `workflow_dispatch` only; such a gate cannot be required. Never use top-level `paths` or `paths-ignore` there.
 - Classify paths inside that workflow, run only relevant stack lanes, and emit explicit successful no-impact results for the others.
 - Resolve the Core-owned tool from `$SHIPGLOWS_ROOT`, then run `python "$SHIPGLOWS_ROOT/tools/shipglows_required_gate.py" audit --project <path>` locally. Generate the workflow before enabling protection, then prove the exact status succeeds on the production branch.
 - Node lanes inherit the project's runtime contract from the nearest `.node-version` or `.nvmrc`, with `package.json#engines.node` as fallback. The generator refuses to invent a Node version when none is declared.
 - Flutter lanes auto-detect to `stable` by default and can be pinned in `.shipglows/required-gate.json` via a `flutter_version` key per Flutter lane.
-- Inspect provider drift with `ruleset-plan`; use the separately explicit guarded `ruleset-apply` only inside approved GitHub reconciliation scope.
+- Inspect provider drift with `ruleset-plan`; use the separately explicit guarded `ruleset-apply` only inside approved GitHub reconciliation scope. Before switching a project to `manual`, run `audit --repository <owner/repo> --ruleset-id <id>` to confirm its ruleset no longer requires the gate.
 
 For repositories outside ShipGlows management, use one of these compatible patterns:
 
