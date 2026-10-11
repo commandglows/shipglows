@@ -99,8 +99,8 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
                 flat = " ".join(body.split())
                 self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", flat)
                 engine = " ".join((SKILLS / runtime_skill / "SKILL.md").read_text(encoding="utf-8").split())
-                self.assertIn("All shared references below resolve under `$SHIPGLOWS_ROOT/skills/references/`", engine)
-                self.assertIn("For non-trivial routing load `intent-to-outcome-autonomy.md`", engine)
+                self.assertIn("Shared references: `$SHIPGLOWS_ROOT/skills/references/`", engine)
+                self.assertIn("Non-trivial routing loads `intent-to-outcome-autonomy.md`", engine)
 
 
     # MH-01b: a public wrapper remains followable without requiring agents to
@@ -199,7 +199,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         self.assertIn("A public métier owns the outcome across internal engines and handoffs", self.autonomy)
         self.assertIn("continue through its owned closure and ship route", self.lifecycle)
         self.assertIn("manual `/104-sg-end`, `/005-sg-ship`, or `/004-sg-deploy`", self.lifecycle)
-        self.assertIn("never require the operator to select an owner, skill, or", self.delegation)
+        self.assertIn("Never ask the operator to select an owner, skill or command", self.delegation)
 
     # MH-07: public and internal documentation have distinct public owners.
     def test_mh_07_separates_public_content_from_internal_docs(self) -> None:
