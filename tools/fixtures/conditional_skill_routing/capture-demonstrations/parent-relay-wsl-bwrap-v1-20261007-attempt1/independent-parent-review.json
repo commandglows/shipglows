@@ -1,0 +1,20 @@
+{
+  "artifact": "independent-synthetic-parent-relay-review",
+  "status": "pass",
+  "independent_review": true,
+  "summary_sha256": "0d634090c0f3d32666f932b2305ac4b1b1c6cd650f6e1ad6760a0d6f190a9850",
+  "inventory_artifacts": 23,
+  "checks": {
+    "inventory_rehashed": true,
+    "exact_authenticated_framing_replayed": true,
+    "raw_child_stdout_reconstructed": true,
+    "actual_namespace_diagnostics_verified": true,
+    "negative_admission_receipts_retained": true
+  },
+  "limits": [
+    "Synthetic Python relay only; integrated Codex and HTTPS path not proved here",
+    "Channel authentication is not model authority; receipt signing key remains parent-owned",
+    "No real provider, secret or evaluator-heldout payload used"
+  ],
+  "review_source_sha256": "e5bcc3148d189fa6ad916767f3eaa4f59171e192f6919f5ec0cbb997bd0cd60d"
+}

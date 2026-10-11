@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-17","jsonrpc":"2.0","result":{"content":[{"text":"{\"namespace\":\"projects\",\"operation\":\"read\",\"record_ids\":[\"projects/mosaic.json\"],\"redacted\":true,\"status\":\"granted\"}","type":"text"}],"isError":false}}}

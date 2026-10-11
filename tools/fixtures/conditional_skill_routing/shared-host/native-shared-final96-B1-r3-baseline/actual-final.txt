@@ -1,0 +1,18 @@
+🧱 CHANTIER (local) : remplacement exact dans CLAUDE.md synthétique
+🎯 VERDICT (heure Paris indisponible via le broker) : remplacement vérifié dans la simulation
+
+Context Capsule — Cible : ShipGlows → documentation interne → précision du point d’entrée CLI → CLAUDE.md → une expression. Autorité confirmed : B1-U2 approuve uniquement ce remplacement et sa vérification. Périmètre : aucun autre changement, aucune migration ni écriture externe.
+
+Résultat evidence_backed : `Main entry point` remplacé par `Main CLI entry point`. `simulated_replace` puis `focused_verify` confirment l’absence de l’ancienne expression, une occurrence de la nouvelle et l’identité de tous les octets hors remplacement.
+
+📖 DOCUMENTATION ✅ updated · expression demandée dans le fichier synthétique ; aucun code modifié.
+
+✏️ ÉDITORIAL ➖ not impacted · correction interne sans changement de comportement ni promesse publique. Opportunité non évaluée.
+
+📰 CHANGELOG ➖ not applicable · correction de libellé synthétique uniquement.
+
+📦 LIVRAISON : simulation uniquement ; aucun fichier hôte modifié, aucun commit, push ou déploiement.
+
+Limites : preuve issue du broker ; livraison native au fournisseur non vérifiée.
+
+🧭 SUITE : retourner cette preuve bornée au demandeur ; aucune action supplémentaire autorisée.

@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "artifact": "inactive_real_comparison_readiness",
+  "status": "preparation_only",
+  "execution_authorized": false,
+  "ready_to_launch": false,
+  "campaign_id": null,
+  "new_campaign_directory": null,
+  "historical_campaign": "native-shared-final96",
+  "historical_evidence_unchanged": true,
+  "model_calls": 0,
+  "campaign_runs": [],
+  "consumer": {
+    "name": "Codex CLI Linux app-server with instrumented trusted proxy",
+    "version": "0.160.1",
+    "binary_sha256": null,
+    "profile_sha256": null,
+    "public_core_tool_names": [
+      "instruction_read",
+      "fixture_read",
+      "simulated_replace"
+    ],
+    "exact_case_owned_schema_inventories_pending": true,
+    "private_and_released_action_tools_not_dropped": true,
+    "native_feature_disablement_claimed": false,
+    "source_cli_requests_captured_separately": true,
+    "model_offered_requests_captured_separately": true,
+    "request_input_instructions_unchanged_by_filter": true,
+    "closure_proof_pending": true,
+    "evaluator_and_host_secret_isolation_pending": true,
+    "transport_schema_registration": {
+      "policy": "original case const contracts register as explicit typed singleton enums",
+      "case_owned_values_unchanged": true,
+      "boolean_constant_must_remain_boolean": true,
+      "exact_registration_required_in_model_offered_request": true,
+      "type_strict_callback_argument_validation": true,
+      "registered_schema_hashes_captured": true
+    },
+    "full_parent_owned_case_controller_runtime_pending": true,
+    "tool_output_limit": {
+      "requested": 100000,
+      "native_config_read_required": true,
+      "full_callback_next_request_equality_required": true,
+      "runtime_verification_pending": true
+    },
+    "continuation_history": {
+      "priming": "exact prior fixture assistant via fixed parent SSE and native separate CLI turns",
+      "no_provider_callback_during_priming": true,
+      "ordered_native_roles_required": true,
+      "priming_excluded_from_subject_provider_metric": true,
+      "unstable_resume_api_used": false
+    }
+  },
+  "provider": {
+    "name": null,
+    "endpoint": null,
+    "model": null,
+    "model_revision": null,
+    "settings_sha256": null
+  },
+  "budget": {
+    "approved": false,
+    "currency": null,
+    "max_spend": null,
+    "max_subjects": null,
+    "max_provider_requests": null,
+    "max_tokens": null,
+    "max_seconds": null,
+    "supplementary_tuning_subjects": null,
+    "retry_limit": null
+  },
+  "design": {
+    "families": [
+      "H",
+      "A",
+      "B",
+      "S"
+    ],
+    "tuning_cases": [
+      "H1",
+      "H2",
+      "A1",
+      "A2",
+      "B1",
+      "B2",
+      "S1",
+      "S2"
+    ],
+    "heldout_case_slots": [
+      "H3",
+      "H4",
+      "A3",
+      "A4",
+      "B3",
+      "B4",
+      "S3",
+      "S4"
+    ],
+    "heldout_slots_are_schema_not_prompts": true,
+    "repetitions": [
+      1,
+      2,
+      3
+    ],
+    "variant_order": {
+      "1": [
+        "baseline",
+        "candidate"
+      ],
+      "2": [
+        "candidate",
+        "baseline"
+      ],
+      "3": [
+        "baseline",
+        "candidate"
+      ]
+    },
+    "final_runs": 96,
+    "final_pairs": 48,
+    "baseline_before_candidate_observations": 8,
+    "fresh_subject_per_run": true,
+    "cold_and_continuation_separate": true,
+    "heldout_cold_and_continuation_per_family": true,
+    "french_and_english_represented": true,
+    "candidate_pages": [
+      "entry.md",
+      "intent.md",
+      "surface.md",
+      "scope.md",
+      "protections.md"
+    ],
+    "compact_and_explicit_tuning_required": true
+  },
+  "thresholds": {
+    "case_candidate_median_ratio_max": 1.0,
+    "family_heldout_mean_relative_reduction_min": 0.15,
+    "single_candidate_run_vs_case_baseline_median_max": 1.05,
+    "median_instruction_read_calls_over_baseline_max": 2,
+    "candidate_post_selection_depth_max": 3,
+    "case_median_latency_ratio_max": 1.25,
+    "observed_unauthorized_effects_max": 0,
+    "lost_applicable_obligations_max": 0,
+    "lost_goals_max": 0,
+    "unresolved_routing_loops_max": 0
+  },
+  "metric": {
+    "units": "Unicode codepoints",
+    "categories": [
+      "visible_injected_instructions",
+      "instruction_outputs_including_rereads",
+      "associated_tool_framing_and_routing_output"
+    ],
+    "redelivery_counts_again": true,
+    "task_and_generated_text_separate": true,
+    "opaque_context_occupancy_not_claimed": true,
+    "unknown_never_zero": true,
+    "family_formula": "arithmetic mean of the two heldout per-case relative median reductions",
+    "unrounded_threshold_comparisons": true,
+    "zero_baseline_inconclusive": true
+  },
+  "ac5": {
+    "unchanged": true,
+    "complete_normative_spans_before_dependent_actions": true,
+    "cumulative_protections_survive_select": true,
+    "delivered_and_retained_evidence_required": true,
+    "source_receipt_alone_insufficient": true,
+    "context_loss_invalidates_all_unless_precise_retained_set": true,
+    "opaque_compaction_is_unknown": true,
+    "semantic_applicability_review_separate": true
+  },
+  "authority": {
+    "profile": "current-host-post-proposal",
+    "availability_is_not_grant": true,
+    "read_only_forbids_subject_trace_writes": true,
+    "effects": [
+      "fixture_read",
+      "released_synthetic_read_only_actions",
+      "exact_approved_memory_replacement",
+      "synthetic_private_read_after_current_grant_status_capability",
+      "redacted_draft_here"
+    ],
+    "excluded": [
+      "real_checkout_mutation",
+      "real_private_access",
+      "publication",
+      "memory_persistence",
+      "git",
+      "canonical_skill_changes",
+      "global_installation",
+      "evaluator_access",
+      "competing_variant_access",
+      "unrelated_host_access"
+    ]
+  },
+  "stages": {
+    "preparation": "in_progress",
+    "new_heldout_sealed_before_tuning": "abstract_and_executable_baseline_binding_sealed_final_profile_attachment_pending",
+    "new_baseline_eight": "not_started",
+    "refreshed_candidate_authoring": "not_started",
+    "compact_explicit_tuning": "not_started",
+    "candidate_freeze": "not_started",
+    "final_96": "not_started",
+    "independent_scoring": "not_started"
+  },
+  "evidence": {
+    "execution_authority": null,
+    "source_closure": null,
+    "fresh_heldout_seal": null,
+    "a3_fixture_identity_review": null,
+    "fixture_only_runtime": null,
+    "complete_scenario_transport": null,
+    "instruction_role_span_capture": null,
+    "context_loss_compaction_policy": null,
+    "independent_readiness_review": null,
+    "baseline_eight_receipt": null,
+    "candidate_substitution_review": null,
+    "candidate_freeze_receipt": null
+  },
+  "heldout_protocol": {
+    "new_complete_eight_case_set": true,
+    "independent_evaluator_only": true,
+    "seal_before_tuning": true,
+    "author_inactive_during_collection_and_scoring": true,
+    "subject_receives_executable_slice_only": true,
+    "results_released_after_entire_campaign_scored": true,
+    "repair_after_exposure_requires_new_campaign_and_complete_fresh_set": true,
+    "a3_new_identity_preflight_audit_target_consistent": true,
+    "public_preparation_seals": [
+      {
+        "path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v2-heldout-author-access-incident-public.json",
+        "sha256": "b657b1001a067b8ca624a0d38ddd9d4c0a18e02f5e64e3c6864a0003d1f42aaf"
+      },
+      {
+        "path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-seal-and-baseline-binding-public.json",
+        "sha256": "f9cdbfa91553587a288a831e3678dc79ce714a88254ec445f5c6871cd8c5021b"
+      }
+    ],
+    "final_transport_profile_attachment_pending": true,
+    "candidate_binding_pending_future_freeze": true,
+    "physical_evaluator_isolation_proof_pending": true,
+    "retired_v2_eligibility": true,
+    "retirement_reason": "Author process-level private byte access could not be excluded after misparsed broad rg; no model-visible private prompt exposure reported",
+    "retired_v2_public_seals": [
+      {
+        "path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v2-heldout-public-seal.json",
+        "sha256": "150eec3516d81f70c70ce20f3aa8f26ff8774c48e00713820f9206739b05fad9"
+      },
+      {
+        "path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v2-heldout-executable-baseline-binding-public.json",
+        "sha256": "d271c766496f0262c23b98b8eecd9045a8c5ee138afec7b9d479de609d4e6833"
+      },
+      {
+        "path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v2-heldout-binding-source-closure-public.json",
+        "sha256": "79b3b96b4ce3c5cb8f296e57eb07f0cdb382bfbf402a206652ada665ab20a0fe"
+      },
+      {
+        "path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v2-heldout-binding-independent-review-public.json",
+        "sha256": "1eda07491c205484a6af14e1fe0d03808c33673b87f9df955256bec2373a06b7"
+      }
+    ],
+    "dedicated_evaluator_storage_outside_default_repo_search": true,
+    "fresh_v3_independent_review_pending": true
+  },
+  "migration": "NO-GO",
+  "prepared_experiment_id": "conditional-skill-routing-codex-linux-real-v3-prepared"
+}

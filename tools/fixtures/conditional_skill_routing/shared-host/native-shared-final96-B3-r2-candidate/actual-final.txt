@@ -1,0 +1,7 @@
+Remplacement synthétique appliqué dans `notes/operator-guide.md` : `Support status: preview` → `Support status: experimental`.
+
+Contexte : exécution directe, une cible, aucun autre changement autorisé ; consentement post-proposition B3-U2. `simulated_replace` puis `focused_verify` confirment : ancien texte absent, nouveau texte présent une fois, tous les autres octets identiques.
+
+Limites : seule la fixture en mémoire du broker a changé ; aucune modification du fichier réel, aucun commit, push ou publication. Livraison fournisseur non vérifiée. Aucun élargissement ni migration. L’horloge Paris n’est pas disponible via le broker.
+
+Suite : toute application au fichier réel exige une exécution distincte autorisée ; arrêt au périmètre synthétique demandé.

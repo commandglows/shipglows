@@ -1,0 +1,3 @@
+event: tool_result
+data: {"extent":"partial","status":"partial","text":"first"}
+

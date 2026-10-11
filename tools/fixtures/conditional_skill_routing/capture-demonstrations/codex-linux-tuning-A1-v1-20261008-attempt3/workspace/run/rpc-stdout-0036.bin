@@ -1,0 +1,1 @@
+{"method":"item/tool/call","id":5,"params":{"threadId":"01a11ce7-82e2-78c2-ac87-8c89ba75a00a","turnId":"01a11ce7-885a-7f43-b7af-be6a7835cb7b","callId":"A1-model-006","namespace":null,"tool":"instruction_read","arguments":{"resource_id":"core","spans":null}}}

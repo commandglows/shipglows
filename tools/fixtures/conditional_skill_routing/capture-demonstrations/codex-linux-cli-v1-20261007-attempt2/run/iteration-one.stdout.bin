@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a11729-9c4b-7d70-8a61-ebe6ed54a2f2"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/work/run/synthetic-home/codex/config.toml): `disable_response_storage` is ignored."}}
+{"type":"item.completed","item":{"id":"item_1","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/work/run/synthetic-home/codex/config.toml): `disable_response_storage` is ignored."}}
+{"type":"item.completed","item":{"id":"item_2","type":"error","message":"Model metadata for `synthetic` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"synthetic completed"}}
+{"type":"turn.completed","usage":{"input_tokens":10,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":2,"reasoning_output_tokens":0}}

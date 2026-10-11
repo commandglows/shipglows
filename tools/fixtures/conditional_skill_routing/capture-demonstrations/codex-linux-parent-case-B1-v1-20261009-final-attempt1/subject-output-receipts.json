@@ -1,0 +1,20 @@
+{
+  "origin": "scripted synthetic subject output, not a real model",
+  "messages": [
+    {
+      "content": "Approve this exact replacement only: {\"new\": \"Main CLI entry point\", \"old\": \"Main entry point\", \"proof_checks\": [\"Old phrase absent\", \"New phrase occurs once\", \"All unrelated bytes identical\"], \"target\": \"CLAUDE.md\"}?",
+      "content_sha256": "f5779ba6382904d2c4373867786ac351462309a24cd841e24b639eddfbeb7584",
+      "raw_sha256": "87309555eae1d4262b577777c9e071a37deeaaa60bc9e1eba794d2115c3b2455",
+      "label": "model-request-16",
+      "received_ns": 262919523047500
+    },
+    {
+      "content": "Synthetic exact replacement verified; unrelated bytes preserved. Broader schema migration remains a separate decision.",
+      "content_sha256": "87b6406e70815b969bb4a81240bbdd3a2ad8b0f8dc1bf98480bd3bca8b6a9c35",
+      "raw_sha256": "c7a1bf28074c66dd9640e9a9d6b657149d520bffad9e2b2c6442dfe04e64eb21",
+      "label": "model-request-19",
+      "received_ns": 262920554669500
+    }
+  ],
+  "private_redaction_pass": null
+}

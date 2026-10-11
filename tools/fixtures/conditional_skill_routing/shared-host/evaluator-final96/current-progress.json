@@ -1,0 +1,11 @@
+{
+  "active_handles": [],
+  "active_status_verified": "None; last subject terminal confirmed through native agent registry.",
+  "author_payloads_disclosed": false,
+  "expected": 96,
+  "independently_scored": 96,
+  "model_call_total": "unknown",
+  "sealed": 96,
+  "strict_isolated_pilot_eligible": false,
+  "verified_ns": 1791377129622928600
+}

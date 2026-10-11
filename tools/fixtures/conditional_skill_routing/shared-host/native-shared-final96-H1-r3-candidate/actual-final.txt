@@ -1,0 +1,7 @@
+**sg-docs** s’occupe de la documentation interne : architecture, gouvernance, contexte projet, métadonnées et instructions pour les agents.
+
+**sg-content** s’occupe des contenus destinés au public : documentation publique, articles, pages éditoriales et contenus pour une audience.
+
+Le critère est donc le destinataire et l’objectif du document : une fiche d’architecture interne relève de sg-docs ; un guide publié pour les utilisateurs relève de sg-content.
+
+Cette distinction vient du contrat de routage fourni. Aucune action ni modification n’a été effectuée.

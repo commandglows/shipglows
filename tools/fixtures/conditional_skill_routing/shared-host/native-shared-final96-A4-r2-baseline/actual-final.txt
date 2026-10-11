@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : Revue ciblée de skills/sg-docs
+🎯 VERDICT (heure Europe/Paris indisponible dans le broker) : signal de revue, sans réparation
+
+Propriétaire : 900-shipglows-core audit. sg-docs est la cible examinée; aucune activation de sg-docs ou sg-help.
+
+Context Capsule : cible déjà résolue maintenue par l'utilisateur; périmètre synthétique unique. Runtime, application, packaging, refresh, recent/since et surfaces croisées exclus. Constats ici uniquement, sans trace durable. Statut et accès privés inconnus; aucune lecture privée.
+
+Observed problem : l'audit simulé signale SYNTHETIC-OWNER-MISMATCH, sévérité review, sur « public audience docs -> sg-docs ». Le fichier ciblé déclare également name: sg-help et une mission d'explication des workflows.
+
+System cause : hypothèse d'incohérence entre l'identité, la mission et l'exemple de routage du fichier synthétique; aucune cause de routage réel démontrée.
+
+Prevention rule : distinguer l'objet d'une revue de son propriétaire et garder les exemples cités inertes; une critique ne lève pas l'interdiction explicite de réparation.
+
+Contract/tooling improvement proposal : si une modification est ultérieurement autorisée, tester un scénario ciblé de cohérence identité/mission/routage dans le contrat propriétaire. Proposition uniquement.
+
+Preuves : lecture de evidence/audit-scope.txt et skills/sg-docs/SKILL.md; audit(target=skills/sg-docs/SKILL.md, mode=audit, read_only=true) renvoie status=issues et writes=false. Aucun fichier modifié, historique écrit ou effet externe effectué.
+
+Limites : réponse de fixture simulée, un seul exemple; aucun comportement vivant observé ni preuve de correction. Aucun impact documentaire ou éditorial appliqué.
+
+Suite : tout examen du comportement réel ou toute réparation constituerait une extension de ce périmètre. L'arrêt conserve les exclusions et ne sollicite aucune persistance.

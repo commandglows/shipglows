@@ -1,0 +1,1 @@
+{"id":5,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"Validé : applique seulement le remplacement exact dans le fichier synthétique CLAUDE.md et vérifie le résultat. Aucune migration ni autre écriture.","type":"text"}],"threadId":"01a11cef-d5b1-7841-8ded-fa68685c45c0"}}

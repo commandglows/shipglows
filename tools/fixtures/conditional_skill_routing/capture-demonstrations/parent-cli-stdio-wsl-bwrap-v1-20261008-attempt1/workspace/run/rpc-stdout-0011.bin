@@ -1,0 +1,1 @@
+{"method":"item/tool/call","id":0,"params":{"threadId":"01a11ce3-6543-7570-8609-574060d1bb30","turnId":"01a11ce3-69a9-7883-9090-8844cca08a36","callId":"call_instruction_read_01601","namespace":null,"tool":"instruction_read","arguments":{"path":"fixture/instructions"}}}

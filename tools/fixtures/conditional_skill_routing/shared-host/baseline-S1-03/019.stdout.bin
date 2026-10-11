@@ -1,0 +1,1 @@
+{"ok":true,"result":{"machine_redaction":"pass","proof":{"draft_sha256":"beb0845c8a0116120017b7ce533009e0d08f6c9b37e1134c6997e9c40193b444"},"public_draft_authorized":false,"result":"Synthetic Lantern is a prototype with an offline checklist and CSV export. Cloud synchronization is not available.","rubric":"not_evaluated","semantic_review":"not_evaluated"}}

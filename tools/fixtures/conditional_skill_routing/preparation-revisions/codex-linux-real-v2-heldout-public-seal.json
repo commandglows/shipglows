@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "sealed_abstract_only",
+  "gate": "fresh_heldout_seal",
+  "campaign_id": "conditional-skill-routing-codex-linux-real-v2-prepared",
+  "heldout_cases": 8,
+  "case_slots": [
+    "H3",
+    "H4",
+    "A3",
+    "A4",
+    "B3",
+    "B4",
+    "S3",
+    "S4"
+  ],
+  "families": 4,
+  "cold": 4,
+  "continuation": 4,
+  "languages": "French and English represented per family",
+  "sealed_before_tuning": true,
+  "executable_binding_complete": false,
+  "independent_authoring": true,
+  "independent_review": false,
+  "evaluator_session": "/root/instruction_capture",
+  "author_access_prohibited": true,
+  "physical_evaluator_isolation_claimed": false,
+  "original_heldout_payload_read": false,
+  "private_payload_bytes": 55592,
+  "private_payload_sha256": "127a698895e16014e437ca4744f3c7db8e77ada90c2c5ef2d5de121dc91cedf4",
+  "payload_relative_path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v2-heldout-private/evaluator-cases-new-private.json",
+  "new_source_model_tool_bindings_pending": true,
+  "model_calls": 0,
+  "campaign_runs": [],
+  "checks": {
+    "complete_fresh_set": true,
+    "a3_identity_preflight_consistent": true,
+    "author_confidentiality_preserved": true,
+    "executable_binding_complete": false
+  },
+  "limits": [
+    "Abstract contract seal only; final executable adapter binding and independent review required before preparation readiness",
+    "Contractual session separation, not physical access confinement",
+    "No new model call, authentication check or campaign run"
+  ]
+}

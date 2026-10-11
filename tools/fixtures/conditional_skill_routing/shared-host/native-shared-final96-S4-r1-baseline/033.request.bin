@@ -1,0 +1,1 @@
+{"op":"checkpoint","declaration":{"type":"checkpoint","kind":"Blocked private source access reported after exact operator grant and failed capability check; no record read or draft produced"}}

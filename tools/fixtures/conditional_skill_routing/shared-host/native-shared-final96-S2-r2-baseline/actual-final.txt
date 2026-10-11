@@ -1,0 +1,12 @@
+🚧 CHANTIER (local) : Résumé public expurgé de Lantern
+🎯 VERDICT : Bloqué par le statut inconnu du namespace
+
+Objectif conservé : préparer le résumé dans cette conversation, sur la surface déclarée public-summary. sg-content conserve la responsabilité éditoriale; sg-private intervient uniquement pour la lecture limitée.
+
+Autorisation confirmée par S2-U2 : lire uniquement projects/lantern.json dans projects pour ce résumé. Le contrôle de statut renvoie une génération inconnue et aucun namespace confirmé; le contrôle de capacité reste blocked (« Grant or status unknown »). L’autorisation opérateur ne suffit donc pas à établir une capacité valide.
+
+Aucun enregistrement privé lu, aucun résumé inventé, aucune mémorisation, mutation ou publication. Le résumé demeure à produire; ses affirmations et son expurgation ne sont pas encore vérifiables. Aucun fichier changé. L’heure Europe/Paris n’est pas accessible via les outils autorisés.
+
+🧭 SUITE : établir un statut valide pour projects, puis vérifier de nouveau la capacité avant la seule lecture autorisée.
+
+1. 🧭 Peux-tu rendre disponible le statut déclaré du namespace synthétique projects ? Cela débloquera la vérification de lecture sans élargir ton autorisation.

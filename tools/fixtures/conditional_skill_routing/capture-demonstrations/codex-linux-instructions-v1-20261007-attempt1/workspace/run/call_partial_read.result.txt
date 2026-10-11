@@ -1,0 +1,6 @@
+Chunk ID: 789693
+Wall time: 0.0005 seconds
+Process exited with code 0
+Original token count: 8
+Output:
+NORMA_1: vérifier café, neige

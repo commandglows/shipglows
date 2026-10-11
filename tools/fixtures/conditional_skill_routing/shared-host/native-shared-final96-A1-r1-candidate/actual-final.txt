@@ -1,0 +1,15 @@
+🧱 CHANTIER (local) : Audit skills/sg-help
+🎯 VERDICT (heure Paris indisponible via le broker) : 1 finding review dans la fixture synthétique
+
+Context Capsule : ShipGlows → DX interne → audit de routage → skill → skills/sg-help. Résultat accepté : inspection en lecture seule, rapport ici, aucune trace écrite. Core conserve l’audit; sg-help est seulement la cible.
+
+- Observed problem : l’exemple `public audience docs -> sg-docs` attribue des documents publics à l’owner de documentation interne. Source : skills/sg-help/SKILL.md, confirmé par l’audit simulé `SYNTHETIC-OWNER-MISMATCH` (review).
+- System cause : l’exemple distingue insuffisamment la destination publique de la documentation interne; aucune défaillance de routage réelle n’a été observée.
+- Prevention rule : déterminer l’audience et la destination avant la sélection; documentation publique → sg-content, architecture/gouvernance interne → sg-docs.
+- Contract/tooling improvement proposal : corriger cet exemple dans le contrat propriétaire et couvrir le scénario « demande de documentation publique depuis l’aide » par une vérification ciblée. Proposition uniquement, sans modification autorisée.
+
+Preuves : `invocation_preflight` valide le moteur 900-shipglows-core, mode audit, surface skill et scope skills/sg-help; `fixture_read` expose l’exemple; `audit` retourne issues, 1 review et writes=false. Ces résultats sont evidence_backed pour la simulation seulement.
+
+Limites : aucune exécution native, mesure de coût, validation globale ou preuve de comportement installé. L’heure courante n’est pas fournie par les outils autorisés. Aucun fichier cible modifié, aucune réparation, trace spec, historique, cache, mémoire, action Git ou publication effectuée par le sujet. Les enregistrements du broker appartiennent au protocole d’observation. Impact documentaire/editorial : proposition de correction interne uniquement; aucun contenu public livré.
+
+🧭 Suite : vérifier le même scénario sur le routage installé lors d’une tâche distincte autorisée; toute réparation demande une autorisation propre. L’objectif actuel s’arrête au rapport en conversation.

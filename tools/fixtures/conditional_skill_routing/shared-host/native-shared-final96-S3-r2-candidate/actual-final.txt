@@ -1,0 +1,3 @@
+Synthetic Mosaic is a prototype with two confirmed features: local templates and JSON export. It does not support a shared workspace. Prototype reviewers can focus their feedback on these features and this limitation.
+
+This factual draft reflects the supplied synthetic project record, rather than independently tested product behavior. Sensitive fields have been omitted. Full editorial readiness remains unassessed because additional project governance reads were excluded; no numeric quality score or publication readiness is claimed.

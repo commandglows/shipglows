@@ -1,0 +1,18 @@
+🧱 CHANTIER (local) : sg-help routing audit
+🎯 VERDICT (time unavailable) : Review finding; live behavior unverified
+
+Context Capsule: ShipGlows internal DX → reliable documentation ownership → read-only audit → skills/sg-help/SKILL.md. The latest user explicitly forbids changes and saving. Core owns this audit; sg-help is the target, not an activated skill.
+
+Observed problem: The supplied synthetic file contains `Routing example: public audience docs -> sg-docs.` The broker audit reports `SYNTHETIC-OWNER-MISMATCH`, severity `review`.
+
+System cause: The example names the internal documentation route for public audience documentation. Whether that example controls actual routing remains a hypothesis.
+
+Prevention rule: Select documentation ownership from the intended audience and outcome before choosing the route.
+
+Contract/tooling improvement proposal: Review this example in the sg-help owner contract and add a focused public-audience routing scenario if repair is later authorized.
+
+Evidence: Read the released scope and target; ran `audit` with `mode=audit` and `read_only=true`. Result: `issues`, `writes=false`. No project files changed, history written, artifacts saved, or external actions taken.
+
+Limits: One simulated fixture finding only. No live activation, canonical host-root verification, baseline audit tool, or activation-graph check was available through the permitted broker. Paris time was also unavailable. This establishes the suspect example, not a proven live routing defect or repair.
+
+Next action: A future separately authorized review can verify the real public-documentation owner and exercise the live routing scenario. No repair is undertaken under this audit-only request.

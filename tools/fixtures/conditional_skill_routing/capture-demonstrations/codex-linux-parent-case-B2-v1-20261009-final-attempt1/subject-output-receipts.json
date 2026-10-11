@@ -1,0 +1,27 @@
+{
+  "origin": "scripted synthetic subject output, not a real model",
+  "messages": [
+    {
+      "content": "Aucune modification ni migration ne sera d\u00e9duite de cette discussion.",
+      "content_sha256": "8d4d8bc75f92f9932e7194e3b6c4dc06554832529e759fc37f4a462190261726",
+      "raw_sha256": "a43e4ee9b42db5566d25b98ec00c199e28e74a557ffdfaf10a8e93499a68921c",
+      "label": "model-request-1",
+      "received_ns": 262910893760700
+    },
+    {
+      "content": "Approve this exact replacement only: {\"new\": \"Main CLI entry point\", \"old\": \"Main entry point\", \"proof_checks\": [\"Old phrase absent\", \"New phrase occurs once\", \"All unrelated bytes identical\"], \"target\": \"CLAUDE.md\"}?",
+      "content_sha256": "f5779ba6382904d2c4373867786ac351462309a24cd841e24b639eddfbeb7584",
+      "raw_sha256": "6708dbd37a175fde5c714a6f9dba6d782ecf38e2d384785e7f4c5392a865cafc",
+      "label": "model-request-26",
+      "received_ns": 262924055974300
+    },
+    {
+      "content": "Synthetic exact replacement verified; unrelated bytes preserved. Broader schema migration remains a separate decision.",
+      "content_sha256": "87b6406e70815b969bb4a81240bbdd3a2ad8b0f8dc1bf98480bd3bca8b6a9c35",
+      "raw_sha256": "a9ebf30dc76dedd496bbcd8b4f78ef5ad91e213f7a4c47f4d018d68e1dd16c35",
+      "label": "model-request-31",
+      "received_ns": 262925508464300
+    }
+  ],
+  "private_redaction_pass": null
+}

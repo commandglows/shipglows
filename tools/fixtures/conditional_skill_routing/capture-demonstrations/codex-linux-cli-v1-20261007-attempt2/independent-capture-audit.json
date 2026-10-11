@@ -1,0 +1,608 @@
+{
+  "inventory_checked": 59,
+  "mismatches": [],
+  "all_existing_task_files": {
+    "download-receipt.json": {
+      "bytes": 800,
+      "sha256": "f2f5232638f91831215941d90286b7d420ef3244b09674d679ffc731f2d3408c"
+    },
+    "launch.json": {
+      "bytes": 1202,
+      "sha256": "d2bafad8f95369899186d8e6091b48b79d59f34da386ca775689d7620dff985a"
+    },
+    "namespace-receipt.json": {
+      "bytes": 236,
+      "sha256": "0cb7dc9ad5b312113b3af08705064b44d2aabc83d89b65b0a1bf30911e76f484"
+    },
+    "namespace-stderr.bin": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "namespace-stdout.bin": {
+      "bytes": 137,
+      "sha256": "bdba5695dd05a832a203d2dc1af0b9e109aebdc73b1011ac82db1e0871099fa8"
+    },
+    "run\\cli-version.receipt.json": {
+      "bytes": 290,
+      "sha256": "f2e5f51964ccb1fd3eab283732f66b4b7f0d1a2c62cc26ab24f3555bf03d08c3"
+    },
+    "run\\cli-version.stderr.bin": {
+      "bytes": 213,
+      "sha256": "952f59a2b398e10b0029e7cc163935fb252488197093fd37f5f66e4ea49e169a"
+    },
+    "run\\cli-version.stderr.chunk-0000.bin": {
+      "bytes": 213,
+      "sha256": "952f59a2b398e10b0029e7cc163935fb252488197093fd37f5f66e4ea49e169a"
+    },
+    "run\\cli-version.stdout.bin": {
+      "bytes": 18,
+      "sha256": "eeecd3950ed2edf22e2f7ac0317480e921226b0a28df75a7f4af0f4bfe91fa49"
+    },
+    "run\\cli-version.stdout.chunk-0000.bin": {
+      "bytes": 18,
+      "sha256": "eeecd3950ed2edf22e2f7ac0317480e921226b0a28df75a7f4af0f4bfe91fa49"
+    },
+    "run\\config-snapshot.toml": {
+      "bytes": 293,
+      "sha256": "355e2fabdb61d8af5eb7ae10e6f3a4905a35c94e54c56a1b36706bae9d594a07"
+    },
+    "run\\http-001.request.bin": {
+      "bytes": 39305,
+      "sha256": "029e7a6ebd7317cbb92cbc067c3add51cf5d6900b2ed6b2a513bf4a9fee10ed7"
+    },
+    "run\\http-001.request.chunk-0000000.bin": {
+      "bytes": 31499,
+      "sha256": "f8924e0b64e19931e9b89d21b73a95f0c290a21d86b8e51d3c450fef5629635b"
+    },
+    "run\\http-001.request.chunk-0031499.bin": {
+      "bytes": 7806,
+      "sha256": "2563660c57eee44b88e9fbf2a52b323490515ca1d0ad7d4d686fbbe79ed621fe"
+    },
+    "run\\http-001.response.bin": {
+      "bytes": 2201,
+      "sha256": "bc473f03de1402aeaf9ccd96f6355723209e71dc33356e9eaca482f78c822011"
+    },
+    "run\\http-001.response.chunk-000.bin": {
+      "bytes": 357,
+      "sha256": "92ae0e20f82a33cba444011e1309d2dd19de8ed32a5ee19d7e58f1335d45523d"
+    },
+    "run\\http-001.response.chunk-001.bin": {
+      "bytes": 217,
+      "sha256": "d7eb823a775fa09e5906fb6cc17726fb7a5c39e68d1c6cd0628f200226d1270d"
+    },
+    "run\\http-001.response.chunk-002.bin": {
+      "bytes": 218,
+      "sha256": "e6b2fe35e1689b3644d762761bdc83377207b42580196431d13fd0146af65385"
+    },
+    "run\\http-001.response.chunk-003.bin": {
+      "bytes": 189,
+      "sha256": "6f8c973f3791b00e29d7acb20d6201bf6ca2fe7cc2036564ae0b941dd77dcfe0"
+    },
+    "run\\http-001.response.chunk-004.bin": {
+      "bytes": 186,
+      "sha256": "6b8137589f93e616e16100bf787322042510731b4ff8834628d338d685ea374f"
+    },
+    "run\\http-001.response.chunk-005.bin": {
+      "bytes": 235,
+      "sha256": "f9796aeed84d44e92b2da7818b3faace1fd1539b5b03a4c6e7b08dbd31f0d7b6"
+    },
+    "run\\http-001.response.chunk-006.bin": {
+      "bytes": 281,
+      "sha256": "5477c1710f9c92dd5f210dbf6bd275b4cf0bd914925daed6fd080a86d06ec43b"
+    },
+    "run\\http-001.response.chunk-007.bin": {
+      "bytes": 518,
+      "sha256": "0ff9e91ec76305966948181e0749da8927b2fea07c39db529416f6b4655b75d6"
+    },
+    "run\\http-002.request.bin": {
+      "bytes": 39305,
+      "sha256": "2a280a2983194e5de23159f21d3a661804b0226215a26430e1130040ee54e5a2"
+    },
+    "run\\http-002.request.chunk-0000000.bin": {
+      "bytes": 39305,
+      "sha256": "2a280a2983194e5de23159f21d3a661804b0226215a26430e1130040ee54e5a2"
+    },
+    "run\\http-002.response.bin": {
+      "bytes": 61,
+      "sha256": "cb2f24f6e152ae2ea7f7958898e052e439b0ec4ade897fbb15c27fb432201e49"
+    },
+    "run\\http-002.response.chunk-000.bin": {
+      "bytes": 61,
+      "sha256": "cb2f24f6e152ae2ea7f7958898e052e439b0ec4ade897fbb15c27fb432201e49"
+    },
+    "run\\http-003.request.bin": {
+      "bytes": 39305,
+      "sha256": "2a280a2983194e5de23159f21d3a661804b0226215a26430e1130040ee54e5a2"
+    },
+    "run\\http-003.request.chunk-0000000.bin": {
+      "bytes": 39305,
+      "sha256": "2a280a2983194e5de23159f21d3a661804b0226215a26430e1130040ee54e5a2"
+    },
+    "run\\http-003.response.bin": {
+      "bytes": 2201,
+      "sha256": "807f35118d1a3994b9b681b7baf446cec20df023000a08b3d34633d6e7882584"
+    },
+    "run\\http-003.response.chunk-000.bin": {
+      "bytes": 357,
+      "sha256": "46498293d7f2dbf166edf726deb18b811763b86e688e96f6e5e7273ddd55d849"
+    },
+    "run\\http-003.response.chunk-001.bin": {
+      "bytes": 217,
+      "sha256": "4156f74d16fdc661021d48daa34464d674ca4861fd38f60cd375a66bcf550c39"
+    },
+    "run\\http-003.response.chunk-002.bin": {
+      "bytes": 218,
+      "sha256": "fee0e3fc2da9b2a558afabb98b616e3e9b34c5fe6bfcbc2dfdd2b388b03ca581"
+    },
+    "run\\http-003.response.chunk-003.bin": {
+      "bytes": 189,
+      "sha256": "0e6bf56ebb9cace30752bbfe9006ad4ac966159d822e066ff451fab1d911503d"
+    },
+    "run\\http-003.response.chunk-004.bin": {
+      "bytes": 186,
+      "sha256": "d47aabab0c8ab15aaf776c6661e382ce9d474b12bf650cad79edfa8b07913506"
+    },
+    "run\\http-003.response.chunk-005.bin": {
+      "bytes": 235,
+      "sha256": "d4d92e51f9e35c0b4deb7d672f881cd69e7360dfbc60b373eeeb2fd4ea1a7059"
+    },
+    "run\\http-003.response.chunk-006.bin": {
+      "bytes": 281,
+      "sha256": "2a762c7615a2a88d2144b2e1406dfc2d3eef25389fbac4b9b99fcad4af73989f"
+    },
+    "run\\http-003.response.chunk-007.bin": {
+      "bytes": 518,
+      "sha256": "110cc99a2998b3b9112e5797b719ec6301b8ef2038dd1c90cbc315312869f977"
+    },
+    "run\\http-receipts.json": {
+      "bytes": 3076,
+      "sha256": "4313cd85f61bc9f8b526777e82e86219587d11138f05ff199bf29563af3ac1a0"
+    },
+    "run\\iteration-one.launch.json": {
+      "bytes": 408,
+      "sha256": "1ed2fd1b2c5baafc68732c671fda11b22223e2bdd4c6a5d88151e8c43d8e9c46"
+    },
+    "run\\iteration-one.stderr.bin": {
+      "bytes": 252,
+      "sha256": "630a0ba140cda8b2d8cdc3324824c8506f2ea896db99ec043617eca6d6ab7e79"
+    },
+    "run\\iteration-one.stderr.chunk-0000.bin": {
+      "bytes": 213,
+      "sha256": "952f59a2b398e10b0029e7cc163935fb252488197093fd37f5f66e4ea49e169a"
+    },
+    "run\\iteration-one.stderr.chunk-0001.bin": {
+      "bytes": 39,
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721"
+    },
+    "run\\iteration-one.stdout.bin": {
+      "bytes": 1083,
+      "sha256": "621304f14142191f4fc1af59b8af4d88a9bc148a021beb141436cb85c4271aef"
+    },
+    "run\\iteration-one.stdout.chunk-0000.bin": {
+      "bytes": 77,
+      "sha256": "9d2a0313c561c4b8aee20fc113dab2f5f040f825809433b1ef4941c897fb4e96"
+    },
+    "run\\iteration-one.stdout.chunk-0001.bin": {
+      "bytes": 265,
+      "sha256": "452ade548afa7380b2293decb4ce180d7095728040db816073c0e46cde4a00da"
+    },
+    "run\\iteration-one.stdout.chunk-0002.bin": {
+      "bytes": 463,
+      "sha256": "eecfcd16edb0804bf40cf7ade518aa6d451fea1ff29963c75d25d6576015207b"
+    },
+    "run\\iteration-one.stdout.chunk-0003.bin": {
+      "bytes": 24,
+      "sha256": "cf515a4acc6e41e0f111f01c78b13ba4253f611de9374474864f01e69a90c08f"
+    },
+    "run\\iteration-one.stdout.chunk-0004.bin": {
+      "bytes": 101,
+      "sha256": "d5e36a9b81d19bbab52593e562432c1f49be172f26566bb2c49e83282551e024"
+    },
+    "run\\iteration-one.stdout.chunk-0005.bin": {
+      "bytes": 153,
+      "sha256": "871909348eae67f516453030db5e03811f0f48747cbeaa18f62003b9bea9473f"
+    },
+    "run\\iteration-two.launch.json": {
+      "bytes": 408,
+      "sha256": "25c20b4b3cbaab9366c5e1adc08e6916ceaec06843fad870162dffeb07eab01c"
+    },
+    "run\\iteration-two.stderr.bin": {
+      "bytes": 252,
+      "sha256": "630a0ba140cda8b2d8cdc3324824c8506f2ea896db99ec043617eca6d6ab7e79"
+    },
+    "run\\iteration-two.stderr.chunk-0000.bin": {
+      "bytes": 213,
+      "sha256": "952f59a2b398e10b0029e7cc163935fb252488197093fd37f5f66e4ea49e169a"
+    },
+    "run\\iteration-two.stderr.chunk-0001.bin": {
+      "bytes": 39,
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721"
+    },
+    "run\\iteration-two.stdout.bin": {
+      "bytes": 1083,
+      "sha256": "1a35cd22baebf96e16cbf6753a3e8189c306190c6bb989bed6f1777177d85460"
+    },
+    "run\\iteration-two.stdout.chunk-0000.bin": {
+      "bytes": 77,
+      "sha256": "7d189f58230ef7294142a19d9103150d237bfdb680059d35b8b77a824b1f2e97"
+    },
+    "run\\iteration-two.stdout.chunk-0001.bin": {
+      "bytes": 728,
+      "sha256": "2928511a671c4ce23d1a8658142bb5ae8e04b332832b3275e46b8bb98dac98dd"
+    },
+    "run\\iteration-two.stdout.chunk-0002.bin": {
+      "bytes": 24,
+      "sha256": "cf515a4acc6e41e0f111f01c78b13ba4253f611de9374474864f01e69a90c08f"
+    },
+    "run\\iteration-two.stdout.chunk-0003.bin": {
+      "bytes": 101,
+      "sha256": "d5e36a9b81d19bbab52593e562432c1f49be172f26566bb2c49e83282551e024"
+    },
+    "run\\iteration-two.stdout.chunk-0004.bin": {
+      "bytes": 153,
+      "sha256": "871909348eae67f516453030db5e03811f0f48747cbeaa18f62003b9bea9473f"
+    },
+    "run\\preflight.json": {
+      "bytes": 287,
+      "sha256": "f97a7aeedd18442a0c5a87f9edc541ad90f214492193e146d50adc065d6f5011"
+    },
+    "run\\process-receipts.json": {
+      "bytes": 1607,
+      "sha256": "175a5d0efdc01775ce83d6629a34f143608a74a312626ae4aeac00ebeb4b5849"
+    },
+    "run\\source-snapshot.py": {
+      "bytes": 18414,
+      "sha256": "227e1e336d0a3a7dacd686aa3ddb5cce7db0ad7b7ca853289b01f722089288e2"
+    },
+    "run\\summary.json": {
+      "bytes": 8524,
+      "sha256": "f1f6a398d043cb3dbce0ad38cfc5f422fd44b2848545d01f1e3a5504873f9c3a"
+    },
+    "run\\visible-agent-messages.json": {
+      "bytes": 149,
+      "sha256": "e1d8b2fad42631ddbaa9e7c6708354224d14fdc3f907e5ec4ea73963b390d9fa"
+    },
+    "run\\synthetic-home\\codex\\.sandbox_migration": {
+      "bytes": 3,
+      "sha256": "2d27fbdf4e8ca207afbfa388ca9172fbcc6c70e534af2476b3b704f87debadcf"
+    },
+    "run\\synthetic-home\\codex\\config.toml": {
+      "bytes": 293,
+      "sha256": "355e2fabdb61d8af5eb7ae10e6f3a4905a35c94e54c56a1b36706bae9d594a07"
+    },
+    "run\\synthetic-home\\codex\\goals_1.sqlite": {
+      "bytes": 4096,
+      "sha256": "4eeb710c739848e62f0d53d04057e17375b4af741c9b441f2a546f6ed860c79f"
+    },
+    "run\\synthetic-home\\codex\\goals_1.sqlite-shm": {
+      "bytes": 32768,
+      "sha256": "655c04d710478f9b7e6e81c1eff3b567ceb5ece578e38356a109f530f307bb65"
+    },
+    "run\\synthetic-home\\codex\\goals_1.sqlite-wal": {
+      "bytes": 74192,
+      "sha256": "97e31db0da499cafdb5946c09cc39b7f81147bc4c15227b1d0b2b62b48a223df"
+    },
+    "run\\synthetic-home\\codex\\installation_id": {
+      "bytes": 36,
+      "sha256": "5ccfe85a9ead06059a5c8492e4bd7f3729ef5a2035aa80f6670ebd390aa45c09"
+    },
+    "run\\synthetic-home\\codex\\logs_2.sqlite": {
+      "bytes": 49152,
+      "sha256": "a4641153635c8d0572adfae677441dc9e803e95570b2c06f1e9ea323ec5f5122"
+    },
+    "run\\synthetic-home\\codex\\logs_2.sqlite-shm": {
+      "bytes": 32768,
+      "sha256": "c3c50470ed64e595e59064f297b22ddb502096efabd8f5b1b997cd8056055796"
+    },
+    "run\\synthetic-home\\codex\\logs_2.sqlite-wal": {
+      "bytes": 115392,
+      "sha256": "dd14d5b2f71c65ae51d64f36c4bd57167bd42ba994fd8a4a28c9b11d1749bf6e"
+    },
+    "run\\synthetic-home\\codex\\memories_1.sqlite": {
+      "bytes": 4096,
+      "sha256": "4eeb710c739848e62f0d53d04057e17375b4af741c9b441f2a546f6ed860c79f"
+    },
+    "run\\synthetic-home\\codex\\memories_1.sqlite-shm": {
+      "bytes": 32768,
+      "sha256": "f74853182d4a9306dfb54d068fa6efaee447b109f3e537f396f35eb494af18e0"
+    },
+    "run\\synthetic-home\\codex\\memories_1.sqlite-wal": {
+      "bytes": 86552,
+      "sha256": "c83671c685516b8e04e96d02371d72ff093c2daf377522ebc378f344bcb7d42c"
+    },
+    "run\\synthetic-home\\codex\\queue_1.sqlite": {
+      "bytes": 4096,
+      "sha256": "4eeb710c739848e62f0d53d04057e17375b4af741c9b441f2a546f6ed860c79f"
+    },
+    "run\\synthetic-home\\codex\\queue_1.sqlite-shm": {
+      "bytes": 32768,
+      "sha256": "00ed49b58819984e11e0eea0140bd42291c96b05f56bcf05e1f47772baaa0a23"
+    },
+    "run\\synthetic-home\\codex\\queue_1.sqlite-wal": {
+      "bytes": 82432,
+      "sha256": "c7d1bc50c007111d50416733435b17418e398911817de597b061ddfdc0feb083"
+    },
+    "run\\synthetic-home\\codex\\state_5.sqlite": {
+      "bytes": 4096,
+      "sha256": "4eeb710c739848e62f0d53d04057e17375b4af741c9b441f2a546f6ed860c79f"
+    },
+    "run\\synthetic-home\\codex\\state_5.sqlite-shm": {
+      "bytes": 32768,
+      "sha256": "f39e95dad04668b9c593d57c1f336d2b697bfaa1fa709f3a07d31f794da8ce7f"
+    },
+    "run\\synthetic-home\\codex\\state_5.sqlite-wal": {
+      "bytes": 1989992,
+      "sha256": "cbeda055842dee1cc09df46aef6d8d86c444e28773defdeb0be1c4a874a2e3ac"
+    },
+    "run\\synthetic-home\\codex\\.tmp\\plugins.sync.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\.codex-system-skills.marker": {
+      "bytes": 17,
+      "sha256": "4b857d61192f2fa2df02f1200356167abf381eb1080de74972acd52a365eefca"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\LICENSE.txt": {
+      "bytes": 10776,
+      "sha256": "4dd13869245e356246a5b770723247bbb80a8f07a181d1d3d873a1734297cdb9"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\SKILL.md": {
+      "bytes": 19201,
+      "sha256": "681ddb4ad6d06a2acc78a3535b583f8d0c1ea800ecda3d56370d3310fd2cd4ba"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\LICENSE.txt": {
+      "bytes": 10776,
+      "sha256": "4dd13869245e356246a5b770723247bbb80a8f07a181d1d3d873a1734297cdb9"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\SKILL.md": {
+      "bytes": 5437,
+      "sha256": "aa6829e21df2223167c85d2e49b6337a7345c84c1033f1ec10182c7882b36d45"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\review-agent\\SKILL.md": {
+      "bytes": 2661,
+      "sha256": "07079efd0dc76f05fade424e5dfb048dce1de2df7626e1a4f56292a4f3f92228"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\license.txt": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\SKILL.md": {
+      "bytes": 15311,
+      "sha256": "6656e54755638e8efcf275a472b9672eaa8a9a1b9e59dc210e275b03b59e1e66"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\LICENSE.txt": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\SKILL.md": {
+      "bytes": 3367,
+      "sha256": "d68b77e5bbb34dedab89d134da52855f140fc4b4299b80104f534e3b9e98f8ee"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\agents\\openai.yaml": {
+      "bytes": 221,
+      "sha256": "5ce223d8b1070b82c42298538f1b8d376f788eb9e7a42a987e8c094070d73f0e"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\assets\\skill-installer-small.svg": {
+      "bytes": 923,
+      "sha256": "3928703ff00dc1a681e7a22401843b7edcbd4b2051651ce4c43b75f7e140504e"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\assets\\skill-installer.png": {
+      "bytes": 1086,
+      "sha256": "d0a230b1a79b71b858b7c215a0fbb0768d6459c14ea4ef80c61592629bf0e605"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\scripts\\github_utils.py": {
+      "bytes": 659,
+      "sha256": "61c1bbe2ae217433b4b6f9f09f21aca4df52c12598068343ade719f706e4859b"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\scripts\\install-skill-from-github.py": {
+      "bytes": 11917,
+      "sha256": "38f311b75664bb063808f982c600271ebc4b560830f491705190f88a94e3e781"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\scripts\\list-skills.py": {
+      "bytes": 2948,
+      "sha256": "9d6dfb2abf3afeee7f027a89fb1626b918a973da18f4eb6c25681286301beb41"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\agents\\openai.yaml": {
+      "bytes": 183,
+      "sha256": "d07d21b93fcf3d4dc8d9a3399c05fc226a49a333a96d3e1c68b451b8dd9eade6"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\assets\\skill-creator-small.svg": {
+      "bytes": 1319,
+      "sha256": "6591bf8ea9bb9435890dbdea299e0d2bd05f3aa893a335d26e4c535e93c8e7fb"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\assets\\skill-creator.png": {
+      "bytes": 1563,
+      "sha256": "a4024b0306ddb05847e1012879d37aaf1e658205199da596f5145ed7a88d9162"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\references\\openai_yaml.md": {
+      "bytes": 2356,
+      "sha256": "ffac39318e408108141d40f820968e59f70434a891694f9bf1d25be8237b150c"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\scripts\\generate_openai_yaml.py": {
+      "bytes": 6669,
+      "sha256": "816df12072d74faf924d802a6599a139997e1441e90bfe4869ec304f2e5e2851"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\scripts\\init_skill.py": {
+      "bytes": 10314,
+      "sha256": "bf0656a5f9d8d8cdecf0245eaf27e1df8e0e9b6d40ccdda814eb8e3d5f6992c8"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py": {
+      "bytes": 4249,
+      "sha256": "ee6dba90f44d37171c5a6edb8095979c54919ff6822c1a907afca2e78c48738c"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\review-agent\\agents\\openai.yaml": {
+      "bytes": 252,
+      "sha256": "4d867a46d15e36ac880176484aae160f59855340c6059b2ea6ab9fbc9af084de"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\agents\\openai.yaml": {
+      "bytes": 370,
+      "sha256": "44b9efac6be1bae32d869aa2942fecbe4dcae82682ee03e4120f2f9b7d4658ec"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\assets\\openai-small.svg": {
+      "bytes": 1091,
+      "sha256": "45be1f0757eb18889eefb1e7db79668ef46a275dc4e0e78e8df5ebd7f6cdeadc"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\assets\\openai.png": {
+      "bytes": 1429,
+      "sha256": "156cc84d7332bfe95b310350bd470b690d22aa33d65340cc6c2e06022946194c"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\codex-self-knowledge.md": {
+      "bytes": 7417,
+      "sha256": "8c8fb00e6e5cb1977924f5164684a6095427fa828bbc765225f17d9aeb79a912"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\latest-model.md": {
+      "bytes": 2147,
+      "sha256": "bdf241d505eb071b1c7b0b732f842b701348cf6eab95d1c36fd97edac64dd158"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\mcp-diagnostics.md": {
+      "bytes": 2318,
+      "sha256": "49bbd2f73df7bbd7f86c80425dea4da2d301c22046080399a36bfc0ca49509e9"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\model-migration.md": {
+      "bytes": 5094,
+      "sha256": "bef46671036c8e483b7f65df931171217d55a8d26098851c2f89784db8edca2f"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\model-selection.md": {
+      "bytes": 1344,
+      "sha256": "ba2d164abbca30435a460a0bc3a7d82398dce2bdf092705c98ba55b3f3af38a8"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\official-docs.md": {
+      "bytes": 3337,
+      "sha256": "7962f2dce55089b93bde4115bb89fd42f20993c1597a2b13edd4956f463875b9"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\prompting-guide.md": {
+      "bytes": 10166,
+      "sha256": "548d4ca73a34cd4b0041ef05a899592e8c50772b8f3a76c579ec941e403e19f6"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\upgrade-guide.md": {
+      "bytes": 1027,
+      "sha256": "ecac89155f910f064fd306e89c74585cabdb2142aba4f2acc0cead092ae1d1a5"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\upgrading-to-gpt-6-astra.md": {
+      "bytes": 18993,
+      "sha256": "62ef6d22684662a019d203834fe1205a07e4ca4c65dddcbabe1bb51efe1aa840"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\scripts\\fetch-codex-manual.mjs": {
+      "bytes": 16085,
+      "sha256": "f53eb6d2f286e9efcc397e8bee93a938e37296c90953e4e06e94899ef1b6c363"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\scripts\\resolve-latest-model-info": {
+      "bytes": 1038,
+      "sha256": "7354dbb030ca0736dd633a7ca1b930cf640abd40370725dea3a458cb51d49523"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\scripts\\resolve-latest-model-info.cjs": {
+      "bytes": 3937,
+      "sha256": "eeb1bb486018e16b37edfc06b1a37179dbc672982d501040d4f7142f29dd2e64"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\agents\\openai.yaml": {
+      "bytes": 275,
+      "sha256": "9ca574af14580dc7a2a3dc37a1796d17f93cb8850be66501f0799ef8603e9dc0"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\assets\\imagegen-small.svg": {
+      "bytes": 2889,
+      "sha256": "cff5f34f57ff60b3ee92eaedd17b15e96dd4b9e776df3e78936c9e00d42be294"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\assets\\imagegen.png": {
+      "bytes": 1711,
+      "sha256": "95952f644064eb9e890f98d8db07216347186526e4c41ad66d3420629eb86e20"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\cli.md": {
+      "bytes": 9655,
+      "sha256": "ecfc2e09261a0feb3482517a5fa0ff410cb7d1958e3cbd2ac6b61586f5b81405"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\codex-network.md": {
+      "bytes": 1779,
+      "sha256": "c88298ca4481f6116a16fa7987434fc977f8b311c1bbc0c3d862ffd0c5981148"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\image-api.md": {
+      "bytes": 6072,
+      "sha256": "dc975d7af8a4888967251a0276014b4a71ea30455294944b762256373ce3e569"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\prompting.md": {
+      "bytes": 8282,
+      "sha256": "b210b051c775860267080941eba968212bf0ac7fce581d75c5dcc217d8293f8b"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\sample-prompts.md": {
+      "bytes": 17617,
+      "sha256": "70474177d151855b175c6133de2aae1d90b7f146b0dab50ec830972c47d72183"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\scripts\\image_gen.py": {
+      "bytes": 34667,
+      "sha256": "b4345cf835e5b593b97df6bb2b70bda493b8a97eee4cabbc99b2fa57dba9b448"
+    },
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\scripts\\remove_chroma_key.py": {
+      "bytes": 13905,
+      "sha256": "a5893c4bd04b21abced33731ea89d2ac428e81d92a0368eb18ffbe4fda5253e2"
+    }
+  },
+  "cli_generated_extra_files": [
+    "run\\synthetic-home\\codex\\.sandbox_migration",
+    "run\\synthetic-home\\codex\\config.toml",
+    "run\\synthetic-home\\codex\\goals_1.sqlite",
+    "run\\synthetic-home\\codex\\goals_1.sqlite-shm",
+    "run\\synthetic-home\\codex\\goals_1.sqlite-wal",
+    "run\\synthetic-home\\codex\\installation_id",
+    "run\\synthetic-home\\codex\\logs_2.sqlite",
+    "run\\synthetic-home\\codex\\logs_2.sqlite-shm",
+    "run\\synthetic-home\\codex\\logs_2.sqlite-wal",
+    "run\\synthetic-home\\codex\\memories_1.sqlite",
+    "run\\synthetic-home\\codex\\memories_1.sqlite-shm",
+    "run\\synthetic-home\\codex\\memories_1.sqlite-wal",
+    "run\\synthetic-home\\codex\\queue_1.sqlite",
+    "run\\synthetic-home\\codex\\queue_1.sqlite-shm",
+    "run\\synthetic-home\\codex\\queue_1.sqlite-wal",
+    "run\\synthetic-home\\codex\\state_5.sqlite",
+    "run\\synthetic-home\\codex\\state_5.sqlite-shm",
+    "run\\synthetic-home\\codex\\state_5.sqlite-wal",
+    "run\\synthetic-home\\codex\\.tmp\\plugins.sync.lock",
+    "run\\synthetic-home\\codex\\skills\\.system\\.codex-system-skills.marker",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\LICENSE.txt",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\SKILL.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\LICENSE.txt",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\SKILL.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\review-agent\\SKILL.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\license.txt",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\SKILL.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\LICENSE.txt",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\SKILL.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\agents\\openai.yaml",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\assets\\skill-installer-small.svg",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\assets\\skill-installer.png",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\scripts\\github_utils.py",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\scripts\\install-skill-from-github.py",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-installer\\scripts\\list-skills.py",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\agents\\openai.yaml",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\assets\\skill-creator-small.svg",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\assets\\skill-creator.png",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\references\\openai_yaml.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\scripts\\generate_openai_yaml.py",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\scripts\\init_skill.py",
+    "run\\synthetic-home\\codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+    "run\\synthetic-home\\codex\\skills\\.system\\review-agent\\agents\\openai.yaml",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\agents\\openai.yaml",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\assets\\openai-small.svg",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\assets\\openai.png",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\codex-self-knowledge.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\latest-model.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\mcp-diagnostics.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\model-migration.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\model-selection.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\official-docs.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\prompting-guide.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\upgrade-guide.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\references\\upgrading-to-gpt-6-astra.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\scripts\\fetch-codex-manual.mjs",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\scripts\\resolve-latest-model-info",
+    "run\\synthetic-home\\codex\\skills\\.system\\openai-docs\\scripts\\resolve-latest-model-info.cjs",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\agents\\openai.yaml",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\assets\\imagegen-small.svg",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\assets\\imagegen.png",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\cli.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\codex-network.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\image-api.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\prompting.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\references\\sample-prompts.md",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\scripts\\image_gen.py",
+    "run\\synthetic-home\\codex\\skills\\.system\\imagegen\\scripts\\remove_chroma_key.py"
+  ]
+}

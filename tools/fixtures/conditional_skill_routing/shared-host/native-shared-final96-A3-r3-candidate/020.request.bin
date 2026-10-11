@@ -1,0 +1,1 @@
+{"op":"checkpoint","declaration":{"type":"checkpoint","kind":"Blocked before Core audit activation: the only released invocation preflight schema targets sg-help rather than requested sg-content; no audit or repair performed; scoped blocked report recorded"}}

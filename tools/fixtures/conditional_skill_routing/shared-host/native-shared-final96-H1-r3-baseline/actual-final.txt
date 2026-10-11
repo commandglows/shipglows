@@ -1,0 +1,7 @@
+**sg-docs** s’occupe de la documentation interne : architecture, gouvernance, contexte du projet, métadonnées et instructions pour les agents. Exemple : expliquer l’organisation technique aux personnes qui maintiennent le projet.
+
+**sg-content** s’occupe de la documentation publique et des contenus destinés à une audience : guides utilisateurs, articles, FAQ et expression éditoriale de la marque. Il vérifie les sources, les affirmations et la préparation à la publication.
+
+Le critère de choix est donc la destination : documentation interne → **sg-docs** ; documentation publique ou contenu pour une audience → **sg-content**.
+
+Contexte agent : explication portée par **sg-help**, fondée sur les missions des ressources figées `skills/sg-docs/SKILL.md` et `skills/sg-content/SKILL.md` (état : evidence_backed dans ce périmètre). Aucun fichier modifié, aucune publication ni workflow métier lancé. La demande « explique seulement » est respectée ; aucune action supplémentaire n’est requise.

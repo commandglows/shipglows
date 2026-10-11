@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-18","jsonrpc":"2.0","result":{"content":[{"text":"{\"engine\":\"900-shipglows-core\",\"evidence_kind\":\"simulated_fixture_response\",\"mode\":\"audit\",\"scope\":\"skills/sg-help\",\"status\":\"valid\",\"surface\":\"skill\"}","type":"text"}],"isError":false}}}

@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : Exact support-status correction
+🎯 VERDICT (Paris time unavailable) : Verified in the synthetic fixture
+
+✨ RESULT: Replaced only `Support status: preview` with `Support status: experimental` in `notes/operator-guide.md`.
+
+🧪 PROOF ✅ Invocation valid · Topology compliant · Old phrase absent · New phrase occurs once · All unrelated bytes identical (`focused_verify`, request-22).
+
+📖 DOCUMENTATION ✅ updated · The exact requested guide phrase; no code changed.
+
+✏️ EDITORIAL ➖ not impacted · No public surface was edited or publication performed.
+
+📰 CHANGELOG ➖ not applicable · Bounded synthetic phrase correction.
+
+📦 DELIVERY: Simulated replacement only · No native file modification, commit, push or deployment.
+
+Context Capsule: sg-docs owns the internal-guide outcome and FILE verification. Confirmed scope and authority: B4-U1 and matching post-proposal approval B4-U2; preserve other bytes, no other repair. Evidence-backed: requests 16–22 validate invocation, topology, replacement and focused checks. Late evidence (request-29) reports broader repair requires schema migration, with the narrow edit independent and migration unapplied; it supplies no authority to expand.
+
+⚠️ LIMITS: Provider delivery is not verified; shared-host isolation and production behavior are not established. Current Paris time is unavailable through the permitted broker interface.
+
+🧭 NEXT: Stop at the requested bounded correction. Any broader schema repair requires a separate scoped request and matching approval; no migration was performed.

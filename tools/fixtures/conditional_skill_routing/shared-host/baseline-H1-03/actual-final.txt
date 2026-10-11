@@ -1,0 +1,5 @@
+**sg-docs** s’occupe de la documentation interne : architecture, contexte du projet, gouvernance, métadonnées et instructions pour les agents. Exemple : mettre à jour une décision technique ou `AGENT.md`.
+
+**sg-content** s’occupe des contenus destinés au public : documentation utilisateur, tutoriels, FAQ, articles et expression éditoriale de la marque. Il vérifie les sources, les affirmations et l’adaptation au public avant publication.
+
+Le critère de choix est le destinataire : équipe et agents → **sg-docs** ; utilisateurs et audience → **sg-content**.

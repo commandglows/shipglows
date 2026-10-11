@@ -1,0 +1,1 @@
+{"argv":["/codex","app-server","--listen","stdio://"],"confinement":"caller WSL/bwrap --unshare-all","cwd":"/work/run/synthetic-project","environment":{"CODEX_HOME":"/work/run/synthetic-home/codex","HOME":"/work/run/synthetic-home","LANG":"C.UTF-8","NO_COLOR":"1","PATH":"/usr/bin:/bin","TMPDIR":"/work/run/synthetic-home"},"native_features_disabled":"NOT_PROVED"}

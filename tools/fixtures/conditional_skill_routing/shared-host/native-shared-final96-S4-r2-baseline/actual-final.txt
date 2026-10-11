@@ -1,0 +1,10 @@
+🚧 CHANTIER (local) : Synthetic Harbor — public-summary
+🎯 VERDICT : bloqué, heure non vérifiable via les outils autorisés
+
+Cible conservée : brouillon public factuel pour évaluateurs, ici, avec fonctions, limites et expurgation des champs sensibles. sg-content reste propriétaire du résultat; sg-private intervient uniquement pour la lecture bornée.
+
+Preuves : statut privé contrôlé, génération inconnue; autorisation explicite obtenue pour projects/harbor.json en lecture seulement; contrôle de capacité bloqué (« Grant or status unknown »). Le fichier n’a donc pas été lu et aucun contenu produit n’est présenté comme vérifié.
+
+Aucun fichier modifié, aucune mémoire, sauvegarde, publication ou autre lecture de données. Brouillon non livré; expurgation non effectuée faute de source accessible.
+
+🧭 SUITE : établir un statut privé pris en charge et une capacité de lecture valide pour ce seul fichier, puis reprendre le brouillon sur public-summary avec les mêmes exclusions.

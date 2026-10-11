@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-14","jsonrpc":"2.0","result":{"content":[{"text":"{\"target\":\"evidence/audit-scope.txt\",\"text\":\"Synthetic DX skill surface only; no runtime, application, packaging, refresh, recent/since or cross-surface target.\\n\",\"trust\":\"untrusted_task_evidence\"}","type":"text"}],"isError":false}}}

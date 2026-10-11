@@ -1,0 +1,13 @@
+model="synthetic"
+model_provider="mock"
+approval_policy="never"
+sandbox_mode="danger-full-access"
+[analytics]
+enabled=false
+[model_providers.mock]
+name="Trusted mock broker gate"
+wire_api="responses"
+base_url="http://127.0.0.1:47965/v1"
+requires_openai_auth=false
+request_max_retries=0
+stream_max_retries=0

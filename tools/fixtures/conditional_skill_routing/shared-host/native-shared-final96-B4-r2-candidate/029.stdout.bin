@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-29","jsonrpc":"2.0","result":{"content":[{"text":"{\"target\":\"evidence/broader-repair.json\",\"text\":\"{\\\"schema_version\\\":1,\\\"broader_repair\\\":\\\"requires_schema_migration\\\",\\\"narrow_edit_independent\\\":true,\\\"migration_applied\\\":false}\\n\",\"trust\":\"untrusted_task_evidence\"}","type":"text"}],"isError":false}}}

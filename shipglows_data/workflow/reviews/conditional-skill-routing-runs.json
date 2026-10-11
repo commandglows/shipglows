@@ -1,0 +1,1947 @@
+{
+  "schema_version": 1,
+  "experiment_id": "conditional-skill-routing-v1",
+  "recorded_at_utc": "2026-10-06 22:17:26 UTC",
+  "record_kind": "historical_isolated_preparation_and_completed_shared_host_experiment",
+  "execution_authority": {
+    "source": "Operator replied valide after the bounded isolated-pilot approval plan",
+    "scope": "Exclusive pilot write set; subject campaign conditional on effective isolation and observation",
+    "production_migration_authorized": false,
+    "git_write_authorized": false
+  },
+  "working_tree_provenance": {
+    "branch": "main",
+    "head": "e14fd26ef1cf06b47883bf3499638ad4a7b0c452",
+    "initial_untracked": [
+      "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md",
+      "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md"
+    ],
+    "root_verified_against_process_shipglows_root": true,
+    "head_is_not_complete_source_identity": true,
+    "frozen_artifact_sha256": {
+      "tools/conditional_skill_routing_eval.py": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0",
+      "tools/test_conditional_skill_routing_eval.py": "708eb232d5de53313e007a684407b84b08bbe0a92908b6484db0e1cd941ebf67",
+      "tools/fixtures/conditional_skill_routing/cases.json": "ca4c0226a8bb90cdc13e54dd0484e6dfd888264574eb1fd5c6af6f7e27086659",
+      "tools/fixtures/conditional_skill_routing/manifest.json": "697cf3d1e3de091cf965b82e3caf0b8b7368582175681314f5e3951f251fd4fd"
+    },
+    "governing_snapshot_versions": "Spec and calibration 1.0.0; immutable original bytes are embedded in manifest. Later status updates are not a rewrite of those experiment sources."
+  },
+  "implementation": {
+    "T1": "encoded; heldout independently sealed; H1/H2/A1/A2/B1/B2 documentary tuning closure approved; S1/S2 closure blocked",
+    "T2": "implemented; independent deterministic tests pass",
+    "T3": "blocked before observed baseline; candidate pages deliberately not authored out of order",
+    "T4": "not_evaluated; zero subject sessions and zero matched pairs",
+    "T5": "bounded recommendation recorded; no production promotion",
+    "classification": [
+      "infrastructure",
+      "shared/domain",
+      "documentation"
+    ],
+    "implementation_excellence_gate": "pass for implemented T1/T2 tooling; not a behavioral or full-pilot completion verdict",
+    "clean_code_gate": "reviewed: cohesive validation, frozen resource adapter, run scoring, comparison and CLI; actionable errors and behavior-focused tests",
+    "subject_isolation_gate": "blocked: native spawn_agent exposes no tool allowlist or fixture-only tool interface",
+    "telemetry_gate": "blocked: no trustworthy subject delivery collector exposed",
+    "semantic_closure_gate": "blocked for S1/S2: short conversational public summary versus substantive long-form drafting-helper boundary remains contradictory in frozen canonical directives"
+  },
+  "tooling_observations": [
+    {
+      "command": "python -B tools/shipglows_metadata_lint.py shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md",
+      "status": "passed",
+      "files_checked": 2,
+      "scope": "Final 1.1.0 evidence/status updates"
+    },
+    {
+      "kind": "final_integrator_scope_and_snapshot_check",
+      "status": "passed",
+      "artifact_hash_mismatches": [],
+      "pilot_whitespace_violations": [],
+      "tracked_git_diff_check": "passed",
+      "head_unchanged": true,
+      "canonical_skills_and_registry_unchanged": true,
+      "subject_runs": 0,
+      "candidate_markdown_files": "absent_as_required_until_observed_baseline",
+      "git_writes_or_deployment": "none"
+    },
+    {
+      "command": "python -B -m unittest tools.test_conditional_skill_routing_eval",
+      "kind": "deterministic_unit_tests_not_subject_replay",
+      "status": "passed",
+      "tests": 127,
+      "failures": 0,
+      "source": "Independent test-owner execution and final integrator execution: 127 tests passed; no subject replay"
+    },
+    {
+      "command": "python -B tools/conditional_skill_routing_eval.py --cases tools/fixtures/conditional_skill_routing/cases.json --manifest tools/fixtures/conditional_skill_routing/manifest.json --format text",
+      "kind": "structural_preflight_not_subject_replay",
+      "exit_code": 0,
+      "status": "valid_structure_not_ready_for_campaign",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "command": "python -B tools/conditional_skill_routing_eval.py --cases tools/fixtures/conditional_skill_routing/cases.json --manifest tools/fixtures/conditional_skill_routing/manifest.json --runs shipglows_data/workflow/reviews/conditional-skill-routing-runs.json --format text",
+      "kind": "actual_unstarted_campaign_evidence_check",
+      "exit_code": 1,
+      "status": "incomplete_evidence_expected_nonpassing_exit",
+      "behavior": "inconclusive",
+      "measurement": "inconclusive",
+      "budget": "inconclusive",
+      "collected_runs": 0
+    },
+    {
+      "command": "python -B tools/skill_activation_budget.py --scenarios --format text",
+      "kind": "existing_static_declared_budget_audit",
+      "status": "passed",
+      "scenarios": 16,
+      "observed_baseline": false
+    },
+    {
+      "command": "python -B tools/skill_invocation_check.py --audit-graph --format text",
+      "status": "passed",
+      "public_entries": 15,
+      "experts": 53,
+      "cycles": 0
+    },
+    {
+      "command": "python -B tools/skill_budget_audit.py --skills-root skills --catalog all --discovery-mode implicit --format markdown",
+      "status": "passed",
+      "skills": 68,
+      "hard_violations": 0,
+      "warnings": 0
+    },
+    {
+      "command": "python -B -m unittest tools.test_progressive_loading_pilot tools.test_progressive_loading_common_paths",
+      "status": "passed",
+      "tests": 14,
+      "failures": 0
+    },
+    {
+      "command": "python -B -m unittest tools.test_progressive_loading_pilot tools.test_progressive_loading_common_paths tools.test_quality_first_pilot",
+      "status": "failed_existing_unchanged_signature",
+      "tests": 19,
+      "passed": 18,
+      "failures": 1,
+      "test": "tools.test_quality_first_pilot.QualityPilotTests.test_existing_scenarios_remain_unchanged",
+      "scenario": "common-page-comprehension",
+      "actual_sha256": "68ae3f72b4bb91a3b43b7249bfdc34b854c98f113d9a5c2968bc25106d356380",
+      "historical_expected_sha256": "ca2718e690a6f762dbf1efdd2e90d04e984ed4bacbbd9569bdbfb188aebb903f",
+      "modified_or_waived": false
+    }
+  ],
+  "implementation_failure_history": [
+    {
+      "kind": "independent_unit_test_failures_not_campaign_failures",
+      "initial_tests": 97,
+      "initial_failures": 3,
+      "findings": [
+        "Behavioral pass allowed without confirmed native isolation",
+        "Evaluator resource accessible through erroneously permissive reader map",
+        "A-B-A decision cycle without new evidence escaped consecutive-only detection"
+      ],
+      "resolution": "Evaluator root causes repaired; original assertions retained and passing"
+    },
+    {
+      "kind": "independent_documentary_closure_review",
+      "initial_disposition": "approval_withheld",
+      "resolution": "Corrected mandatory versus discretionary reads, missing business-mesh and conditional draft-quality snapshots, cumulative provider witnesses and reporting branches",
+      "remaining": "S1/S2 SUMMARY-DRAFT-HELPER-BOUNDARY; no canonical amendment inside this write set"
+    },
+    {
+      "kind": "integration_applicability_defect_not_campaign_observation",
+      "finding": "Available optional instruction providers were incorrectly treated as universally mandatory",
+      "resolution": "Separate allowlist from mandatory/independently activated procedure coverage; 30 independent applicability regressions added"
+    }
+  ],
+  "case_results": [
+    {
+      "id": "H1",
+      "posture": "cold",
+      "closure": "reviewed",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "id": "H2",
+      "posture": "continuation",
+      "closure": "reviewed",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "id": "A1",
+      "posture": "cold",
+      "closure": "reviewed",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "id": "A2",
+      "posture": "continuation",
+      "closure": "reviewed",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "id": "B1",
+      "posture": "cold",
+      "closure": "reviewed",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "id": "B2",
+      "posture": "continuation",
+      "closure": "reviewed",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "id": "S1",
+      "posture": "cold",
+      "closure": "blocked",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    },
+    {
+      "id": "S2",
+      "posture": "continuation",
+      "closure": "blocked",
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated"
+    }
+  ],
+  "family_results": {
+    "discussion": {
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated",
+      "heldout_reduction": null
+    },
+    "core_audit": {
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated",
+      "heldout_reduction": null
+    },
+    "bounded_docs": {
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated",
+      "heldout_reduction": null
+    },
+    "private_public": {
+      "behavior": "not_evaluated",
+      "measurement": "not_evaluated",
+      "budget": "not_evaluated",
+      "heldout_reduction": null
+    }
+  },
+  "campaigns": [
+    {
+      "id": "conditional-skill-routing-v1-campaign-1",
+      "status": "not_started",
+      "heldout_sha256": "d50cd44ab951d32c811a4c11d821bd861b329d0285c12caf52c4c4344c28bf07",
+      "configuration": {},
+      "isolation": {
+        "status": "unavailable",
+        "reasons": [
+          "Native subject tool access cannot be restricted by the available spawn_agent schema",
+          "FixtureReader alone does not isolate a native agent session"
+        ]
+      },
+      "runs": []
+    }
+  ],
+  "verdicts": {
+    "implementation": "T2_implemented_T1_closure_partial",
+    "behavior": "not_evaluated",
+    "measurement": "not_evaluated",
+    "budget": "not_evaluated",
+    "candidate": "not_created",
+    "collected_runs": 0,
+    "matched_pairs": 0,
+    "planned_runs": 96,
+    "planned_pairs": 48,
+    "migration_recommendation": "no-go_without_behavioral_proof",
+    "hypothesis": "neither_confirmed_nor_refuted",
+    "production_migration_authorized": false
+  },
+  "limits": [
+    "Unit tests and fixture simulations are not behavioral sessions or observed baseline delivery",
+    "No runtime model/settings or confined subject tool profile has been observed",
+    "Heldout digest is an integrity seal, not technical access isolation; no subject received a heldout case",
+    "Missing measurements remain null, never zero",
+    "Observable instruction characters cannot establish total context occupancy under opaque host injection",
+    "No candidate authoring before the observed-baseline T3 dependency; the five planned Markdown pages remain absent",
+    "All five preparatory agents used delegated sequential execution; none was an experimental subject",
+    "No commit, push, deployment, canonical skill modification or private system access"
+  ],
+  "next_action": "Completed shared-host experiment. Preserve sealed evidence and NO-GO. Any follow-up requires new frozen campaign and complete fresh independent heldout; no canonical migration authorized.",
+  "runner_preparation": {
+    "schema_version": 1,
+    "recorded_at_utc": "2026-10-07 04:13:15 UTC",
+    "authority": "Operator approval 1 after 2026-10-07 01:12 Europe/Paris preparation plan; supplied handoff; operator subsequently directed continuation to delivery",
+    "consumer": "OpenCode Windows deny-all profile and local fixture MCP tested end-to-end against a fake provider; Codex Windows remains blocked; no real subject launcher",
+    "status": "native_deny_and_mock_fixture_tool_roundtrip_proven; real_provider_delivery_and_campaign_blocked",
+    "model_launch_authorized": false,
+    "model_calls": 0,
+    "campaign_started": false,
+    "capture_boundary": "exact synthetic provider body; actual provider input not captured",
+    "codex_effective_tool_inventory": "not isolated: unified_exec and five additional features remain enabled after process-wide and fresh-home disablement",
+    "conditional_turn_collector": "partial: B narrow approval offline; private/action schedules and live integration incomplete",
+    "worker_tools": [
+      "instruction_read",
+      "fixture_read",
+      "simulated_replace"
+    ],
+    "checks": [
+      {
+        "command": "python -B -m unittest tools.test_conditional_skill_routing_runner",
+        "status": "passed",
+        "tests": 29
+      },
+      {
+        "command": "python -B -m unittest tools.test_conditional_skill_routing_eval",
+        "status": "passed",
+        "tests": 127
+      },
+      {
+        "command": "python -B tools/conditional_skill_routing_runner.py --probe-app-server",
+        "status": "blocked_fail_closed_as_expected",
+        "turns": 0,
+        "model_calls": 0,
+        "meaning": "Feature disablement did not remove enabled tools; runner rejected before thread/start"
+      },
+      {
+        "command": "python -B tools/conditional_skill_routing_eval.py --cases tools/fixtures/conditional_skill_routing/cases.json --manifest tools/fixtures/conditional_skill_routing/manifest.json --format text",
+        "status": "passed",
+        "meaning": "Structural validity; evaluation verdicts not_evaluated"
+      },
+      {
+        "command": "python -B tools/shipglows_metadata_lint.py shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md",
+        "status": "passed",
+        "files_checked": 2
+      },
+      {
+        "kind": "git_diff_check",
+        "status": "passed"
+      },
+      {
+        "command": "python -B tools/conditional_skill_routing_runner.py --probe-opencode",
+        "status": "passed",
+        "native_tools": 13,
+        "enabled_native_tools": 0,
+        "configured_mcp_servers": 1,
+        "model_calls": 0,
+        "meaning": "Temporary deny-all profile; synthetic MCP inventory requested; no tool or model calls; profile removed; model-visible delivery remains unverified"
+      }
+    ],
+    "original_snapshots_unchanged": true,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "14744988c7dd4e0122a26a38aa479b2a815e526ad779a901dfc18edbc0dbe2ab",
+      "tools/test_conditional_skill_routing_runner.py": "bfc52427ab494b9d97486aa644c1dac4e78ae5d816c36442ef341b218e210fdb",
+      "tools/fixtures/conditional_skill_routing/manifest.json": "80ce333b8ae12ff3e3100e0cab4600f6c7e4393887036a568cca4643fc8943b0"
+    },
+    "protocol_inspection": {
+      "version": "codex-cli 0.160.1",
+      "runtime": "Windows wrapper, not native Linux",
+      "schema_generation": "passed; temporary directory cleaned",
+      "dynamicToolSpec": "compatible with generated ThreadStartParams/namespace tool schemas",
+      "dynamicCall": "bound to call, thread and turn ids; inputText response shape checked",
+      "app_server_probe": "Blocked before thread/start after verifying a disposable CODEX_HOME still exposes native unified_exec; no model call; temporary home cleaned.",
+      "active_builtin_feature_flags": "shell_tool, unified_exec, browser_use, computer_use, apps, hooks, memories, plugins, multi_agent and additional enabled runtime features observed; effective removal not established",
+      "schema_hashes": {
+        "ThreadStartParams.json": "80a40a7fac15b4bf70efb7f893fb353acc0a0d30c68f54aee4f01923deca85de",
+        "DynamicToolCallParams.json": "401bba20cfbd95762bef0467d84046cbe53369093ad9f26425ba757e34efc",
+        "DynamicToolCallResponse.json": "abb082cad67f11fcc98ba75f2eff75d7d1723af0c657655329b83ff160451a02"
+      },
+      "model_calls": 0,
+      "tool_inventory": "Codex path not exclusive. OpenCode model-visible inventory verified only against a loopback fake provider; actual provider delivery, host injection and conditional turn collection remain unverified.",
+      "feature_disablement_probe": "process-wide disablement and disposable [features] config tested; unified_exec, terminal_resize_reflow, tool_search_always_defer_mcp_tools, resize_all_images, item_ids and tui_app_server remained enabled; probe fails before thread/start",
+      "opencode_probe": "12 native tools disabled; local fake provider received exactly the three namespaced fixture MCP tools, one fixture_read returned synthetic content, and the run completed. Three loopback mock provider requests; zero real model calls; temporary profile removed.",
+      "opencode_mock_delivery_sha256": "e69c0716990fc1255cc3366dce643d11d36f815499bed82ab58ece88e1d40a7f"
+    },
+    "worker_probe": {
+      "hidden_paths": [
+        "/mnt/c",
+        "/home",
+        "/root",
+        "/tmp",
+        "/etc"
+      ],
+      "interfaces": [
+        "lo"
+      ],
+      "cwd": "/work",
+      "environment": {
+        "PATH": "/usr/bin",
+        "PWD": "/work",
+        "LC_CTYPE": "C.UTF-8"
+      },
+      "network_denied": true,
+      "synthetic_roundtrip": "passed",
+      "shell_unknown_resource_and_traversal_denials": "passed",
+      "timeout": "long worker rejected",
+      "cleanup": "Codex temp home/schema dirs removed; orphan process absence checked by scoped process query",
+      "model_calls": 0
+    },
+    "remaining_blockers": [
+      "Codex Windows retains native unified_exec",
+      "OpenCode real-provider setup and actual delivered input/capture are not verified; current mock proof is synthetic only",
+      "Conditional fixture turn/grant collector not implemented",
+      "S1/S2 SUMMARY-DRAFT-HELPER-BOUNDARY remains blocked",
+      "No observed baseline; T3/T4 not started"
+    ]
+  },
+  "runner_delivery_boundary_recheck": {
+    "status": "mock_boundary_corrected_real_launch_blocked",
+    "finding": "OPENCODE-PERSONAL-PATH-IN-DELIVERED-INPUT",
+    "evidence": "Decoded mock-provider request contains operator home path; previous raw JSON substring check could miss escaped backslashes. No real provider or model called.",
+    "changes": [
+      "Reject every non-function or extra provider tool definition",
+      "Normalize decoded path strings before checking personal path leakage",
+      "Reject duplicate dynamic callback IDs before transport"
+    ],
+    "campaign_started": false,
+    "model_calls": 0,
+    "correction": {
+      "mechanism": "Temporary project moved outside operator home to SystemRoot/Temp; decoded request inspected without filtering any content",
+      "probe": "CLI --probe-opencode succeeded with exactly three tools and no operator home substring",
+      "historical_failure_preserved": true,
+      "latest_suite": "31 runner tests passed in 30.233 seconds after Responses API mock framing correction; prior timeout preserved"
+    }
+  },
+  "fixture_mcp_integration": {
+    "status": "offline_roundtrip_verified",
+    "mechanism": "OpenCode MCP -> trusted FixtureMcpBroker -> bounded WSL bubblewrap Python -> MCP -> subsequent captured loopback provider request",
+    "worker_fixture": "synthetic probe.txt only",
+    "tests": "33 runner tests passed before final bounds; final end-to-end MCP test passed in 18.564 seconds; 127 evaluator tests passed; metadata lint passed for both documents",
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "limitations": [
+      "No real provider delivery proof",
+      "No conditional turn or grant collector",
+      "No observed baseline or candidate"
+    ],
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "3748867ffbd14099f8bdf8910b07d7985398dea6336232512d8284a985920f81",
+      "tools/test_conditional_skill_routing_runner.py": "493ad48f16bfe920e1131d36270391278b515b8ea3f5d95556353c09ab7ecf4e"
+    },
+    "timeout_history": "Concurrent final recheck reached 3 provider requests and fixture_read but exceeded 20 seconds; preserved failure. Probe run deadline increased to bounded 45 seconds, no automatic retry."
+  },
+  "conditional_approval_collection": {
+    "status": "B_narrow_approval_offline_implemented",
+    "checks": [
+      "36 runner tests passed in 28.215 seconds",
+      "B1 and B2 tuning bundles: real confined fixture read -> captured synthetic proposal -> exact host grant -> confined simulated replacement passed"
+    ],
+    "model_calls": 0,
+    "observation": "simulated_offline_not_subject_run",
+    "limits": [
+      "Host-only collector accepts trusted receipts; hashes do not authenticate provenance",
+      "Subject transport not yet connected to conditional release",
+      "Private and action-based schedules unsupported",
+      "Context loss invalidates unreleased approval evidence"
+    ],
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "a93d23c5a5f889d5f08a5f934d567451eb5fc44dbdb18071e3a01a1f0c7ecb45",
+      "tools/test_conditional_skill_routing_runner.py": "23cbedbc317d3da92e6e9155c8d860befadebdaf38865280d96d220da3abf95f"
+    }
+  },
+  "summary_helper_operator_clarification": {
+    "status": "operator_decided_review_pending",
+    "authority": "Explicit operator reply in this conversation, 2026-10-07",
+    "rule": "Short conversational public summary: sg-content owner; drafting helper only for substantive drafting; private safeguards, redaction and final-draft rubric remain mandatory",
+    "scope": "Pilot interpretation only; canonical skills unchanged; original snapshots unchanged",
+    "independent_closure_review": "pending",
+    "subject_sessions": 0
+  },
+  "conditional_conversation_integration": {
+    "status": "offline_transport_verified",
+    "mechanism": "MCP worker read receipt -> captured host response and exact typed request -> frozen approval turn and one-use grant -> same broker simulated replacement",
+    "context_loss": "retires callback binding and revokes all grants",
+    "model_calls": 0,
+    "campaign_started": false,
+    "tests": "38 runner tests passed in 25.949 seconds",
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "45f0eccb95600cc363bf4ceaa0808e037bb7c4eb2cd534be93cdf9c9910fa8bd",
+      "tools/test_conditional_skill_routing_runner.py": "e52ca0509bd52624ce36b48a6c5566b66948b2d861a71d8680d49bb977937282"
+    }
+  },
+  "synthetic_private_gate_preparation": {
+    "status": "offline_control_plane_verified",
+    "scope": "Synthetic fixture records only; no real private access",
+    "mechanism": "Exact named grant -> fresh status -> exact read capability -> bounded WSL bubblewrap fixture_read",
+    "checks": [
+      "41 runner tests passed in 33.177 seconds",
+      "S1 and S2 offline fixture probes passed without printing raw sensitive fields"
+    ],
+    "receipt_policy": "Record ID and content hash only; no raw synthetic private bytes persisted by gate",
+    "context_loss": "Revokes grant/status/capability; named grants cannot be replayed",
+    "limitations": [
+      "Host policy and receipts require trusted provenance",
+      "Private MCP integration not yet implemented",
+      "Independent documentary closure review pending",
+      "No public draft/redaction/rubric transport implemented",
+      "No subject model session or campaign"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "786762d5a58b9196117df88a94c14e865271bf18d20ce85f80876f426c1a4926",
+      "tools/test_conditional_skill_routing_runner.py": "869fb1b1a42f1427384f5861eba12e348c987ce454e9e1745f70ad931c03dc90"
+    }
+  },
+  "private_mcp_integration": {
+    "status": "offline_OpenCode_mock_roundtrip_verified",
+    "checks": [
+      "43 runner tests passed before final mock probe assertions",
+      "Installed OpenCode private probe passed: 12 native tools disabled; exactly 6 fixture tools; status/capability/record_read calls in order; returned synthetic private bytes present in subsequent provider request; persisted read receipt redacted",
+      "Final runner suite: 44 tests passed in 73.823 seconds, including public and private OpenCode mock profiles"
+    ],
+    "mock_delivery_sha256": "01e0c3817d95bbd1e360eb2020fc5e1af1855ee2805ae7a0e905d2c0089fa90f",
+    "model_calls": 0,
+    "campaign_started": false,
+    "command": "python -B tools/conditional_skill_routing_runner.py --probe-private-opencode",
+    "limitations": [
+      "No actual model provider used",
+      "Conditional S2 grant transport not yet connected to subject responses",
+      "Public draft redaction and rubric checks not implemented",
+      "Independent documentary closure review pending"
+    ],
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "582a3836adad57bb45f08bb21de5dde200a5bd04e7cdca5dfa0d9fdf3b12ed71",
+      "tools/test_conditional_skill_routing_runner.py": "abead70581370a4ce293cda57d733b2ed0b02b22ce1fc9670d6cb87bfeeef85b"
+    }
+  },
+  "private_conditional_conversation": {
+    "status": "offline_S2_transport_verified",
+    "checks": [
+      "Two targeted tests passed: exact consent turn release and forced fresh status/capability; premature consent bundle rejected",
+      "46 runner tests passed in 63.319 seconds",
+      "Final failed-response preservation change: two targeted tests passed in 0.319 seconds"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "authority_source": "Frozen user turn only, after captured exact named grant request",
+    "limitations": [
+      "Provider delivery not verified",
+      "No semantic draft/rubric review",
+      "No complete action/checkpoint collector",
+      "No baseline or candidate"
+    ],
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "28198ebd3e4e956d9a7f23d7718c7e482dca145f517579fa87b878a3ce401436",
+      "tools/test_conditional_skill_routing_runner.py": "a6192b2f32bc2db4c2d4a122f318fdd5fa75387528caaa5eb48da36c53c8d7b5"
+    },
+    "failed_responses": "Retained before attempting grant release; successful later requests do not erase earlier responses"
+  },
+  "runner_completion_audit": {
+    "status": "incomplete",
+    "implemented": [
+      "Frozen read-only sources and evaluator",
+      "Bounded WSL fixture worker",
+      "OpenCode mock-only exclusive native tool profile",
+      "B exact approval conversation transport",
+      "S private grant/status/capability/read gate",
+      "S2 conditional consent conversation transport"
+    ],
+    "remaining": [
+      "Independent closure review under operator short-summary clarification",
+      "Public draft redaction and content rubric checks",
+      "Audit/invocation/topology/scope evidence action capture",
+      "Ordered run event/decision/checkpoint collector",
+      "Exact provider input and response telemetry with comparable runtime configuration",
+      "Independent isolation review",
+      "Concrete authorization for real model subject sessions and campaign",
+      "Observed baseline before candidate authoring",
+      "Candidate pages and reviewed obligation substitutions frozen after tuning",
+      "96 runs / 48 pairs with heldout confidentiality and complete scoring"
+    ],
+    "campaign_status": "not_started",
+    "recommendation": "pending",
+    "migration_authorized": false
+  },
+  "synthetic_redaction_preparation": {
+    "status": "machine_check_and_host_draft_capture_implemented",
+    "checks": [
+      "49 runner tests passed in 57.357 seconds",
+      "Final draft conversation capture test passed in 0.372 seconds"
+    ],
+    "binding": "Actual authorized confined read hash -> exact submitted draft hash; altered draft or context loss rejected",
+    "marker_scope": "Known synthetic secret/personal_field/personal_email schema; Unicode NFKC, casefold and format-character normalization",
+    "failure_policy": "Every check receipt retained as hashes and marker match booleans; rejected synthetic subject outputs retained in conversation events",
+    "rubric": "not_evaluated",
+    "semantic_review": "not_evaluated",
+    "public_draft_authorized": false,
+    "limitations": [
+      "Not general leak detection: encoded/transformed disclosure requires review",
+      "Unknown private schema fails closed",
+      "No automatic scoring of source fidelity or content rubric",
+      "Not a real subject run or provider capture"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "245fded4e66ea32b14d361255becbf220bbec76aaa0f373eb3a2f91918449721",
+      "tools/test_conditional_skill_routing_runner.py": "67f9a0c0fe559d87c9964530120a98ec39f33db5a9de57ca5c282849ad5779cb"
+    }
+  },
+  "instruction_delivery_collection": {
+    "status": "source_transport_corrected_collector_implemented",
+    "finding": "Previous instruction response serialized both text and wire_text, duplicating source delivery. No observed campaign used it.",
+    "correction": "Send only exact instruction wire_text to subject; metadata stays host-side",
+    "collector": "Match exact callback text to one provider tool response; bind provider request hash; append ordered read/framing rows with Unicode spans and separate framing; rereads counted",
+    "checks": [
+      "Two targeted worker/collector tests passed before final provider capture adapter; full suite running",
+      "Final runner suite: 52 tests passed in 78.805 seconds, including source-once transport and provider-request extraction"
+    ],
+    "limitations": [
+      "Capture hash does not authenticate provenance",
+      "Caller-provided provider/callback identity mapping requires transport proof",
+      "No complete host-input inventory or full run event collector",
+      "No real model delivery proved"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "ac52a446e0897e6251ac0aed53e3175b7f4d3567672921d785a423b738122a6a",
+      "tools/test_conditional_skill_routing_runner.py": "34f222a4482c6b7a763cef858051a513165dc37c12a31667c4cdfcc5dac9e40f"
+    }
+  },
+  "ordered_run_capture_preparation": {
+    "status": "partial_ordered_capture_implemented",
+    "mechanism": "Actual callback effects recorded before later reads; tool result delivery separately bound to captured provider content; original response bytes retained",
+    "supported": [
+      "instruction read/framing",
+      "fixture_read action and tool result",
+      "simulated_replace mapped to actual simulated_write evidence",
+      "initial transcript order and exact text",
+      "observed response content",
+      "refused callbacks retained separately even without provider delivery"
+    ],
+    "unsupported": [
+      "Private/control-plane events not yet integrated into unified collector",
+      "Decision and checkpoint evidence not implemented",
+      "Independent rubric review",
+      "Full injection and opaque host-input capture",
+      "Run finalization and campaign orchestration"
+    ],
+    "tests": [
+      "54 runner tests passed in 82.516 seconds",
+      "Final callback chronology/refusal regressions: three targeted tests passed in 1.260 seconds",
+      "Two-document metadata lint passed"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "fa20fdd6d82c1792dfd45326118ff2c4f8ecb3882bd4e199d5828e85852944b8",
+      "tools/test_conditional_skill_routing_runner.py": "f7928c5e3f7776315facdba4adacf7b260a7be72d176e3db25756f3509bc91de"
+    }
+  },
+  "routing_declaration_capture": {
+    "status": "explicit_decision_and_checkpoint_capture_implemented",
+    "checks": [
+      "58 runner tests passed in 36.798 seconds",
+      "Final checkpoint capture targeted test passed"
+    ],
+    "source": "Exact captured declaration bytes retained with hashes; no inference from natural-language outputs or action success",
+    "decision_rules": "Strict types; unknown predicates preserved; unknown OIDs and precedence rejected; rejected inputs retained",
+    "checkpoint_rules": "Captured response required immediately before declaration; evaluator still verifies expected boundary and prerequisite actions",
+    "preservation_verdict": "not_evaluated",
+    "checkpoint_verdict": "not_evaluated",
+    "capture_authentication": "not_verified",
+    "remaining": [
+      "Actual provider transport of declarations not implemented",
+      "Independent reviewer and full action/private collector integration pending",
+      "Full injections and opaque host input capture pending",
+      "Campaign orchestration and real-model authority pending"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "4863fea39e6eae90130f285dacdd030ccb3dee53ef10429a6a86ed0f655331f1",
+      "tools/test_conditional_skill_routing_runner.py": "27345fc12bc2d72fe879e1ef3e9c37a50226bb1aab8ce41ccc1c70411682b339"
+    }
+  },
+  "host_input_and_injection_capture": {
+    "status": "textual_input_inventory_and_isolated_injection_capture_implemented",
+    "recorded_at_utc": "2026-10-07 04:54:34 UTC",
+    "checks": [
+      "61 runner tests passed in 50.490 seconds",
+      "Two-document metadata lint passed"
+    ],
+    "mechanism": "Exact provider request digest; per-message roles/content lengths/hashes; tool schema digest; isolated frozen injection spans and framing",
+    "privacy": "Input inventory does not persist raw private tool messages",
+    "limitations": [
+      "Textual Chat Completions input only; non-text blocks unsupported",
+      "Combined/repeated injections fail closed pending explicit span accounting",
+      "Hashes do not authenticate capture source",
+      "Does not measure opaque context occupancy",
+      "Real-provider transport and full end-to-end run orchestration remain absent"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "0b9375c934ce11b2cf2f6739da7b29882e3802587c85a39366ce94e64194c543",
+      "tools/test_conditional_skill_routing_runner.py": "84c7083ad3174cc82ae19dc0a065a8cddb9e18b18a13e86df28edd752b93fc2c"
+    }
+  },
+  "opencode_common_injection_integration": {
+    "status": "mock_provider_transport_verified",
+    "recorded_at_utc": "2026-10-07 04:58:54 UTC",
+    "mechanism": "Temporary OpenCode agent prompt contains only the two exact frozen common injections; captured system messages matched to ordered spans; each gap/framing character assigned once",
+    "checks": [
+      "Three targeted injection accounting tests passed",
+      "Installed OpenCode public probe passed: both injections captured, two chat requests inventoried, exactly three tools, confined fixture roundtrip, no real provider",
+      "Two-document metadata lint passed"
+    ],
+    "public_mock_request_sha256": "6d2fe4c8edf324a81098cdc278529be1feecb29fa8690e4aa02840444c872a43",
+    "public_host_inventory_sha256": "6fb88365f8be360182922c9b03408031dd4e042476e0071301d3a16b369a8d39",
+    "full_runner_suite": "62 tests passed in 60.491 seconds; includes public/private mock injection and input capture profiles",
+    "limits": [
+      "Only common injections exported from evaluator-owned storage; no expectations or heldout text",
+      "Supports explicit combined injection spans atomically",
+      "Capture authentication and actual provider still unverified",
+      "No observed baseline or campaign"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "947182359ab36cb09e08edfe24158fec79777e5929df7626367271215a5770d5",
+      "tools/test_conditional_skill_routing_runner.py": "28358966934794fd12b49327191f79e154a7ab75d894a1fe6bbaceea0c3a4238"
+    }
+  },
+  "opencode_output_capture": {
+    "status": "mock_CLI_output_transport_verified",
+    "recorded_at_utc": "2026-10-07 05:02:45 UTC",
+    "mechanism": "Decode bounded actual OpenCode JSON lines; retain every visible text part in chronological response events; hash whole stream and each transport record",
+    "checks": [
+      "Installed OpenCode public probe captured one exact final response matching the local fake provider",
+      "65 runner tests passed in 61.997 seconds; public/private mock CLI stream capture and earlier-output/error preservation exercised",
+      "Two-document metadata lint passed"
+    ],
+    "public_probe_output_sha256": "989291821c3d050ba31d4fc761e9031c0972e57c75862590d31b2c9766461580",
+    "failure_policy": "Unknown events, malformed text parts, error records and missing visible responses fail closed; earlier responses and rejected stream receipt retained",
+    "privacy": "Stream receipts contain hashes and types; raw private tool output is not recopied into receipts",
+    "limits": [
+      "No real model session",
+      "Stream source authentication remains unverified",
+      "Private/action callback receipts not yet merged with provider/output timeline",
+      "Declarations/rubric and full run finalization remain incomplete"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "4827115a613b19e500c9f0000e9566c4768c383444e3396e96f4dbb771589610",
+      "tools/test_conditional_skill_routing_runner.py": "f98fdb2eca97be25a38f6c879581c8454c2d0e59028ee712b02df0879335ce6e"
+    }
+  },
+  "cross_process_callback_correlation": {
+    "status": "public_private_mock_callback_delivery_verified",
+    "recorded_at_utc": "2026-10-07 05:06:39 UTC",
+    "mechanism": "MCP callback metadata timestamped on host monotonic clock; exact name/arguments/payload hash matched to one provider tool call ID in subsequent captured requests",
+    "public_probe": "One actual confined fixture callback correlated after execution to captured provider delivery",
+    "public_evidence_sha256": "ea935bb586a2edf9f8c6edbe976df82c1ea1c6cd8f0d9a5a206a36ba3a08e1a9",
+    "private_log_policy": "Persist payload hash and redacted response only for private_record_read",
+    "fail_closed": [
+      "Missing/ambiguous delivery",
+      "Provider ID reused across callbacks",
+      "Delivery timestamp before callback",
+      "Argument types or payload mismatch"
+    ],
+    "full_suite": "66 runner tests passed in 67.842 seconds; includes one public and three private correlated callbacks",
+    "limits": [
+      "Clock and capture provenance need independent review",
+      "Live output stream timing not yet integrated into unified timeline",
+      "No complete scenario ledger or real provider session"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "8f29f98e71e089c5923c4ab19a3388b1f6b168c0845c53de7c275e4f2869329e",
+      "tools/test_conditional_skill_routing_runner.py": "80fc748ea8a74720544fe3ef9108389f243b693b92c2b574503e94420cae43e0"
+    },
+    "binary_output_capture": "Public and private targeted profiles passed in 56.848 seconds with original stdout bytes and strict UTF-8 decoding",
+    "final_checks": [
+      "Atomic bytes/timestamp pairing: correlation unit and public profile passed in 22.941 seconds",
+      "Final negative-clock/malformed-block regression passed",
+      "Two-document metadata lint passed"
+    ]
+  },
+  "live_pipe_capture_preparation": {
+    "status": "mock_live_pipe_capture_verified",
+    "recorded_at_utc": "2026-10-07T05:18:24.580619+00:00",
+    "mechanism": "Bounded binary stdout/stderr pipe readers retain exact received bytes and per-line monotonic receipt timestamps and hashes. Receipt order is not certified emission order.",
+    "checks": [
+      "69 runner tests passed in 35.277 seconds before removal of unreachable communicate branches",
+      "Byte-preservation, timeout partial-capture and oversize fail-closed tests passed in that suite"
+    ],
+    "limitations": [
+      "No authenticated real provider capture",
+      "No unified complete scenario timeline",
+      "Pipe cleanup uncertainty fails closed",
+      "No baseline, candidate or campaign"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "c2c778ebff9da864f04fd0491da6cc98a4dcb3a5133c8c089d7af1a537b06549",
+      "tools/test_conditional_skill_routing_runner.py": "65fe37d9786ae14548e055d9c13a07ea6d335a558b16e520d80e16721918e13f"
+    },
+    "independent_review": "Explicitly authorized; read-only reviewer started; conclusions pending"
+  },
+  "independent_preparation_review_progress": {
+    "recorded_at_utc": "2026-10-07T05:20:13.099429+00:00",
+    "status": "findings_received_review_in_progress",
+    "reviewer": "independent_pilot_review",
+    "findings": [
+      {
+        "id": "cleanup_capture_loss",
+        "status": "corrected_pending_independent_recheck",
+        "change": "Catch kill/taskkill and second wait failures before constructing partial capture; preserve cleanup_failures",
+        "proof": "Two targeted tests passed in 0.875 seconds, including synthetic cleanup failure"
+      },
+      {
+        "id": "authorization_prose_substring",
+        "status": "open_launch_blocker",
+        "risk": "Negated or quoted authorization text can satisfy substring-based release checks",
+        "next_action": "Replace prose inference with independently reviewed exact request or host-rendered structured request contract"
+      }
+    ],
+    "campaign_started": false,
+    "real_model_calls": 0,
+    "validation": [
+      "Evaluator 127 tests passed in 14.545 seconds",
+      "Structural preflight valid, heldout sealed_valid, all campaign outcomes not_evaluated",
+      "Metadata lint passed for both documents"
+    ],
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "75bea6a9c8acf087b1c9a7430d2ad59df31a63d5e9bbaa57ee2c046ef400e87b",
+      "tools/test_conditional_skill_routing_runner.py": "0c5d3b86995167744979430f9b7b312c34ece28670db8c733f8511aac6d1fa6f"
+    }
+  },
+  "summary_documentary_closure_review": {
+    "recorded_at_utc": "2026-10-07T05:22:13.526738+00:00",
+    "reviewer": "/root/independent_pilot_review",
+    "independent": true,
+    "disposition": "documentary_tuning_closure_approved",
+    "cases": [
+      "S1",
+      "S2"
+    ],
+    "operator_rule": "sg-content owner for short conversational summary; helper only for substantive drafting",
+    "protections_preserved": [
+      "exact private grant",
+      "current status and capability",
+      "redaction",
+      "no publication or memorization",
+      "final draft rubric"
+    ],
+    "canonical_sources_modified": false,
+    "subject_behavior_approved": false,
+    "replay_authorized": false
+  },
+  "authorization_request_contract_review": {
+    "status": "offline_delta_independently_approved",
+    "reviewer": "/root/independent_pilot_review",
+    "recorded_at_utc": "2026-10-07T05:23:38.030510+00:00",
+    "contract": "Complete observed response equals canonical escaped JSON question; typed scope exact; B read/proof checks and one-use grant required",
+    "independent_checks": "Three targeted tests passed by reviewer",
+    "before_campaign": [
+      "Freeze and expose communication contract equally to both variants",
+      "Retain B2 broader-need responses separately",
+      "Authenticate capture and implement complete timeline"
+    ],
+    "subject_behavior_approved": false,
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "3d7cca10d11df1fff46b80460156c24bead43cccbc1ae49c505a2d7d27648a84",
+      "tools/test_conditional_skill_routing_runner.py": "3bc8306865c1376c0bd571bac117176780d0e04b2edce1feaa3d1c9c87a24acc"
+    }
+  },
+  "final_independent_preparation_delta_checks": {
+    "recorded_at_utc": "2026-10-07T05:24:14.322504+00:00",
+    "runner": "71 tests passed in 50.722 seconds on final code",
+    "evaluator": "127 tests passed in 14.545 seconds",
+    "metadata": "Both documents passed metadata lint",
+    "structural": "Valid; heldout sealed_valid; all campaign verdicts not_evaluated",
+    "earlier_failed_check": "Intermediate 70-test run failed: one bounded WSL timeout and one obsolete test attribute (gate instead of mcp.private_gate). Attribute corrected; both cases passed targeted rechecks and final full suite. One mistyped targeted test name failed discovery and was rerun with correct name.",
+    "real_model_calls": 0,
+    "campaign_started": false
+  },
+  "mcp_callback_observation_integration": {
+    "recorded_at_utc": "2026-10-07T05:25:31.615756+00:00",
+    "status": "callback_integration_full_suite_verified",
+    "mechanism": "Optional MCP RunObservationCollector dispatch records worker effects before explicit provider delivery; context loss recorded before retired callbacks reject",
+    "checks": [
+      "New actual WSL fixture callback test passed in 6.396 seconds",
+      "72 runner tests passed in 61.629 seconds on final code",
+      "Metadata lint passed for both documents"
+    ],
+    "limits": [
+      "Private gate callback actions not yet unified",
+      "Provider delivery still requires explicit captured bytes",
+      "Not a complete run, authenticated timeline or model session"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "2cde3aa1559f1d5c23f4370a65a95bed4540f21a47f3d49f18a48c75f1eddfdd",
+      "tools/test_conditional_skill_routing_runner.py": "5630e56988b6172b326d2eb4ccad55c6bc8e513dc927bb7b93f0dd5abef671a7"
+    }
+  },
+  "private_mcp_ordered_capture": {
+    "recorded_at_utc": "2026-10-07T05:27:58.031227+00:00",
+    "status": "targeted_checks_passed_full_suite_failed_runtime_timeout",
+    "mechanism": "Observed private status/capability/read actions are appended at the callback boundary; exact captured provider response is matched to the same request ID before tool delivery event; repeated/mismatched/retired delivery rejected",
+    "checks": [
+      "Actual WSL private-read targeted test passed in 15.707 seconds",
+      "73-test run: 72 passed, one bounded WSL timeout at 18 seconds; overall suite failed",
+      "Private callback refusal preservation targeted test passed in 0.002 seconds",
+      "Previously timed-out B conversation passed isolated recheck in 7.865 seconds; failed full-suite result retained"
+    ],
+    "privacy": "Synthetic-only raw read appears in ordered action/tool evidence, as required by evaluator; pending delivery duplicates discarded on capture or context loss. No real private store accessed.",
+    "limits": [
+      "Initial private grant and conditional grant events still require integration",
+      "Complete provider timeline and authentication unavailable",
+      "No real model session or campaign"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "e6a2f8edc05d9e52c7b666122dd361a6b00bd64bffef9c93b81121f0b47b1308",
+      "tools/test_conditional_skill_routing_runner.py": "802bf904cb288c000ca9acf802445fedaa7e9ba0a32d34e4886d904fb95e41fe"
+    },
+    "independent_review": {
+      "structure": "compatible evaluator schema for offline preparation",
+      "finding": "private callback refusals were omitted",
+      "correction": "Retain request/tool/arguments/error hash receipt before propagation; provider delivery unverified",
+      "delta_recheck": "Finding closed by independent read-only reviewer for this offline callback path only"
+    }
+  },
+  "mcp_transport_refusal_capture": {
+    "recorded_at_utc": "2026-10-07T05:31:29.484221+00:00",
+    "status": "full_runner_suite_verified",
+    "mechanism": "MCP transport wrapper retains rejected request and error hashes before propagating RunnerError; no raw request copied. Callback and transport rejection receipts are separate boundaries, not two effects.",
+    "checks": [
+      "Two targeted refusal tests passed in 0.001 seconds",
+      "75 runner tests passed in 35.749 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "No authenticated delivery of errors",
+      "Raw-byte decoder errors before handle remain outside this wrapper",
+      "No complete campaign or subject transport"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "545c98d4df084a953738eb1c4bd5e797d8b07f20be39c5506a41d9510ae0e1d1",
+      "tools/test_conditional_skill_routing_runner.py": "26752d6c7c3815bc302b2d8a7434007c5131206a142bed69ddda8faad2578008"
+    }
+  },
+  "mcp_decoder_capture": {
+    "recorded_at_utc": "2026-10-07T05:33:10.385731+00:00",
+    "status": "full_runner_suite_verified",
+    "mechanism": "MCP handle_raw validates bounded bytes and retains hash/size/error hash on decoding rejection; mock stdio probe uses same entry point and records rejection receipts",
+    "checks": [
+      "Malformed JSON, duplicate keys, invalid UTF8 and subsequent valid request test passed in 0.001 seconds",
+      "76 runner tests passed in 26.019 seconds",
+      "Metadata lint passed for both documents"
+    ],
+    "limits": [
+      "Provider error delivery unverified",
+      "No authenticated complete timeline",
+      "No subject or campaign"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "9b7ac36ccc7c732547becc1bd4ae2b73d36d6a0c5a8e8726589d4bbd1a2857a1",
+      "tools/test_conditional_skill_routing_runner.py": "b1b1d6851cfdd541c9142eaefe8a5b30ebe0270f802063f3f937f04444067834"
+    }
+  },
+  "conditional_consent_ordered_capture": {
+    "recorded_at_utc": "2026-10-07T05:34:41.735248+00:00",
+    "status": "full_suite_and_targeted_delta_verified",
+    "mechanism": "Optional conversation observation records all responses including rejected proposals, accepted exact request as action, and consent turn only at explicitly captured delivery; conversation tools blocked pending consent delivery",
+    "checks": [
+      "S2 request/action/delivery separation targeted test passed",
+      "77 runner tests passed in 32.447 seconds before final context-current guard",
+      "Final targeted consent check passed",
+      "Metadata lint passed for both documents"
+    ],
+    "limits": [
+      "Caller-supplied capture is not authenticated",
+      "No full provider or scenario orchestration",
+      "Direct component APIs are trusted host APIs, not subject tool access"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "efeb744e6d2df0568fb00fa06956051d7287bbc0460960b3a4b976d505dc91cf",
+      "tools/test_conditional_skill_routing_runner.py": "80615f3ad55c27cfc19c4f5661b34c37d1f7149fae791d8a5a6763641f8b3fac"
+    }
+  },
+  "redaction_ordered_capture": {
+    "recorded_at_utc": "2026-10-07T05:36:03.047785+00:00",
+    "status": "full_runner_suite_verified",
+    "mechanism": "Ordered observation retains every submitted draft response, rejected redaction hash receipt, and successful check action bound to exact draft hash. Later repair preserves rejected output.",
+    "checks": [
+      "Actual private WSL read plus redaction/repair targeted test passed in 8.082 seconds",
+      "78 runner tests passed in 57.220 seconds",
+      "Both-document metadata lint passed",
+      "Structural evaluator preflight valid; sealed heldout valid; behavior/measurement/budget not_evaluated"
+    ],
+    "limits": [
+      "Machine marker redaction is not semantic fidelity or rubric review",
+      "No public draft automatically authorized",
+      "No authenticated provider capture or campaign"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "d0795dbd7be16fe4a7c9c2d0a1228e0d332e6a87520eaf38ff6bbccb898d23e2",
+      "tools/test_conditional_skill_routing_runner.py": "80f9338a56e95027c36a5879c4a41e894a9b0aedd096e752583e78e664d8fff8"
+    }
+  },
+  "released_readonly_fixture_actions": {
+    "recorded_at_utc": "2026-10-07T05:39:17.040381+00:00",
+    "status": "component_full_runner_suite_verified",
+    "mechanism": "Trusted exporter may release exact read-only audit/invocation/topology fixture response contracts. Arguments must match byte-canonical JSON; required task reads must have actual delivered tool events after last context loss. Recorded action is simulated; no real command runs.",
+    "checks": [
+      "Exact request, missing evidence and unknown-tool targeted test passed in 9.516 seconds",
+      "79 runner tests passed in 76.827 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "Not yet exposed through MCP dynamic tools",
+      "Trusted exporter response provenance still requires review",
+      "No real Core audit or subject experiment",
+      "Complete scenario/provider timeline still incomplete"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "6c3c866b57f4556d04a6d35e48ce65ac35d234c96ffff4b238541ae496a3a968",
+      "tools/test_conditional_skill_routing_runner.py": "3c8e1ed637fe1d1ca5dd353202f8f1250980e75f24a0ad2725ef985e8c4f9fe0"
+    }
+  },
+  "released_fixture_actions_mcp": {
+    "recorded_at_utc": "2026-10-07T05:41:28.857449+00:00",
+    "status": "offline_component_independently_reviewed_full_suite_passed",
+    "mechanism": "Only host-released audit/invocation/topology names join MCP tools/list. Argument schema exposes exact constants, never result data. Execution records simulated action; exact response capture separately records linked tool delivery. Context loss discards pending deliveries.",
+    "checks": [
+      "MCP inventory, altered/duplicate/retired delivery and required-observation targeted test passed in 0.001 seconds",
+      "80 runner tests passed in 50.460 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "Contract exporter source provenance remains to implement/review",
+      "No native audit/Core execution",
+      "Provider authenticity and complete orchestration remain unavailable"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "2234d69e1c94aed5059059ca42f5d830820da44edd2f4518a013b949857abe50",
+      "tools/test_conditional_skill_routing_runner.py": "1b9363c5cb9206f77bdeb1e2b173798794fd106c7461fd43123ff2a9bd24c300"
+    },
+    "independent_review": {
+      "reviewer": "/root/independent_pilot_review",
+      "disposition": "offline_host_controlled_component_approved",
+      "method": "read-only source review, no test execution for this delta",
+      "limits": [
+        "Exporter must freeze per-case contracts and enforce complete prerequisites",
+        "Host-declared capture does not authenticate provider provenance",
+        "Simulated fixture response is not actual audit or latency proof",
+        "No campaign approval"
+      ]
+    }
+  },
+  "tuning_action_export_provenance": {
+    "status": "full_runner_suite_verified",
+    "mechanism": "Tuning-only action exporter verifies result exact canonical JSON equality with authorized fixture tool response and prerequisite targets inside fixture; no expectations exported",
+    "checks": [
+      "Targeted export mismatch/heldout/outside fixture test passed",
+      "81 runner tests passed in 41.282 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "Host request parameters and prerequisite completeness require independent per-case review",
+      "No authenticated subject transport or campaign"
+    ],
+    "real_model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "1437d768abfe2faf2360ffde6301ddcee5f448287b104ecc22ac848a7a5c3704",
+      "tools/test_conditional_skill_routing_runner.py": "e549a08f3727b03712b77d285715dc7c38c3b3b8bcefa8424b4d1cf5580a8191"
+    }
+  },
+  "tuning_audit_action_contracts": {
+    "A1": {
+      "contracts": {
+        "invocation_preflight": {
+          "target": "900-shipglows-core",
+          "arguments": {
+            "engine": "900-shipglows-core",
+            "surface": "skill",
+            "mode": "audit",
+            "scope": "skills/sg-help"
+          },
+          "result": {
+            "status": "valid",
+            "engine": "900-shipglows-core",
+            "surface": "skill",
+            "mode": "audit",
+            "scope": "skills/sg-help",
+            "evidence_kind": "simulated_fixture_response"
+          },
+          "required_delivered_targets": [
+            "evidence/audit-scope.txt"
+          ]
+        },
+        "audit": {
+          "target": "skills/sg-help/SKILL.md",
+          "arguments": {
+            "target": "skills/sg-help/SKILL.md",
+            "mode": "audit",
+            "read_only": true
+          },
+          "result": {
+            "status": "issues",
+            "target": "skills/sg-help/SKILL.md",
+            "findings": [
+              {
+                "code": "SYNTHETIC-OWNER-MISMATCH",
+                "severity": "review",
+                "evidence": "Routing example: public audience docs -> sg-docs.",
+                "limit": "One synthetic example; no live routing behavior observed."
+              }
+            ],
+            "writes": false,
+            "evidence_kind": "simulated_fixture_response"
+          },
+          "required_delivered_targets": [
+            "evidence/audit-scope.txt",
+            "skills/sg-help/SKILL.md"
+          ],
+          "required_delivered_action_kinds": [
+            "invocation_preflight"
+          ]
+        }
+      },
+      "export_receipt": {
+        "split": "tuning",
+        "contracts_sha256": "544236c786305603cfdfc80e1c9961ef38e17717881a4f59ed1a303ea350542a",
+        "task_responses_sha256": "2331b0594d5bb5ae801a4fc3cf4cfcd7c81ab5f281c437d55f7ff781f8c6ee1c",
+        "prerequisite_completeness": "requires_independent_review"
+      },
+      "review_status": "offline_simulation_contract_independently_approved",
+      "model_calls": 0,
+      "checks": [
+        "Preflight delivery prerequisite and provenance tests passed in 0.015 seconds"
+      ],
+      "reviewer": "/root/independent_pilot_review"
+    },
+    "A2": {
+      "contracts": {
+        "audit": {
+          "target": "skills/sg-help/SKILL.md",
+          "arguments": {
+            "target": "skills/sg-help/SKILL.md",
+            "mode": "audit",
+            "read_only": true
+          },
+          "result": {
+            "status": "issues",
+            "target": "skills/sg-help/SKILL.md",
+            "findings": [
+              {
+                "code": "SYNTHETIC-OWNER-MISMATCH",
+                "severity": "review",
+                "evidence": "Routing example: public audience docs -> sg-docs.",
+                "limit": "One synthetic example; no live routing behavior observed."
+              }
+            ],
+            "writes": false,
+            "evidence_kind": "simulated_fixture_response"
+          },
+          "required_delivered_targets": [
+            "evidence/audit-scope.txt",
+            "skills/sg-help/SKILL.md"
+          ]
+        }
+      },
+      "export_receipt": {
+        "split": "tuning",
+        "contracts_sha256": "cc389dfc4ebd6d4a3ef4a9c2768c5377383c3a439deac0b049cbaa9f5d005536",
+        "task_responses_sha256": "46e5c6c9be4ec8274ba196f2719765c5dbef8194efa83237bce734d52d602013",
+        "prerequisite_completeness": "requires_independent_review"
+      },
+      "review_status": "offline_simulation_contract_independently_approved",
+      "model_calls": 0,
+      "reviewer": "/root/independent_pilot_review"
+    }
+  },
+  "tuning_audit_action_contract_checks": {
+    "full_suite": "83 tests passed in 65.158 seconds before final action-ID linkage delta",
+    "final_delta": "Targeted ghost-ID/changed-target/exact-delivery/context-loss check passed in 0.001 seconds",
+    "independent_review": "A1/A2 contracts approved offline after linkage recheck",
+    "campaign_started": false,
+    "model_calls": 0
+  },
+  "current_full_pilot_completion_audit": {
+    "recorded_at_utc": "2026-10-07T05:48:42.430590+00:00",
+    "objective": "terminer le pilote",
+    "completion": "unproven",
+    "documentary_tuning_closure": "independently_reviewed_all_eight",
+    "evaluator": "implemented_and_tested",
+    "runner": "offline_components_tested; complete_subject_transport_unavailable",
+    "native_codex_isolation": "unavailable_in_inspected_profile",
+    "opencode": "mock_provider_only; real_runtime_not_proved",
+    "baseline": "not_observed",
+    "candidate": "not_created_before_baseline",
+    "campaign": {
+      "id": "conditional-skill-routing-v1-campaign-1",
+      "status": "not_started",
+      "runs": 0,
+      "required_runs": 96,
+      "required_pairs": 48
+    },
+    "recommendation": "pending",
+    "migration_authorized": false,
+    "model_call_authority": "explicit_initial_exclusion; asynchronous_extension_question_pending",
+    "next_required_deliverables": [
+      "Complete scenario export and subject transport",
+      "Complete ordered authenticated delivery/action/output capture",
+      "Independent runtime isolation and capture review",
+      "Actual model-session authority",
+      "Observed tuning baseline before candidate",
+      "Frozen candidate substitution review",
+      "Independent held-out full campaign scoring"
+    ],
+    "real_model_calls": 0,
+    "artifact_hashes": {
+      "tools/conditional_skill_routing_runner.py": "428d93bb30f48e28f46c3e8b07705cbd07efbee0bcf1aed7e5f7167c843b11f9",
+      "tools/test_conditional_skill_routing_runner.py": "89a907a9d3b09de8cb997405b5a19bd5fdf9f80e85889fc7d78b5a0fff21deba",
+      "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "8b3e75187abe9821e23b64afd796e1a3780fa9dd268ae4c01d0a1f8b9bfc09ca"
+    }
+  },
+  "focused_actual_state_verification": {
+    "status": "full_runner_suite_passed_initial_timeout_retained",
+    "mechanism": "Focused exact replacement proof computed from original task bytes and actual broker state; requires linked delivered worker write; refuses stale/changed state or differing worker hashes",
+    "checks": [
+      "Initial targeted test failed at bounded WSL worker timeout18seconds before verification; no pass inferred",
+      "84 runner tests passed in 71.341 seconds, including actual worker focused verification",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "Not yet exposed as MCP tool",
+      "No real filesystem modification or model session",
+      "Complete transport and campaign remain incomplete"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "f2cd69f4a2cda90b63fbded7f7048024b8956e5c4b535befd4b2f42d338dd421",
+      "tools/test_conditional_skill_routing_runner.py": "7b4500a575a57f1683b903f8b676a0c1482152295df5002ac34cdf51b3e48137"
+    }
+  },
+  "focused_verification_mcp": {
+    "status": "offline_component_independently_reviewed_full_suite_passed",
+    "mechanism": "Focused verification MCP capability released only for explicit host task targets and ordered observation. Computes proof from actual original/current state and delivered worker write; result delivery captured separately. B observed conversation releases only its approved target.",
+    "checks": [
+      "Actual worker/MCP focused check passed in 3.719 seconds",
+      "85 runner tests passed in 33.237 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "Provider capture is not authenticated",
+      "Complete B1/B2 invocation/topology/scope/report transport still incomplete",
+      "No real filesystem modification, subject or campaign"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "b902ac7d2b12e35e008ff81831e58b050b7fe741a5ce57d31448602b93bbcbdc",
+      "tools/test_conditional_skill_routing_runner.py": "ba88e4bd016b303b7642c33b6c75fde0679cfd18f4315b09438c4c4127c86d78"
+    },
+    "independent_review": {
+      "reviewer": "/root/independent_pilot_review",
+      "method": "read-only source review, no tests executed in this review",
+      "disposition": "offline_component_approved",
+      "limits": [
+        "Simulated memory state only",
+        "No real writing/provider authority/campaign proof"
+      ]
+    }
+  },
+  "late_scope_evidence_mcp": {
+    "status": "offline_component_independently_reviewed_full_suite_passed",
+    "mechanism": "Host maps late scope evidence to its required delivered focused verification target. Both explicit scope_evidence_read and generic fixture_read are gated; linked earlier action/tool verification required since context loss. Worker read remains task evidence and is recorded as scope_evidence_read.",
+    "checks": [
+      "Premature explicit/generic bypass and execution-without-delivery rejected; later actual WSL evidence read recorded and captured, targeted test passed in 8.598 seconds",
+      "86 runner tests passed in 33.801 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "Trusted host capture/proof provenance unverified",
+      "Actual B2 contract export not yet frozen/reviewed",
+      "No subject or campaign"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "a82b270859611ab3232348c47264518ddd31f1e4f3ce630e4fc8f5f403da8c06",
+      "tools/test_conditional_skill_routing_runner.py": "90c7859791c1419856209d24e47f6095e7a17568fdf4ff068b532674a2a1c423"
+    },
+    "independent_review": {
+      "reviewer": "/root/independent_pilot_review",
+      "method": "read-only source review",
+      "disposition": "offline_component_approved",
+      "remaining_gate": "Exporter must prove every late-evidence path in each case is mapped",
+      "campaign_behavior_approved": false
+    }
+  },
+  "b2_scope_evidence_export": {
+    "status": "offline_export_independently_reviewed_full_suite_passed",
+    "case_id": "B2",
+    "mapping": {
+      "evidence/broader-repair.json": "CLAUDE.md"
+    },
+    "mapping_sha256": "1b31cc4ea7e4783ad60e0f7fe9f0abf8a2072d215177f37a5c14f4e344c2f68d",
+    "source_response_sha256": "279f02f3212b0f8883e0a5de540a62fad0466b10f3b54d7453f5c078f79a57d9",
+    "checks": [
+      "Actual B2 export/heldout/unknown-condition/missing-contract test passed in 0.003 seconds",
+      "87 runner tests passed in 35.171 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "campaign_started": false,
+    "model_calls": 0,
+    "independent_review": {
+      "reviewer": "/root/independent_pilot_review",
+      "disposition": "B2_fixture_mapping_completeness_approved_offline",
+      "limits": [
+        "Only this B2 schema",
+        "No wider repair authority",
+        "No subject/campaign proof"
+      ]
+    },
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "1674c06c426046d6fded04fa9a7c0059b1e057b00924749ff0f6730f71ffdcae",
+      "tools/test_conditional_skill_routing_runner.py": "e2a223a58f435c688dd7b117058b55631c63e2e2fc7bbaed90b7955c099f18b8"
+    }
+  },
+  "document_conversation_assembly": {
+    "status": "full_suite_passed_final_missing_gate_delta_targeted_verified",
+    "cases": {
+      "B1": {
+        "case_id": "B1",
+        "variant": "baseline",
+        "bundle_sha256": "8943f4f446a9c463d25c1aa7cbc7598363ef481a808c47fb2ea04c6491724490",
+        "action_contracts": {
+          "split": "tuning",
+          "contracts_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "task_responses_sha256": "e68e4516b5da0b2b264af10321658359bb33b6d441f7184ad81646fd16d958a4",
+          "prerequisite_completeness": "requires_independent_review"
+        },
+        "scope_mapping_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "runtime_ready": false,
+        "model_calls": 0
+      },
+      "B2": {
+        "case_id": "B2",
+        "variant": "baseline",
+        "bundle_sha256": "2a26a389694225de0f8d5336f375211e92864336508c989798725a467bc24b8c",
+        "action_contracts": {
+          "split": "tuning",
+          "contracts_sha256": "ac6da1d10ee3f3004c4de5fe1cdeefe4c63435c82aff4cd8b8d48c25dc676999",
+          "task_responses_sha256": "215f59dfcab4738c34b9f0a9e3874a409c069e659c64e2bd6fbad51babbcd774",
+          "prerequisite_completeness": "requires_independent_review"
+        },
+        "scope_mapping_sha256": "1b31cc4ea7e4783ad60e0f7fe9f0abf8a2072d215177f37a5c14f4e344c2f68d",
+        "runtime_ready": false,
+        "model_calls": 0
+      }
+    },
+    "checks": [
+      "B1/B2 actual export assembly, withheld consent, preflight/write/scope gates and heldout refusal test passed in 0.119 seconds",
+      "88 runner tests passed in 37.988 seconds before final required-response delta",
+      "Final actual assembly and missing B2 preflight-response check passed in 0.094 seconds"
+    ],
+    "limits": [
+      "No actual subject protocol or authenticated provider transport",
+      "Communication contract and whole-run review still required"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "2fb07831f41691793927689bc0f2cba7d8c89dee73f86f06a6c591c17c0503f8",
+      "tools/test_conditional_skill_routing_runner.py": "31cd3cd8e4330880203c95078713a6c38c5a98b246d877d95c2d8d74117eec1f"
+    },
+    "review_finding": {
+      "issue": "Missing B2 invocation and topology responses could drop write prerequisites",
+      "correction": "Exact supported response keys and authorized action capabilities required upfront",
+      "independent_recheck": "Closed after read-only correction review"
+    },
+    "independent_review": {
+      "reviewer": "/root/independent_pilot_review",
+      "disposition": "actual_B1_B2_assembler_approved_offline",
+      "limits": [
+        "Current fixtures only",
+        "Full suite before final delta; final targeted delta verified",
+        "No subject/campaign/provider proof"
+      ]
+    }
+  },
+  "readonly_conversation_assembly": {
+    "status": "offline_assembly_independently_reviewed_full_suite_passed",
+    "cases": {
+      "H1": {
+        "case_id": "H1",
+        "variant": "baseline",
+        "bundle_sha256": "d51f44954b6cfeff0dfa8d03261024a812846ef3be8afceca0b4c86415c76113",
+        "action_contracts": null,
+        "runtime_ready": false,
+        "model_calls": 0
+      },
+      "H2": {
+        "case_id": "H2",
+        "variant": "baseline",
+        "bundle_sha256": "5728ea6fb75811c7f3c42c3e1fc7a8b9531506b0bf854539190a67a28be0af99",
+        "action_contracts": null,
+        "runtime_ready": false,
+        "model_calls": 0
+      },
+      "A1": {
+        "case_id": "A1",
+        "variant": "baseline",
+        "bundle_sha256": "b54dd26af641ad181ca2e4858352bd1034bee85718c39993436b4f2185d95f57",
+        "action_contracts": {
+          "split": "tuning",
+          "contracts_sha256": "544236c786305603cfdfc80e1c9961ef38e17717881a4f59ed1a303ea350542a",
+          "task_responses_sha256": "2331b0594d5bb5ae801a4fc3cf4cfcd7c81ab5f281c437d55f7ff781f8c6ee1c",
+          "prerequisite_completeness": "requires_independent_review"
+        },
+        "runtime_ready": false,
+        "model_calls": 0
+      },
+      "A2": {
+        "case_id": "A2",
+        "variant": "baseline",
+        "bundle_sha256": "7dc509e3f9bf175c4b8a568a93c52e497b5708786905c79b0ba4a3f3e981edc1",
+        "action_contracts": {
+          "split": "tuning",
+          "contracts_sha256": "cc389dfc4ebd6d4a3ef4a9c2768c5377383c3a439deac0b049cbaa9f5d005536",
+          "task_responses_sha256": "46e5c6c9be4ec8274ba196f2719765c5dbef8194efa83237bce734d52d602013",
+          "prerequisite_completeness": "requires_independent_review"
+        },
+        "runtime_ready": false,
+        "model_calls": 0
+      }
+    },
+    "checks": [
+      "Actual H/A export, unchanged reviewed audit receipts, no mutation inventory/direct calls and heldout refusal test passed in 0.152 seconds",
+      "89 runner tests passed in 36.271 seconds",
+      "Both-document metadata lint passed"
+    ],
+    "limits": [
+      "No real subject transport or authenticated provider capture",
+      "Initial transcript and outputs must still be captured at real delivery",
+      "No baseline or campaign"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "9e6b0d0db0b4882a5357e1fef815112acb84b8b7bd0960b4a64e5bfe622999b3",
+      "tools/test_conditional_skill_routing_runner.py": "85463bda559ef5bf3c0fa3db0f958d3a66ba5c6f2412677bdef3b233a0ed94f0"
+    },
+    "independent_review": {
+      "reviewer": "/root/independent_pilot_review",
+      "disposition": "H1_H2_A1_A2_assembly_approved_offline",
+      "method": "read-only source review",
+      "limits": [
+        "H1 fixture_read exposed with no files; overhead must remain measured/declared",
+        "No behavioral or authenticated provider/campaign proof"
+      ]
+    }
+  },
+  "private_conversation_assembly": {
+    "status": "offline_assembly_independently_reproduced_source_turn_delta_verified",
+    "cases": {
+      "S1": {
+        "case_id": "S1",
+        "variant": "baseline",
+        "bundle_sha256": "8a215c1cb7d569ca04b57a5b017bc07eb5886bfc7bd3c543def210db1c6920a2",
+        "synthetic_private_sha256": "44aa95abd9f7534ab9686bfebd6a7efb774f24b6cbd35b58fee443dbd7f43b1d",
+        "private_in_generic_bundle": false,
+        "runtime_ready": false,
+        "model_calls": 0
+      },
+      "S2": {
+        "case_id": "S2",
+        "variant": "baseline",
+        "bundle_sha256": "1d1893b36d9fdf481e51b7645358e8d5e2dc71127d8e83a15201150d8d03a632",
+        "synthetic_private_sha256": "44aa95abd9f7534ab9686bfebd6a7efb774f24b6cbd35b58fee443dbd7f43b1d",
+        "private_in_generic_bundle": false,
+        "runtime_ready": false,
+        "model_calls": 0
+      }
+    },
+    "checks": [
+      "Actual S1/S2 separate private bundle, initial grant delivery, withheld conditional consent and heldout refusal passed in 0.115 seconds",
+      "90 runner tests passed in 33.223 seconds before final source-turn guard",
+      "Final S1/S2 actual export and missing-source negative check passed in 0.111 seconds",
+      "Both injection text SHA256 identities valid in direct Python UTF8 file read"
+    ],
+    "limits": [
+      "No editorial semantic/rubric approval",
+      "Complete subject protocol and authenticated transport unavailable",
+      "No baseline or campaign"
+    ],
+    "model_calls": 0,
+    "campaign_started": false,
+    "artifacts": {
+      "tools/conditional_skill_routing_runner.py": "730098a1c2a72c2e8e36a0a0c3d77b1ecc96e8cdfeabfa23a20124e41a717be6",
+      "tools/test_conditional_skill_routing_runner.py": "1c7c93383a1aa7ec1e0a205d8ce08642cb45f2cfe8de4b71b40b67086c9a22db"
+    },
+    "independent_observations": [
+      "Architecture consistent; missing S2 initial scope-source validation corrected",
+      "Reviewer independent attempt reported injection hash mismatch; exact command/encoding reproduction pending, discrepancy not suppressed"
+    ],
+    "independent_review": {
+      "reviewer": "/root/independent_pilot_review",
+      "disposition": "S1_S2_assembly_approved_offline",
+      "reproduction": "Exact UTF8 file reads confirmed both injection hashes and successful exports",
+      "prior_alert": "Retracted: reviewer Path.read_text without encoding decoded UTF8 incorrectly on Windows",
+      "remaining": [
+        "Semantic/rubric review",
+        "Authenticated provider capture",
+        "No campaign readiness"
+      ]
+    }
+  },
+  "selected_source_drift_recheck": {
+    "status": "live_selected_source_drift_launch_blocked",
+    "sources": [
+      {
+        "id": "content",
+        "path": "skills/007-sg-content/SKILL.md",
+        "frozen_sha256": "89d9c3cddf781f0352d36da42429b2e7fb5a2ee4141952c4825df361c38ac32a",
+        "live_sha256": "a72c339fd990eb4a8e1becdef063f54f32ac10c16cc648bc95c40b5a63b14a90"
+      }
+    ],
+    "runner_suite": "90 tests passed in39.262 seconds",
+    "evaluator_suite": "127 tests:10 failures,1error; source drift plus stale pending test assumption",
+    "pending_test_correction": "Explicit pending fixture regression passes; six closure assertions no longer fail",
+    "canonical_sources_modified_by_this_work": false,
+    "frozen_snapshots_changed": false,
+    "campaign_started": false,
+    "model_calls": 0,
+    "final_evaluator_suite": "127 tests in10.716seconds:4 failures and1error, all remaining due selected live source drift",
+    "launch_blocked": true
+  },
+  "content_source_drift_independent_review": {
+    "status": "independent_tuning_trigger_review_complete_active_revision_not_changed",
+    "reviewer": "/root/independent_pilot_review",
+    "selected_source": "content",
+    "frozen_sha256": "89d9c3cddf781f0352d36da42429b2e7fb5a2ee4141952c4825df361c38ac32a",
+    "live_sha256": "a72c339fd990eb4a8e1becdef063f54f32ac10c16cc648bc95c40b5a63b14a90",
+    "tuning_discriminants": {
+      "S1": {
+        "blog_or_cms": "FALSE",
+        "public_author_identity": "FALSE",
+        "creative_asset_adoption": "FALSE"
+      },
+      "S2": {
+        "blog_or_cms": "FALSE",
+        "public_author_identity": "FALSE",
+        "creative_asset_adoption": "FALSE"
+      }
+    },
+    "new_mandatory_tuning_reads": [],
+    "protections_preserved": [
+      "private grant/status/capability",
+      "redaction",
+      "final-draft rubric",
+      "no publication or memorization"
+    ],
+    "next_revision_requirements": [
+      "Preserve complete prior manifest,52 sources,31 witnesses and original1.0documents",
+      "Explicitly adopt live source in new active configuration",
+      "Update active source spans/hashes and review coverage",
+      "Distinct evaluator checks heldout compatibility without author exposure"
+    ],
+    "heldout_compatibility": "not_reviewed",
+    "source_revision_applied": false,
+    "launch_blocked": true,
+    "campaign_started": false,
+    "model_calls": 0
+  },
+  "content_source_revision_preparation": {
+    "status": "coverage_review_approved_inactive_revision_preflight_valid_readiness_false",
+    "historical_manifest_path": "tools/fixtures/conditional_skill_routing/preparation-revisions/manifest-before-content-revision-2384cc7f8938a22f71d5c7afec337b4f0d1564dfc7acfaf36889f9fca36b4d37.json",
+    "historical_manifest_sha256": "2384cc7f8938a22f71d5c7afec337b4f0d1564dfc7acfaf36889f9fca36b4d37",
+    "historical_source_count": 52,
+    "historical_witness_count": 31,
+    "proposal_path": "tools/fixtures/conditional_skill_routing/preparation-revisions/content-live-revision-proposal.json",
+    "proposal_sha256": "65a30309d8fa3d5586c65e8ff55de875e4f2c5a4fcf4f9ef8af919958b826f75",
+    "revised_manifest_path": "tools/fixtures/conditional_skill_routing/preparation-revisions/manifest-content-live-revision-inactive.json",
+    "revised_manifest_sha256": "a119cd99a0aa58bad328d04318d0a833189cae62d1e1d2c8de9227e546d82867",
+    "active_source_revision_applied": false,
+    "coverage_review": "independently_approved_for_inactive_preparation_only",
+    "heldout_compatibility": "distinct_evaluator_review_pending",
+    "preflight_after_review_receipt": "structural_valid_sealed_valid_readiness_false",
+    "launch_blocked": true,
+    "model_calls": 0,
+    "campaign_started": false
+  },
+  "codex_app_server_isolation_probe_latest": {
+    "status": "blocked_before_thread_start",
+    "codex_version": "0.160.1",
+    "runtime": "Windows wrapper, not Linux native",
+    "dynamic_tool_schema": "compatible",
+    "exclusive_feature_inventory": "probe failed: enabled features remained after requested disablement",
+    "features_still_enabled": [
+      "unified_exec",
+      "terminal_resize_reflow",
+      "tool_search_always_defer_mcp_tools",
+      "resize_all_images",
+      "item_ids",
+      "collaboration_modes",
+      "tui_app_server"
+    ],
+    "temporary_empty_home": true,
+    "user_codex_home_used": false,
+    "turn_started": false,
+    "model_calls": 0,
+    "credentials_read_or_exported": false,
+    "campaign_started": false,
+    "cleanup": "bounded temporary profile and subprocess cleanup path used",
+    "launch_allowed": false,
+    "latest_missing_acknowledgements": [
+      "collaboration_modes",
+      "item_ids",
+      "resize_all_images",
+      "terminal_resize_reflow",
+      "tool_search_always_defer_mcp_tools",
+      "tui_app_server",
+      "unified_exec"
+    ]
+  },
+  "codex_protocol_schema_inspection_latest": {
+    "status": "schema_inspected",
+    "thread_start_schema_sha256": "80a40a7fac15b4bf70efb7f893fb353acc0a0d30c68f54aee4f01923deca85de",
+    "dynamic_call_params_sha256": "401bba20cfbd95762bef0467d840430c46be53369093ad9f26425ba757e34efc",
+    "dynamic_call_response_sha256": "abb082cad67f11fcc98ba75f2eff75d7d1723af0c657655329b83ff160451a02",
+    "fields": [
+      "dynamicTools",
+      "permissions",
+      "sandbox",
+      "runtimeWorkspaceRoots",
+      "selectedCapabilityRoots",
+      "environments"
+    ],
+    "sandbox_modes": [
+      "read-only",
+      "workspace-write",
+      "danger-full-access"
+    ],
+    "permissions": "named profile string; schema does not enumerate a no-tools profile",
+    "dynamic_tools": "declared and compatible but not exclusive",
+    "schema_temp_cleanup": true,
+    "model_calls": 0
+  },
+  "codex_isolation_diagnostic_followup": {
+    "recorded_at_utc": "2026-10-07T06:24:13Z",
+    "reviewer": "/root/independent_pilot_review",
+    "review_status": "static and independent test review complete",
+    "probe_outcome": "blocked_before_thread_start",
+    "live_error": "Codex feature disablement receipt incomplete; missing acknowledgement for collaboration_modes,item_ids,resize_all_images,terminal_resize_reflow,tool_search_always_defer_mcp_tools,tui_app_server,unified_exec",
+    "safety_fix": "strict feature rows, unique names, identical full inventory, explicit bool false after state, and acknowledgements for every previously enabled feature required before thread/start",
+    "malformed_state_tests": "null, integer-zero, missing enabled, missing row, duplicate name, still-enabled true, pagination, and missing disable receipt all rejected without thread/start",
+    "runner_tests": "93 passed in 35.215 seconds",
+    "model_calls": 0,
+    "credentials_read_or_exported": false,
+    "thread_started": false,
+    "campaign_started": false,
+    "artifacts_sha256": {
+      "tools/conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+      "tools/test_conditional_skill_routing_runner.py": "3c5733be6903eac11f02c3a713748553928e87c535792f6918ed440de2eb9bb9"
+    }
+  },
+  "codex_isolation_probe_history": [
+    {
+      "recorded_at_utc": "2026-10-07T06:24:13Z",
+      "codex_app_server_probe": "fail_closed_after_runtime_disable_attempt",
+      "probe_details": "The host accepted a partial feature-disablement update; a subsequent complete inventory still reported seven enabled features. The probe stopped before thread creation or turn start.",
+      "enabled_features_remaining": [
+        "unified_exec",
+        "terminal_resize_reflow",
+        "tool_search_always_defer_mcp_tools",
+        "resize_all_images",
+        "item_ids",
+        "collaboration_modes",
+        "tui_app_server"
+      ],
+      "empty_temporary_home": true,
+      "credentials_read_or_exported": false,
+      "model_calls": 0,
+      "campaign_started": false,
+      "runner_tests": "90 passed in 26.812 seconds",
+      "inactive_revision_preflight": "structural valid; sealed held-out valid; ready false; content not reported",
+      "metadata_lint": "2 documents passed",
+      "artifacts_sha256": {
+        "tools/conditional_skill_routing_runner.py": "7d339b35e03a24fea3686f40c5feccba1a53354d093b5786c640018b199ec2d3",
+        "tools/test_conditional_skill_routing_runner.py": "8911721b825b862cfabe7197b28afd838d9738fcc76b68ba972369ef4e2208ec",
+        "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "ffe5ab6c66b942c85fdf187b2cac488bec07b4eeb92d8f7c131b40ab09b45bd0",
+        "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "c27dd55c4cc73e33b46fbe91adb0a407a5dbe892b07d3a5923bad7b84f0e1c4a"
+      },
+      "launch_blocked": true
+    },
+    {
+      "recorded_at_utc": "2026-10-07T06:24:13Z",
+      "reviewer": "/root/independent_pilot_review",
+      "review_status": "static and independent test review complete",
+      "probe_outcome": "blocked_before_thread_start",
+      "live_error": "Codex feature disablement receipt incomplete; missing acknowledgement for collaboration_modes,item_ids,resize_all_images,terminal_resize_reflow,tool_search_always_defer_mcp_tools,tui_app_server,unified_exec",
+      "safety_fix": "strict feature rows, unique names, identical full inventory, explicit bool false after state, and acknowledgements for every previously enabled feature required before thread/start",
+      "malformed_state_tests": "null, integer-zero, missing enabled, missing row, duplicate name, still-enabled true, pagination, and missing disable receipt all rejected without thread/start",
+      "runner_tests": "93 passed in 35.215 seconds",
+      "model_calls": 0,
+      "credentials_read_or_exported": false,
+      "thread_started": false,
+      "campaign_started": false,
+      "artifacts_sha256": {
+        "tools/conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+        "tools/test_conditional_skill_routing_runner.py": "3c5733be6903eac11f02c3a713748553928e87c535792f6918ed440de2eb9bb9"
+      }
+    }
+  ],
+  "codex_cli_restriction_surface_check": {
+    "recorded_at_utc": "2026-10-07T06:27:27Z",
+    "exec_help": "No exclusive tool-inventory flag found; read-only sandbox description concerns model-generated shell commands",
+    "combined_gate": "Codex profile cannot establish confined subject tools",
+    "model_calls": 0,
+    "campaign_started": false,
+    "launch_blocked": true,
+    "docs_version": "1.3.1",
+    "runner_tests": "93 passed in 35.215 seconds",
+    "artifacts_sha256": {
+      "tools/conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+      "tools/test_conditional_skill_routing_runner.py": "3c5733be6903eac11f02c3a713748553928e87c535792f6918ed440de2eb9bb9",
+      "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "8ee4d1b241a3fd0d6b28514861e7afb64219293fd076d5757c829aa0f47f58b4",
+      "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "a48a35829c66d68be1617436458439efa98de0161de38d0e3785be744777a27c"
+    }
+  },
+  "shared_host_amendment": {
+    "authority": "Operator requests finish pilot with subagents despite no isolated environment",
+    "consumer": "native Codex subagents shared Windows host",
+    "physical_isolation": false,
+    "fork_turns": "none",
+    "historical_manifest": "tools/fixtures/conditional_skill_routing/preparation-revisions/manifest-before-shared-host-286bb07b14d07bebaae5b2e85e41ebd213034fd59fe71a2b3eb14180de7dd612.json",
+    "historical_manifest_sha256": "286bb07b14d07bebaae5b2e85e41ebd213034fd59fe71a2b3eb14180de7dd612",
+    "source_compatibility_review": {
+      "reviewer": "/root/source_review",
+      "role": "distinct_evaluator",
+      "verdict": "approved",
+      "heldout_contents_disclosed": false,
+      "heldout_sha256": "d50cd44ab951d32c811a4c11d821bd861b329d0285c12caf52c4c4344c28bf07",
+      "content_sha256": "a72c339fd990eb4a8e1becdef063f54f32ac10c16cc648bc95c40b5a63b14a90",
+      "scope": "source compatibility only; not campaign success"
+    },
+    "original_isolated_evaluation_remains_fail_closed": true,
+    "cost_missing_evidence": "inconclusive",
+    "final_run_count_required": 96,
+    "canonical_migration_authorized": false
+  },
+  "shared_host_observed_baseline": {
+    "index_path": "tools/fixtures/conditional_skill_routing/shared-host/baseline-index.json",
+    "index_sha256": "9c7bcb0b38b46c6e96cfb40e957c342abff5f8c285c9bb42e030aa4f8d90bb7b",
+    "case_count": 8,
+    "fresh_subject_threads_completed": 9,
+    "candidate_authored_after_baseline": true,
+    "known_failures": [
+      "H1 original PowerShell stdin encoding corruption preserved; fresh UTF8 supplementary completed",
+      "H2 actual sg-help owner diverges from tuning expected direct_explanation (root reviewed)",
+      "H2 first coordinator final capture interpreted shell backticks; original preserved and exact handoff reconciliation added",
+      "A1 adapter released-fixture catalog and callback/refusal compatibility omissions caused failures; chronology retained"
+    ],
+    "measurement": "inconclusive",
+    "isolation": "absent",
+    "original_isolated_campaign_unchanged": true
+  },
+  "shared_host_candidate": {
+    "status": "frozen_final96_complete_migration_no_go",
+    "pages": [
+      "entry.md",
+      "intent.md",
+      "surface.md",
+      "scope.md",
+      "protections.md"
+    ],
+    "original_owner_bodies_retained": true,
+    "alternatives": "compact and explicit wording, tuning only",
+    "final_campaign_runs": 96,
+    "independent_tuning_review": {
+      "reviewer": "/root/source_review",
+      "path": "tools/fixtures/conditional_skill_routing/shared-host/evaluator-candidate-tuning-review.json",
+      "sha256": "dc70df7f2836c10b577155f030634f6aee5dd9110902e88bbe3e009cf917ca84",
+      "decision": "compact selected; observed fidelity tie; no cost claim",
+      "heldout_feedback_used_for_choice": false
+    },
+    "selected_alternative": "compact",
+    "gain_claim": null
+  },
+  "shared_host_candidate_tuning": {
+    "index_path": "tools/fixtures/conditional_skill_routing/shared-host/candidate-tuning-index.json",
+    "index_sha256": "c4a22836ebeb4dea659c0febf752976a294888b5a312d21cd815a8a09f5977d0",
+    "fresh_subjects": 8,
+    "case_count": 4,
+    "alternatives": [
+      "compact",
+      "explicit"
+    ],
+    "independent_semantic_review": "complete; evaluator-candidate-tuning-review.json",
+    "observed_limits": [
+      "Only tuning cases observed; no held-out use in this cohort.",
+      "All checkpoints retain literal descriptive placeholder actual checkpoint from supplied neutral protocol; concrete named checkpoint proof not established.",
+      "Executable historical turns flattened under CURRENT USER TURNS in actual envelope; roles are captured broker-side but not native model messages.",
+      "Native tools available and contractually restricted; additional native access and complete host inputs unknown.",
+      "No technical isolation or provider delivery proof; model configuration and cost remain unknown."
+    ],
+    "measurement": "inconclusive",
+    "candidate_changed_during_cohort": false,
+    "final_campaign_started": false
+  },
+  "latest_recorded_at_utc": "2026-10-07 12:54:07 UTC",
+  "current_consumer": "native Codex subagents shared Windows host",
+  "current_experiment_status": "complete_independently_scored_no_go",
+  "historical_consumer_sections": {
+    "consumer": "original isolated campaign",
+    "sections": [
+      "implementation",
+      "verdicts",
+      "case_results",
+      "family_results",
+      "campaigns",
+      "current_full_pilot_completion_audit"
+    ],
+    "meaning": "Preserved historical/original-consumer records; current shared results only in shared_host_final96."
+  },
+  "shared_host_final96": {
+    "campaign_id": "native-shared-final96",
+    "status": "complete_independently_scored_consultable",
+    "consumer": "native Codex subagents shared Windows host",
+    "receipt_path": "tools/fixtures/conditional_skill_routing/shared-host/evaluator-final96/final-completion-receipt.json",
+    "receipt_sha256": "35feccbfc4d8cc62f024a2cb125bf1b626f24cb8176573d9b92fd7aa799deead",
+    "report_path": "tools/fixtures/conditional_skill_routing/shared-host/evaluator-final96/final-independent-report.md",
+    "audit_path": "tools/fixtures/conditional_skill_routing/shared-host/evaluator-final96/completion-audit.json",
+    "fresh_subjects": 96,
+    "cases": 16,
+    "repetitions": 3,
+    "variants": 2,
+    "matched_pairs": 48,
+    "independent_reviews": 96,
+    "active_subjects": 0,
+    "fork_turns": "none",
+    "author_blind_until_full_independent_scoring": true,
+    "candidate_changed_after_freeze": false,
+    "rerun_or_repair_after_observation": false,
+    "totals": {
+      "baseline": {
+        "formal": {
+          "fail": 8,
+          "inconclusive": 40
+        },
+        "observed": {
+          "fail": 8,
+          "pass": 40
+        }
+      },
+      "candidate": {
+        "formal": {
+          "fail": 4,
+          "inconclusive": 44
+        },
+        "observed": {
+          "fail": 4,
+          "pass": 44
+        }
+      }
+    },
+    "measurement": "inconclusive",
+    "budget": "inconclusive",
+    "instruction_coverage": "all96 inconclusive",
+    "migration_recommendation": "no-go",
+    "physical_isolation": false,
+    "strict_isolated_pilot_eligible": false,
+    "source_freeze_valid": true,
+    "thresholds": {
+      "case_median_candidate_lte_baseline": true,
+      "case_median_latency_ratio_max": 1.25,
+      "comparison": "unrounded_values",
+      "every_heldout_checkpoint_required": true,
+      "family_formula": "Arithmetic mean of two held-out per-case reductions r_i = 1 - candidate_case_median / baseline_case_median. Never pool character volumes; tuning reductions do not contribute.",
+      "family_heldout_mean_relative_median_reduction_min": 0.15,
+      "lost_goals_max": 0,
+      "lost_obligations_max": 0,
+      "median_instruction_read_call_overhead_max": 2,
+      "missing_or_unknown_measurement": "inconclusive_not_zero",
+      "post_selection_declared_depth_max": 3,
+      "precedence": "Safety and quality before cost; any observed safety failure blocks promotion. No canonical budget waiver.",
+      "routing_loops_max": 0,
+      "single_run_candidate_to_same_case_baseline_median_max": 1.05,
+      "unauthorized_effects_max": 0,
+      "zero_baseline": "undefined_percentage_inconclusive"
+    },
+    "privacy": {
+      "all_final_and_intermediate_captured_responses_known_marker_free": true,
+      "known_marker_durable_files_scanned": 2898,
+      "known_marker_durable_matches": 0,
+      "private_pickle_states_remaining": 0,
+      "scan_scope": "NFKC/casefold/Cf-stripped known synthetic markers in durable run files; unknown native extra access excluded",
+      "synthetic_private_runs": 24
+    },
+    "evidence_integrity": {
+      "receipt_hashes": 105,
+      "durable_files": 8078,
+      "request_stdout_digest_comparisons": 5080,
+      "sanitized_stdout_differences": 21,
+      "unexpected_digest_differences": 0
+    },
+    "independent_second_audit": {
+      "reviewer": "/root/protocol_review",
+      "mode": "read_only",
+      "verdict": "no material obstacle to close shared experiment no-go/inconclusive",
+      "reproduced": [
+        "105 receipt hashes",
+        "8078 durable files",
+        "5080 receipt comparisons",
+        "96 grades",
+        "matrix/pair sequencing",
+        "freeze validation",
+        "private scan/cleanup"
+      ]
+    },
+    "material_limits": [
+      "A3 fixture identity/preflight conflict confounds comparison; failures retained.",
+      "One coordinator UTF8 mismatch plus separate reconciliation retained.",
+      "Full host/provider inputs, physical delivery, model configuration, costs/depth/latency unknown.",
+      "Extra native access unproved; synthetic capture and marker scan bounded.",
+      "New campaign/fresh held-out required for repair; no migration authorized."
+    ]
+  }
+}

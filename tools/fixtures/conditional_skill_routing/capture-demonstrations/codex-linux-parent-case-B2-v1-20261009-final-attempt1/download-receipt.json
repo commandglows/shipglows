@@ -1,0 +1,11 @@
+{
+  "tarball_url": "https://registry.npmjs.org/@openai/codex/-/codex-0.160.1-linux-x64.tgz",
+  "archive_sha256": "dc9ebd133d3af19ccac4bd5515a5049005b8b05ef3bd558d257d44f32a94f758",
+  "integrity": "sha512-sIDhqV+bsZKKVaVFVY5iB+pAzyOz2XRm3H1KXCsSJwGj5p98qnrT0Fweo1Hfe7WnyTp8mfBNdbVzUeO+mHYugA==",
+  "member": "package/vendor/x86_64-unknown-linux-musl/bin/codex",
+  "archive_bytes": 163294814,
+  "elf_bytes": 289166920,
+  "elf_sha256": "f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35",
+  "temporary_folder": "C:\\Users\\Diane\\AppData\\Local\\Temp\\sg-case-parent-runtime-349t8vu7",
+  "reverified": true
+}

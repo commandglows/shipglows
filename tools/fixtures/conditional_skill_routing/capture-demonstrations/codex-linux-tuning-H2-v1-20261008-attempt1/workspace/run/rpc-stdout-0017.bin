@@ -1,0 +1,1 @@
+{"method":"warning","params":{"threadId":"01a11ce0-69ce-7d61-9062-2b149144198d","message":"Model metadata for `synthetic` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."},"emittedAtMs":1791485833124}

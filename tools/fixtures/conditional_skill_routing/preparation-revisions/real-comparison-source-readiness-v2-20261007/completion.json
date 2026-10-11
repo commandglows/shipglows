@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "readiness_sha256": "d871186ef65ca50dd2c7e74b43e07b1eed8ea41dd7dcbee8b026540f95b5457a",
+  "sealed_references_unchanged": 105,
+  "selected_count": 48,
+  "selected_drift": [],
+  "snapshots_bytes": 458926,
+  "source_count": 52
+}

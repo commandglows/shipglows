@@ -1,0 +1,9 @@
+event: tool_result
+data: {"draft_sha256":"a6490c97f2adbe022713e9eeb1c644dc17fc5bba5dd08f6bd77865ab76406696","status":"blocked"}
+
+event: usage
+data: {"input_tokens":7,"label":"fictional_synthetic_usage","output_tokens":3}
+
+event: done
+data: {"synthetic":true}
+

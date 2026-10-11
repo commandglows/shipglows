@@ -1,0 +1,57 @@
+{
+  "child_sha256": "8556c5bb4105ec3440e4acb4ac4edc466f45b5e3f02cc51dc8647302925fbff1",
+  "child_dependencies": {
+    "tools/conditional_skill_routing_cli_broker_profile.py": {
+      "bytes": 44778,
+      "sha256": "7c25cf087b5a1d4e800889bb1ccd16fad8e65da2b16f3085dd6c4a4e72e07dd7"
+    },
+    "tools/conditional_skill_routing_parent_transport.py": {
+      "bytes": 17854,
+      "sha256": "0ab459436259c04556988e48b6b944df0483269e5ff060fd132a8282634ac190"
+    }
+  },
+  "parent_dependencies": {
+    "tools/conditional_skill_routing_comparison_case_controller.py": {
+      "bytes": 17468,
+      "sha256": "5066ac33b9cd94434abdb87b3185836d23de6eaa1644a7b40f095d5cef5c2de2"
+    },
+    "tools/conditional_skill_routing_comparison_adapter.py": {
+      "bytes": 24487,
+      "sha256": "f63762a3153a39dd288f3c85f8e86197a0830851a46f5a6fd1ef95a0f8ad0249"
+    },
+    "tools/conditional_skill_routing_responses_accounting.py": {
+      "bytes": 17143,
+      "sha256": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543"
+    },
+    "tools/conditional_skill_routing_cli_tuning_transport_probe.py": {
+      "bytes": 25388,
+      "sha256": "50d484d1f87eea51e3db7254e2495eb3db7dbd7a7f477273290b12a6678e2ace"
+    },
+    "tools/conditional_skill_routing_runner.py": {
+      "bytes": 146757,
+      "sha256": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b"
+    },
+    "tools/conditional_skill_routing_eval.py": {
+      "bytes": 137883,
+      "sha256": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0"
+    },
+    "tools/conditional_skill_routing_shared_campaign.py": {
+      "bytes": 21210,
+      "sha256": "b04c4f757c1b18a80d27b4b3c55550b865ba190aaacc86aad7be55f0eed11c4f"
+    },
+    "tools/skill_activation_budget.py": {
+      "bytes": 18033,
+      "sha256": "b9da02a6dbf255764415337a9100f3a0c77f3e1c70581ba549934aa587390f81"
+    },
+    "tools/conditional_skill_routing_parent_https.py": {
+      "bytes": 16982,
+      "sha256": "d95a6139ff4188e28eb23581ed359d61893453afb85ea526fa8dc927a3cbc89b"
+    },
+    "tools/conditional_skill_routing_verified_runtime.py": {
+      "bytes": 3365,
+      "sha256": "fa1230e2302016ff5e2b89014bb8c090719dfc50003e26db85b69321d5a5a625"
+    }
+  },
+  "baseline_manifest_sha256": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25",
+  "public_cases_sha256": "ca4c0226a8bb90cdc13e54dd0484e6dfd888264574eb1fd5c6af6f7e27086659"
+}

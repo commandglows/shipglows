@@ -1,0 +1,1 @@
+{"method":"turn/started","params":{"threadId":"01a11ce4-c5bb-7ca0-82ab-384ffe6681b0","turn":{"id":"01a11ce4-cb84-79d0-827b-af8510e1c01b","items":[],"itemsView":"notLoaded","status":"inProgress","error":null,"startedAt":1791486118,"completedAt":null,"durationMs":null}},"emittedAtMs":1791486118933}

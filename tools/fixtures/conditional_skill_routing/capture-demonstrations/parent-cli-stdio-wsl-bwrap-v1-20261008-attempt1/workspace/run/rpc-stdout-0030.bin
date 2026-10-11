@@ -1,0 +1,1 @@
+{"method":"thread/status/changed","params":{"threadId":"01a11ce3-6543-7570-8609-574060d1bb30","status":{"type":"idle"}},"emittedAtMs":1791486028869}

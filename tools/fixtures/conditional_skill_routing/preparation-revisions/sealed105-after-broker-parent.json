@@ -1,0 +1,9 @@
+{
+  "artifact": "historical-evidence-byte-preservation-check",
+  "status": "pass",
+  "receipt_sha256": "35feccbfc4d8cc62f024a2cb125bf1b626f24cb8176573d9b92fd7aa799deead",
+  "references": 105,
+  "changed": [],
+  "new_heldout_payload_read": false,
+  "campaign_launched": false
+}

@@ -1,0 +1,3 @@
+event: tool_result
+data: {"status":"visible","text":"Public synthetic summary","tool_call_id":"call-exchange-029"}
+

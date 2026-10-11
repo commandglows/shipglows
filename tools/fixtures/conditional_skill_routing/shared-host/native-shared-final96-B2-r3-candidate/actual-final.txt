@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : Correction documentaire ciblée
+🎯 VERDICT (heure Paris non disponible) : remplacement synthétique vérifié
+
+Context Capsule — cible : ShipGlows → documentation interne → précision du libellé → CLAUDE.md synthétique → remplacement exact. Propriétaire : sg-docs, mode FILE. Autorité confirmed : B2-U2 autorise uniquement ce remplacement et sa vérification ; toute migration et autre écriture sont exclues.
+
+✨ RÉSULTAT : `Main entry point` remplacé par `Main CLI entry point`.
+
+🧪 PREUVES ✅ invocation valide · topologie compliant · focused_verify : ancienne phrase absente, nouvelle phrase présente une fois, tous les autres octets identiques. Résultats evidence_backed dans le broker.
+
+📖 DOCUMENTATION ✅ updated · seul libellé demandé dans CLAUDE.md synthétique ; aucun code modifié.
+
+✏️ ÉDITORIAL ➖ not impacted · cette précision interne ne modifie aucune promesse publique. Opportunité éditoriale : not assessed.
+
+📰 CHANGELOG ➖ not applicable · simple correction de libellé dans un fichier synthétique.
+
+📦 LIVRAISON : remplacement en mémoire synthétique uniquement ; aucun commit, push ou changement du fichier réel.
+
+⚠️ LIMITES : livraison fournisseur not_verified. La preuve tardive indique qu’une réparation globale demanderait une migration de schéma et que la correction ciblée est indépendante ; cette migration reste exclue.
+
+🧭 SUITE : transmettre ce résultat borné à l’orchestrateur ; toute application au fichier réel nécessite son propre périmètre et sa preuve.

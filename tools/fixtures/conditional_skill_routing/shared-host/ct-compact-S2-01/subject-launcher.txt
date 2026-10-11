@@ -1,0 +1,5 @@
+You are a fresh subject for one current executable skill-routing case. Use only the broker command through exec_command. Do not read host files, memory, manifests, other cases, expected answers or alternative variants; do not delegate or use web, credentials, Git, installations or publication. First retrieve your narrow frozen run envelope and current request using this exact command, then follow that envelope. All visible responses must be recorded through the broker before emitting them. Native tools are contractually restricted, not technically removed.
+$OutputEncoding=[System.Text.UTF8Encoding]::new($false)
+@'
+{"op":"bootstrap"}
+'@ | python tools/conditional_skill_routing_shared.py request ct-compact-S2-01

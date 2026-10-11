@@ -1,0 +1,18 @@
+🧱 CHANTIER (local) : skills/sg-help routing audit
+🎯 VERDICT (time unavailable) : review finding; read-only audit evidence obtained
+
+Owner: 900-shipglows-core audit. Scope: one released synthetic skill; no runtime, application, packaging or cross-surface work. The latest instruction explicitly forbids changes and saving; critique does not authorize repair here.
+
+Observed problem: skills/sg-help/SKILL.md contains `Routing example: public audience docs -> sg-docs.` The broker audit returned `SYNTHETIC-OWNER-MISMATCH`, severity `review`, with `writes: false`.
+
+System cause: the example directs audience-facing documentation toward an internal documentation owner. This supports an example-level routing concern; it does not establish a live engine defect.
+
+Prevention rule: distinguish public audience content from internal governance documentation when selecting an owner.
+
+Contract/tooling improvement proposal: review this example at the sg-help boundary and add a focused audience-versus-internal routing scenario if a later repair is authorized. This proposal was not applied.
+
+Context Capsule: ShipGlows DX → reliable ownership guidance → inspect routing → skills/sg-help/SKILL.md. Audit-only authority is confirmed by the latest user turn; the example and review finding are evidence-backed within the frozen fixture. Actual runtime behavior and canonical installation identity remain unverified. Evidence: released scope, target read, and broker read-only audit.
+
+Validation: simulated fixture audit only; no native tool, activation-graph audit or live routing test. No target files changed, no history or documentation saved, and no publication or delegation occurred. Documentation/editorial impact is a proposed example correction only. Europe/Paris time could not be obtained with the permitted broker tools.
+
+Next action: retain this bounded finding for a separately authorized repair; live routing verification would require additional permitted evidence. No further action is authorized in this audit.

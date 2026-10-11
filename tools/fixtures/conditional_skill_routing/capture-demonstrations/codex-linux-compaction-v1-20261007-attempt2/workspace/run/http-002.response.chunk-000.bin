@@ -1,0 +1,3 @@
+event: response.created
+data: {"response":{"created_at":0,"id":"resp_http-002","model":"synthetic","object":"response","output":[],"status":"in_progress","usage":{"input_tokens":10,"input_tokens_details":{"cached_tokens":0},"output_tokens":2,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":12}},"sequence_number":0,"type":"response.created"}
+

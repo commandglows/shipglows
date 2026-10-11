@@ -1,0 +1,3 @@
+event: response.output_text.delta
+data: {"content_index":0,"delta":"CSR_COMPACT_SECOND_FINAL_01601","item_id":"msg_http-004","output_index":0,"sequence_number":3,"type":"response.output_text.delta"}
+

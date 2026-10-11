@@ -1,0 +1,3 @@
+event: tool_result
+data: {"retained_instruction_sha256":"cfa93b94963cdc2ca0dd6b38f466948496fcf87284ae093e1850e1146c98799d","status":"compacted","synthetic":true}
+

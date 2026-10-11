@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "packet_type": "offline_gate_review_packet",
+  "gate": "context_loss_compaction_policy",
+  "status": "pending_review",
+  "campaign_id": null,
+  "consumer_profile_sha256": null,
+  "independent_review": false,
+  "reviewer": null,
+  "checks": {
+    "opaque_input_fail_closed": false,
+    "availability_invalidated": false,
+    "fresh_complete_delivery_before_action": false,
+    "hidden_retention_not_claimed": false
+  },
+  "artifact_hashes": {
+    "shipglows_data/workflow/reviews/conditional-skill-routing-cli-instruction-compaction.md": "84a4d06e583b79297403344ee3b4d828f7f7c98b7852d0f4b133ed188c97256f",
+    "tools/conditional_skill_routing_cli_compaction_probe.py": "a47fc11bfd17a791f542fa729af55d668ee0e53ab5606b5148f04fd8ac319124",
+    "tools/conditional_skill_routing_responses_accounting.py": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543"
+  },
+  "limitations": [
+    "This is a policy/mock review packet only.",
+    "Actual opaque compaction and hidden model retention remain UNKNOWN."
+  ],
+  "receipt_sha256": null
+}

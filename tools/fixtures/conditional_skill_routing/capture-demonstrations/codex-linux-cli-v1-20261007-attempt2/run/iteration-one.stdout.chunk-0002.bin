@@ -1,0 +1,2 @@
+{"type":"item.completed","item":{"id":"item_1","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/work/run/synthetic-home/codex/config.toml): `disable_response_storage` is ignored."}}
+{"type":"item.completed","item":{"id":"item_2","type":"error","message":"Model metadata for `synthetic` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."}}

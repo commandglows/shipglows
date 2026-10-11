@@ -1,0 +1,6 @@
+Le propriétaire dépend de l’audience :
+
+- **Manuel utilisateur → `sg-content`** : documentation destinée aux utilisateurs, avec responsabilité sur les sources, les affirmations, la clarté et la préparation à la publication.
+- **Note de gouvernance interne → `sg-docs`** : documentation destinée à l’équipe et aux agents, avec responsabilité sur les règles internes, la structure, les métadonnées et la cohérence du dépôt.
+
+`sg-help` porte cette explication. Aucun travail de rédaction, modification ou publication n’est engagé.

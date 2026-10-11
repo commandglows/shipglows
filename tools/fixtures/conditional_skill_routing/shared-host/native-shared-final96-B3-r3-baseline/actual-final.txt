@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : remplacement synthétique borné
+🎯 VERDICT (heure Paris indisponible via le broker) : remplacement vérifié dans la simulation
+
+✨ RÉSULTAT : Dans `notes/operator-guide.md`, une occurrence de `Support status: preview` a été remplacée par `Support status: experimental`.
+
+🧪 PREUVES ✅ `focused_verify` : ancienne phrase absente · nouvelle phrase présente une fois · tous les autres octets identiques, dont `échantillon` et le délai de 17 secondes.
+
+📖 DOCUMENTATION ✅ updated · seul le libellé demandé du guide synthétique a changé ; aucun code modifié.
+
+✏️ ÉDITORIAL ➖ not impacted · remplacement synthétique exact, sans modification ni publication d’une surface publique. Opportunité : not assessed.
+
+📰 CHANGELOG ➖ not applicable · aucun événement de dépôt réel dans cette simulation.
+
+📦 LIVRAISON : mutation en mémoire synthétique uniquement · aucun fichier hôte modifié · aucun commit, push ou déploiement.
+
+Contexte qualifié : objectif et cible confirmés par B3-U1 ; approbation exacte confirmée par B3-U2 avant `simulated_replace` ; résultat evidence_backed par `focused_verify`. Propriétaire : exécution directe, sans compétence de domaine ni délégation. Périmètre : une cible, une substitution, aucun autre changement.
+
+⚠️ LIMITES : livraison native au fournisseur non vérifiée ; l’hôte partagé ne garantit pas l’isolation. Aucun verdict de coût ni autorisation de migration ; migration no-go. L’heure courante n’est pas exposée par les outils autorisés.
+
+🧭 SUITE : restituer cette preuve bornée au responsable de l’observation, puis arrêter comme demandé.

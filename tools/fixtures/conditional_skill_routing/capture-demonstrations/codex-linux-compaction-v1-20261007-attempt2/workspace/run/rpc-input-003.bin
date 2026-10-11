@@ -1,0 +1,1 @@
+{"id":3,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"CSR_COMPACT_FIRST_USER_01601: read the fictional diagnostic and finish this turn.","type":"text"}],"threadId":"01a11764-455f-7201-9110-bbb5d2d646ff"}}

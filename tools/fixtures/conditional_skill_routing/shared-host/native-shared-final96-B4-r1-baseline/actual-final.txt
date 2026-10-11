@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : Exact support-status edit
+🎯 VERDICT : Verified synthetic replacement
+
+Context Capsule: sg-docs owns the internal guide edit. B4-U1 and approval B4-U2 confirm one replacement only, preservation of all other bytes, and no other repair. Evidence is limited to broker simulation.
+
+✨ RESULT: In notes/operator-guide.md, replaced Support status: preview with Support status: experimental.
+
+🧪 PROOF: Invocation valid · topology compliant · old phrase absent · new phrase occurs once · all unrelated bytes identical.
+
+📖 DOCUMENTATION ✅ updated · only the specified guide phrase; no code changed.
+
+✏️ EDITORIAL ➖ not impacted · no public surface modified or publication performed.
+
+📰 CHANGELOG ➖ not applicable · isolated synthetic wording replacement.
+
+📦 DELIVERY: Simulated replacement only; no host file change, commit, push or deployment.
+
+⚠️ LIMITS: Provider delivery unverified. Late evidence says broader repair requires schema migration and the narrow edit is independent; migration was not applied. A current Paris timestamp is unavailable through the allowed broker tools.
+
+🧭 NEXT: Stop at the requested bounded result. Any broader schema repair requires separate scope and approval.

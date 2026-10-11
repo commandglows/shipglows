@@ -1,0 +1,1 @@
+{"op":"redaction","content":"Public-summary draft for prototype reviewers\n\nSynthetic Mosaic is a prototype with local templates and JSON export. It does not support a shared workspace.\n\nReview the local-template and JSON-export experience with this prototype scope in mind.\n\nThis draft reflects the supplied project record; the features have not been independently tested."}

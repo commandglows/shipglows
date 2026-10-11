@@ -1,0 +1,7 @@
+**Synthetic Mosaic — draft for prototype reviewers**
+
+Synthetic Mosaic is a prototype offering local templates and JSON export. It currently has no shared workspace.
+
+These features and limits are supported by the supplied project record; runtime behavior has not been independently verified.
+
+Draft review: sensitive fields removed and factual scope preserved. Project-aware editorial readiness remains unassessed because additional governance reads were excluded. Fresh external documentation is not needed for this source-only summary. This draft is delivered here only; nothing was saved or published.

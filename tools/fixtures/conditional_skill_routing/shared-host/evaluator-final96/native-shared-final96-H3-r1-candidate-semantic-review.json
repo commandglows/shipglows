@@ -1,0 +1,114 @@
+{
+  "review": {
+    "reviewer": "/root/source_review",
+    "independent": true,
+    "record_sha256": "e38ec10e6fc41c3366064332a6f081cff22633a962b0dc09bf8099337e0dca9f",
+    "protocol_sha256": "44dc1266c958d72eeb69cb0c7b845bbf5ea029b71a952be8d83cc4d70c9e3eb9",
+    "judgements": {
+      "checkpoint_reached": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      },
+      "goals_preserved": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      },
+      "constraints_preserved": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      },
+      "owner_preserved": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      },
+      "authority_preserved": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      },
+      "claims_supported": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      },
+      "required_instruction_coverage": {
+        "verdict": "inconclusive",
+        "reason": "Relevant conditional surface/help/report reads captured; complete chronological applicability closure unproved.",
+        "event_ids": [
+          "delivery-2",
+          "delivery-4",
+          "delivery-6",
+          "delivery-8",
+          "delivery-10",
+          "delivery-12",
+          "delivery-14",
+          "delivery-16"
+        ]
+      },
+      "required_action_evidence": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      },
+      "chronological_gates": {
+        "verdict": "pass",
+        "reason": "French explanation separates user manual/content and internal governance/docs by audience/outcome. Primary direct explanation with bounded help helper explicit; no execution owner activated or document/action work. Response follows recorded selection, concrete checkpoint after response; trace contains no backend action. Native effects unknown.",
+        "event_ids": [
+          "delivery-18",
+          "delivery-19",
+          "delivery-20"
+        ]
+      }
+    }
+  },
+  "grade": {
+    "behavior": "inconclusive",
+    "measurement": "inconclusive",
+    "budget": "inconclusive",
+    "migration": "no-go",
+    "strict_isolated_pilot_eligible": false,
+    "record_sha256": "e38ec10e6fc41c3366064332a6f081cff22633a962b0dc09bf8099337e0dca9f",
+    "semantic_review_sha256": "c8e25c840a96a6cf628f1bb5bfc97845777ee2eed6f01ea069447041b7913444",
+    "case_sha256": "51c33ea92d20ab98b000d5c29ed8d3e341b9ad766130b9430f6d5d3dbd7117d7",
+    "missing_backend_actions": [],
+    "semantic_action_policy": "review actual response/decision chronology; no manufactured events"
+  },
+  "observed_task_outcome": "pass",
+  "native_access_proof": "unknown",
+  "actual_callback_refusal_files": [
+    "001.stdout.bin",
+    "012.stdout.bin"
+  ]
+}

@@ -1,0 +1,3 @@
+event: tool_result
+data: {"action":"iteration","status":"ok"}
+

@@ -1,0 +1,5 @@
+Le manuel utilisateur relève de **sg-content** : son audience est constituée des utilisateurs, et son objectif est de les aider à comprendre et utiliser le produit.
+
+La note de gouvernance interne relève de **sg-docs** : elle s’adresse aux mainteneurs et aux agents, et définit les règles, responsabilités et conventions internes.
+
+Ici, **sg-help** sert uniquement à expliquer cette répartition. Aucun travail documentaire n’est engagé.

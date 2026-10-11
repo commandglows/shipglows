@@ -1,0 +1,9 @@
+event: tool_result
+data: {"status":"denied","tool_call_id":"call-exchange-028"}
+
+event: usage
+data: {"input_tokens":7,"label":"fictional_synthetic_usage","output_tokens":3}
+
+event: done
+data: {"synthetic":true}
+

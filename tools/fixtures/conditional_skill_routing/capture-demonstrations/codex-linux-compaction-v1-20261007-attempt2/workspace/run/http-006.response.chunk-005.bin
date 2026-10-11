@@ -1,0 +1,3 @@
+event: response.completed
+data: {"response":{"created_at":0,"id":"resp_http-006","model":"synthetic","object":"response","output":[{"arguments":"{\"cmd\":\"/usr/bin/python3 fictional_diagnostic.py\",\"login\":false,\"max_output_tokens\":1000,\"shell\":\"/bin/sh\",\"workdir\":\"/work/run/synthetic-project\",\"yield_time_ms\":1000}","call_id":"call_csr_reread_01601","id":"fc_http-006","name":"exec_command","status":"completed","type":"function_call"}],"status":"completed","usage":{"input_tokens":10,"input_tokens_details":{"cached_tokens":0},"output_tokens":2,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":12}},"sequence_number":5,"type":"response.completed"}
+

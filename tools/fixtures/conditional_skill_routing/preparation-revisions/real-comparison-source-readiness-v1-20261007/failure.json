@@ -1,0 +1,7 @@
+{
+  "status": "failed_before_completion",
+  "reason": "injection.source_id None requires explicit-authority branch",
+  "audit_source_sha256": "83ee945eaf39ec5a0c803bb9ff236af2ad430c9bdf442a2c72b3fc069a243a70",
+  "heldout_opened": false,
+  "model_calls": 0
+}

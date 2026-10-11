@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-23","jsonrpc":"2.0","result":{"content":[{"text":"{\"reason\":\"Grant or status unknown\",\"redacted\":true,\"status\":\"blocked\"}","type":"text"}],"isError":false}}}

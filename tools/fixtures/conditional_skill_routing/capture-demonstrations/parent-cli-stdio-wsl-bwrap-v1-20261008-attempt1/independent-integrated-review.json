@@ -1,0 +1,22 @@
+{
+  "artifact": "independent-integrated-cli-parent-review",
+  "status": "pass",
+  "independent_review": true,
+  "summary_sha256": "54469e3be9bc0811088da4667f6dfbae04007f6972a40f9cf503384fe53ae62a",
+  "inventory_artifacts": 197,
+  "checks": {
+    "inventory_rehashed": true,
+    "authenticated_parent_requests_exact": true,
+    "registered_tool_schemas_unchanged": true,
+    "input_and_instructions_unchanged": true,
+    "all_exact_callbacks_in_next_and_later_requests": true,
+    "native_stream_not_released": true,
+    "raw_rpc_replayed": true,
+    "temporary_binary_removed": true
+  },
+  "limits": [
+    "Three synthetic tools; full case-owned parent adapter requires separate proof",
+    "No real provider, account, semantic AC5 or internal model-retention claim"
+  ],
+  "review_source_sha256": "1e333afe2b98f8775fb0b2198f49bcc2cc255bd3fec62d375e329d55f41d431f"
+}

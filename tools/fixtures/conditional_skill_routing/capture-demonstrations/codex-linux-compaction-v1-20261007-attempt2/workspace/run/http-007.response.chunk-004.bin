@@ -1,0 +1,3 @@
+event: response.output_item.done
+data: {"item":{"arguments":"{\"cmd\":\"/usr/bin/python3 fictional_guard.py\",\"login\":false,\"max_output_tokens\":1000,\"shell\":\"/bin/sh\",\"workdir\":\"/work/run/synthetic-project\",\"yield_time_ms\":1000}","call_id":"call_csr_guard_allowed_01601","id":"fc_http-007","name":"exec_command","status":"completed","type":"function_call"},"output_index":0,"sequence_number":4,"type":"response.output_item.done"}
+

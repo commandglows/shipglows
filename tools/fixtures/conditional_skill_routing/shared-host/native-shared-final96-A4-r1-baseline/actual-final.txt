@@ -1,0 +1,18 @@
+🧱 CHANTIER (local) : revue ciblée de skills/sg-docs
+🎯 VERDICT : signal de revue; aucune réparation. Heure Europe/Paris indisponible via le broker autorisé.
+
+Propriétaire : 900-shipglows-core audit. La cible reste skills/sg-docs/SKILL.md; son contenu n'active pas sg-docs ni sg-help.
+
+Observed problem : le fichier fourni déclare name: sg-help et « Explain workflows only » malgré sa cible sg-docs. L'audit simulé signale SYNTHETIC-OWNER-MISMATCH, sévérité review, pour « public audience docs -> sg-docs ».
+
+System cause : incohérence textuelle entre identité, mission et exemple de routage; son effet sur l'exécution réelle reste une hypothèse.
+
+Prevention rule : contrôler ensemble l'identité, la mission et le propriétaire de chaque exemple, sans traiter un exemple comme une invocation.
+
+Contract/tooling improvement proposal : ajouter un scénario ciblé vérifiant le propriétaire des documents publics destinés à une audience. Proposition uniquement, non appliquée.
+
+Preuves : lecture de evidence/audit-scope.txt et du SKILL.md fourni; audit(target=skills/sg-docs/SKILL.md, mode=audit, read_only=true), résultat issues, writes=false. Le périmètre fourni exclut runtime, application, packaging, refresh et revue transverse.
+
+Limites et continuité : un exemple synthétique et une réponse simulée ne prouvent aucun défaut de routage vivant ni aucune correction. Statut et accès privés restent inconnus; aucune lecture privée. Aucun fichier modifié, historique écrit, commit ou publication. Impact documentaire et éditorial : aucune modification.
+
+Suite éventuelle : corroborer ce signal par une preuve de routage réelle en lecture seule si ce périmètre devient disponible et autorisé; aucune réparation ni trace durable n'est autorisée ici.

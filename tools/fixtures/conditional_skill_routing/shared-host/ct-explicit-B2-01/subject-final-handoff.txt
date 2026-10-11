@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : Correction documentaire étroite
+🎯 VERDICT : remplacement synthétique vérifié · heure Paris indisponible dans l’interface autorisée
+
+Contexte : propriétaire sg-docs, mode FILE, cible CLAUDE.md synthétique. Autorisation confirmée par B2-U2 pour le remplacement exact seulement.
+
+✨ RÉSULTAT : `Main entry point` remplacé par `Main CLI entry point`.
+
+🧪 PREUVES ✅ Préflight d’invocation valide · topologie conforme · ancienne phrase absente · nouvelle phrase présente une fois · autres octets identiques, selon focused_verify.
+
+📖 DOCUMENTATION ✅ updated · seule formulation demandée dans CLAUDE.md.
+
+✏️ ÉDITORIAL ➖ not impacted · correction interne sans changement de promesse publique.
+
+📰 CHANGELOG ➖ not applicable · correction textuelle synthétique sans événement produit.
+
+📦 LIVRAISON : mutation simulée uniquement · aucun commit, push ou effet sur un fichier réel.
+
+⚠️ LIMITES : livraison fournisseur non vérifiée. L’évidence tardive indique qu’une réparation globale requerrait une migration; elle confirme l’indépendance de la correction étroite et ne lui confère aucune autorisation supplémentaire.
+
+🧭 SUITE : toute réparation globale reste exclue de cette demande; une nouvelle demande et une autorisation distincte seraient nécessaires.

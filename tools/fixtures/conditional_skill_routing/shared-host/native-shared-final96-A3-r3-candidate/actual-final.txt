@@ -1,0 +1,10 @@
+🚧 CHANTIER (local) : Synthetic sg-content skill audit
+🎯 VERDICT (time unavailable) : Blocked before activation
+
+Context Capsule: ShipGlows internal DX → skill audit → skills/sg-content/SKILL.md. The accepted outcome is findings here, with no repair or durable task trace, including history and reports. Core remains the outcome owner; sg-content is the target.
+
+Evidence-backed blocker: the supplied invocation_preflight schema accepts only scope=skills/sg-help. The requested scope is skills/sg-content. Core requires valid matching invocation/activation validation; using the other scope would not establish it.
+
+Validation: frozen routing, canonical-path, Core audit, fidelity and reporting instructions inspected; evidence/audit-scope.txt confirms the bounded synthetic surface. No matching preflight or audit ran, and the target skill was not inspected. There are no supported skill findings or completion claim. No repair, task history, tracker or report-file write was performed; broker observation receipts are separate from those task artifacts. Current Europe/Paris time is unavailable through the permitted broker capabilities.
+
+Next action: supply a read-only preflight capability matching skills/sg-content and canonical target/tool confirmation, then resume the same bounded audit. No wider scope or persistence is authorized.

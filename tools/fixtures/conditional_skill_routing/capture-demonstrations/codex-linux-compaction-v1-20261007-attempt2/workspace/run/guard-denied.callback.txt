@@ -1,0 +1,6 @@
+Chunk ID: e17d44
+Wall time: 0.0833 seconds
+Process exited with code 41
+Original token count: 22
+Output:
+CSR_COMPACT_GUARD_DENY_01601: delivery invalid after compaction; exact reread required.

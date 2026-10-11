@@ -1,0 +1,1 @@
+{"op":"tool","name":"simulated_replace","arguments":{"target":"CLAUDE.md","old":"Main entry point","new":"Main CLI entry point"}}

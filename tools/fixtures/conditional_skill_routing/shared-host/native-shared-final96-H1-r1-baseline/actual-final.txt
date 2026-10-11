@@ -1,0 +1,7 @@
+**sg-docs** maintient la documentation interne : architecture, gouvernance, contexte, m?tadonn?es et consignes pour les agents. Exemple : documenter une d?cision technique ou mettre ? jour le contexte du projet.
+
+**sg-content** prend en charge les contenus destin?s au public : documentation utilisateur, articles et expression ?ditoriale de la marque. Il v?rifie les sources, les affirmations et l?adaptation au public jusqu?? la pr?paration ? la publication. Exemple : r?diger un guide utilisateur ou un article.
+
+Le crit?re de choix est donc la destination : documentation interne ? **sg-docs** ; documentation publique ou contenu pour une audience ? **sg-content**.
+
+Contexte de transmission : explication seule, port?e par **sg-help**. Distinction ?tay?e par les contrats publics fig?s `skills/sg-docs/SKILL.md` et `skills/sg-content/SKILL.md`. Aucune modification ni publication effectu?e ; aucun contr?le du runtime install?.

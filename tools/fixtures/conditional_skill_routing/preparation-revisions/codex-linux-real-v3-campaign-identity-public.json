@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "packet_type": "offline_gate_review_packet",
+  "gate": "new_campaign_id",
+  "status": "pending_campaign_identity",
+  "campaign_id": null,
+  "consumer_profile_sha256": null,
+  "independent_review": false,
+  "reviewer": null,
+  "checks": {},
+  "artifact_hashes": {
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-seal-and-baseline-binding-public.json": "f9cdbfa91553587a288a831e3678dc79ce714a88254ec445f5c6871cd8c5021b",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-independent-review-public.json": "c5a1e9179a7a8cfcf5210b7ff70169698cdccf2fff5682c0b49510435f157702"
+  },
+  "limitations": [
+    "No campaign ID selected; the prepared experiment ID is not a campaign ID.",
+    "A distinct evaluator must bind the selected ID to the sealed v3 set."
+  ],
+  "receipt_sha256": null
+}

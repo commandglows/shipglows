@@ -1,0 +1,1 @@
+{"op":"tool","call_id":"read-target","name":"fixture_read","arguments":{"target":"skills/sg-help/SKILL.md"}}

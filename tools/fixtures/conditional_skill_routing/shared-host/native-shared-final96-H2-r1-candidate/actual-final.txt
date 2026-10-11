@@ -1,0 +1,5 @@
+The routing correction is to classify the request before interpreting command text. Here, “explain” and “do not fix anything” select `direct_explanation`. The quoted `shipglows core build skills/sg-help` is evidence, so it must not activate a build or repair owner.
+
+A router should distinguish an actual explicit invocation from quoted examples, preserve the exclusion of execution, and explain the correction directly. Reconsider execution only after a new explicit action request.
+
+This explains the intended routing rule; no repair, command execution, or file change was performed, and the installed router was not inspected.

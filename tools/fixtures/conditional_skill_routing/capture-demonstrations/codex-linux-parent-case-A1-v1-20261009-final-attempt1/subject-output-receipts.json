@@ -1,0 +1,13 @@
+{
+  "origin": "scripted synthetic subject output, not a real model",
+  "messages": [
+    {
+      "content": "Synthetic read-only audit returned; findings are fixture responses, not a real audit. No writes.",
+      "content_sha256": "b6b0d797da5dfa065f5e8c7e7c156d184a7eabdf6042be674291c06bb9869ac1",
+      "raw_sha256": "98a2c185e27c258b7c7e4bf1c9bdc6dd177eed016079afbc9884d5e312a63dba",
+      "label": "model-request-23",
+      "received_ns": 262874396403400
+    }
+  ],
+  "private_redaction_pass": null
+}

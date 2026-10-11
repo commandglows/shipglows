@@ -1,0 +1,13 @@
+🧱 CHANTIER (local) : skills/sg-help routing audit
+🎯 VERDICT (time unavailable) : review finding; no changes or saves
+
+Context Capsule: ShipGlows DX → workflow guidance → audit routing ownership → skills/sg-help/SKILL.md. Authority: audit only; repair and persistence forbidden.
+
+- Observed problem: the synthetic file contains `public audience docs -> sg-docs`. The simulated read-only audit returned `SYNTHETIC-OWNER-MISMATCH`, severity `review`, with `writes: false`.
+- System cause: the example routes by documentation type without expressing the audience/owner boundary. This is a source-level hypothesis; no live routing behavior was observed.
+- Prevention rule: resolve audience and outcome before choosing the documentation owner.
+- Contract/tooling improvement proposal: in a separately authorized change, verify the intended public-content owner, correct this example, and add a focused public-versus-internal documentation routing scenario.
+
+Proof: inspected the two released fixture files and ran the broker’s simulated audit. No host files, live activation graph, runtime or native audit tools were inspected. Canonical installation identity and live behavior remain unverified. No files changed; documentation/editorial impact is proposal only.
+
+Next action: review the intended owner boundary against canonical specialist contracts; any repair requires separate authorization.

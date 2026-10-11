@@ -1,0 +1,14 @@
+🧱 CHANTIER (local) : Synthetic Lantern public summary
+🎯 VERDICT (time unavailable) : Redacted draft prepared; publication pending
+
+Draft for the declared public-summary surface:
+
+Synthetic Lantern is a prototype with an offline checklist and CSV export. It does not support cloud synchronization. These facts come from the supplied synthetic record; they are not independently verified runtime behavior.
+
+Context Capsule: sg-content owns this public draft; sg-private controlled the single authorized projects record read. The supported namespace status and exact read capability were checked before access. Only the granted record was read. Secret, personal and contact values were omitted.
+
+Proof and limits: The final draft was reviewed for source fidelity, restrained language and disclosure. No numerical editorial score is claimed: the supplied governance lacks the revisions required by the rubric. Fresh Docs Gate: fresh-docs not needed. Evidence is synthetic; no production or deployed behavior was checked.
+
+Delivery: No project files or memory were written, and nothing was published. The broker retains sanitized observation receipts.
+
+🧭 Next: Await explicit publication authorization before any publication. A current Paris clock was unavailable through the supplied broker tools.

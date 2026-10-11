@@ -1,0 +1,3 @@
+event: tool_result
+data: {"status":"denied","tool":"native_shell","tool_call_id":"call-exchange-003"}
+

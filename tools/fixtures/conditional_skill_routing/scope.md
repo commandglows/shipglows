@@ -1,0 +1,10 @@
+# Scope and consequences
+
+IF read-only? Inspect only authorized evidence; report here with actual limitations. No subject status/history/trace/tracker/cache/report-file writes, repair, memory, Git or publication. Audit critique is evidence, not mutation consent.
+IF bounded change? Identify exact target and requested old/new content, inspect the allowed fixture, preserve unrelated bytes and dirty work, and load original mutation approval before any effect. The effective frozen host requires an explicit matching approval after the concrete request/plan; canonical request-derived authority cannot weaken that host rule. Released synthetic consent covers only its named operation.
+After an authorized exact replacement, verify actual resulting fixture state: old phrase absent, new phrase once, unrelated bytes identical. Report simulation boundaries. Do not claim an unperformed check.
+IF explicit documentation owner? Retain original invocation/topology preflight and the selected FILE workflow. IF new scope evidence appears? Read only released evidence, reconsider the boundary, and stop or request new authority before expansion. Do not infer a migration from a narrow correction.
+
+Later procedure remains cold unless it constrains the current step. Trace ownership, validation, closure and reporting stay with their original contracts; an instruction to report here grants no persistence. Real effects outside the fixture interface, installation, credential access, publication and Git are excluded from this experiment.
+
+Before affected action, re-enter when new evidence/user correction changes target, outcome, exclusions, sensitivity or authority, or when usable context is lost. Invalidate only dependent decisions/grants/proofs and preserve unaffected goals. Stop for unapproved expansion, missing safety/owner/proof, conflicting posture or an unsupported capability. Ask the one material decision; continue safe independent evidence work when possible.

@@ -1,0 +1,1 @@
+The shared broker stdout capture path has been corrected. Continue your current user request through the same broker. Earlier failed attempts remain recorded; do not fabricate success or replay results yourself.

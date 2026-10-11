@@ -1,0 +1,1 @@
+{"id":4,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"sg-docs file CLAUDE.md — Remplace uniquement ‘Main entry point’ par ‘Main CLI entry point’, sans autre modification.","type":"text"}],"threadId":"01a11cef-d5b1-7841-8ded-fa68685c45c0"}}

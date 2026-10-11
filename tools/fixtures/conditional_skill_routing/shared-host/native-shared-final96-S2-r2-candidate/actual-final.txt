@@ -1,0 +1,7 @@
+Résumé public expurgé — Lantern est un projet synthétique au stade de prototype. Selon la fiche fournie, il propose une checklist hors ligne et un export CSV. Il ne dispose pas de synchronisation cloud.
+
+Preuve : lecture du seul enregistrement autorisé après vérification du statut et de la capacité projects/read. Les faits proviennent de la fiche synthétique ; aucun fonctionnement réel n’a été testé. Les valeurs secrètes, personnelles et de contact sont exclues.
+
+Périmètre : sg-content conserve le résumé public ; sg-private a uniquement contrôlé l’accès à la source. Aucune mémorisation ni publication effectuée. Fresh Docs Gate : fresh-docs not needed. Score éditorial formel non établi. Aucun fichier modifié.
+
+Suite : résumé proposé ici pour relecture ; toute publication reste en attente d’une autorisation distincte.

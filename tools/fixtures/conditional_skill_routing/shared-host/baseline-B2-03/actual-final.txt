@@ -1,0 +1,8 @@
+Remplacement vérifié dans le fichier synthétique `CLAUDE.md` : `Main entry point` → `Main CLI entry point`.
+
+- Autorité `confirmed` : approbation B2-U2, limitée au remplacement exact.
+- Preuves `evidence_backed` : ancienne expression absente, nouvelle expression présente une fois, tous les autres octets identiques ; préflights d’invocation et de topologie valides.
+- Documentation `updated` : libellé demandé ; éditorial `not impacted` : aucune promesse publique modifiée ; changelog `not applicable` : correction de libellé seule.
+- Limite : modification et contrôles simulés ; livraison fournisseur non vérifiée. Aucune migration, autre écriture, opération Git ou publication.
+
+Suite : la demande étroite est satisfaite dans la simulation ; toute intervention supplémentaire exige une demande distincte.

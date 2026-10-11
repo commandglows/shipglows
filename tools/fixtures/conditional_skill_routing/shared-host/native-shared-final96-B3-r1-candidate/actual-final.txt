@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : correction littérale synthétique
+🎯 VERDICT (heure Paris indisponible) : remplacement simulé vérifié
+
+Context Capsule — cible : guide synthétique → statut de support → `notes/operator-guide.md`. Résultat accepté : un remplacement, tous les autres octets identiques. Autorité confirmed : B3-U2 après proposition exacte. État evidence_backed : lecture du fichier, remplacement et focused_verify via le broker. Propriétaire : direct_execution ; aucune délégation.
+
+✨ RÉSULTAT : `Support status: preview` remplacé une fois par `Support status: experimental`.
+
+🧪 PREUVES ✅ Ancienne phrase absente · nouvelle phrase présente une fois · tous les autres octets identiques.
+
+📖 DOCUMENTATION ✅ updated · seule ligne demandée du guide synthétique.
+
+✏️ ÉDITORIAL ➖ not impacted · aucune surface publique modifiée par cette simulation.
+
+📰 CHANGELOG ➖ not applicable · correction synthétique sans événement produit réel.
+
+📦 LIVRAISON : modification en mémoire du broker uniquement · aucun fichier hôte modifié · aucun commit, push ou publication.
+
+⚠️ LIMITES : livraison fournisseur non vérifiée ; horloge Paris indisponible dans les capacités autorisées.
+
+🧭 SUITE : arrêt au périmètre demandé ; aucune autre écriture autorisée.

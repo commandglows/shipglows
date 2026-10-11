@@ -1,0 +1,174 @@
+{
+  "passed": true,
+  "checks": {
+    "process_success": true,
+    "child_checks": true,
+    "provider_complete": true,
+    "all_callbacks_exactly_delivered": true,
+    "parent_case_not_retired": true,
+    "raw_rpc_and_callback_replay": true,
+    "no_host_or_evaluator_mount": true,
+    "loopback_only": true,
+    "exact_ELF": true,
+    "raw_and_runtime_removed": true,
+    "private_redaction": true,
+    "declared_provider_posture": true
+  },
+  "case_id": "H1",
+  "errors": [],
+  "child_summary": {
+    "callbacks": 11,
+    "checks": {
+      "all_http_replies_bounded": true,
+      "all_turns_complete": true,
+      "effective_native_output_cap": true,
+      "network_unshared": true,
+      "no_native_events": true,
+      "process_complete": true,
+      "version": true
+    },
+    "context_loss_receipts": [],
+    "context_loss_retired": false,
+    "failure": null,
+    "http_requests": 12,
+    "limits": [
+      "Parent exclusively owns case broker/schema filtering/provider response validation",
+      "Native CLI features remain enabled; provider-produced unauthorized calls require parent complete-SSE refusal",
+      "No case/evaluator/adapter/resource files in child dependencies",
+      "Actual model/credential/account launch absent; all configured transport loopback mock"
+    ],
+    "native_events": 0,
+    "passed": true,
+    "turn_ids": [
+      "01a11d05-c1b6-7f83-93a9-8f84d47db369"
+    ],
+    "turn_statuses": [
+      "completed"
+    ]
+  },
+  "parent_raw_audit": {
+    "exact_authenticated_exchanges": true,
+    "actual_rpc_replayed": true,
+    "callbacks": 11,
+    "requests": 12,
+    "exact_callbacks_in_immediately_next_request": true,
+    "exact_callbacks_in_subsequent_requests": true,
+    "native_effect_events": 0,
+    "native_assistant_messages_exact": true,
+    "assistant_messages": 1
+  },
+  "inventory": {
+    "child-source-snapshot.py": {
+      "bytes": 18657,
+      "sha256": "8556c5bb4105ec3440e4acb4ac4edc466f45b5e3f02cc51dc8647302925fbff1"
+    },
+    "controller-summary.json": {
+      "bytes": 314118,
+      "sha256": "564c29f4391b9d2b8b26d4370d8da44c6e2d6913c9e7acf9fa6d7f587ff90dfc"
+    },
+    "download-receipt.json": {
+      "bytes": 630,
+      "sha256": "cbc28a5e5ebf6fcabdbae9d1765b82e987fdfcf3defd957e55e40f7fa11123ff"
+    },
+    "ephemeral-raw-inventory.json": {
+      "bytes": 53869,
+      "sha256": "ab89876c1c0b7e08116f45e1408af3c673aaf6978c1ecb7af5e6ce6b6699922f"
+    },
+    "launch.json": {
+      "bytes": 1895,
+      "sha256": "04e261eed297414820003b138c3992f284cb6fdbe13bdb50a6e1db397f9f3d52"
+    },
+    "launcher-source-snapshot.py": {
+      "bytes": 24214,
+      "sha256": "db669855cd6461ac9181cf691c37942463b510259a2ae4550bf1e66ec6554119"
+    },
+    "parent-baseline-manifest.json": {
+      "bytes": 663358,
+      "sha256": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25"
+    },
+    "parent-public-tuning-cases.json": {
+      "bytes": 75428,
+      "sha256": "ca4c0226a8bb90cdc13e54dd0484e6dfd888264574eb1fd5c6af6f7e27086659"
+    },
+    "parent-transport-receipts.json": {
+      "bytes": 32872,
+      "sha256": "54a4f8ef85fda1e5d3b7dccad8e09087d114ab77fbe911de23a7368e57cd4b27"
+    },
+    "provider-summary.json": {
+      "bytes": 2521,
+      "sha256": "f77087be19aeb1a99018b422937823b282a0c747a8dfbaa41bee40ea209d63f9"
+    },
+    "source-bindings.json": {
+      "bytes": 2455,
+      "sha256": "d2fb318e7fe0a43d1b9a714f553db857b8c2ea2e875829e27245a71c978461a1"
+    },
+    "subject-output-receipts.json": {
+      "bytes": 487,
+      "sha256": "6186fc7e482f5870bbe7fc8e7b8ab8f68b15961ed458dc3b997b2e381fce1ff3"
+    },
+    "temporary-runtime-cleanup.json": {
+      "bytes": 167,
+      "sha256": "075fd43a7f4a3ad853e12e79f0bc49b8387c4bff27752b811c1bfdad53d8619e"
+    },
+    "temporary-runtime-created.json": {
+      "bytes": 133,
+      "sha256": "97c5b7edbbe61d0a33d087093c8df33280e714200e99c831699c87bb4bad4a90"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_cli_tuning_transport_probe.py": {
+      "bytes": 25388,
+      "sha256": "50d484d1f87eea51e3db7254e2495eb3db7dbd7a7f477273290b12a6678e2ace"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_comparison_adapter.py": {
+      "bytes": 24487,
+      "sha256": "f63762a3153a39dd288f3c85f8e86197a0830851a46f5a6fd1ef95a0f8ad0249"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_comparison_case_controller.py": {
+      "bytes": 17468,
+      "sha256": "5066ac33b9cd94434abdb87b3185836d23de6eaa1644a7b40f095d5cef5c2de2"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_eval.py": {
+      "bytes": 137883,
+      "sha256": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_parent_https.py": {
+      "bytes": 16982,
+      "sha256": "d95a6139ff4188e28eb23581ed359d61893453afb85ea526fa8dc927a3cbc89b"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_responses_accounting.py": {
+      "bytes": 17143,
+      "sha256": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_runner.py": {
+      "bytes": 146757,
+      "sha256": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_shared_campaign.py": {
+      "bytes": 21210,
+      "sha256": "b04c4f757c1b18a80d27b4b3c55550b865ba190aaacc86aad7be55f0eed11c4f"
+    },
+    "parent-code-snapshots/tools/conditional_skill_routing_verified_runtime.py": {
+      "bytes": 3365,
+      "sha256": "fa1230e2302016ff5e2b89014bb8c090719dfc50003e26db85b69321d5a5a625"
+    },
+    "parent-code-snapshots/tools/skill_activation_budget.py": {
+      "bytes": 18033,
+      "sha256": "b9da02a6dbf255764415337a9100f3a0c77f3e1c70581ba549934aa587390f81"
+    },
+    "child-dependencies/tools/conditional_skill_routing_cli_broker_profile.py": {
+      "bytes": 44778,
+      "sha256": "7c25cf087b5a1d4e800889bb1ccd16fad8e65da2b16f3085dd6c4a4e72e07dd7"
+    },
+    "child-dependencies/tools/conditional_skill_routing_parent_transport.py": {
+      "bytes": 17854,
+      "sha256": "0ab459436259c04556988e48b6b944df0483269e5ff060fd132a8282634ac190"
+    }
+  },
+  "mock_only": true,
+  "model_calls": 0,
+  "campaign_runs": [],
+  "limits": [
+    "Scripted public tuning diagnostics, not observed baseline or model compliance",
+    "Raw synthetic subject/provider captures verified before ephemeral removal",
+    "No hidden retention, semantic AC5 or real-provider/account proof"
+  ]
+}

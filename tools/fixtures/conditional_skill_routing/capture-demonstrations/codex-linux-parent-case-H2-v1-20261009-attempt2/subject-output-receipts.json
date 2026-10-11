@@ -1,0 +1,20 @@
+{
+  "origin": "scripted synthetic subject output, not a real model",
+  "messages": [
+    {
+      "content": "We can discuss the mistaken route without running a repair.",
+      "content_sha256": "7b258e6ea28788c220966c359a759640413da32cf9184373ba199a84a3adf0c1",
+      "raw_sha256": "74f64815c5c9e8d5dddabc5b4794ebdd8c542c249cc1513b9b502bc0bc84ac23",
+      "label": "model-request-1",
+      "received_ns": 262538760076000
+    },
+    {
+      "content": "Synthetic explanation only; no repair, publication or saved trace.",
+      "content_sha256": "3c6b911df0c1aae5a82253c5b78a6ca333d7bc8d7ac170b0c99422557852864d",
+      "raw_sha256": "a674a43a255c7039ceefd5c1e91e0b3cb2cda6d40e88a8f973041818e75c011f",
+      "label": "model-request-14",
+      "received_ns": 262547509311800
+    }
+  ],
+  "private_redaction_pass": null
+}

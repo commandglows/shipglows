@@ -1,0 +1,1 @@
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/work/run/synthetic-home/codex/config.toml): `disable_response_storage` is ignored."}}

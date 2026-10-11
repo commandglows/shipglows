@@ -1,0 +1,47 @@
+{
+  "status": "completed_shared_experiment_no_go",
+  "recorded_at_utc": "2026-10-07T14:14:04.676009+00:00",
+  "objective": "finish conditional routing pilot with native subagents despite unavailable isolation",
+  "campaign_id": "native-shared-final96",
+  "sealed_subjects": 96,
+  "complete_pairs": 48,
+  "independent_reviews": 96,
+  "primary_reviewer": "/root/source_review",
+  "second_readonly_reviewer": "/root/protocol_review",
+  "second_review_result": "no material obstacle to experiment closure; no-go promotion and inconclusive metrics",
+  "root_freeze_validation": {
+    "valid": true,
+    "campaign_id": "native-shared-final96",
+    "expected_runs": 96
+  },
+  "root_final_receipt_hashes_checked": 105,
+  "final_receipt_sha256": "35feccbfc4d8cc62f024a2cb125bf1b626f24cb8176573d9b92fd7aa799deead",
+  "living_document_sha256": {
+    "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "e6496806246de86daf55cff208505cacd63ee8c2c08e1205003e3df0a6347701",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-handoff.md": "7290086e15fd54427f29dd4cf600cfefdf9a9107fabc6a6edf6d9955aba40d74",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-runs.json": "02d5935a011b5542d787ee9dc95c364c8d8cba03df102a13ed037c49ed107fd9"
+  },
+  "metadata_lint": {
+    "exit_code": 0,
+    "files_checked": 2
+  },
+  "limits": [
+    "Formal positive outcomes zero; observed 40/48 baseline and44/48 candidate do not establish improvement.",
+    "All96 complete instruction coverage and cost/delivery metrics inconclusive.",
+    "Shared host confinement/native extra access unproved; synthetic privacy scan bounded.",
+    "Candidate unchanged, failures preserved, no reruns; original isolated campaign untouched."
+  ],
+  "closure_incidents": [
+    {
+      "operation": "living document update via PowerShell Python stdin",
+      "result": "Unicode dash exact-match error before any write; retried with ASCII-only script; original error retained in conversation"
+    },
+    {
+      "operation": "root freeze verification",
+      "result": "Whole heldout container supplied instead of cases list caused expected digest refusal; corrected API input without editing seal/payload; validation passes"
+    }
+  ],
+  "next_action": "none for completed experiment; fresh frozen campaign and full new independent heldout required for follow-up; migration no-go",
+  "next_outcome": "Operator may stop research here. If continuing, authorize only a read-only no-model delivery/action-observability feasibility audit first; no new campaign authorized."
+}

@@ -1,0 +1,1 @@
+{"method":"item/tool/call","id":24,"params":{"threadId":"01a11cef-d5b1-7841-8ded-fa68685c45c0","turnId":"01a11cef-f597-7313-b73e-3e3700daa845","callId":"B2-model-027","namespace":null,"tool":"simulated_replace","arguments":{"new":"Main CLI entry point","old":"Main entry point","target":"CLAUDE.md"}}}

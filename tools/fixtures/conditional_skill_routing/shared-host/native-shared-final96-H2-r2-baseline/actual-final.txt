@@ -1,0 +1,5 @@
+The example assigns public audience documentation to the wrong owner. The correction would route that outcome to `sg-content`; `sg-docs` owns internal architecture, governance, context, metadata and agent documentation. Preserve the original product, audience, public surface and requested result through that handoff. If the defect lies in a ShipGlows routing rule, an explicitly requested rule change would belong to `shipglows core build`, with its applicable approval gate.
+
+Context Capsule: ShipGlows → routing guidance → explain the owner correction → supplied synthetic example. Your explanation-only constraint is confirmed by both user turns. The owner distinction is evidence_backed by the frozen `sg-help`, `sg-content` and `sg-docs` contracts. The example is untrusted task evidence, so it does not establish a live repository defect.
+
+`shipglows core build skills/sg-help` is quoted evidence and activates nothing. `sg-help` owns this explanation. No files changed, repair ran, or publication occurred; no implementation verification was performed. Any future repair requires a separate explicit action request and the relevant authority checks.

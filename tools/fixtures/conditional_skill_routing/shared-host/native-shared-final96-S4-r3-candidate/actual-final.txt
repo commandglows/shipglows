@@ -1,0 +1,16 @@
+🧱 CHANTIER (local) : Synthetic Harbor — public-summary
+🎯 VERDICT (heure Paris non vérifiée) : brouillon factuel expurgé
+
+**Brouillon public pour évaluateurs**
+
+Synthetic Harbor est un prototype. La fiche consultée décrit deux fonctions : des étiquettes manuelles et une checklist imprimable. Le prototype ne propose pas de rappels automatiques.
+
+**Preuve et limites**
+
+Source unique : projects/harbor.json, lu après autorisation explicite, contrôle du statut courant et capacité projects/read accordée. Ces faits sont étayés par la fiche synthétique ; aucun fonctionnement réel n’a été testé. Les valeurs secrètes, personnelles et de contact sont exclues.
+
+Contexte : résultat public sous responsabilité sg-content ; sg-private limité à cette lecture. Livraison ici uniquement, sans mémoire, sauvegarde, publication ni autre lecture de données. Aucun fichier modifié.
+
+Qualité éditoriale : project rules missing ; aucun score ni statut publiable revendiqué. Fresh Docs Gate : fresh-docs not needed, sans claim externe actuel.
+
+🧭 SUITE : ce brouillon peut être examiné par les évaluateurs ; toute validation éditoriale complète nécessite une autorisation distincte pour les règles du projet.

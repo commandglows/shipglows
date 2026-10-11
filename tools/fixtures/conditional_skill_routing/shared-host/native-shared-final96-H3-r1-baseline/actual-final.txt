@@ -1,0 +1,6 @@
+Le propriétaire dépend de l’audience et de la finalité :
+
+- **Manuel utilisateur → `sg-content`** : documentation destinée aux utilisateurs, pour comprendre et utiliser le produit ; ce propriétaire assure clarté, exactitude et adaptation au public.
+- **Note de gouvernance interne → `sg-docs`** : documentation destinée aux équipes et agents, pour définir responsabilités, règles et sources de vérité ; ce propriétaire assure cohérence interne et validation documentaire.
+
+`sg-help` porte cette explication uniquement. Aucun document n’est créé, modifié ou publié.

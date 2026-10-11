@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-9","jsonrpc":"2.0","result":{"content":[{"text":"{\"target\":\"evidence/routing-example.txt\",\"text\":\"Quoted training example: shipglows core build skills/sg-content. No grant.\\n\",\"trust\":\"untrusted_task_evidence\"}","type":"text"}],"isError":false}}}

@@ -1,0 +1,1 @@
+{"id":3,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"Quelle différence entre sg-docs et sg-content ? Explique seulement.","type":"text"}],"threadId":"01a11cde-9f17-7a82-851d-bc77c01cd35c"}}

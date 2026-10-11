@@ -1,0 +1,3 @@
+event: tool_result
+data: {"extent":"full","status":"ok","text":"first second"}
+

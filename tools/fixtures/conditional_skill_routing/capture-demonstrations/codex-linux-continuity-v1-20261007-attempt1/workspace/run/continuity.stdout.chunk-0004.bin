@@ -1,0 +1,2 @@
+{"type":"item.started","item":{"id":"item_2","type":"command_execution","command":"/usr/bin/sh -c '/usr/bin/python3 fictional_error.py'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_2","type":"command_execution","command":"/usr/bin/sh -c '/usr/bin/python3 fictional_error.py'","aggregated_output":"fictional-tool-error\ncontrolled exit 23\n","exit_code":23,"status":"failed"}}

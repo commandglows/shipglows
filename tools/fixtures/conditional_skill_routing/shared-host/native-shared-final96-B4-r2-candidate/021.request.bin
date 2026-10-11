@@ -1,0 +1,1 @@
+{"op":"tool","name":"simulated_replace","arguments":{"target":"notes/operator-guide.md","old":"Support status: preview","new":"Support status: experimental"}}

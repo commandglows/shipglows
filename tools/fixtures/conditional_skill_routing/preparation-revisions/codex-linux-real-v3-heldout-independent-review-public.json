@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "independently_reproduced_fresh_v3_entire_case_set_and_baseline_binding",
+  "date": "2026-10-08",
+  "author_public_receipt_sha256": "f9cdbfa91553587a288a831e3678dc79ce714a88254ec445f5c6871cd8c5021b",
+  "private_payload_sha256": "4719a261467bac3839753f856c613d5844d177fb6ab67da2142564480139c125",
+  "author_source_sha256": "470416a379a90466d7d78e682c5b1debc8f2e8282301c596c11303c34e0519cf",
+  "review_source_sha256": "35b6397649aae052dda2da25c5b418b2a55f72a9d08200873512611cfcd5cfa1",
+  "dependencies_verified": {
+    "tools\\conditional_skill_routing_shared_campaign.py": "b04c4f757c1b18a80d27b4b3c55550b865ba190aaacc86aad7be55f0eed11c4f",
+    "tools\\conditional_skill_routing_comparison_adapter.py": "274f334793f70b4c54fb2e105080d90e4d0cea2a9ee498284019761623996ac0",
+    "tools\\conditional_skill_routing_responses_accounting.py": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543",
+    "tools\\conditional_skill_routing_cli_tuning_transport_probe.py": "50d484d1f87eea51e3db7254e2495eb3db7dbd7a7f477273290b12a6678e2ace",
+    "tools\\conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+    "tools\\conditional_skill_routing_eval.py": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0",
+    "tools\\skill_activation_budget.py": "b9da02a6dbf255764415337a9100f3a0c77f3e1c70581ba549934aa587390f81"
+  },
+  "additional_public_broker_sha256": "7c25cf087b5a1d4e800889bb1ccd16fad8e65da2b16f3085dd6c4a4e72e07dd7",
+  "fresh_cases": 8,
+  "entire_payload_regenerated_byte_exact_from_public_templates": true,
+  "no_retired_payload_read": true,
+  "executable_binding_public_receipt_reproduced_byte_exact": true,
+  "all_callbacks_exactly_delivered_in_memory": true,
+  "author_payload_and_receipt_unchanged": true,
+  "temporary_mirror_removed": true,
+  "new_fixture_nonascii_characters": 0,
+  "model_calls": 0,
+  "campaign_runs": [],
+  "final_generic_parent_transport_profile_attachment_pending": true,
+  "limits": [
+    "In-memory sealed baseline binding replay only; no heldout CLI/model/campaign launch",
+    "No private turns/expectations/fixtures/directories disclosed in receipt",
+    "Fresh author strings are ASCII; Unicode fixture fidelity is not proved by this set; baseline instruction callback strings remain separate evidence",
+    "External storage scope precaution is not physical OS evaluator isolation",
+    "Final current generic profile attachment and future candidate freeze remain required"
+  ]
+}

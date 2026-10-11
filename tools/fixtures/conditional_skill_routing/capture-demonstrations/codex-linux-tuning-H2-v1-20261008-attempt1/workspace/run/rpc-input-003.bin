@@ -1,0 +1,1 @@
+{"id":3,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"I want to understand a routing mistake, not request a change.","type":"text"}],"threadId":"01a11ce0-69ce-7d61-9062-2b149144198d"}}

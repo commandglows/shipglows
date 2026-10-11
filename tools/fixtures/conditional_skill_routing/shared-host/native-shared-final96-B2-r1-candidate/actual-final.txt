@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : Correction de CLAUDE.md
+🎯 VERDICT (heure Paris indisponible) : remplacement synthétique vérifié
+
+✨ RÉSULTAT : « Main entry point » remplacé uniquement par « Main CLI entry point ».
+
+🧪 PREUVES ✅ Invocation sg-docs FILE valide · Topologie compliant · Ancienne phrase absente · Nouvelle phrase présente une fois · Autres octets identiques (focused_verify, request-23).
+
+📖 DOCUMENTATION ✅ updated · CLAUDE.md synthétique uniquement; aucun code changé.
+
+✏️ ÉDITORIAL ➖ not impacted · Correction interne sans changement de comportement ou de promesse publique.
+
+📰 CHANGELOG ➖ not applicable · Correction de libellé interne mineure.
+
+📦 LIVRAISON : Mutation simulée via le courtier après consentement B2-U2 · Aucun commit, push ou effet réel sur le fichier hôte.
+
+⚠️ LIMITES : Livraison fournisseur non vérifiée. La preuve tardive request-30 indique une réparation plus large nécessitant une migration, indépendante de cette correction; aucune migration appliquée.
+
+Context Capsule : sg-docs → correction documentaire étroite → CLAUDE.md → remplacement exact. Résultat evidence_backed par le courtier; interdiction de toute autre écriture confirmed par B2-U2. Le périmètre initial et les octets étrangers sont préservés.
+
+🧭 SUITE : Toute réparation plus large nécessite une demande et une autorisation distinctes; aucune extension déduite de cette correction.

@@ -1,0 +1,3 @@
+event: tool_result
+data: {"status":"denied","tool_call_id":"call-exchange-026"}
+

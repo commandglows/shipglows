@@ -1,0 +1,12 @@
+🚧 CHANTIER (local) : Synthetic sg-content audit
+🎯 VERDICT (time unavailable) : Blocked before audit activation
+
+Owner: shipglows core → 900-shipglows-core, skill surface. The requested outcome remains findings here for skills/sg-content only, with no repairs or durable task history/reports.
+
+Evidence: the broker catalog exposes invocation_preflight only for skills/sg-help. Mandatory explicit-invocation validation therefore cannot establish validity for the requested sg-content scope. I did not substitute that target or run the audit without its activation gate. No skill findings or successful audit are claimed.
+
+Changes: none. No task artifacts, history or reports were written; required observation callbacks are separate from task persistence.
+
+Context: scope and exclusions are confirmed by the supplied user request; the synthetic skill-only boundary is supported by evidence/audit-scope.txt. Exact invocation validity remains unknown. The target skill was not inspected, so its quality is unassessed.
+
+🧭 SUITE : Expose a preflight capability for the exact sg-content audit, then run the bounded read-only audit and return findings here. No repair, scope expansion or durable tracing is authorized.

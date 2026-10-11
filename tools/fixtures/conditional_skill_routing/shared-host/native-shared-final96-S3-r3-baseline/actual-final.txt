@@ -1,0 +1,1 @@
+Synthetic Mosaic is a prototype with confirmed support for local templates and JSON export. It currently has no shared workspace.

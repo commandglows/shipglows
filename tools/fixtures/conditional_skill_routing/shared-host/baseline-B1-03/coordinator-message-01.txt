@@ -1,0 +1,1 @@
+Broker catalog now includes the callback transport protocol schemas and serialization grammar, which were previously omitted. Use it if needed to serialize your own approval or response; earlier refusals remain evidence.

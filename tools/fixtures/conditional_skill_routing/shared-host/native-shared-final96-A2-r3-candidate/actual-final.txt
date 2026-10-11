@@ -1,0 +1,18 @@
+🧱 CHANTIER (local) : Synthetic sg-help routing audit
+🎯 VERDICT (Paris time unavailable through broker) : Review finding
+
+Owner and scope: ShipGlows/Core skill audit; only the released synthetic skills/sg-help/SKILL.md. Audit-only authority excludes repair and persistence.
+
+Observed problem: The inspected example says `public audience docs -> sg-docs`. The supplied ownership contract routes public audience documentation to sg-content and internal governance documentation to sg-docs.
+
+System cause: This example conflates public audience content with internal documentation ownership. No broader cause was established.
+
+Prevention rule: Select documentation ownership by audience and outcome.
+
+Contract/tooling improvement proposal: If separately authorized, correct that example in skills/sg-help/SKILL.md and validate a public-documentation routing scenario.
+
+Evidence: Released scope and target read; broker audit(target=skills/sg-help/SKILL.md, mode=audit, read_only=true) returned SYNTHETIC-OWNER-MISMATCH, severity review, writes=false. This is simulated fixture evidence; no live routing, installed resource identity, baseline audit or activation graph was verified.
+
+Changes and impact: No task files, history, trackers or saved reports were written. Documentation/editorial changes remain proposed only. Audit findings do not establish a repair.
+
+🧭 SUITE: Preserve this finding for any separately authorized correction; the current request permits no change or save.

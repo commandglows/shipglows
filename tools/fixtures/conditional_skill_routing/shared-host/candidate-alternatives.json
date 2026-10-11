@@ -1,0 +1,22 @@
+{
+  "status": "authored_after_baseline_review_pending",
+  "tuning_only": true,
+  "cases": [
+    "H2",
+    "A1",
+    "B2",
+    "S2"
+  ],
+  "alternatives": [
+    {
+      "id": "compact",
+      "manifest_path": "tools/fixtures/conditional_skill_routing/shared-host/candidate-manifest.json"
+    },
+    {
+      "id": "explicit",
+      "manifest_path": "tools/fixtures/conditional_skill_routing/shared-host/alternatives/explicit/manifest.json"
+    }
+  ],
+  "heldout_access_by_author": false,
+  "selection_rule": "Preserve safety and behavior first; unknown cost never credited as savings; prefer shorter clear wording only after observations and independent coverage review."
+}

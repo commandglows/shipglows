@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "packet_type": "offline_gate_review_packet",
+  "gate": "independent_readiness_review",
+  "status": "pending_upstream_gates",
+  "campaign_id": null,
+  "consumer_profile_sha256": null,
+  "independent_review": false,
+  "reviewer": null,
+  "checks": {
+    "all_offline_gates_reviewed": false,
+    "deferred_launch_parameters_explicit": false,
+    "no_real_model_run_claimed": false,
+    "preparation_only": false
+  },
+  "artifact_hashes": {
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-campaign-identity-public.json": "76dff4e2f2a5671f7f89f898df0b86fb18bdf5b67a3bf43d1e3f2316593c3ef3",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-source-closure-review-public.json": "011d2cced3909bb4bb5659e91c5f7d5a1f8353a1881fe8768d8ee6f1eafa4d74",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-profile-review-public.json": "768465428e527d82f1d888faed15f8d769c2265e1d99b1ec7972da18bdc55b68",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-a3-identity-review-public.json": "25cc2d4574948d255b02fd5b52812af415bbff994da950c0731387a305f25e72",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-fixture-runtime-review-public.json": "01689d98fd5116c26bf2edb12d80c84755c7b487b56220eaae7059db46e9021a",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-scenario-transport-review-public.json": "dcb0dd09034dca191e38477ec4248101cf7a619a575204fabee3b8edd228a1d9",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-instruction-role-span-review-public.json": "293a9aad9267fac983a9bf0044dfbd928785540232e07892628387b3e63cdd8f",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-context-loss-policy-review-public.json": "b104dfa72ba816fcc1196e06be6ae64ed608963dd8bdeb6c1b318bcaee7b29f9",
+    "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "691006e1322c610c356cfeb30547b6dae2d884adf845235784ee65f1ddafd98a",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/real-comparison-readiness-template.json": "c973ad5fa0a1de21fd8e2dafd8fa8eeb02d644c7d12cf958729ff573090e8761",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-cli-capture-integration.md": "ab64e4b78c1b1ecd6fd2bb47030c51052bdbbb1af9e57483a5fddc0eb0bb1995",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-cli-broker-transport.md": "f0be938fb6f5d5d902e2510a7186cfc28a70c73bdab334a4d0b67f6a3f83906f",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-cli-instruction-compaction.md": "84a4d06e583b79297403344ee3b4d828f7f7c98b7852d0f4b133ed188c97256f"
+  },
+  "limitations": [
+    "Upstream gate packets remain pending.",
+    "This packet cannot approve readiness or a launch.",
+    "Provider, account, model, budget, profile, and separate execution authority remain deferred."
+  ],
+  "receipt_sha256": null
+}

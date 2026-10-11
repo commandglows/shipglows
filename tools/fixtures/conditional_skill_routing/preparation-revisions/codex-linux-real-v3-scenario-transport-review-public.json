@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "packet_type": "offline_gate_review_packet",
+  "gate": "complete_scenario_transport",
+  "status": "pending_review",
+  "campaign_id": null,
+  "consumer_profile_sha256": null,
+  "independent_review": false,
+  "reviewer": null,
+  "checks": {
+    "all_four_families": false,
+    "conditional_turns_and_grants": false,
+    "actual_effect_then_exact_result_delivery": false,
+    "refusals_errors_retries_preserved": false
+  },
+  "artifact_hashes": {
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-H1-v1-20261009-final-attempt1/summary.json": "688fca186dc890b0b5fdb7f9a482e7ae90eb89c6310ecc401db7ec52333aea4c",
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-H2-v1-20261009-final-attempt1/summary.json": "d59904d8b45a94b1e2f2e929ef359669e0a02aee1c5eb984e7bdeeab41464878",
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-A1-v1-20261009-final-attempt1/summary.json": "a07b159576ad761799f4962da53055a90fdd62705679e8e9096b8c223fddb7d5",
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-A2-v1-20261009-final-attempt1/summary.json": "410b9b7f16259e9cd8bd27bfd5856c8d926acd99e589fa5c9392d47f9e931e85",
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-B1-v1-20261009-final-attempt1/summary.json": "a467e8a926b2f8a41599384d0477a73a12c5ad79ee8edf9a160287b094d0506f",
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-B2-v1-20261009-final-attempt1/summary.json": "a1749f051a94eebb825cd6251d7bb2f0b0da5db6b6e1f1d176fa656483288c62",
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-S1-v1-20261009-final-attempt1/summary.json": "ca20e83cc4df8e7d158021744e4da0274429813c39ec7d2ca105e24db3a37486",
+    "tools/fixtures/conditional_skill_routing/capture-demonstrations/codex-linux-parent-case-S2-v1-20261009-final-attempt1/summary.json": "5c8ecf3eb827240c014f9bd4048c4ee283709ab470dbe49ed185be3b3831736b",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-cli-broker-transport.md": "f0be938fb6f5d5d902e2510a7186cfc28a70c73bdab334a4d0b67f6a3f83906f",
+    "tools/conditional_skill_routing_parent_transport.py": "0ab459436259c04556988e48b6b944df0483269e5ff060fd132a8282634ac190",
+    "tools/conditional_skill_routing_comparison_case_controller.py": "5066ac33b9cd94434abdb87b3185836d23de6eaa1644a7b40f095d5cef5c2de2",
+    "tools/conditional_skill_routing_cli_case_child.py": "8f4832c7e9b8c6ff6a898e236f4237ca0d4404f889ed261c61c82143e9d7ce79"
+  },
+  "limitations": [
+    "Mock-only: 199 simulated requests, 184 callbacks, four fixture refusals.",
+    "Raw captures were removed; the packet binds public summaries and review documents."
+  ],
+  "receipt_sha256": null
+}

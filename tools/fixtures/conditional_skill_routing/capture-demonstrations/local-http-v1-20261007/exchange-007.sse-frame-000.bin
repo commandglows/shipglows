@@ -1,0 +1,3 @@
+event: tool_result
+data: {"scope":"synthetic_record","status":"granted","tool_call_id":"call-exchange-007"}
+

@@ -1,0 +1,27 @@
+{
+  "artifact": "independent-synthetic-broker-profile-review",
+  "status": "pass",
+  "independent_review": true,
+  "summary_sha256": "7b83dee20d242f7bd45b9fd602fc5e046383114a4f9b043461a870dd44039231",
+  "inventory_artifacts": 107,
+  "requests": 5,
+  "callbacks": 3,
+  "completed_user_turns": 1,
+  "gate_failed_user_turns": 1,
+  "same_thread": true,
+  "checks": {
+    "inventory_rehashed": true,
+    "only_tools_values_changed": true,
+    "all_exact_callbacks_in_next_and_later_model_requests": true,
+    "native_stream_never_emitted": true,
+    "raw_rpc_replayed": true,
+    "temporary_binary_removed": true,
+    "exact_original_dynamic_schemas_preserved": true
+  },
+  "limits": [
+    "Synthetic three-tool fixture only; full H/A/B/S adapter not established here",
+    "Native features remain enabled; trusted provider gate proven, not feature disablement",
+    "No real provider, credential, model retention, AC5 or campaign claim"
+  ],
+  "review_source_sha256": "6de9307c7cb22229077159e499a048c21032a605c4ec6ab9fc756aff193a472b"
+}

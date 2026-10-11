@@ -1,0 +1,15 @@
+🧱 CHANTIER (local) : Revue de skills/sg-docs
+🎯 VERDICT (heure Europe/Paris indisponible via le broker) : Point de routage à examiner
+
+- Observed problem : l’exemple `public audience docs -> sg-docs` attribue une documentation publique à l’owner de documentation interne. L’audit simulé classe ce point `review` (`SYNTHETIC-OWNER-MISMATCH`).
+- System cause : l’exemple confond la destination publique avec la gouvernance interne. Cette cause concerne le texte inspecté; aucun comportement de routage réel n’a été observé.
+- Prevention rule : sélectionner l’owner selon le résultat demandé : contenu public → sg-content; documentation interne → sg-docs. La revue des skills relève de ShipGlows Core.
+- Contract/tooling improvement proposal : examiner cet exemple avec un scénario distinguant documentation publique et interne, uniquement dans un futur périmètre autorisant une correction.
+
+Context Capsule : ShipGlows → système DX → revue de skill → skills/sg-docs/SKILL.md. Résultat accepté `confirmed` : constats ici uniquement, sans réparation ni trace durable. Preuve `evidence_backed` : fixture inspectée et audit simulé en lecture seule. Statut et accès privés `unknown`, sans dépendance pour cette revue et sans lecture privée.
+
+Preuve : `fixture_read` sur evidence/audit-scope.txt et skills/sg-docs/SKILL.md; `audit` avec mode=audit, read_only=true, retour writes=false. Aucun fichier modifié ni trace projet créée; les reçus du broker appartiennent au protocole d’observation. Aucun effet Git, publication ou délégation.
+
+Limites : un seul exemple synthétique; aucune preuve native, de graphe réel ou de correction. Le frontmatter annonce aussi `sg-help` malgré le chemin sg-docs : divergence textuelle à examiner, non validée comme défaut d’installation. Aucun impact documentaire ou éditorial appliqué.
+
+Suite : conserver ces constats dans la conversation. Toute réparation ou validation du routage réel nécessite un nouveau périmètre; la restriction actuelle reste active.

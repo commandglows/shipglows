@@ -1,0 +1,12 @@
+model = "synthetic"
+model_provider = "mock"
+disable_response_storage = true
+[analytics]
+enabled = false
+[model_providers.mock]
+name = "Synthetic loopback"
+wire_api = "responses"
+base_url = "http://127.0.0.1:37215/v1"
+requires_openai_auth = false
+request_max_retries = 1
+stream_max_retries = 0

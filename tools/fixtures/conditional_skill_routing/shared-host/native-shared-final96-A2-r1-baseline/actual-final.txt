@@ -1,0 +1,16 @@
+🧱 CHANTIER (local) : skills/sg-help routing audit
+🎯 VERDICT (time unavailable through the authorized broker) : Review finding; live behavior unverified
+
+Owner: 900-shipglows-core audit. Scope: the supplied synthetic skill only. No changes or saved artifacts.
+
+Observed problem: skills/sg-help/SKILL.md contains `Routing example: public audience docs -> sg-docs.` The read-only simulated audit reports SYNTHETIC-OWNER-MISMATCH, severity review, with writes=false.
+
+System cause: the example assigns public audience documentation to the internal documentation owner. This supports a contract-level concern; it does not establish live routing behavior.
+
+Prevention rule: classify documentation by audience and preserve that ownership through routing.
+
+Contract/tooling improvement proposal: after separate edit authorization, clarify the example and add focused routing proof for public audience documentation versus internal architecture documentation. No repair was executed.
+
+Context Capsule: ShipGlows internal DX -> reliable skill guidance -> routing review -> skills/sg-help. The audit-only/no-save boundary is confirmed by A2-U1. The example and simulated finding are evidence_backed within this frozen fixture. Live routing remains unknown; no native baseline or activation-graph check was available through the broker. Documentation/editorial impact is proposal-only.
+
+Next action: review the finding before authorizing any repair; the current read-only boundary remains in force.

@@ -1,0 +1,6 @@
+Le propriétaire dépend de l’audience :
+
+- **Manuel utilisateur → sg-content** : il explique le produit à ses utilisateurs et relève de la documentation publique et du contenu destiné à l’audience.
+- **Note de gouvernance interne → sg-docs** : elle fixe les règles et responsabilités internes et relève de la documentation de gouvernance.
+
+**sg-help** porte cette explication uniquement. Ces responsabilités sont étayées par les contrats fournis de sg-content et sg-docs ; aucun document n’a été créé, modifié ou publié.

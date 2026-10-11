@@ -1,0 +1,5 @@
+`shipglows core build skills/sg-content` describes work on the ShipGlows system: `core` keeps the whole target within ShipGlows, `build` denotes a skill change, and `skills/sg-content` identifies the skill being changed. If explicitly invoked, its implementation owner would be ShipGlows core; it would not launch a content-production task.
+
+Here, `sg-help` owns the explanation. The line is quoted training text, so it activates no command and grants no approval. No build, edit, publication, or persistence was performed.
+
+Context Capsule: target = ShipGlows → skill workflow → explanation → quoted command; discussion-only scope is confirmed by H4-U1; command meaning is evidence_backed by the supplied router contract. Host installation and runtime behavior were not inspected. No execution step is authorized.

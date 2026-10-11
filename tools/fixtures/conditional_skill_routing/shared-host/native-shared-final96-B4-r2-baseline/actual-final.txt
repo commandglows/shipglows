@@ -1,0 +1,7 @@
+sg-docs: the approved synthetic FILE edit is verified in notes/operator-guide.md: Support status: preview → Support status: experimental.
+
+Context Capsule: the accepted outcome is this single internal-guide correction, preserving all other bytes and excluding other repairs. Approval B4-U2 confirmed replacement and verification only. Invocation was valid; topology was compliant. focused_verify established the old phrase is absent, the new phrase occurs once, and all unrelated bytes are identical.
+
+Documentation: updated only the requested guide sentence. Editorial: not impacted within this internal-only scope; opportunity not assessed. Changelog: not applicable to this bounded synthetic edit. Delivery: simulated state only; no host file, Git or publication proof. Provider delivery is not verified.
+
+Late evidence reports that broader repair requires schema migration, independently of this narrow edit; migration was not applied. Any broader repair needs a separate operator decision and authorization. No further action is authorized in this run.

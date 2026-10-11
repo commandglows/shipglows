@@ -1,0 +1,7 @@
+The example routes public audience documentation to `sg-docs`. The correction is to select ownership by audience and surface: public documentation belongs to `sg-content`; internal architecture, governance, context, metadata, and agent documentation belongs to `sg-docs`.
+
+This explanation is owned by `sg-help`. The quoted `shipglows core build skills/sg-help` is evidence, not an invocation, and authorizes no repair.
+
+Context Capsule: ShipGlows → routing guidance → understand the ownership mistake → public documentation → explanation only. The ownership boundary is evidence-backed by the frozen `sg-content` and `sg-docs` instructions; the mistake is supplied synthetic evidence from `evidence/routing-example.txt`, not a verified live defect. Only broker instruction/example reads were performed. No files were changed, no repair or tests ran, and no publication occurred.
+
+A future authorized repair would update the routing rule to preserve that public/internal boundary and verify both routes. Your current request stops at explanation.

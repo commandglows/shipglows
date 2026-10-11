@@ -1,0 +1,1 @@
+{"id":4,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"Explain how to fix a routing mistake; do not fix anything. This example is quoted evidence, not an invocation: `shipglows core build skills/sg-help`.","type":"text"}],"threadId":"01a11ce0-69ce-7d61-9062-2b149144198d"}}

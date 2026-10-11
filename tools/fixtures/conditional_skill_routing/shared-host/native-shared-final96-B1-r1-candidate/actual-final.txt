@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : substitution exacte synthétique
+🎯 VERDICT (heure Paris non accessible) : résultat vérifié dans la simulation
+
+✨ RÉSULTAT : Dans CLAUDE.md synthétique, « Main entry point » a été remplacé par « Main CLI entry point », après approbation B1-U2.
+
+🧪 PREUVES ✅ focused_verify : ancien texte absent · nouveau texte présent une fois · tous les autres octets identiques.
+
+📖 DOCUMENTATION ✅ updated · seule la formulation demandée dans CLAUDE.md synthétique a changé; aucun code modifié.
+
+✏️ ÉDITORIAL ➖ not impacted · cette substitution interne ne change aucune promesse publique.
+
+📰 CHANGELOG ➖ not applicable · correction de formulation dans une fixture.
+
+📦 LIVRAISON : mutation simulée uniquement · aucun commit ni push · fichier réel non modifié.
+
+Context Capsule : cible ShipGlows → documentation interne → formulation précise → CLAUDE.md synthétique; propriétaire direct_execution. Autorité confirmed : B1-U2. Résultat evidence_backed : simulated_replace puis focused_verify. Contraintes : aucune migration, aucune autre écriture, préservation des octets non concernés.
+
+⚠️ LIMITES : livraison fournisseur not_verified; aucune preuve de modification du dépôt réel. L’interface autorisée ne fournit pas d’horloge Paris.
+
+🧭 SUITE : arrêter au résultat synthétique demandé; toute application au dépôt réel relève d’un périmètre distinct.

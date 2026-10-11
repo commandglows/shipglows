@@ -1,0 +1,1363 @@
+{
+  "artifact": "prospective-real-comparison-source-readiness",
+  "audit_source_sha256": "fa51c3f375248509dbbcb4806d29268ea6e45f3eb97d81e0fa35308cd8e14e60",
+  "campaign_launched": false,
+  "frozen_static_accounting": {
+    "errors": [],
+    "scenarios": {
+      "A1": {
+        "baseline_tokens": 22885,
+        "budget_status": "within_budget",
+        "depth_after_selection": 2,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 22885,
+        "stage_increments": {
+          "audit": 5012,
+          "engine": 2018,
+          "entry": 408,
+          "report": 2659,
+          "routing": 9805,
+          "selection": 2983
+        },
+        "structural_status": "valid",
+        "violations": []
+      },
+      "A2": {
+        "baseline_tokens": 20549,
+        "budget_status": "within_budget",
+        "depth_after_selection": 2,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 20549,
+        "stage_increments": {
+          "audit": 5012,
+          "engine": 2018,
+          "entry": 408,
+          "report": 2659,
+          "routing": 7469,
+          "selection": 2983
+        },
+        "structural_status": "valid",
+        "violations": []
+      },
+      "B1": {
+        "baseline_tokens": 17809,
+        "budget_status": "within_budget",
+        "depth_after_selection": 2,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 17809,
+        "stage_increments": {
+          "authority": 5011,
+          "entry": 408,
+          "report": 9556,
+          "routing": 2834
+        },
+        "structural_status": "valid",
+        "violations": []
+      },
+      "B2": {
+        "baseline_tokens": 25666,
+        "budget_status": "within_budget",
+        "depth_after_selection": 2,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 25666,
+        "stage_increments": {
+          "authority": 5011,
+          "engine": 1678,
+          "entry": 408,
+          "execution": 680,
+          "owner": 327,
+          "report": 7435,
+          "routing": 6137,
+          "selection": 3990
+        },
+        "structural_status": "valid",
+        "violations": []
+      },
+      "H1": {
+        "baseline_tokens": 8022,
+        "budget_status": "within_budget",
+        "depth_after_selection": 2,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 8022,
+        "stage_increments": {
+          "entry": 408,
+          "report": 4780,
+          "routing": 2834
+        },
+        "structural_status": "valid",
+        "violations": []
+      },
+      "H2": {
+        "baseline_tokens": 8022,
+        "budget_status": "within_budget",
+        "depth_after_selection": 2,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 8022,
+        "stage_increments": {
+          "entry": 408,
+          "report": 4780,
+          "routing": 2834
+        },
+        "structural_status": "valid",
+        "violations": []
+      },
+      "S1": {
+        "baseline_tokens": 30852,
+        "budget_status": "within_budget",
+        "depth_after_selection": 3,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 30852,
+        "stage_increments": {
+          "access": 4531,
+          "draft": 5394,
+          "engine": 1684,
+          "entry": 408,
+          "owner": 329,
+          "proof": 2988,
+          "report": 2659,
+          "routing": 7469,
+          "selection": 5390
+        },
+        "structural_status": "valid",
+        "violations": []
+      },
+      "S2": {
+        "baseline_tokens": 32381,
+        "budget_status": "within_budget",
+        "depth_after_selection": 3,
+        "errors": [],
+        "measurement": "declared_unique_reads",
+        "reduction_percent": 0.0,
+        "selected_tokens": 32381,
+        "stage_increments": {
+          "access": 4531,
+          "authority": 1529,
+          "draft": 5394,
+          "engine": 1684,
+          "entry": 408,
+          "owner": 329,
+          "proof": 2988,
+          "report": 2659,
+          "routing": 7469,
+          "selection": 5390
+        },
+        "structural_status": "valid",
+        "violations": []
+      }
+    },
+    "status": "valid"
+  },
+  "historical_closure": {
+    "authority_for_new_consumer": false,
+    "reviewer": "/root/independent_pilot_review",
+    "status": "reviewed"
+  },
+  "historical_nonselected_drift": [
+    "host-agent",
+    "governing-spec",
+    "calibration"
+  ],
+  "host_injection_reviews": [
+    {
+      "id": "current-host-approval",
+      "new_consumer_applicability": "review_required_no_assumed_host_authority",
+      "obligations": [
+        "O2"
+      ],
+      "sha256": "a53797dcf917c9a36687d3911360088c3529ba15843fa4dca4428ff9334d71b2",
+      "source_id": "host-agent",
+      "source_spans": [
+        {
+          "end": 8769,
+          "sha256": "a53797dcf917c9a36687d3911360088c3529ba15843fa4dca4428ff9334d71b2",
+          "start": 8067,
+          "unchanged_at_current_offsets": false
+        }
+      ]
+    },
+    {
+      "id": "report-mode",
+      "new_consumer_applicability": "review_required_no_assumed_host_authority",
+      "obligations": [],
+      "sha256": "a9ad7ad52d6e5585ed580670df2a83fb220a6a7cc0d31c167aebaf8948d256a2",
+      "source_id": null,
+      "source_spans": []
+    }
+  ],
+  "inventory": [
+    {
+      "bytes": 1675,
+      "current_snapshot": "current-source-snapshots/router-public-632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2.bin",
+      "drift": false,
+      "frozen_sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2",
+      "id": "router-public",
+      "live_sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2",
+      "normalized_characters": 1631,
+      "normalized_text_unchanged": true,
+      "path": "skills/shipglows/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 8114,
+      "current_snapshot": "current-source-snapshots/router-3d5d830d3ee17f5d8d1c9c09cbc8e0cd70c0862f059153f859a066b9ef73740d.bin",
+      "drift": false,
+      "frozen_sha256": "3d5d830d3ee17f5d8d1c9c09cbc8e0cd70c0862f059153f859a066b9ef73740d",
+      "id": "router",
+      "live_sha256": "3d5d830d3ee17f5d8d1c9c09cbc8e0cd70c0862f059153f859a066b9ef73740d",
+      "normalized_characters": 7958,
+      "normalized_text_unchanged": true,
+      "path": "skills/000-shipglows/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 1474,
+      "current_snapshot": "current-source-snapshots/help-public-e798bfaed2ac39ee2253d7154c56b6d6b01ac9453c1b8268b24169599338272a.bin",
+      "drift": false,
+      "frozen_sha256": "e798bfaed2ac39ee2253d7154c56b6d6b01ac9453c1b8268b24169599338272a",
+      "id": "help-public",
+      "live_sha256": "e798bfaed2ac39ee2253d7154c56b6d6b01ac9453c1b8268b24169599338272a",
+      "normalized_characters": 1443,
+      "normalized_text_unchanged": true,
+      "path": "skills/sg-help/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 11718,
+      "current_snapshot": "current-source-snapshots/help-91ec70d72aade9dfc02a613971baba1cbc55400e7729707f9da89548ebb0cad5.bin",
+      "drift": false,
+      "frozen_sha256": "91ec70d72aade9dfc02a613971baba1cbc55400e7729707f9da89548ebb0cad5",
+      "id": "help",
+      "live_sha256": "91ec70d72aade9dfc02a613971baba1cbc55400e7729707f9da89548ebb0cad5",
+      "normalized_characters": 11596,
+      "normalized_text_unchanged": true,
+      "path": "skills/302-sg-help/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 1335,
+      "current_snapshot": "current-source-snapshots/docs-public-ed8642d9734c8676ba7b3ad1c51d54c81a2efd89f558493e178da6660aaeab50.bin",
+      "drift": false,
+      "frozen_sha256": "ed8642d9734c8676ba7b3ad1c51d54c81a2efd89f558493e178da6660aaeab50",
+      "id": "docs-public",
+      "live_sha256": "ed8642d9734c8676ba7b3ad1c51d54c81a2efd89f558493e178da6660aaeab50",
+      "normalized_characters": 1305,
+      "normalized_text_unchanged": true,
+      "path": "skills/sg-docs/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 6781,
+      "current_snapshot": "current-source-snapshots/docs-cf82c6a04d08be7d4a83f20723a696248a9cf4fea7d54fc6d9c41789720ea603.bin",
+      "drift": false,
+      "frozen_sha256": "cf82c6a04d08be7d4a83f20723a696248a9cf4fea7d54fc6d9c41789720ea603",
+      "id": "docs",
+      "live_sha256": "cf82c6a04d08be7d4a83f20723a696248a9cf4fea7d54fc6d9c41789720ea603",
+      "normalized_characters": 6712,
+      "normalized_text_unchanged": true,
+      "path": "skills/300-sg-docs/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 1344,
+      "current_snapshot": "current-source-snapshots/content-public-19469d7f076ec603a511737cd0bee4a1b2d9fb84740a8b475bd815f1d17bc298.bin",
+      "drift": false,
+      "frozen_sha256": "19469d7f076ec603a511737cd0bee4a1b2d9fb84740a8b475bd815f1d17bc298",
+      "id": "content-public",
+      "live_sha256": "19469d7f076ec603a511737cd0bee4a1b2d9fb84740a8b475bd815f1d17bc298",
+      "normalized_characters": 1314,
+      "normalized_text_unchanged": true,
+      "path": "skills/sg-content/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 6803,
+      "current_snapshot": "current-source-snapshots/content-a72c339fd990eb4a8e1becdef063f54f32ac10c16cc648bc95c40b5a63b14a90.bin",
+      "drift": false,
+      "frozen_sha256": "a72c339fd990eb4a8e1becdef063f54f32ac10c16cc648bc95c40b5a63b14a90",
+      "id": "content",
+      "live_sha256": "a72c339fd990eb4a8e1becdef063f54f32ac10c16cc648bc95c40b5a63b14a90",
+      "normalized_characters": 6735,
+      "normalized_text_unchanged": true,
+      "path": "skills/007-sg-content/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 1877,
+      "current_snapshot": "current-source-snapshots/private-public-dd36a51e75bc3525c4babddc7ab248fe6d88ce01c040e5871b4e3652656dff9c.bin",
+      "drift": false,
+      "frozen_sha256": "dd36a51e75bc3525c4babddc7ab248fe6d88ce01c040e5871b4e3652656dff9c",
+      "id": "private-public",
+      "live_sha256": "dd36a51e75bc3525c4babddc7ab248fe6d88ce01c040e5871b4e3652656dff9c",
+      "normalized_characters": 1847,
+      "normalized_text_unchanged": true,
+      "path": "skills/sg-private/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 3550,
+      "current_snapshot": "current-source-snapshots/private-1865cb9ddda57c399596e21a5730e3038a71bfcccb3407b6615906a62164bb89.bin",
+      "drift": false,
+      "frozen_sha256": "1865cb9ddda57c399596e21a5730e3038a71bfcccb3407b6615906a62164bb89",
+      "id": "private",
+      "live_sha256": "1865cb9ddda57c399596e21a5730e3038a71bfcccb3407b6615906a62164bb89",
+      "normalized_characters": 3511,
+      "normalized_text_unchanged": true,
+      "path": "skills/603-sg-private/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 8162,
+      "current_snapshot": "current-source-snapshots/core-fd050eb5aea84067503adcc37de61d6a7d2f8ab8f12c1e6e46cdc08affbd7821.bin",
+      "drift": false,
+      "frozen_sha256": "fd050eb5aea84067503adcc37de61d6a7d2f8ab8f12c1e6e46cdc08affbd7821",
+      "id": "core",
+      "live_sha256": "fd050eb5aea84067503adcc37de61d6a7d2f8ab8f12c1e6e46cdc08affbd7821",
+      "normalized_characters": 8071,
+      "normalized_text_unchanged": true,
+      "path": "skills/900-shipglows-core/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 5659,
+      "current_snapshot": "current-source-snapshots/draft-f1de7837514bb2915d85487a4d38b98334079d451693d008d0570ff53d90856a.bin",
+      "drift": false,
+      "frozen_sha256": "f1de7837514bb2915d85487a4d38b98334079d451693d008d0570ff53d90856a",
+      "id": "draft",
+      "live_sha256": "f1de7837514bb2915d85487a4d38b98334079d451693d008d0570ff53d90856a",
+      "normalized_characters": 5583,
+      "normalized_text_unchanged": true,
+      "path": "skills/200-sg-redact/SKILL.md",
+      "selected": true
+    },
+    {
+      "bytes": 3435,
+      "current_snapshot": "current-source-snapshots/canonical-7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7.bin",
+      "drift": false,
+      "frozen_sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7",
+      "id": "canonical",
+      "live_sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7",
+      "normalized_characters": 3373,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/canonical-paths.md",
+      "selected": true
+    },
+    {
+      "bytes": 2746,
+      "current_snapshot": "current-source-snapshots/private-roots-89cf17632865c8fb863c1dbd6c9a92478c84145a64f32ecff2d7ac06a50b1f30.bin",
+      "drift": false,
+      "frozen_sha256": "89cf17632865c8fb863c1dbd6c9a92478c84145a64f32ecff2d7ac06a50b1f30",
+      "id": "private-roots",
+      "live_sha256": "89cf17632865c8fb863c1dbd6c9a92478c84145a64f32ecff2d7ac06a50b1f30",
+      "normalized_characters": 2696,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/canonical-runtime-and-private-roots.md",
+      "selected": true
+    },
+    {
+      "bytes": 4119,
+      "current_snapshot": "current-source-snapshots/autonomy-d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157.bin",
+      "drift": false,
+      "frozen_sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157",
+      "id": "autonomy",
+      "live_sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157",
+      "normalized_characters": 4027,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/intent-to-outcome-autonomy.md",
+      "selected": true
+    },
+    {
+      "bytes": 3589,
+      "current_snapshot": "current-source-snapshots/execution-8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777.bin",
+      "drift": false,
+      "frozen_sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777",
+      "id": "execution",
+      "live_sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777",
+      "normalized_characters": 3526,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/intent-to-outcome-execution.md",
+      "selected": true
+    },
+    {
+      "bytes": 6129,
+      "current_snapshot": "current-source-snapshots/decision-056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2.bin",
+      "drift": false,
+      "frozen_sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2",
+      "id": "decision",
+      "live_sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2",
+      "normalized_characters": 6026,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/decision-quality-contract.md",
+      "selected": true
+    },
+    {
+      "bytes": 8572,
+      "current_snapshot": "current-source-snapshots/functional-0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193.bin",
+      "drift": false,
+      "frozen_sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193",
+      "id": "functional",
+      "live_sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193",
+      "normalized_characters": 8403,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/functional-excellence-contract.md",
+      "selected": true
+    },
+    {
+      "bytes": 8583,
+      "current_snapshot": "current-source-snapshots/context-5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440.bin",
+      "drift": false,
+      "frozen_sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440",
+      "id": "context",
+      "live_sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440",
+      "normalized_characters": 8483,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/context-quality-contract.md",
+      "selected": true
+    },
+    {
+      "bytes": 14111,
+      "current_snapshot": "current-source-snapshots/approval-f2965ff263b188793522fa823ef8917e17a003fc132bf37ece1dab165e09e630.bin",
+      "drift": false,
+      "frozen_sha256": "f2965ff263b188793522fa823ef8917e17a003fc132bf37ece1dab165e09e630",
+      "id": "approval",
+      "live_sha256": "f2965ff263b188793522fa823ef8917e17a003fc132bf37ece1dab165e09e630",
+      "normalized_characters": 13927,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/mutation-plan-approval.md",
+      "selected": true
+    },
+    {
+      "bytes": 4805,
+      "current_snapshot": "current-source-snapshots/preflight-6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b.bin",
+      "drift": false,
+      "frozen_sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b",
+      "id": "preflight",
+      "live_sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b",
+      "normalized_characters": 4726,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/skill-invocation-preflight.md",
+      "selected": true
+    },
+    {
+      "bytes": 4711,
+      "current_snapshot": "current-source-snapshots/aliases-88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850.bin",
+      "drift": false,
+      "frozen_sha256": "88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850",
+      "id": "aliases",
+      "live_sha256": "88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850",
+      "normalized_characters": 4614,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/expert-mode-aliases.md",
+      "selected": true
+    },
+    {
+      "bytes": 18437,
+      "current_snapshot": "current-source-snapshots/fidelity-e846303fb66c7047630514714369b1e58d1bd0731b2ba79a773fa91ef6601b17.bin",
+      "drift": false,
+      "frozen_sha256": "e846303fb66c7047630514714369b1e58d1bd0731b2ba79a773fa91ef6601b17",
+      "id": "fidelity",
+      "live_sha256": "e846303fb66c7047630514714369b1e58d1bd0731b2ba79a773fa91ef6601b17",
+      "normalized_characters": 18052,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/skill-execution-fidelity.md",
+      "selected": true
+    },
+    {
+      "bytes": 8405,
+      "current_snapshot": "current-source-snapshots/report-19beb84b2471e080e61c883e111a36681d90a10d94c47613ab1190bc0b08791c.bin",
+      "drift": false,
+      "frozen_sha256": "19beb84b2471e080e61c883e111a36681d90a10d94c47613ab1190bc0b08791c",
+      "id": "report",
+      "live_sha256": "19beb84b2471e080e61c883e111a36681d90a10d94c47613ab1190bc0b08791c",
+      "normalized_characters": 8169,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/reporting-contract.md",
+      "selected": true
+    },
+    {
+      "bytes": 2515,
+      "current_snapshot": "current-source-snapshots/report-agent-3d61622d0ac22bab74c1b84b7ca4aa969e3b35dcee37641f27b6d3c1378db499.bin",
+      "drift": false,
+      "frozen_sha256": "3d61622d0ac22bab74c1b84b7ca4aa969e3b35dcee37641f27b6d3c1378db499",
+      "id": "report-agent",
+      "live_sha256": "3d61622d0ac22bab74c1b84b7ca4aa969e3b35dcee37641f27b6d3c1378db499",
+      "normalized_characters": 2462,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/reporting-agent-handoff.md",
+      "selected": true
+    },
+    {
+      "bytes": 3286,
+      "current_snapshot": "current-source-snapshots/report-audit-35b31f8d92f73942a4de343d3a149118e0c1a0673d20cf71d1dbc1e49dbf8871.bin",
+      "drift": false,
+      "frozen_sha256": "35b31f8d92f73942a4de343d3a149118e0c1a0673d20cf71d1dbc1e49dbf8871",
+      "id": "report-audit",
+      "live_sha256": "35b31f8d92f73942a4de343d3a149118e0c1a0673d20cf71d1dbc1e49dbf8871",
+      "normalized_characters": 3205,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/reporting-blocked-and-audit.md",
+      "selected": false
+    },
+    {
+      "bytes": 5330,
+      "current_snapshot": "current-source-snapshots/report-closure-8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55.bin",
+      "drift": false,
+      "frozen_sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55",
+      "id": "report-closure",
+      "live_sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55",
+      "normalized_characters": 5201,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/reporting-closure.md",
+      "selected": true
+    },
+    {
+      "bytes": 7785,
+      "current_snapshot": "current-source-snapshots/docs-reflection-2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3.bin",
+      "drift": false,
+      "frozen_sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3",
+      "id": "docs-reflection",
+      "live_sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3",
+      "normalized_characters": 7765,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/documentation-reflection-gate.md",
+      "selected": true
+    },
+    {
+      "bytes": 6159,
+      "current_snapshot": "current-source-snapshots/editorial-reflection-863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2.bin",
+      "drift": false,
+      "frozen_sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2",
+      "id": "editorial-reflection",
+      "live_sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2",
+      "normalized_characters": 6132,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/editorial-reflection-gate.md",
+      "selected": true
+    },
+    {
+      "bytes": 11554,
+      "current_snapshot": "current-source-snapshots/tracking-68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7.bin",
+      "drift": false,
+      "frozen_sha256": "68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7",
+      "id": "tracking",
+      "live_sha256": "68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7",
+      "normalized_characters": 11337,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/chantier-tracking.md",
+      "selected": true
+    },
+    {
+      "bytes": 6240,
+      "current_snapshot": "current-source-snapshots/question-ffeb8f0a1ebc9f65cff5fa66fa05105ce1fa7b0ffa25fd93cd0474a97db03f90.bin",
+      "drift": false,
+      "frozen_sha256": "ffeb8f0a1ebc9f65cff5fa66fa05105ce1fa7b0ffa25fd93cd0474a97db03f90",
+      "id": "question",
+      "live_sha256": "ffeb8f0a1ebc9f65cff5fa66fa05105ce1fa7b0ffa25fd93cd0474a97db03f90",
+      "normalized_characters": 6115,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/question-contract.md",
+      "selected": true
+    },
+    {
+      "bytes": 6515,
+      "current_snapshot": "current-source-snapshots/choice-f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969.bin",
+      "drift": false,
+      "frozen_sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969",
+      "id": "choice",
+      "live_sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969",
+      "normalized_characters": 6419,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/strategic-choice-contract.md",
+      "selected": true
+    },
+    {
+      "bytes": 10257,
+      "current_snapshot": "current-source-snapshots/private-data-ff41cd8acbdd7f37167ffc79999e6207e73e7964d30d6181b9eccf403b3b0614.bin",
+      "drift": false,
+      "frozen_sha256": "ff41cd8acbdd7f37167ffc79999e6207e73e7964d30d6181b9eccf403b3b0614",
+      "id": "private-data",
+      "live_sha256": "ff41cd8acbdd7f37167ffc79999e6207e73e7964d30d6181b9eccf403b3b0614",
+      "normalized_characters": 10065,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/private-data-repo-contract.md",
+      "selected": true
+    },
+    {
+      "bytes": 6442,
+      "current_snapshot": "current-source-snapshots/editorial-e9bf631f3f856f8d9be5cccd0b9ffdfa548ef2d4cde7c0e1b6d7976818c8db36.bin",
+      "drift": false,
+      "frozen_sha256": "e9bf631f3f856f8d9be5cccd0b9ffdfa548ef2d4cde7c0e1b6d7976818c8db36",
+      "id": "editorial",
+      "live_sha256": "e9bf631f3f856f8d9be5cccd0b9ffdfa548ef2d4cde7c0e1b6d7976818c8db36",
+      "normalized_characters": 6328,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/editorial-content-corpus.md",
+      "selected": true
+    },
+    {
+      "bytes": 3210,
+      "current_snapshot": "current-source-snapshots/public-default-840ace52c52cd2ddca5a6300595ee7040b45a5ac056fb8db2cc2240d716d0e19.bin",
+      "drift": false,
+      "frozen_sha256": "840ace52c52cd2ddca5a6300595ee7040b45a5ac056fb8db2cc2240d716d0e19",
+      "id": "public-default",
+      "live_sha256": "840ace52c52cd2ddca5a6300595ee7040b45a5ac056fb8db2cc2240d716d0e19",
+      "normalized_characters": 3122,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/public-first-content-default.md",
+      "selected": true
+    },
+    {
+      "bytes": 12241,
+      "current_snapshot": "current-source-snapshots/rubric-94bd7d58daec8e3fcd8171229d53d33b466f4c7b3d0afa56aa5c774c3cb5649f.bin",
+      "drift": false,
+      "frozen_sha256": "94bd7d58daec8e3fcd8171229d53d33b466f4c7b3d0afa56aa5c774c3cb5649f",
+      "id": "rubric",
+      "live_sha256": "94bd7d58daec8e3fcd8171229d53d33b466f4c7b3d0afa56aa5c774c3cb5649f",
+      "normalized_characters": 11950,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/content-quality-rubric.md",
+      "selected": true
+    },
+    {
+      "bytes": 2011,
+      "current_snapshot": "current-source-snapshots/owned-preflight-00919f51ca2ae547f93c7a599a43531db4172629fcf5b5d981d2f626f9628a0a.bin",
+      "drift": false,
+      "frozen_sha256": "00919f51ca2ae547f93c7a599a43531db4172629fcf5b5d981d2f626f9628a0a",
+      "id": "owned-preflight",
+      "live_sha256": "00919f51ca2ae547f93c7a599a43531db4172629fcf5b5d981d2f626f9628a0a",
+      "normalized_characters": 1962,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/shipglows-owned-preflight.md",
+      "selected": true
+    },
+    {
+      "bytes": 3453,
+      "current_snapshot": "current-source-snapshots/content-handoff-ee3cfcd4552edfbb69c345e80f80e221eeff66ef2cdf17965db6306927992141.bin",
+      "drift": false,
+      "frozen_sha256": "ee3cfcd4552edfbb69c345e80f80e221eeff66ef2cdf17965db6306927992141",
+      "id": "content-handoff",
+      "live_sha256": "ee3cfcd4552edfbb69c345e80f80e221eeff66ef2cdf17965db6306927992141",
+      "normalized_characters": 3371,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/content-owner-handoffs.md",
+      "selected": true
+    },
+    {
+      "bytes": 15868,
+      "current_snapshot": "current-source-snapshots/source-intake-c71be9af51740d3bfd8a42daaa1eb1bb8d4d352b2799bca39379bbc61c656cac.bin",
+      "drift": false,
+      "frozen_sha256": "c71be9af51740d3bfd8a42daaa1eb1bb8d4d352b2799bca39379bbc61c656cac",
+      "id": "source-intake",
+      "live_sha256": "c71be9af51740d3bfd8a42daaa1eb1bb8d4d352b2799bca39379bbc61c656cac",
+      "normalized_characters": 15569,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/source-intake-classification.md",
+      "selected": true
+    },
+    {
+      "bytes": 2033,
+      "current_snapshot": "current-source-snapshots/core-audit-7fa3a51d8511d4c0310d63eb54ea334adeb0df0d01d298113dcc089c7d9dec66.bin",
+      "drift": false,
+      "frozen_sha256": "7fa3a51d8511d4c0310d63eb54ea334adeb0df0d01d298113dcc089c7d9dec66",
+      "id": "core-audit",
+      "live_sha256": "7fa3a51d8511d4c0310d63eb54ea334adeb0df0d01d298113dcc089c7d9dec66",
+      "normalized_characters": 1994,
+      "normalized_text_unchanged": true,
+      "path": "skills/900-shipglows-core/references/core-audit-and-improvement.md",
+      "selected": true
+    },
+    {
+      "bytes": 2775,
+      "current_snapshot": "current-source-snapshots/docs-file-684896da81203ccc47d9c3d33b55faca00de66b148230160a56f05804ad95c7e.bin",
+      "drift": false,
+      "frozen_sha256": "684896da81203ccc47d9c3d33b55faca00de66b148230160a56f05804ad95c7e",
+      "id": "docs-file",
+      "live_sha256": "684896da81203ccc47d9c3d33b55faca00de66b148230160a56f05804ad95c7e",
+      "normalized_characters": 2717,
+      "normalized_text_unchanged": true,
+      "path": "skills/300-sg-docs/references/simple-bootstrap-playbooks.md",
+      "selected": true
+    },
+    {
+      "bytes": 2105,
+      "current_snapshot": "current-source-snapshots/content-router-871b3dd80ccf45a95f6c7e7008259390244e828f8366f890f7bc2cf2dcddb0b0.bin",
+      "drift": false,
+      "frozen_sha256": "871b3dd80ccf45a95f6c7e7008259390244e828f8366f890f7bc2cf2dcddb0b0",
+      "id": "content-router",
+      "live_sha256": "871b3dd80ccf45a95f6c7e7008259390244e828f8366f890f7bc2cf2dcddb0b0",
+      "normalized_characters": 2063,
+      "normalized_text_unchanged": true,
+      "path": "skills/007-sg-content/references/content-router.md",
+      "selected": true
+    },
+    {
+      "bytes": 2711,
+      "current_snapshot": "current-source-snapshots/content-quality-4a7a5780f2b9c39d37f0da3cfbc9dff7513a7c168ef0ccc80db81e9d6385e956.bin",
+      "drift": false,
+      "frozen_sha256": "4a7a5780f2b9c39d37f0da3cfbc9dff7513a7c168ef0ccc80db81e9d6385e956",
+      "id": "content-quality",
+      "live_sha256": "4a7a5780f2b9c39d37f0da3cfbc9dff7513a7c168ef0ccc80db81e9d6385e956",
+      "normalized_characters": 2673,
+      "normalized_text_unchanged": true,
+      "path": "skills/007-sg-content/references/content-governance-and-quality.md",
+      "selected": true
+    },
+    {
+      "bytes": 2079,
+      "current_snapshot": "current-source-snapshots/content-proof-e15079eb3f72e4f8aab2e4996d8b79ef106d62cd856b13081d93ef5b02c64b6c.bin",
+      "drift": false,
+      "frozen_sha256": "e15079eb3f72e4f8aab2e4996d8b79ef106d62cd856b13081d93ef5b02c64b6c",
+      "id": "content-proof",
+      "live_sha256": "e15079eb3f72e4f8aab2e4996d8b79ef106d62cd856b13081d93ef5b02c64b6c",
+      "normalized_characters": 2045,
+      "normalized_text_unchanged": true,
+      "path": "skills/007-sg-content/references/content-delivery-and-proof.md",
+      "selected": true
+    },
+    {
+      "bytes": 3368,
+      "current_snapshot": "current-source-snapshots/draft-router-e78dd3d540c79dda7b38f1869b9e62bd1413f173b9fbbce3a407d88ef6119187.bin",
+      "drift": false,
+      "frozen_sha256": "e78dd3d540c79dda7b38f1869b9e62bd1413f173b9fbbce3a407d88ef6119187",
+      "id": "draft-router",
+      "live_sha256": "e78dd3d540c79dda7b38f1869b9e62bd1413f173b9fbbce3a407d88ef6119187",
+      "normalized_characters": 3308,
+      "normalized_text_unchanged": true,
+      "path": "skills/200-sg-redact/references/redaction-workflow.md",
+      "selected": true
+    },
+    {
+      "bytes": 2199,
+      "current_snapshot": "current-source-snapshots/draft-context-0a54d49e49cd78de4b244730719e894ab1f23238ea300fa9588f98d42eba5f6a.bin",
+      "drift": false,
+      "frozen_sha256": "0a54d49e49cd78de4b244730719e894ab1f23238ea300fa9588f98d42eba5f6a",
+      "id": "draft-context",
+      "live_sha256": "0a54d49e49cd78de4b244730719e894ab1f23238ea300fa9588f98d42eba5f6a",
+      "normalized_characters": 2165,
+      "normalized_text_unchanged": true,
+      "path": "skills/200-sg-redact/references/redaction-context-and-governance.md",
+      "selected": true
+    },
+    {
+      "bytes": 1998,
+      "current_snapshot": "current-source-snapshots/draft-body-700e16aeb1db2f4d3bf25dd4625b0ccff77de2f93d0af2fd13c7415ccddc5806.bin",
+      "drift": false,
+      "frozen_sha256": "700e16aeb1db2f4d3bf25dd4625b0ccff77de2f93d0af2fd13c7415ccddc5806",
+      "id": "draft-body",
+      "live_sha256": "700e16aeb1db2f4d3bf25dd4625b0ccff77de2f93d0af2fd13c7415ccddc5806",
+      "normalized_characters": 1966,
+      "normalized_text_unchanged": true,
+      "path": "skills/200-sg-redact/references/redaction-drafting-and-optimization.md",
+      "selected": true
+    },
+    {
+      "bytes": 10292,
+      "current_snapshot": "current-source-snapshots/host-agent-b707195778ce9446606ca430fe47a070e60246193958b551019f53f1ad2c2111.bin",
+      "drift": true,
+      "frozen_sha256": "c968b0c31b5457370da0d311a68e9a83dc5cd19dcb5478735e2db5d0edfe79f7",
+      "id": "host-agent",
+      "live_sha256": "b707195778ce9446606ca430fe47a070e60246193958b551019f53f1ad2c2111",
+      "normalized_characters": 10184,
+      "normalized_text_unchanged": false,
+      "path": "AGENT.md",
+      "selected": false
+    },
+    {
+      "bytes": 91503,
+      "current_snapshot": "current-source-snapshots/governing-spec-691006e1322c610c356cfeb30547b6dae2d884adf845235784ee65f1ddafd98a.bin",
+      "drift": true,
+      "frozen_sha256": "f1f50fcbbe508d743687e2faa08fe5d21ab670dd90797309b418dd3d03b3eb5d",
+      "id": "governing-spec",
+      "live_sha256": "691006e1322c610c356cfeb30547b6dae2d884adf845235784ee65f1ddafd98a",
+      "normalized_characters": 90842,
+      "normalized_text_unchanged": false,
+      "path": "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md",
+      "selected": false
+    },
+    {
+      "bytes": 77543,
+      "current_snapshot": "current-source-snapshots/calibration-5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd.bin",
+      "drift": true,
+      "frozen_sha256": "59597101e9d1aa1f03346b6b3c961ade06c4e21b4fc6a03080f1fd62a1c69f48",
+      "id": "calibration",
+      "live_sha256": "5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd",
+      "normalized_characters": 77003,
+      "normalized_text_unchanged": false,
+      "path": "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md",
+      "selected": false
+    },
+    {
+      "bytes": 9748,
+      "current_snapshot": "current-source-snapshots/business-mesh-ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a.bin",
+      "drift": false,
+      "frozen_sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a",
+      "id": "business-mesh",
+      "live_sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a",
+      "normalized_characters": 9625,
+      "normalized_text_unchanged": true,
+      "path": "skills/references/business-context-mesh.md",
+      "selected": true
+    },
+    {
+      "bytes": 1572,
+      "current_snapshot": "current-source-snapshots/draft-quality-3ce58a076b1536fca9b6d8b932d9fb131ea1b2631ab34cadf0ee80aa18930e28.bin",
+      "drift": false,
+      "frozen_sha256": "3ce58a076b1536fca9b6d8b932d9fb131ea1b2631ab34cadf0ee80aa18930e28",
+      "id": "draft-quality",
+      "live_sha256": "3ce58a076b1536fca9b6d8b932d9fb131ea1b2631ab34cadf0ee80aa18930e28",
+      "normalized_characters": 1542,
+      "normalized_text_unchanged": true,
+      "path": "skills/200-sg-redact/references/redaction-quality-and-reporting.md",
+      "selected": true
+    }
+  ],
+  "limits": [
+    "No semantic approval invented; this is byte/span/static preparation",
+    "No held-out file opened or decoded; sealed reviewer references only hashed",
+    "Living spec/calibration snapshots are dated evidence and need rehash before actual freeze",
+    "No active manifest/candidate/source changed; AC5 and thresholds unchanged"
+  ],
+  "manifest_sha256": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25",
+  "model_calls": 0,
+  "obligations": [
+    {
+      "id": "O1",
+      "origin": "original",
+      "original_anchor_ids": [
+        "router",
+        "autonomy"
+      ],
+      "text": "Preserve all goals, exclusions and owner/direct route before action."
+    },
+    {
+      "id": "O2",
+      "origin": "original",
+      "original_anchor_ids": [
+        "host-agent",
+        "approval"
+      ],
+      "text": "Effective authorization before mutation or external effect."
+    },
+    {
+      "id": "O3",
+      "origin": "original",
+      "original_anchor_ids": [
+        "canonical"
+      ],
+      "text": "Canonical resource identity and missing-resource stop before use."
+    },
+    {
+      "id": "O4",
+      "origin": "original",
+      "original_anchor_ids": [
+        "preflight"
+      ],
+      "text": "Validate actual explicit invocation before activation; quotations remain inert."
+    },
+    {
+      "id": "O5",
+      "origin": "original",
+      "original_anchor_ids": [
+        "report"
+      ],
+      "text": "Appropriate evidence, limitations and no false completion at report."
+    },
+    {
+      "candidate_provider_status": "not_created",
+      "coverage_status": "not_demonstrated",
+      "id": "O6",
+      "note": "Existing context/authority constraints support safe resolution but are not claimed to implement the proposed candidate vocabulary. No fabricated O6 provider.",
+      "origin": "proposed",
+      "original_anchor_ids": [],
+      "supporting_original_constraints": [
+        "context",
+        "autonomy",
+        "approval"
+      ],
+      "text": "Resolve material UNKNOWN and re-enter invalidated decisions before dependent action."
+    },
+    {
+      "id": "O7",
+      "origin": "original",
+      "original_anchor_ids": [
+        "private",
+        "private-data"
+      ],
+      "text": "Explicit namespace/operation grant before private read; infer no persistence."
+    },
+    {
+      "id": "O8",
+      "origin": "original",
+      "original_anchor_ids": [
+        "content",
+        "approval",
+        "private-data"
+      ],
+      "text": "Public claims/redaction before output; separate publication authority."
+    },
+    {
+      "id": "O9",
+      "origin": "original",
+      "original_anchor_ids": [
+        "router",
+        "docs",
+        "approval"
+      ],
+      "text": "Bounded change, unrelated data preservation and proportional proof."
+    }
+  ],
+  "provider_span_reviews": [
+    {
+      "obligation": "O1",
+      "resource_id": "router",
+      "spans": [
+        {
+          "characters": 7958,
+          "end": 7958,
+          "sha256": "7455ea7f2ada5d6edaad20837c54f640fb1089cc4b28c2ad531cd847d959ff8c",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "autonomy",
+      "spans": [
+        {
+          "characters": 4027,
+          "end": 4027,
+          "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "help-public",
+      "spans": [
+        {
+          "characters": 1443,
+          "end": 1443,
+          "sha256": "5da94fde2f805c257dd8c317cb869405fa477777c4c3992151b940950f9ee4d9",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "docs-public",
+      "spans": [
+        {
+          "characters": 1305,
+          "end": 1305,
+          "sha256": "f36563c08b1ca86a5f452915b3e0066d22cc1a97483dca6c8f27b9f50708584b",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "content-public",
+      "spans": [
+        {
+          "characters": 1314,
+          "end": 1314,
+          "sha256": "619c930f64e96f96e396a4c948e186c8923f8d22234baeecd50305594565fef3",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "private-public",
+      "spans": [
+        {
+          "characters": 1847,
+          "end": 1847,
+          "sha256": "3801518e0f84704a4678d09076ce191caf2d9d5124ea03c282a056c6b8261abe",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "core",
+      "spans": [
+        {
+          "characters": 8071,
+          "end": 8071,
+          "sha256": "6b3d6def9dd5f1028025b9496c8ab706ff420bbaaf19b999e9a77c377245962b",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "content-handoff",
+      "spans": [
+        {
+          "characters": 3371,
+          "end": 3371,
+          "sha256": "6b0f151a7f7f9cee9aae38848f866eb27ea44df5ee15ca4336048871db96d110",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O2",
+      "resource_id": "approval",
+      "spans": [
+        {
+          "characters": 13927,
+          "end": 13927,
+          "sha256": "8e90abe4f746a4f7b66b1510dbd79cf8236f8642f181706816e15a78fdd4f9b9",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O3",
+      "resource_id": "canonical",
+      "spans": [
+        {
+          "characters": 3373,
+          "end": 3373,
+          "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O3",
+      "resource_id": "private-roots",
+      "spans": [
+        {
+          "characters": 2696,
+          "end": 2696,
+          "sha256": "9fcceb9d3e99d6e63b26cf46a97d11c8b835b3c8e3929322b8309f5a6155be49",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O3",
+      "resource_id": "owned-preflight",
+      "spans": [
+        {
+          "characters": 1962,
+          "end": 1962,
+          "sha256": "bee42532e4b6b3217bd830b57992867b5d65887441e12aa8c690a5ea76cf37ad",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O4",
+      "resource_id": "preflight",
+      "spans": [
+        {
+          "characters": 4726,
+          "end": 4726,
+          "sha256": "13ed73c32dac08ce968c19fde550d8b0ecb5470a9cb743fa0641b365eac62b6c",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report",
+      "spans": [
+        {
+          "characters": 8169,
+          "end": 8169,
+          "sha256": "8264eafe08f2d1cca841ec7fddbbb04c2ce0de22321f6207588f6fa96a79d355",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report-agent",
+      "spans": [
+        {
+          "characters": 2462,
+          "end": 2462,
+          "sha256": "caf11d46f55cfb9beab9edb3a2091188352166a67fd752b284d7620c2d84c4d6",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report-audit",
+      "spans": [
+        {
+          "characters": 3205,
+          "end": 3205,
+          "sha256": "3d2d67b53849a7eec8e07bd6f36b8b17f077f142ff14c0178a2970aa957fb8c6",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report-closure",
+      "spans": [
+        {
+          "characters": 5201,
+          "end": 5201,
+          "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O7",
+      "resource_id": "private",
+      "spans": [
+        {
+          "characters": 3511,
+          "end": 3511,
+          "sha256": "2d3b5c7d2ed045c61d5786c7767a9aae3cd2fe04506fc6f7a8f0073c6b97ee34",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O7",
+      "resource_id": "private-data",
+      "spans": [
+        {
+          "characters": 10065,
+          "end": 10065,
+          "sha256": "5b5d1ba3080c149ceabddd134af9cc26d525edd391bf9e62f0657d5d89adbba1",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "content",
+      "spans": [
+        {
+          "characters": 6735,
+          "end": 6735,
+          "sha256": "3b40ac72e95e9d51d866f79cee5264d758a99d8951fcb17308b14a13a29ba155",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "content-quality",
+      "spans": [
+        {
+          "characters": 2673,
+          "end": 2673,
+          "sha256": "10e92648efe7379a5a134dba886774e0869cb25c8f6db8a081a742d65a6c8123",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "content-proof",
+      "spans": [
+        {
+          "characters": 2045,
+          "end": 2045,
+          "sha256": "5e5e5cec01a7f101f967203f01b83ff670d803323e0bfcc27e96272df236af92",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "router",
+      "spans": [
+        {
+          "characters": 7958,
+          "end": 7958,
+          "sha256": "7455ea7f2ada5d6edaad20837c54f640fb1089cc4b28c2ad531cd847d959ff8c",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "docs",
+      "spans": [
+        {
+          "characters": 6712,
+          "end": 6712,
+          "sha256": "85187e77860a439ec2c237348a2fcef0e5847c4794f5a7b20354a1576a215f41",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "docs-file",
+      "spans": [
+        {
+          "characters": 2717,
+          "end": 2717,
+          "sha256": "5cd6cee314a82801e340e9dac952cb156a75b04b0cafcf22198a1b1537cf9376",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "core-audit",
+      "spans": [
+        {
+          "characters": 1994,
+          "end": 1994,
+          "sha256": "9e14d402675bd69c1af1c34d350891bd5f94f7fc7e81f1818e609a2cf4497a5e",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "content",
+      "spans": [
+        {
+          "characters": 6735,
+          "end": 6735,
+          "sha256": "3b40ac72e95e9d51d866f79cee5264d758a99d8951fcb17308b14a13a29ba155",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "draft",
+      "spans": [
+        {
+          "characters": 5583,
+          "end": 5583,
+          "sha256": "b4d0f400a29ebf7edc94be7d5c1cfcb1be9f5bd3332ce5dc3f47d380c213ee1a",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "approval",
+      "spans": [
+        {
+          "characters": 13927,
+          "end": 13927,
+          "sha256": "8e90abe4f746a4f7b66b1510dbd79cf8236f8642f181706816e15a78fdd4f9b9",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "private-data",
+      "spans": [
+        {
+          "characters": 10065,
+          "end": 10065,
+          "sha256": "5b5d1ba3080c149ceabddd134af9cc26d525edd391bf9e62f0657d5d89adbba1",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "approval",
+      "spans": [
+        {
+          "characters": 13927,
+          "end": 13927,
+          "sha256": "8e90abe4f746a4f7b66b1510dbd79cf8236f8642f181706816e15a78fdd4f9b9",
+          "start": 0,
+          "unchanged_at_current_offsets": true
+        }
+      ]
+    }
+  ],
+  "reviewer_gates": [
+    {
+      "id": "current_host_authority",
+      "reason": "host-agent bytes differ; O2 anchor and host-role/injection precedence require current explicit review",
+      "status": "pending"
+    },
+    {
+      "id": "consumer_specific_closure",
+      "reason": "source byte equivalence preserves historical coverage; new consumer/protocol must independently establish applicability and complete delivered normative spans",
+      "status": "pending"
+    },
+    {
+      "id": "fresh_candidate_mappings",
+      "reason": "preserve historical candidate; review full obligations and frozen substitutions for the new comparison without treating previous grades as approvals",
+      "status": "pending"
+    },
+    {
+      "id": "fresh_independent_heldout",
+      "reason": "new prompts/expectations sealed independently; author does not read or reuse historical held-out content",
+      "status": "pending"
+    },
+    {
+      "id": "new_injection_accounting",
+      "reason": "record exact actual roles/spans and all repeated inputs, context loss invalidates retained coverage; model retention UNKNOWN",
+      "status": "pending"
+    },
+    {
+      "id": "provider_model_consumer",
+      "reason": "no provider/model/profile inferred; no calls or campaign launch authorized",
+      "status": "operator_decision_pending"
+    }
+  ],
+  "selected_count": 48,
+  "selected_drift": [],
+  "source_count": 52,
+  "status": "offline_inputs_prepared_not_activated"
+}

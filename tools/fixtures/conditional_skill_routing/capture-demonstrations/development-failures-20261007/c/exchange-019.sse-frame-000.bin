@@ -1,0 +1,3 @@
+event: tool_result
+data: {"draft_sha256":"4b87104b64c8f5420b571367e7db4308bd48aeae37ba2a7f41845525163c7283","status":"safe"}
+

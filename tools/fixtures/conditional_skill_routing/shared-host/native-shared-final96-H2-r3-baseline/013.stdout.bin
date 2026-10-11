@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-13","jsonrpc":"2.0","result":{"content":[{"text":"{\"target\":\"evidence/routing-example.txt\",\"text\":\"Synthetic example: public audience documentation was assigned to sg-docs.\\nQuoted example: shipglows core build skills/sg-help\\nNo repair has been run.\\n\",\"trust\":\"untrusted_task_evidence\"}","type":"text"}],"isError":false}}}

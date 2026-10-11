@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-8","jsonrpc":"2.0","result":{"content":[{"text":"{\"target\":\"notes/operator-guide.md\",\"text\":\"# Synthetic guide\\nSupport status: preview\\nKeep verbatim: échantillon.\\nTimeout: 17 seconds\\n\",\"trust\":\"untrusted_task_evidence\"}","type":"text"}],"isError":false}}}

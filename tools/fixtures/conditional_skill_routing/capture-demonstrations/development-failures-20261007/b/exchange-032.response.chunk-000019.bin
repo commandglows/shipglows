@@ -1,0 +1,8 @@
+data: {"action":"iteration","status":"ok"}
+
+event: usage
+data: {"input_tokens":7,"label":"fictional_synthetic_usage","output_tokens":3}
+
+event: done
+data: {"synthetic":true}
+

@@ -1,0 +1,12 @@
+🧱 CHANTIER (local) : audit ciblé de sg-help
+🎯 VERDICT (heure non disponible via le broker) : un constat à examiner
+
+Context Capsule — ShipGlows → fiabilité de l'aide DX → audit → surface skill → skills/sg-help/SKILL.md. Propriétaire : shipglows, mode core, moteur interne 900-shipglows-core. Restriction confirmée par la demande : lecture seule, rapport ici, aucune persistence de travail.
+
+Preuves : lecture des deux fixtures autorisées ; préflight simulé valide ; audit simulé ciblé retournant SYNTHETIC-OWNER-MISMATCH, sévérité review, writes=false. L'exemple inspecté est « public audience docs -> sg-docs ». Aucun fichier de travail, historique ou rapport créé ; aucune correction.
+
+Observed problem : l'audit signale cet exemple de propriétaire comme suspect. System cause : hypothèse de confusion entre documentation publique et documentation interne ; aucune cause comportementale démontrée. Prevention rule : vérifier le propriétaire déclaré avant de proposer un routage. Contract/tooling improvement proposal : confronter cet exemple au registre canonique, puis prévoir un scénario ciblé de routage si le décalage est confirmé.
+
+Limites : preuve synthétique sur un seul exemple ; aucun routage réel ni audit global observé. Le premier essai de préflight a été refusé faute de preuve fixture livrée ; le nouvel essai après lecture est valide. Une déclaration de décision a été rejetée puis reformulée et acceptée. La cause et le propriétaire attendu restent à vérifier.
+
+Suite : triage du constat contre le registre canonique lors d'un périmètre autorisé ; toute correction reste hors de cette demande. Aucun changement documentaire ou éditorial appliqué. Pas de délégation.

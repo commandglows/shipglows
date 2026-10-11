@@ -1,0 +1,7 @@
+Public summary draft: Synthetic Lantern is a prototype with an offline checklist and CSV export. Cloud synchronization is unavailable.
+
+Evidence: the single authorized synthetic record supports these statements; no runtime testing was performed. Secret and personal fields are excluded.
+
+Context: prototype evaluators · declared public-summary surface in this conversation · content owns the draft, with private access limited to the authorized record. Fresh-docs not needed. No files changed, nothing memorized, nothing published.
+
+Next action: await your explicit publication instruction.

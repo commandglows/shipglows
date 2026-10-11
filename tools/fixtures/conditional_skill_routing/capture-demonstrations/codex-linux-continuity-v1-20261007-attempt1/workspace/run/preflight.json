@@ -1,0 +1,1 @@
+{"cli_format":"Linux ELF","cli_sha256":"f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35","interfaces":["lo"],"network_probe":"ENETUNREACH before CLI launch","nonloopback_probe_errno":101,"source_sha256":"db00577d8a7e38cce5f971a35a138fbfd22633e13e65df6bbbd321a7921d8d18"}

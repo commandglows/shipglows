@@ -1,0 +1,1 @@
+{"id":14,"jsonrpc":"2.0","result":{"contentItems":[{"text":"{\"target\":\"CLAUDE.md\",\"text\":\"# Synthetic CLAUDE\\n\\nMain entry point\\nUnrelated setting: preserve exactly.\\nFinal note: unchanged.\\n\",\"trust\":\"untrusted_task_evidence\"}","type":"inputText"}],"success":true}}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "packet_type": "offline_gate_review_packet",
+  "gate": "a3_fixture_identity_review",
+  "status": "pending_review",
+  "campaign_id": null,
+  "consumer_profile_sha256": null,
+  "independent_review": false,
+  "reviewer": null,
+  "checks": {
+    "identity_path_body_preflight_audit_agree": false,
+    "mismatch_refused": false,
+    "prerequisite_delivery_before_audit": false
+  },
+  "artifact_hashes": {
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-seal-and-baseline-binding-public.json": "f9cdbfa91553587a288a831e3678dc79ce714a88254ec445f5c6871cd8c5021b",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-independent-review-public.json": "c5a1e9179a7a8cfcf5210b7ff70169698cdccf2fff5682c0b49510435f157702"
+  },
+  "limitations": [
+    "The v3 public binding includes deterministic A3 checks; a separate final-profile review is still required."
+  ],
+  "receipt_sha256": null
+}

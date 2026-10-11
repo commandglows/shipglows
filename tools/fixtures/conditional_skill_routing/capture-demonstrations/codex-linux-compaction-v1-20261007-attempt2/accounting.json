@@ -1,0 +1,1896 @@
+{
+  "accounting_source_sha256": "4636735cc5c1931417624385e1a2ff33b7b2ed120292f69907b86de92a9b3fd8",
+  "actual_compaction_item": {
+    "emittedAtMs": 1791393813636,
+    "method": "item/completed",
+    "params": {
+      "completedAtMs": 1791393813636,
+      "item": {
+        "id": "01a11764-53f6-7ea0-82ed-bcd7dd8e60ce",
+        "type": "contextCompaction"
+      },
+      "threadId": "01a11764-455f-7201-9110-bbb5d2d646ff",
+      "turnId": "01a11764-53ce-75c1-ba85-ca13bab8538e"
+    }
+  },
+  "all_request_diagnostic_characters_including_retransmission": 292,
+  "all_request_input_text_characters": 29988,
+  "completed_user_turn_ids": [
+    "01a11764-4f74-7173-8017-0da1e2a767f2",
+    "01a11764-54c8-7910-825d-58b07cd78380",
+    "01a11764-55ea-7863-a44a-ed8329065d00"
+  ],
+  "context_loss": [
+    {
+      "evidence_sha256": "55504bcda9d91b3f87a94c8122d7b4f266f012c49422a4df7b7747377b714009",
+      "generation": 1,
+      "model_retention": "UNKNOWN",
+      "reason": "actual contextCompaction item completed; subsequent provider input lost exact diagnostic",
+      "type": "context_loss"
+    }
+  ],
+  "inventory_entries_rehashed": 180,
+  "limits": [
+    "Independent runtime-source review; accounting reviewer authored accounting module",
+    "Actual CLI compaction and three user turns; no persistent process resume proof",
+    "Provider messages and usage fully simulated; internal model retention UNKNOWN, AC5 unproved",
+    "Guard mechanics fail closed only for this exact fixture; no model behavioral compliance",
+    "Coverage restored in request seven and still present in request eight",
+    "No exclusive native tool inventory or real provider/campaign readiness claimed"
+  ],
+  "passed": true,
+  "raw_rpc_sha256": "55504bcda9d91b3f87a94c8122d7b4f266f012c49422a4df7b7747377b714009",
+  "requests": [
+    {
+      "call_count": 0,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 0,
+          "full": false,
+          "model_retention": "UNKNOWN",
+          "spans": []
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 0,
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 0,
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 0,
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[1].text",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 0,
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[2].text",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 0,
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 0,
+          "injection_id": "fixture_agents",
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 0,
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[1].text",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 0,
+          "label": "http-001.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 22268,
+          "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        }
+      ],
+      "generation": 0,
+      "label": "http-001.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [],
+      "request_bytes": 22268,
+      "request_kind": "turn",
+      "request_sha256": "78d21e9159d9bfecb7d57bcafa577dbfa0bf33183d471c8ba4353a9768334a95",
+      "status": "accounted",
+      "text_characters": 3116
+    },
+    {
+      "call_count": 1,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 73,
+          "full": true,
+          "model_retention": "UNKNOWN",
+          "spans": [
+            {
+              "characters": 73,
+              "end": 73,
+              "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+              "start": 0
+            }
+          ]
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[1].text",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[2].text",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 0,
+          "injection_id": "fixture_agents",
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[1].text",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        },
+        {
+          "arguments_sha256": "5f6bb70167df23257d73e5ef5975ec57c8bfedd2a71f6d343242d65a92345cfe",
+          "call_id": "call_csr_compaction_read_01601",
+          "capture_authentication": "not_verified",
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[3]",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[4].output",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "role": "tool",
+          "text_sha256": "8ac0aa18b86eb992970b37eb641081e38e47a6c16bb0afac40f99b8c947405c5",
+          "type": "text"
+        },
+        {
+          "call_id": "call_csr_compaction_read_01601",
+          "callback_sha256": "8ac0aa18b86eb992970b37eb641081e38e47a6c16bb0afac40f99b8c947405c5",
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "extent": "full",
+          "first_delivery": true,
+          "generation": 0,
+          "label": "http-002.request.bin",
+          "model_retention": "UNKNOWN",
+          "output_span": {
+            "characters": 73,
+            "end": 176,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 103
+          },
+          "path": "input[4].output",
+          "request_bytes": 22896,
+          "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+          "resource_id": "diagnostic",
+          "role": "tool",
+          "source_sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+          "source_span": {
+            "characters": 73,
+            "end": 73,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 0
+          },
+          "text_sha256": "8ac0aa18b86eb992970b37eb641081e38e47a6c16bb0afac40f99b8c947405c5",
+          "type": "read"
+        }
+      ],
+      "generation": 0,
+      "label": "http-002.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [
+        "call_csr_compaction_read_01601"
+      ],
+      "request_bytes": 22896,
+      "request_kind": "turn",
+      "request_sha256": "e7ff26e8347803d186ae4b644a34099f6d71832bf58ae71447832f8906f4aa60",
+      "status": "accounted",
+      "text_characters": 3292
+    },
+    {
+      "call_count": 1,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 73,
+          "full": true,
+          "model_retention": "UNKNOWN",
+          "spans": [
+            {
+              "characters": 73,
+              "end": 73,
+              "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+              "start": 0
+            }
+          ]
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[1].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[2].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 0,
+          "injection_id": "fixture_agents",
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[1].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        },
+        {
+          "arguments_sha256": "5f6bb70167df23257d73e5ef5975ec57c8bfedd2a71f6d343242d65a92345cfe",
+          "call_id": "call_csr_compaction_read_01601",
+          "capture_authentication": "not_verified",
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[3]",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[4].output",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "tool",
+          "text_sha256": "8ac0aa18b86eb992970b37eb641081e38e47a6c16bb0afac40f99b8c947405c5",
+          "type": "text"
+        },
+        {
+          "call_id": "call_csr_compaction_read_01601",
+          "callback_sha256": "8ac0aa18b86eb992970b37eb641081e38e47a6c16bb0afac40f99b8c947405c5",
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "extent": "full",
+          "first_delivery": false,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "output_span": {
+            "characters": 73,
+            "end": 176,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 103
+          },
+          "path": "input[4].output",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "resource_id": "diagnostic",
+          "role": "tool",
+          "source_sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+          "source_span": {
+            "characters": 73,
+            "end": 73,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 0
+          },
+          "text_sha256": "8ac0aa18b86eb992970b37eb641081e38e47a6c16bb0afac40f99b8c947405c5",
+          "type": "read"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 29,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[5].content[0].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "assistant",
+          "text_sha256": "39cafd8044706f669e57a1ad935b463443be4ea1de5ae87669a1d14a6fcd04bf",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 64,
+          "generation": 0,
+          "label": "http-003.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[6].content[0].text",
+          "request_bytes": 6042,
+          "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+          "role": "user",
+          "text_sha256": "1df929828ddd330d9c7079318f604bb80e504bfae1fd1a5d1c2e0651a58ac272",
+          "type": "text"
+        }
+      ],
+      "generation": 0,
+      "label": "http-003.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [
+        "call_csr_compaction_read_01601"
+      ],
+      "request_bytes": 6042,
+      "request_kind": "compaction",
+      "request_sha256": "62f76b8775c0c2bb9831d4379b71fd9f464bf08d7fe6156eec0c8e07ff129d7e",
+      "status": "accounted",
+      "text_characters": 3385
+    },
+    {
+      "call_count": 0,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 0,
+          "full": false,
+          "model_retention": "UNKNOWN",
+          "spans": []
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "user",
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "injection_id": "compact_summary",
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "user",
+          "span": {
+            "characters": 105,
+            "end": 505,
+            "sha256": "6ae155d4f5f525e471ee7854762caff1f7073f0c13368fb485a6e979dceca4ea",
+            "start": 400
+          },
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[1].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[2].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "injection_id": "fixture_agents",
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[1].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 82,
+          "generation": 1,
+          "label": "http-004.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[4].content[0].text",
+          "request_bytes": 23106,
+          "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+          "role": "user",
+          "text_sha256": "0638d5469494869f9b5de6c852442ccb7dd2b4fc8cb7299224649f35f673ad2b",
+          "type": "text"
+        }
+      ],
+      "generation": 1,
+      "label": "http-004.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [],
+      "request_bytes": 23106,
+      "request_kind": "turn",
+      "request_sha256": "aaa05c684139f42952407c8c0b9e91a9f3b86d417f24b248523b1549833d96e0",
+      "status": "accounted",
+      "text_characters": 3703
+    },
+    {
+      "call_count": 0,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 0,
+          "full": false,
+          "model_retention": "UNKNOWN",
+          "spans": []
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "injection_id": "compact_summary",
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "span": {
+            "characters": 105,
+            "end": 505,
+            "sha256": "6ae155d4f5f525e471ee7854762caff1f7073f0c13368fb485a6e979dceca4ea",
+            "start": 400
+          },
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[1].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[2].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "injection_id": "fixture_agents",
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[1].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 82,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[4].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "text_sha256": "0638d5469494869f9b5de6c852442ccb7dd2b4fc8cb7299224649f35f673ad2b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 30,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[5].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "assistant",
+          "text_sha256": "6cd38e31ced6f86e5fddb81758e01c3b3c883da9197da01f9ecb4e0f588996ee",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 114,
+          "generation": 1,
+          "label": "http-005.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[6].content[0].text",
+          "request_bytes": 23478,
+          "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+          "role": "user",
+          "text_sha256": "4f44de16c20f136b419f0db1552ada87d9d1794dd3d49c8d5fdb57fdfd49c9ee",
+          "type": "text"
+        }
+      ],
+      "generation": 1,
+      "label": "http-005.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [],
+      "request_bytes": 23478,
+      "request_kind": "turn",
+      "request_sha256": "bc650ce7088e5c2aa80e167016e5f57b8852642f20b738194c6f16482348792e",
+      "status": "accounted",
+      "text_characters": 3847
+    },
+    {
+      "call_count": 1,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 0,
+          "full": false,
+          "model_retention": "UNKNOWN",
+          "spans": []
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "injection_id": "compact_summary",
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "span": {
+            "characters": 105,
+            "end": 505,
+            "sha256": "6ae155d4f5f525e471ee7854762caff1f7073f0c13368fb485a6e979dceca4ea",
+            "start": 400
+          },
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[1].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[2].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "injection_id": "fixture_agents",
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[1].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 82,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[4].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "text_sha256": "0638d5469494869f9b5de6c852442ccb7dd2b4fc8cb7299224649f35f673ad2b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 30,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[5].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "assistant",
+          "text_sha256": "6cd38e31ced6f86e5fddb81758e01c3b3c883da9197da01f9ecb4e0f588996ee",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 114,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[6].content[0].text",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "user",
+          "text_sha256": "4f44de16c20f136b419f0db1552ada87d9d1794dd3d49c8d5fdb57fdfd49c9ee",
+          "type": "text"
+        },
+        {
+          "arguments_sha256": "1b21ff0f7ceb1df3f658d580ae1c3631e3735bd8cda96715eca040ab5545c01d",
+          "call_id": "call_csr_guard_denied_01601",
+          "capture_authentication": "not_verified",
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[7]",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 192,
+          "generation": 1,
+          "label": "http-006.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[8].output",
+          "request_bytes": 24110,
+          "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+          "role": "tool",
+          "text_sha256": "4933753e94adc4e2f36ec1c7dc9baf1fe86ff87469767fe0e8106453b466b2eb",
+          "type": "text"
+        }
+      ],
+      "generation": 1,
+      "label": "http-006.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [],
+      "request_bytes": 24110,
+      "request_kind": "turn",
+      "request_sha256": "62096e07e897d551aba86c4d4a8fed28bef67856f5cfbca9c072aa58c9cf367a",
+      "status": "accounted",
+      "text_characters": 4039
+    },
+    {
+      "call_count": 2,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 73,
+          "full": true,
+          "model_retention": "UNKNOWN",
+          "spans": [
+            {
+              "characters": 73,
+              "end": 73,
+              "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+              "start": 0
+            }
+          ]
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "injection_id": "compact_summary",
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "span": {
+            "characters": 105,
+            "end": 505,
+            "sha256": "6ae155d4f5f525e471ee7854762caff1f7073f0c13368fb485a6e979dceca4ea",
+            "start": 400
+          },
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[1].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[2].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "injection_id": "fixture_agents",
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[1].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 82,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[4].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "text_sha256": "0638d5469494869f9b5de6c852442ccb7dd2b4fc8cb7299224649f35f673ad2b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 30,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[5].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "assistant",
+          "text_sha256": "6cd38e31ced6f86e5fddb81758e01c3b3c883da9197da01f9ecb4e0f588996ee",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 114,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[6].content[0].text",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "user",
+          "text_sha256": "4f44de16c20f136b419f0db1552ada87d9d1794dd3d49c8d5fdb57fdfd49c9ee",
+          "type": "text"
+        },
+        {
+          "arguments_sha256": "1b21ff0f7ceb1df3f658d580ae1c3631e3735bd8cda96715eca040ab5545c01d",
+          "call_id": "call_csr_guard_denied_01601",
+          "capture_authentication": "not_verified",
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[7]",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 192,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[8].output",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "tool",
+          "text_sha256": "4933753e94adc4e2f36ec1c7dc9baf1fe86ff87469767fe0e8106453b466b2eb",
+          "type": "text"
+        },
+        {
+          "arguments_sha256": "5f6bb70167df23257d73e5ef5975ec57c8bfedd2a71f6d343242d65a92345cfe",
+          "call_id": "call_csr_reread_01601",
+          "capture_authentication": "not_verified",
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[9]",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[10].output",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "role": "tool",
+          "text_sha256": "1733adf17a7cb2f0a26d30658eef87ef90520f38c1877bd7531a12b963caa099",
+          "type": "text"
+        },
+        {
+          "call_id": "call_csr_reread_01601",
+          "callback_sha256": "1733adf17a7cb2f0a26d30658eef87ef90520f38c1877bd7531a12b963caa099",
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "extent": "full",
+          "first_delivery": true,
+          "generation": 1,
+          "label": "http-007.request.bin",
+          "model_retention": "UNKNOWN",
+          "output_span": {
+            "characters": 73,
+            "end": 176,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 103
+          },
+          "path": "input[10].output",
+          "request_bytes": 24720,
+          "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+          "resource_id": "diagnostic",
+          "role": "tool",
+          "source_sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+          "source_span": {
+            "characters": 73,
+            "end": 73,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 0
+          },
+          "text_sha256": "1733adf17a7cb2f0a26d30658eef87ef90520f38c1877bd7531a12b963caa099",
+          "type": "read"
+        }
+      ],
+      "generation": 1,
+      "label": "http-007.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [
+        "call_csr_reread_01601"
+      ],
+      "request_bytes": 24720,
+      "request_kind": "turn",
+      "request_sha256": "8c3e35c85e1da81986569a112eb09caef29f760abf57801674a5bb8940f585a0",
+      "status": "accounted",
+      "text_characters": 4215
+    },
+    {
+      "call_count": 3,
+      "capture_authentication": "not_verified",
+      "complete_input_text_accounting": true,
+      "coverage": {
+        "diagnostic": {
+          "characters": 73,
+          "full": true,
+          "model_retention": "UNKNOWN",
+          "spans": [
+            {
+              "characters": 73,
+              "end": 73,
+              "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+              "start": 0
+            }
+          ]
+        }
+      },
+      "events": [
+        {
+          "capture_authentication": "not_verified",
+          "characters": 71,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "instructions",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "instructions",
+          "text_sha256": "5162ff7948de97cd8aafd0c31bd0de683390fdf34e2f913615e52555492f796b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 81,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[0].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "text_sha256": "56a1ef9a30a992c6e202c84a37e83ea14f49399c80b595c5d61876ab61b33295",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 505,
+          "generation": 1,
+          "injection_id": "compact_summary",
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[1].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "span": {
+            "characters": 105,
+            "end": 505,
+            "sha256": "6ae155d4f5f525e471ee7854762caff1f7073f0c13368fb485a6e979dceca4ea",
+            "start": 400
+          },
+          "text_sha256": "f132456986d2f4f889ccee88f70560267d42ba34c154cf328a3014843a49e1bc",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 86,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "developer",
+          "text_sha256": "9baccf9dbc3a9327aa2bcccd71d2b68abc9cc80c28d3aa852f3fea534e885722",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 1968,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[1].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "developer",
+          "text_sha256": "14560520d557a2ceaaa0c0abbae12661b6744a0d1af8d28a400e7db629e8a2b9",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 362,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[2].content[2].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "developer",
+          "text_sha256": "681b5ba580483b28751dbafd95e30f80ebb6ab9cc2d3ca4462f0f187d0784070",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 173,
+          "generation": 1,
+          "injection_id": "fixture_agents",
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "span": {
+            "characters": 83,
+            "end": 156,
+            "sha256": "479c769315a1e371ad9bd2e79a09fd5e59440581394e6ce12b2b6894d13ca454",
+            "start": 73
+          },
+          "text_sha256": "5f38cc191b7d912b149213cec179e77e56928043d5cb05eb3a44faeabcf1177c",
+          "type": "injection"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 375,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[3].content[1].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "text_sha256": "7e265284a3e316a81879d675f0fc6caf6e0bb724961a1fbb3053971dda7583b2",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 82,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[4].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "text_sha256": "0638d5469494869f9b5de6c852442ccb7dd2b4fc8cb7299224649f35f673ad2b",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 30,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[5].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "assistant",
+          "text_sha256": "6cd38e31ced6f86e5fddb81758e01c3b3c883da9197da01f9ecb4e0f588996ee",
+          "type": "text"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 114,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[6].content[0].text",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "user",
+          "text_sha256": "4f44de16c20f136b419f0db1552ada87d9d1794dd3d49c8d5fdb57fdfd49c9ee",
+          "type": "text"
+        },
+        {
+          "arguments_sha256": "1b21ff0f7ceb1df3f658d580ae1c3631e3735bd8cda96715eca040ab5545c01d",
+          "call_id": "call_csr_guard_denied_01601",
+          "capture_authentication": "not_verified",
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[7]",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 192,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[8].output",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "tool",
+          "text_sha256": "4933753e94adc4e2f36ec1c7dc9baf1fe86ff87469767fe0e8106453b466b2eb",
+          "type": "text"
+        },
+        {
+          "arguments_sha256": "5f6bb70167df23257d73e5ef5975ec57c8bfedd2a71f6d343242d65a92345cfe",
+          "call_id": "call_csr_reread_01601",
+          "capture_authentication": "not_verified",
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[9]",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[10].output",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "tool",
+          "text_sha256": "1733adf17a7cb2f0a26d30658eef87ef90520f38c1877bd7531a12b963caa099",
+          "type": "text"
+        },
+        {
+          "call_id": "call_csr_reread_01601",
+          "callback_sha256": "1733adf17a7cb2f0a26d30658eef87ef90520f38c1877bd7531a12b963caa099",
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "extent": "full",
+          "first_delivery": false,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "output_span": {
+            "characters": 73,
+            "end": 176,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 103
+          },
+          "path": "input[10].output",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "resource_id": "diagnostic",
+          "role": "tool",
+          "source_sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+          "source_span": {
+            "characters": 73,
+            "end": 73,
+            "sha256": "b83155865de10d4b76eb94f77f59089658d235327d87c2fecb2c0b838b390ce6",
+            "start": 0
+          },
+          "text_sha256": "1733adf17a7cb2f0a26d30658eef87ef90520f38c1877bd7531a12b963caa099",
+          "type": "read"
+        },
+        {
+          "arguments_sha256": "1b21ff0f7ceb1df3f658d580ae1c3631e3735bd8cda96715eca040ab5545c01d",
+          "call_id": "call_csr_guard_allowed_01601",
+          "capture_authentication": "not_verified",
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "name": "exec_command",
+          "path": "input[11]",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "type": "function_call"
+        },
+        {
+          "capture_authentication": "not_verified",
+          "characters": 176,
+          "generation": 1,
+          "label": "http-008.request.bin",
+          "model_retention": "UNKNOWN",
+          "path": "input[12].output",
+          "request_bytes": 25338,
+          "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+          "role": "tool",
+          "text_sha256": "ec91ad99aa02ee8aa0e9da2767d3319b862d1f7379c70a9cb51769b31d81c24d",
+          "type": "text"
+        }
+      ],
+      "generation": 1,
+      "label": "http-008.request.bin",
+      "limits": [
+        "Function names/arguments and JSON framing excluded from text counts",
+        "Known injection occurrences may overlap; never add to total text twice",
+        "Provider delivery does not prove model retention or instruction compliance"
+      ],
+      "model_retention": "UNKNOWN",
+      "read_calls_present": [
+        "call_csr_reread_01601"
+      ],
+      "request_bytes": 25338,
+      "request_kind": "turn",
+      "request_sha256": "dd1d0d37685dd244833f6cfdebddb0d49e2257097803a14add818cca368d7a61",
+      "status": "accounted",
+      "text_characters": 4391
+    }
+  ],
+  "review_source_sha256": "709cfb365017a2295d463f7a3da31c06ee60f8d4e83a6533ceb280ea323c0085",
+  "runtime_summary_sha256": "21c0fe1994191b3d8bdd2a62917c2226d4a73ef4f6e5150f697922e26b1cf179",
+  "thread_id": "01a11764-455f-7201-9110-bbb5d2d646ff"
+}

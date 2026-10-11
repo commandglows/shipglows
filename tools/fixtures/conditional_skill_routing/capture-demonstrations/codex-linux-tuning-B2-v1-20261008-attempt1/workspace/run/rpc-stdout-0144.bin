@@ -1,0 +1,1 @@
+{"method":"item/started","params":{"item":{"type":"agentMessage","id":"msg_model-026","text":"","phase":null,"memoryCitation":null,"delivery":null,"questions":null},"threadId":"01a11cef-d5b1-7841-8ded-fa68685c45c0","turnId":"01a11cef-dbad-7833-a94e-419a3dfd75bf","startedAtMs":1791486850405},"emittedAtMs":1791486850406}

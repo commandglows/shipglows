@@ -1,0 +1,2 @@
+{"type":"item.started","item":{"id":"item_2","type":"command_execution","command":"/usr/bin/sh -c '/usr/bin/python3 fictional_action.py'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_2","type":"command_execution","command":"/usr/bin/sh -c '/usr/bin/python3 fictional_action.py'","aggregated_output":"fictional-action-refused: incomplete normative coverage\n","exit_code":41,"status":"failed"}}

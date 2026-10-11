@@ -1,0 +1,9 @@
+event: tool_result
+data: {"extent":"partial","source_sha256":"92088ec140fc553e4b1ede202edccb65a807bbf8a38d765a3ad38013c0f13688","span":[0,5],"span_sha256":"a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e","status":"partial","text":"first","tool_call_id":"call-exchange-005"}
+
+event: usage
+data: {"input_tokens":7,"label":"fictional_synthetic_usage","output_tokens":3}
+
+event: done
+data: {"synthetic":true}
+

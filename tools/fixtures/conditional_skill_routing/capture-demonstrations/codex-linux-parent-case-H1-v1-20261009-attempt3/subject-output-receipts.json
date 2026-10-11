@@ -1,0 +1,13 @@
+{
+  "origin": "scripted synthetic subject output, not a real model",
+  "messages": [
+    {
+      "content": "Synthetic explanation only; no repair, publication or saved trace.",
+      "content_sha256": "3c6b911df0c1aae5a82253c5b78a6ca333d7bc8d7ac170b0c99422557852864d",
+      "raw_sha256": "7d381e494a77cd11458f84da060b426e8f9a2a89fe9430c5d94833eab13820a0",
+      "label": "model-request-12",
+      "received_ns": 262449872569400
+    }
+  ],
+  "private_redaction_pass": null
+}

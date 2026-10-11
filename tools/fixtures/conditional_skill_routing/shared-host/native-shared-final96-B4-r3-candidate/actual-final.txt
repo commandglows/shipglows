@@ -1,0 +1,18 @@
+🧱 CHANTIER (local) : Exact support-status correction
+🎯 VERDICT (Paris time unavailable) : Synthetic scope verified
+
+✨ RESULT: sg-docs FILE changed only `Support status: preview` to `Support status: experimental` in the synthetic `notes/operator-guide.md`.
+
+🧪 PROOF ✅ Invocation valid · Topology compliant · Post-proposal B4-U2 approval · Focused verification: old phrase absent, new phrase once, unrelated bytes identical.
+
+📖 DOCUMENTATION ✅ updated · Exact supplied internal-guide correction; no code changed.
+
+✏️ EDITORIAL ➖ not impacted · Only the synthetic internal guide was changed; no public surface was modified. Opportunity: not assessed.
+
+📰 CHANGELOG ➖ not applicable · This bounded synthetic correction establishes no managed-repository changelog event.
+
+📦 DELIVERY: Broker simulation only · No host file mutation, commit, push or publication · Provider delivery not verified.
+
+Context Capsule: target is the supplied internal operator guide; accepted outcome and preservation constraints are confirmed by B4-U1/B4-U2. Replacement and focused proof are evidence_backed broker observations. Late `evidence/broader-repair.json` reports that broader repair requires schema migration and the narrow edit is independent; migration remains unapplied and outside authority.
+
+🧭 NEXT: Stop at the requested bounded task. Any broader schema migration requires a separate explicit request and approval. Paris clock evidence was unavailable through the listed broker tools.

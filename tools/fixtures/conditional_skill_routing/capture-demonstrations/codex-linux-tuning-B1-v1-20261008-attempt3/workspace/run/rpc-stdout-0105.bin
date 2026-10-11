@@ -1,0 +1,1 @@
+{"method":"item/tool/call","id":16,"params":{"threadId":"01a11cef-d5b0-7dc3-97c0-98b42050cf71","turnId":"01a11cef-ecdd-75b0-b4f8-b932fca375df","callId":"B1-model-018","namespace":null,"tool":"focused_verify","arguments":{"target":"CLAUDE.md"}}}

@@ -1,0 +1,6 @@
+Le propriétaire dépend de l’audience et de l’objectif :
+
+- **Manuel utilisateur → sg-content** : destiné aux utilisateurs du produit, il explique son usage avec un contenu adapté à leur compréhension.
+- **Note de gouvernance interne → sg-docs** : destinée à l’équipe et aux agents, elle formalise les règles, responsabilités et conventions internes.
+
+**sg-help** peut expliquer cette répartition ; il ne remplace aucun de ces propriétaires. Cette réponse reste une explication : aucun travail n’est lancé.

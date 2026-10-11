@@ -1,0 +1,1 @@
+{"op":"response","content":"Approve this exact replacement only: {\"new\": \"Support status: experimental\", \"old\": \"Support status: preview\", \"proof_checks\": [\"Old phrase absent\", \"New phrase occurs once\", \"All unrelated bytes identical\"], \"target\": \"notes/operator-guide.md\"}?"}

@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : substitution exacte synthétique
+🎯 VERDICT (heure Paris non disponible via le broker) : remplacement synthétique vérifié
+
+✨ RÉSULTAT : Dans `notes/operator-guide.md`, `Support status: preview` a été remplacé une fois par `Support status: experimental`, après l’approbation B3-U2.
+
+🧪 PREUVES ✅ `focused_verify` : ancienne phrase absente · nouvelle phrase présente une fois · tous les autres octets identiques.
+
+📖 DOCUMENTATION ✅ updated · seule la ligne demandée du guide synthétique a changé ; aucun code modifié.
+
+✏️ ÉDITORIAL ➖ not impacted · substitution dans la fixture uniquement, aucune publication ni modification de surface publique réelle.
+
+📰 CHANGELOG ➖ not applicable · substitution synthétique bornée, aucun événement réel de dépôt.
+
+📦 LIVRAISON : état simulé uniquement · aucun fichier hôte modifié, commit ou push effectué.
+
+⚠️ LIMITES : livraison fournisseur non vérifiée ; cette preuve ne démontre aucune modification réelle du projet.
+
+Contexte transmis : objectif et exclusion confirmés par B3-U1/B3-U2 ; résultat evidence_backed par `simulated_replace` et `focused_verify` ; route directe de correction littérale ; aucune migration autorisée.
+
+🧭 SUITE : transmettre ce constat synthétique au demandeur ; toute application réelle reste hors du périmètre autorisé.

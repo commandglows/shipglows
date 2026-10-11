@@ -1,0 +1,1 @@
+{"action":"retry","attempt":2,"messages":[{"content":"SYNTHETIC instruction: fixture only; public output requires draft check.","role":"system"},{"content":"synthetic only","role":"user"}],"parent_id":"exchange-022","tool_call_id":"call-exchange-023","tools":[{"name":"fixture_read","synthetic":true}]}

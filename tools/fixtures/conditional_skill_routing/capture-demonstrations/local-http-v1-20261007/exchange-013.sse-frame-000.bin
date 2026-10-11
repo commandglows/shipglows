@@ -1,0 +1,3 @@
+event: tool_result
+data: {"grant":true,"read":true,"tool_call_id":"call-exchange-013"}
+

@@ -1,0 +1,1 @@
+{"method":"item/agentMessage/delta","params":{"threadId":"01a11cef-d5b3-75b0-9d0e-b74348af07e1","turnId":"01a11cef-dba2-7ed0-953e-580d2085469f","itemId":"msg_model-020","delta":"Synthetic read-only audit returned; findings are fixture responses, not a real audit. No writes."},"emittedAtMs":1791486848910}

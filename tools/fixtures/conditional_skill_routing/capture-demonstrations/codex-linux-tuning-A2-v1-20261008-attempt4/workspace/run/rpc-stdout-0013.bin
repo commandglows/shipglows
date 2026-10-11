@@ -1,0 +1,1 @@
+{"method":"item/completed","params":{"item":{"type":"agentMessage","id":"msg_model-001","text":"That is an audit hypothesis, not repair authority.","phase":null,"memoryCitation":null,"delivery":null,"questions":null},"threadId":"01a11cef-d5b3-75b0-9d0e-b74348af07e1","turnId":"01a11cef-da0c-7d90-be1f-9e9370075212","completedAtMs":1791486843751},"emittedAtMs":1791486843752}

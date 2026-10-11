@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "status": "sealed_binding_source_closure",
+  "binding_receipt_sha256": "d271c766496f0262c23b98b8eecd9045a8c5ee138afec7b9d479de609d4e6833",
+  "source_hashes": {
+    "tools\\conditional_skill_routing_comparison_adapter.py": "274f334793f70b4c54fb2e105080d90e4d0cea2a9ee498284019761623996ac0",
+    "tools\\conditional_skill_routing_responses_accounting.py": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543",
+    "tools\\conditional_skill_routing_shared_campaign.py": "b04c4f757c1b18a80d27b4b3c55550b865ba190aaacc86aad7be55f0eed11c4f",
+    "tools\\conditional_skill_routing_cli_tuning_transport_probe.py": "2581f7acfc78333a9be44cf7aa3e5a6a80c495e4fb7ece1d10bc5a2af9a102bf",
+    "tools\\conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+    "tools\\conditional_skill_routing_eval.py": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0",
+    "tools\\skill_activation_budget.py": "b9da02a6dbf255764415337a9100f3a0c77f3e1c70581ba549934aa587390f81"
+  },
+  "validation_script_sha256": "ec18a9018330f318d556e3f08e4bb2c986eee26aaab5e983e99aa1a63ee5891e",
+  "all_exact_dependency_bytes_archived": true,
+  "private_payload_sha256": "127a698895e16014e437ca4744f3c7db8e77ada90c2c5ef2d5de121dc91cedf4",
+  "model_calls": 0,
+  "campaign_runs": []
+}

@@ -1,0 +1,20 @@
+{
+  "origin": "scripted synthetic subject output, not a real model",
+  "messages": [
+    {
+      "content": "That is an audit hypothesis, not repair authority.",
+      "content_sha256": "063c95ed842dc77adeec93ab8a527db2995422fc5ec05fea831be69f3fa9eae9",
+      "raw_sha256": "b7ad16d1a16018ddb1420ab48de57e3ce8e3787007548c469b0242efbb5cd4e4",
+      "label": "model-request-1",
+      "received_ns": 175386691017600
+    },
+    {
+      "content": "Synthetic read-only audit returned; findings are fixture responses, not a real audit. No writes.",
+      "content_sha256": "b6b0d797da5dfa065f5e8c7e7c156d184a7eabdf6042be674291c06bb9869ac1",
+      "raw_sha256": "b335bc4f03d801866f3754bfd5d4dfb7c464096d9ed0ed791eaca58b4b19db20",
+      "label": "model-request-20",
+      "received_ns": 175400904192900
+    }
+  ],
+  "private_redaction_pass": null
+}

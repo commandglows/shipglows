@@ -1,0 +1,1 @@
+{"id":3,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"Je veux une correction documentaire étroite, pas une réparation globale.","type":"text"}],"threadId":"01a11cef-d5b1-7841-8ded-fa68685c45c0"}}

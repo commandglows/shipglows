@@ -1,0 +1,1 @@
+{"method":"item/agentMessage/delta","params":{"threadId":"01a11cef-d5b0-7dc3-97c0-98b42050cf71","turnId":"01a11cef-ecdd-75b0-b4f8-b932fca375df","itemId":"msg_model-019","delta":"Synthetic exact replacement verified; unrelated bytes preserved. Broader schema migration remains a separate decision."},"emittedAtMs":1791486848801}

@@ -1,0 +1,16 @@
+model="synthetic"
+model_provider="mock"
+approval_policy="never"
+sandbox_mode="danger-full-access"
+compact_prompt="CSR_COMPACT_TRIGGER_01601: summarize the synthetic conversation."
+[analytics]
+enabled=false
+[features]
+remote_compaction_v2=false
+[model_providers.mock]
+name="Synthetic loopback"
+wire_api="responses"
+base_url="http://127.0.0.1:44315/v1"
+requires_openai_auth=false
+request_max_retries=0
+stream_max_retries=0

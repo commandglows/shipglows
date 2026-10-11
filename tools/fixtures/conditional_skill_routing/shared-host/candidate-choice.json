@@ -1,0 +1,21 @@
+{
+  "selected": "compact",
+  "basis": {
+    "reviewer": "/root/source_review",
+    "path": "tools/fixtures/conditional_skill_routing/shared-host/evaluator-candidate-tuning-review.json",
+    "sha256": "dc70df7f2836c10b577155f030634f6aee5dd9110902e88bbe3e009cf917ca84",
+    "decision": "compact selected; observed fidelity tie; no cost claim",
+    "heldout_feedback_used_for_choice": false
+  },
+  "candidate_manifest_sha256": "14ed05e94bd4294ddfad5cc59dcd479a42175e7e59023c5db0aaa05dacfeb1b5",
+  "candidate_page_sha256": {
+    "entry": "e4e5afcbb956085774bb8e7db24910571234dc73088345f7f76ef5958386b2e9",
+    "intent": "e2c3933e9a75024043c5c758c21fa82727e405a0c8acc1a103dde8acd26724a4",
+    "surface": "aca1624bf02e90cc87dcb03e9529f1aa29120c4cba76f8710e4cbd13755d9251",
+    "scope": "4431d85b950046978cc6dba67824a5aada9c44aa17c010240e476132bd1255d0",
+    "protections": "bf58d44082df45dcf6c08f380bb1b5f2df8ee41a5aaebb0100f8a5b0ba5f70b2"
+  },
+  "gain_claim": null,
+  "final96_run_required": true,
+  "canonical_migration_authorized": false
+}

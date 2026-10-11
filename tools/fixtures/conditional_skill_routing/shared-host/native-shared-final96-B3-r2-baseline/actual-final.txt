@@ -1,0 +1,3 @@
+Substitution synthétique vérifiée dans `notes/operator-guide.md` : `Support status: preview` → `Support status: experimental`, une fois. L’ancienne phrase est absente, la nouvelle apparaît une fois et tous les autres octets sont identiques (`focused_verify`).
+
+Context Capsule : cible limitée au guide synthétique ; autorité confirmée par B3-U2 ; preuve `evidence_backed` limitée au broker. Aucun fichier hôte modifié, aucune migration, écriture supplémentaire ou livraison Git. La livraison native du fournisseur reste non vérifiée. Le périmètre demandé ne prévoit aucune continuation.

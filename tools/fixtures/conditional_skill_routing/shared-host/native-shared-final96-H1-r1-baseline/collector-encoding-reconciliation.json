@@ -1,0 +1,9 @@
+{
+  "collector_issue": "PowerShell coordinator stdin default encoding replaced non-ASCII final text before finalize; immutable original record retained",
+  "original_record_sha256": "98c01acabdedd472cd19371d223aef48575eb7952def054e4556bc8878800c9a",
+  "corrected_handoff_sha256": "f77890856f1993652c6d9f21c2a78d23d5a9b22c0e001aa19b75908e03c323a6",
+  "final_matches_actual_utf8_handoff": true,
+  "subject_rerun": false,
+  "original_final_match_flag": false,
+  "behavior_not_repaired_or_rewritten": true
+}

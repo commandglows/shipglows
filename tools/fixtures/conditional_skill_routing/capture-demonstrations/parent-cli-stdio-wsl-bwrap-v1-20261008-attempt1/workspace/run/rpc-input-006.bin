@@ -1,0 +1,1 @@
+{"id":2,"jsonrpc":"2.0","result":{"contentItems":[{"text":"{\"after_sha256\":\"63edc2fb85f88f3335a2465d5fd843b3530c2e3865c4d533654521f20b6d17d2\",\"before_sha256\":\"768a8f5130ee9eb78e287ad32846936042bb66ce4d009a41445bc94f1ade81d4\",\"path\":\"fixture/target\",\"status\":\"simulated_only\"}","type":"inputText"}],"success":true}}

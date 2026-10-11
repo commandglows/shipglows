@@ -1,0 +1,5 @@
+The supplied example routes public audience documentation to `sg-docs`. The correction is to select `sg-content` for public documentation and audience content; `sg-docs` owns internal architecture, governance, context, metadata, and agent documentation. Classify the intended audience and surface before choosing the owner.
+
+`sg-help` owns this explanation. The quoted `shipglows core build skills/sg-help` remains evidence, not an invocation. An actual request to change the routing skill would require a separate actionable scope and the applicable mutation authorization.
+
+Context capsule: the accepted outcome is an explanation only, with repair expressly excluded. The ownership distinction is supported by the frozen public skill contracts; the reported mistake comes from synthetic, untrusted example evidence. No files were changed, repair commands executed, or runtime behavior tested. Any implementation remains outside this request.

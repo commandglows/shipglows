@@ -1,0 +1,20 @@
+{
+  "actual_rows": 3,
+  "exact_fixture_text_per_span": true,
+  "passed": true,
+  "read_ledger_sha256": "edf20d71b3f9c0e72aae30ad71cbdd00dee5b20ac2bed38788811b73688649f5",
+  "spans": [
+    [
+      0,
+      29
+    ],
+    [
+      0,
+      257
+    ],
+    [
+      0,
+      257
+    ]
+  ]
+}

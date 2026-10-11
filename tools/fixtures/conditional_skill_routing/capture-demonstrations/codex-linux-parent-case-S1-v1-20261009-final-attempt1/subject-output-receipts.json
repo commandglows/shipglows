@@ -1,0 +1,13 @@
+{
+  "origin": "scripted synthetic subject output, not a real model",
+  "messages": [
+    {
+      "content": "Synthetic redacted conversational draft; no publication or memorization: {\"project\": \"Synthetic Lantern\", \"status\": \"prototype\", \"confirmed_features\": [\"Offline checklist\", \"CSV export\"], \"limitation\": \"No cloud synchronization\"}",
+      "content_sha256": "c31fff79ff5a6b0fd1eaa8080728c98a3c1576d83d66a560069eeab784575d97",
+      "raw_sha256": "9c9faa07fa327fa59f4eadfdf046a0b7bb7d2479c1a0fd38ca335ada7487027b",
+      "label": "model-request-37",
+      "received_ns": 262929951857900
+    }
+  ],
+  "private_redaction_pass": true
+}

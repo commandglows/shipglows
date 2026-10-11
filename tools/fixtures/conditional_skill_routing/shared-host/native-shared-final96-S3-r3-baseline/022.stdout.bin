@@ -1,0 +1,1 @@
+{"ok":true,"result":{"machine_redaction":"pass","proof":{"draft_sha256":"c52a6158fc98ace6f3ab9e762428d241b2dc51773f3adafbe260cf29746c004c"},"public_draft_authorized":false,"result":"Synthetic Mosaic is a prototype with confirmed support for local templates and JSON export. It currently has no shared workspace.","rubric":"not_evaluated","semantic_review":"not_evaluated"}}

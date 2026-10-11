@@ -1,0 +1,1 @@
+{"id":3,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"Remplace uniquement ‘Main entry point’ par ‘Main CLI entry point’ dans CLAUDE.md.","type":"text"}],"threadId":"01a11ce4-c61a-70f3-9af3-9f12690a7a48"}}

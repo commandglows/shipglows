@@ -1,0 +1,10 @@
+{
+  "sealed": 0,
+  "expected": 96,
+  "active_handles": [
+    "/root/source_review/final_subject_001"
+  ],
+  "second_spawn": "thread_limit_rejected_before_launch",
+  "author_payloads_disclosed": false,
+  "updated_ns": 1791357794238586900
+}

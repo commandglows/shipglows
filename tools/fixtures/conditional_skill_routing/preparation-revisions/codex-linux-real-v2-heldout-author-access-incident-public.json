@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "artifact": "heldout_author_access_incident",
+  "date": "2026-10-08",
+  "status": "fail_closed_entire_v2_set_retired_for_future_use",
+  "affected_experiment": "conditional-skill-routing-codex-linux-real-v2-prepared",
+  "reported_incident": "Windows PowerShell native argument parsing broadened an intended exact-file rg search to repository scope",
+  "reported_output_tokens": 75040,
+  "reported_model_visible_limit": 2300,
+  "model_visible_private_prompt_expectation_fixture_reported": false,
+  "default_rg_can_enumerate_private_payload": true,
+  "private_payload_exclusion_rules_found": false,
+  "actual_process_payload_byte_access": "not_excludable",
+  "actual_private_model_consumption": "not_observed_in_reported_visible_output",
+  "private_payload_sha256": "127a698895e16014e437ca4744f3c7db8e77ada90c2c5ef2d5de121dc91cedf4",
+  "resolution": "Retire all eight v2 cases for future use; author and independently seal a complete fresh eight-case set in an evaluator-owned namespace outside repository default search scope before tuning",
+  "existing_artifacts_preserved": true,
+  "selective_repair": false,
+  "new_tuning_runs": 0,
+  "model_calls": 0,
+  "campaign_runs": [],
+  "evidence_limits": [
+    "Root provided incident command/output summary; no claim of independently recovered complete rg output",
+    "Search-capability evidence establishes absence of exclusion, not certainty that every private byte was read",
+    "External repository namespace is a search-scope precaution, not an OS identity isolation claim"
+  ]
+}

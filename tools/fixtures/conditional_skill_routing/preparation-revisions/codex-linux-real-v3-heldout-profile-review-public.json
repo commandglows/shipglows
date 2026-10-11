@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "packet_type": "offline_gate_review_packet",
+  "gate": "fresh_heldout_seal",
+  "status": "pending_review",
+  "campaign_id": null,
+  "consumer_profile_sha256": null,
+  "independent_review": false,
+  "reviewer": null,
+  "checks": {
+    "executable_binding_complete": false,
+    "author_confidentiality_preserved": false,
+    "complete_fresh_set": false
+  },
+  "artifact_hashes": {
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-seal-and-baseline-binding-public.json": "f9cdbfa91553587a288a831e3678dc79ce714a88254ec445f5c6871cd8c5021b",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-independent-review-public.json": "c5a1e9179a7a8cfcf5210b7ff70169698cdccf2fff5682c0b49510435f157702"
+  },
+  "limitations": [
+    "Existing distinct review reproduces the fresh set and baseline binding.",
+    "Final consumer profile attachment and evaluator isolation remain unproved.",
+    "The private held-out payload was not opened."
+  ],
+  "receipt_sha256": null
+}

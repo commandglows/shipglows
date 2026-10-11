@@ -1,0 +1,3 @@
+The quoted `shipglows core build skills/sg-content` describes creating or changing the ShipGlows content skill itself. `core` makes ShipGlows the system target; `build` selects skill development; `skills/sg-content` identifies the target skill. It does not request producing content for an application.
+
+This explanation belongs to `sg-help`. An actual skill-change request would belong to the ShipGlows core maintainer. Here the quotation activates neither that maintainer nor `sg-content`, and supplies no approval. No build or modification was performed.

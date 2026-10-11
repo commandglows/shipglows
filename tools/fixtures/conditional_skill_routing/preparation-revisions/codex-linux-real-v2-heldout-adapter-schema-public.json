@@ -1,0 +1,98 @@
+{
+  "status": "offline_baseline_adapter_construction_valid_not_runtime_binding",
+  "rows": [
+    {
+      "case_id": "H3",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read"
+      ],
+      "schema_sha256": "68100e020e75af4d1510b7c291aa8de00d9fb5bd619463b3f7416b0e1fb3fc26",
+      "adapter_receipt_sha256": "7d8e941295d7bcb9a6c82e9394f2428751120f407cc0e04fd804e025490758ad"
+    },
+    {
+      "case_id": "H4",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read"
+      ],
+      "schema_sha256": "68100e020e75af4d1510b7c291aa8de00d9fb5bd619463b3f7416b0e1fb3fc26",
+      "adapter_receipt_sha256": "46917fd2a0b7489393f6920c228a9564468d191a097da7e33c493c61b50f6329"
+    },
+    {
+      "case_id": "A3",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "audit",
+        "invocation_preflight"
+      ],
+      "schema_sha256": "8f7a13aaf70a8a0e16caf6c47350de792765a1c5cbf4cbc1ddd0dc730217cb09",
+      "adapter_receipt_sha256": "18d5e383ea8c31cd1558044a53150df0cf08cad0a21cf36237506d6c7654fa78"
+    },
+    {
+      "case_id": "A4",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "audit"
+      ],
+      "schema_sha256": "b67d6b597019e7d1d184e7538403a635e1df2592a7c786db9daaa31b7f2d5090",
+      "adapter_receipt_sha256": "f770382311a795663d5cdb65e07e269240456327581a72b5c7ef1d9180007298"
+    },
+    {
+      "case_id": "B3",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "simulated_replace",
+        "focused_verify"
+      ],
+      "schema_sha256": "a1a2c8a63d54692efadb9ee445e68b37c46b2cd986d0fe268445dcd5ddc9fc12",
+      "adapter_receipt_sha256": "d567969c2bb320f05310c767d846c22caed9ac909b87a370c467d05b041c5cee"
+    },
+    {
+      "case_id": "B4",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "simulated_replace",
+        "scope_evidence_read",
+        "focused_verify",
+        "invocation_preflight",
+        "topology_preflight"
+      ],
+      "schema_sha256": "dadb356fd8d659da8b4ecc33603105d31f5b4d0a4215835e195a72693f20c851",
+      "adapter_receipt_sha256": "ce785005370a7bc668ba142316e2d236e8e92f1da0c4509f9524f38ccaa022d2"
+    },
+    {
+      "case_id": "S3",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "private_status",
+        "private_capability",
+        "private_record_read"
+      ],
+      "schema_sha256": "324ead309b118b036edce1953dcec20a414bb537a056930a07fbeb4027ab05e7",
+      "adapter_receipt_sha256": "398076d57077c82d94b2d8dbe24cedb279e2dea97581a8f6d018a5e901314e85"
+    },
+    {
+      "case_id": "S4",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "private_status",
+        "private_capability",
+        "private_record_read"
+      ],
+      "schema_sha256": "324ead309b118b036edce1953dcec20a414bb537a056930a07fbeb4027ab05e7",
+      "adapter_receipt_sha256": "9759f2b35ec626a5611c3f54bd1f540fbf70fbb04e9e89af8b3085ba06f67317"
+    }
+  ],
+  "source_manifest_path": "tools/fixtures/conditional_skill_routing/manifest.json",
+  "source_manifest_sha256": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25",
+  "model_calls": 0,
+  "callback_executions": 0,
+  "candidate_bound": false
+}

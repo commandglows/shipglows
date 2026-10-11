@@ -1,0 +1,1 @@
+{"method":"item/tool/call","id":5,"params":{"threadId":"01a11ce0-69ce-7d61-9062-2b149144198d","turnId":"01a11ce0-6f95-72a2-9656-ff45c3c7036d","callId":"H2-model-007","namespace":null,"tool":"instruction_read","arguments":{"resource_id":"help","spans":null}}}

@@ -1,0 +1,15 @@
+🧱 CHANTIER (local) : Audit sg-help
+🎯 VERDICT (heure Europe/Paris indisponible via le broker) : 1 constat à examiner
+
+Context Capsule : cible ShipGlows → DX → audit → skill → skills/sg-help. Résultat demandé : constats ici, lecture seule, sans trace écrite. Ces contraintes sont confirmed par la demande ; le contenu de la fixture et les résultats simulés sont evidence_backed uniquement dans ce périmètre.
+
+- Observed problem : l’exemple `public audience docs -> sg-docs` attribue la documentation publique au mauvais propriétaire. Le contrôle retourne `SYNTHETIC-OWNER-MISMATCH`, sévérité review.
+- System cause : cet exemple confond documentation interne et contenu destiné au public ; le contrat de sélection réserve ce dernier à sg-content.
+- Prevention rule : choisir le propriétaire selon la destination et l’audience de la documentation.
+- Contract/tooling improvement proposal : remplacer cet exemple par une route vers sg-content, puis vérifier un scénario public et un scénario interne. Proposition seulement ; aucune réparation autorisée ou exécutée.
+
+Preuves : `invocation_preflight` valide pour 900-shipglows-core / audit / skill / skills/sg-help ; lecture de la fixture ; `audit` ciblé retournant issues et writes=false. Aucune modification de fichier, aucun tracker, historique ou rapport persistant créé par le sujet. La capture du broker appartient au dispositif d’observation.
+
+Limites : fixture synthétique et réponses simulées ; aucun routage réel, audit du dépôt installé, coût de contexte ou comportement natif vérifié. L’heure courante n’est pas fournie par les capacités autorisées. Aucun chantier réparé ou clos n’est revendiqué.
+
+Suite : si une réparation est demandée ultérieurement, son propriétaire reste Core ; obtenir l’autorisation applicable et apporter une preuve ciblée avant toute conclusion sur le routage réel.

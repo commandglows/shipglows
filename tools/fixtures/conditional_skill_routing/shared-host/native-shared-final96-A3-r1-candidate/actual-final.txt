@@ -1,0 +1,10 @@
+🚧 CHANTIER (local) : Synthetic sg-content skill audit
+🎯 VERDICT (Paris time unavailable) : Blocked before audit activation
+
+Context: ShipGlows Core owns this internal skill audit. The requested outcome is findings here for synthetic skills/sg-content only, with no repair or durable history/report.
+
+Evidence: The released catalog restricts invocation_preflight to skills/sg-help. The Core and preflight contracts require validation of the actual explicit invocation before activation. That capability cannot validate the requested sg-content scope; canonical target verification also remains unknown.
+
+Audit status: Not run; no skill findings established. No subject file, history, tracker or report writes were performed. Evidence is limited to frozen broker instructions, schemas and the synthetic scope note; it provides no installed-runtime proof.
+
+Next action: Release a matching sg-content invocation preflight and canonical synthetic target verification, then perform the bounded read-only audit. No repair or persistence is authorized.

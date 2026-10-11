@@ -1,0 +1,56 @@
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 51568)
+Traceback (most recent call last):
+  File "/probe.py", line 577, in handle
+    connection = http.client.HTTPConnection("127.0.0.1", model_server.server_address[1], timeout=3)
+                 ^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'client'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.14/socketserver.py", line 318, in _handle_request_noblock
+    self.process_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 349, in process_request
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "/probe.py", line 605, in handle
+    except (ValueError, TypeError, OSError, KeyError, http.client.HTTPException) as exc:
+                                                      ^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'client'
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 51574)
+Traceback (most recent call last):
+  File "/probe.py", line 577, in handle
+    connection = http.client.HTTPConnection("127.0.0.1", model_server.server_address[1], timeout=3)
+                 ^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'client'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.14/socketserver.py", line 318, in _handle_request_noblock
+    self.process_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 349, in process_request
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "/probe.py", line 605, in handle
+    except (ValueError, TypeError, OSError, KeyError, http.client.HTTPException) as exc:
+                                                      ^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'client'
+----------------------------------------

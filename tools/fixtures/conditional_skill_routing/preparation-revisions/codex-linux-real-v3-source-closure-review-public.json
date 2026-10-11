@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "packet_type": "offline_gate_review_packet",
+  "gate": "source_closure",
+  "status": "pending_review",
+  "campaign_id": null,
+  "consumer_profile_sha256": null,
+  "independent_review": false,
+  "reviewer": null,
+  "checks": {
+    "original_o1_o9_preserved": false,
+    "mandatory_load_closure_reviewed": false,
+    "complete_normative_source_spans_hashed": false,
+    "baseline_source_revision_frozen": false,
+    "authority_hierarchy_identical": false
+  },
+  "artifact_hashes": {
+    "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "691006e1322c610c356cfeb30547b6dae2d884adf845235784ee65f1ddafd98a",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd"
+  },
+  "limitations": [
+    "These hashes identify the spec and calibration only; no complete frozen v3 source closure is asserted."
+  ],
+  "receipt_sha256": null
+}

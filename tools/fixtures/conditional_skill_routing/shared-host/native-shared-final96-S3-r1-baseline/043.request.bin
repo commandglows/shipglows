@@ -1,0 +1,1 @@
+{"op":"private_grant","content":"Authorize read only of \"projects/mosaic.json\"?","arguments":{"namespace":"projects","operation":"read","resource_id":"projects/mosaic.json","request_grant":true}}

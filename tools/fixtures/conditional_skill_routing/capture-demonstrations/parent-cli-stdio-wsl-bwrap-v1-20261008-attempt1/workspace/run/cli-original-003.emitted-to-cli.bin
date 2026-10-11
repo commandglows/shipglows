@@ -1,0 +1,18 @@
+event: response.created
+data: {"response":{"created_at":0,"id":"resp_windows-model-003","model":"synthetic","object":"response","output":[],"status":"in_progress","usage":{"input_tokens":10,"input_tokens_details":{"cached_tokens":0},"output_tokens":2,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":12}},"sequence_number":0,"type":"response.created"}
+
+event: response.output_item.added
+data: {"item":{"arguments":"","call_id":"call_simulated_replace_01601","id":"fc_windows-model-003","name":"simulated_replace","status":"in_progress","type":"function_call"},"output_index":0,"sequence_number":1,"type":"response.output_item.added"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"{\"expected_sha256\":\"768a8f5130ee9eb78e287ad32846936042bb66ce4d009a41445bc94f1ade81d4\",\"path\":\"fixture/target\",\"text\":\"synthetic replacement target\\n\"}","item_id":"fc_windows-model-003","output_index":0,"sequence_number":2,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.done
+data: {"arguments":"{\"expected_sha256\":\"768a8f5130ee9eb78e287ad32846936042bb66ce4d009a41445bc94f1ade81d4\",\"path\":\"fixture/target\",\"text\":\"synthetic replacement target\\n\"}","item_id":"fc_windows-model-003","output_index":0,"sequence_number":3,"type":"response.function_call_arguments.done"}
+
+event: response.output_item.done
+data: {"item":{"arguments":"{\"expected_sha256\":\"768a8f5130ee9eb78e287ad32846936042bb66ce4d009a41445bc94f1ade81d4\",\"path\":\"fixture/target\",\"text\":\"synthetic replacement target\\n\"}","call_id":"call_simulated_replace_01601","id":"fc_windows-model-003","name":"simulated_replace","status":"completed","type":"function_call"},"output_index":0,"sequence_number":4,"type":"response.output_item.done"}
+
+event: response.completed
+data: {"response":{"created_at":0,"id":"resp_windows-model-003","model":"synthetic","object":"response","output":[{"arguments":"{\"expected_sha256\":\"768a8f5130ee9eb78e287ad32846936042bb66ce4d009a41445bc94f1ade81d4\",\"path\":\"fixture/target\",\"text\":\"synthetic replacement target\\n\"}","call_id":"call_simulated_replace_01601","id":"fc_windows-model-003","name":"simulated_replace","status":"completed","type":"function_call"}],"status":"completed","usage":{"input_tokens":10,"input_tokens_details":{"cached_tokens":0},"output_tokens":2,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":12}},"sequence_number":5,"type":"response.completed"}
+

@@ -1,0 +1,18 @@
+event: response.created
+data: {"response":{"created_at":0,"id":"resp_model-021","model":"synthetic","object":"response","output":[],"status":"in_progress","usage":{"input_tokens":10,"input_tokens_details":{"cached_tokens":0},"output_tokens":2,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":12}},"sequence_number":0,"type":"response.created"}
+
+event: response.output_item.added
+data: {"item":{"arguments":"","call_id":"A1-model-021","id":"fc_model-021","name":"invocation_preflight","status":"in_progress","type":"function_call"},"output_index":0,"sequence_number":1,"type":"response.output_item.added"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"{\"engine\":\"900-shipglows-core\",\"mode\":\"audit\",\"scope\":\"skills/sg-help\",\"surface\":\"skill\"}","item_id":"fc_model-021","output_index":0,"sequence_number":2,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.done
+data: {"arguments":"{\"engine\":\"900-shipglows-core\",\"mode\":\"audit\",\"scope\":\"skills/sg-help\",\"surface\":\"skill\"}","item_id":"fc_model-021","output_index":0,"sequence_number":3,"type":"response.function_call_arguments.done"}
+
+event: response.output_item.done
+data: {"item":{"arguments":"{\"engine\":\"900-shipglows-core\",\"mode\":\"audit\",\"scope\":\"skills/sg-help\",\"surface\":\"skill\"}","call_id":"A1-model-021","id":"fc_model-021","name":"invocation_preflight","status":"completed","type":"function_call"},"output_index":0,"sequence_number":4,"type":"response.output_item.done"}
+
+event: response.completed
+data: {"response":{"created_at":0,"id":"resp_model-021","model":"synthetic","object":"response","output":[{"arguments":"{\"engine\":\"900-shipglows-core\",\"mode\":\"audit\",\"scope\":\"skills/sg-help\",\"surface\":\"skill\"}","call_id":"A1-model-021","id":"fc_model-021","name":"invocation_preflight","status":"completed","type":"function_call"}],"status":"completed","usage":{"input_tokens":10,"input_tokens_details":{"cached_tokens":0},"output_tokens":2,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":12}},"sequence_number":5,"type":"response.completed"}
+

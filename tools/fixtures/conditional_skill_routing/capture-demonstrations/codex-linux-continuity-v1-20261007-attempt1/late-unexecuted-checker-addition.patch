@@ -1,0 +1,29 @@
+--- executed-source
++++ late-unexecuted-checker-addition
+@@ -288,7 +288,13 @@
+                         raise ValueError("required tool/instruction absent")
+                     input_items = request["input"]
+                     results = {}
++                    prior_calls = {}
+                     for item in input_items:
++                        if isinstance(item, dict) and item.get("type") == "function_call":
++                            call_id = item.get("call_id")
++                            if call_id in prior_calls:
++                                raise ValueError("duplicate historical function call")
++                            prior_calls[call_id] = item
+                         if isinstance(item, dict) and item.get("type") == "function_call_output":
+                             call_id = item.get("call_id")
+                             if call_id in results:
+@@ -296,6 +302,12 @@
+                             results[call_id] = result_text(item)
+                     if set(results) != set(CALLS[:stage]):
+                         raise ValueError("missing/unexpected callbacks: " + str(sorted(results)))
++                    if set(prior_calls) != set(CALLS[:stage]):
++                        raise ValueError("missing/unexpected historical calls")
++                    for index, call_id in enumerate(CALLS[:stage]):
++                        call = prior_calls[call_id]
++                        if call.get("name") != "exec_command" or json.loads(call.get("arguments", "null")) != arguments[index]:
++                            raise ValueError("historical call arguments changed")
+                     for call_id, previous in state["results"].items():
+                         if results.get(call_id) != previous:
+                             raise ValueError("previous callback changed")

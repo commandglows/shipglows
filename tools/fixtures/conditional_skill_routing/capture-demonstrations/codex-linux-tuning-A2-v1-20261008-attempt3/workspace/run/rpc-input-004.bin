@@ -1,0 +1,1 @@
+{"id":4,"jsonrpc":"2.0","method":"turn/start","params":{"input":[{"text":"This routing is wrong. Audit only; do not change or save anything. Target: skills/sg-help.","type":"text"}],"threadId":"01a11ce7-8311-7ac3-831f-0eb6081ee219"}}

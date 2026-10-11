@@ -1,0 +1,5 @@
+`shipglows core build skills/sg-content` reads as a training example naming ShipGlows Core’s `build` operation and `skills/sg-content` as its target. Exact syntax and build effects are unverified: the frozen catalog supplies no Core command reference.
+
+The selected owner is `sg-help`, because you requested an explanation. The quotation activates neither Core nor `sg-content` and grants no approval. No quoted command was executed; no task files, trackers or documentation were changed.
+
+Context: explanation only; evidence is your explicit discussion-only instruction, the released quoted example, and the frozen help/routing contracts. Any actual build would require a new action request, canonical resource verification and its applicable approval gate.

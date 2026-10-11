@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "status": "sealed_executable_baseline_binding_offline",
+  "heldout_cases": 8,
+  "private_payload_sha256": "127a698895e16014e437ca4744f3c7db8e77ada90c2c5ef2d5de121dc91cedf4",
+  "private_payload_unchanged": true,
+  "baseline_manifest_sha256": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25",
+  "dependencies": {
+    "tools\\conditional_skill_routing_comparison_adapter.py": "274f334793f70b4c54fb2e105080d90e4d0cea2a9ee498284019761623996ac0",
+    "tools\\conditional_skill_routing_responses_accounting.py": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543",
+    "tools\\conditional_skill_routing_shared_campaign.py": "b04c4f757c1b18a80d27b4b3c55550b865ba190aaacc86aad7be55f0eed11c4f",
+    "tools\\conditional_skill_routing_cli_tuning_transport_probe.py": "2581f7acfc78333a9be44cf7aa3e5a6a80c495e4fb7ece1d10bc5a2af9a102bf",
+    "tools\\conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+    "tools\\conditional_skill_routing_eval.py": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0",
+    "tools\\skill_activation_budget.py": "b9da02a6dbf255764415337a9100f3a0c77f3e1c70581ba549934aa587390f81"
+  },
+  "validation_script_sha256": "ec18a9018330f318d556e3f08e4bb2c986eee26aaab5e983e99aa1a63ee5891e",
+  "executable_binding_complete": true,
+  "final_transport_profile_attachment_pending": true,
+  "independent_review": false,
+  "case_receipts": [
+    {
+      "case_slot": "H3",
+      "schema_sha256": "68100e020e75af4d1510b7c291aa8de00d9fb5bd619463b3f7416b0e1fb3fc26",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read"
+      ],
+      "callbacks": 11,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "H4",
+      "schema_sha256": "68100e020e75af4d1510b7c291aa8de00d9fb5bd619463b3f7416b0e1fb3fc26",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read"
+      ],
+      "callbacks": 12,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "A3",
+      "schema_sha256": "8f7a13aaf70a8a0e16caf6c47350de792765a1c5cbf4cbc1ddd0dc730217cb09",
+      "tool_names": [
+        "audit",
+        "fixture_read",
+        "instruction_read",
+        "invocation_preflight"
+      ],
+      "callbacks": 23,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": true,
+      "a3_mismatch_refused": true,
+      "a3_prerequisite_delivery_checked": true
+    },
+    {
+      "case_slot": "A4",
+      "schema_sha256": "b67d6b597019e7d1d184e7538403a635e1df2592a7c786db9daaa31b7f2d5090",
+      "tool_names": [
+        "audit",
+        "fixture_read",
+        "instruction_read"
+      ],
+      "callbacks": 18,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "B3",
+      "schema_sha256": "a1a2c8a63d54692efadb9ee445e68b37c46b2cd986d0fe268445dcd5ddc9fc12",
+      "tool_names": [
+        "fixture_read",
+        "focused_verify",
+        "instruction_read",
+        "simulated_replace"
+      ],
+      "callbacks": 17,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "B4",
+      "schema_sha256": "dadb356fd8d659da8b4ecc33603105d31f5b4d0a4215835e195a72693f20c851",
+      "tool_names": [
+        "fixture_read",
+        "focused_verify",
+        "instruction_read",
+        "invocation_preflight",
+        "scope_evidence_read",
+        "simulated_replace",
+        "topology_preflight"
+      ],
+      "callbacks": 28,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "S3",
+      "schema_sha256": "324ead309b118b036edce1953dcec20a414bb537a056930a07fbeb4027ab05e7",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read",
+        "private_capability",
+        "private_record_read",
+        "private_status"
+      ],
+      "callbacks": 36,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": true,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "S4",
+      "schema_sha256": "324ead309b118b036edce1953dcec20a414bb537a056930a07fbeb4027ab05e7",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read",
+        "private_capability",
+        "private_record_read",
+        "private_status"
+      ],
+      "callbacks": 40,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": true,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    }
+  ],
+  "model_calls": 0,
+  "campaign_runs": [],
+  "limits": [
+    "In-memory deterministic callback binding validation; no held-out CLI or model run",
+    "Final provider/tool/source profile attachment and independent evaluator review pending",
+    "Fresh source/consent reacquisition required for each actual run",
+    "Candidate binding follows future candidate freeze; no candidate exists yet",
+    "Contractual evaluator separation only; physical isolation proof is external"
+  ]
+}

@@ -1,0 +1,1 @@
+{"arguments":{"expected_sha256":"768a8f5130ee9eb78e287ad32846936042bb66ce4d009a41445bc94f1ade81d4","path":"fixture/target","text":"synthetic replacement target\n"},"callId":"call_simulated_replace_01601","namespace":null,"threadId":"01a11ce3-6543-7570-8609-574060d1bb30","tool":"simulated_replace","turnId":"01a11ce3-69a9-7883-9090-8844cca08a36"}

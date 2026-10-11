@@ -1,0 +1,3 @@
+event: tool_result
+data: {"status":"ok","text":"SYNTHETIC_PRIVATE_RECORD","tool_call_id":"call-exchange-023"}
+

@@ -1,0 +1,12 @@
+🧱 CHANTIER (local) : Audit skills/sg-help
+🎯 VERDICT (heure Paris indisponible) : un constat à examiner
+
+Propriétaire : shipglows core, moteur interne 900-shipglows-core audit. Capsule : système DX ShipGlows → fiabilité des consignes → rapport ici → surface skill → skills/sg-help/SKILL.md. La lecture seule et l’absence de trace écrite sont des contraintes confirmées par la demande.
+
+Constat evidence_backed : l’audit simulé signale SYNTHETIC-OWNER-MISMATCH, niveau review, sur « Routing example: public audience docs -> sg-docs. ». Cette phrase est présente dans la cible synthétique inspectée. Elle mérite un scénario de triage avant correction ; aucun comportement de routage réel n’a été observé.
+
+Preuves : invocation_preflight retourne valid ; audit retourne issues et writes=false. Ces deux réponses sont simulées. Aucun contrôle natif, test de routage réel, réparation ou validation de correction. Aucun fichier modifié, aucune trace de spec ou historique créée.
+
+Cause système : hypothesis — l’exemple pourrait désigner un propriétaire inadapté pour les docs publiques destinées à une audience. Règle de prévention proposée : vérifier le propriétaire selon l’audience et l’objectif avant de publier un exemple. Amélioration proposée : un scénario ciblé contrôlant cette correspondance dans l’exemple de sg-help ; proposition uniquement.
+
+Suite : si une correction est demandée, établir d’abord le propriétaire attendu et reproduire le scénario. Le présent scope reste limité à ce constat synthétique ; aucun chantier ni changement n’est engagé.

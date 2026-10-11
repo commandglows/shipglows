@@ -1,0 +1,1 @@
+{"op":"checkpoint","declaration":{"type":"checkpoint","kind":"Blocked before audit activation because the released preflight tool supports sg-help rather than the requested sg-content scope; no audit execution, repairs or task persistence"}}

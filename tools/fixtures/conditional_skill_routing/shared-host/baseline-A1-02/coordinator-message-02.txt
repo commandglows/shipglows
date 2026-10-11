@@ -1,0 +1,1 @@
+Broker catalog now includes released fixture file paths, which were previously omitted by the adapter. Continue via the catalog and frozen instructions; all earlier refusals remain evidence.

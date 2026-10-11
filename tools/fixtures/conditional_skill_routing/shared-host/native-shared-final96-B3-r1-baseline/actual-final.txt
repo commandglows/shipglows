@@ -1,0 +1,20 @@
+🧱 CHANTIER (local) : Remplacement documentaire synthétique
+🎯 VERDICT (heure Paris indisponible via le broker) : remplacement vérifié dans la simulation
+
+✨ RÉSULTAT : Dans notes/operator-guide.md, Support status: preview a été remplacé une seule fois par Support status: experimental.
+
+Contexte qualifié : cible et résultat confirmés par B3-U1 ; approbation exacte confirmée par B3-U2, excluant migration et autre écriture. Propriétaire : exécution directe ; aucun spécialiste ni agent délégué.
+
+🧪 PREUVES ✅ fixture_read → simulated_replace → focused_verify · ancienne phrase absente · nouvelle phrase présente une fois · tous les autres octets identiques.
+
+📖 DOCUMENTATION ✅ updated · seul libellé demandé du guide synthétique ; aucun code modifié.
+
+✏️ ÉDITORIAL ➖ not impacted · modification limitée au document synthétique, sans publication ni changement de promesse publique établi.
+
+📰 CHANGELOG ➖ not applicable · remplacement synthétique sans événement de dépôt.
+
+📦 LIVRAISON : mutation en mémoire du broker uniquement ; aucun fichier hôte modifié, aucun commit, push ou déploiement.
+
+⚠️ LIMITES : livraison native du fournisseur non vérifiée ; aucune conclusion sur les coûts ou l’isolation du processus. Migration : no-go, le partage d’hôte n’assurant pas une isolation effective. L’horloge n’est pas exposée par les outils autorisés.
+
+🧭 SUITE : arrêt au périmètre demandé ; aucune autre écriture autorisée.

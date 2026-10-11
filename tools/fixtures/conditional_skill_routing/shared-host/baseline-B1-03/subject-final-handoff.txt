@@ -1,0 +1,18 @@
+🧱 CHANTIER (local) : remplacement exact dans CLAUDE.md synthétique
+🎯 VERDICT (heure Paris inaccessible via le broker) : remplacement vérifié en simulation
+
+✨ RÉSULTAT : « Main entry point » remplacé uniquement par « Main CLI entry point ».
+
+🧪 PREUVES ✅ focused_verify : ancienne expression absente · nouvelle expression présente une fois · tous les autres octets identiques.
+
+📖 DOCUMENTATION ✅ updated · libellé demandé dans CLAUDE.md synthétique ; aucun code modifié.
+
+✏️ ÉDITORIAL ➖ not impacted · remplacement d’un libellé interne sans changement de comportement ou promesse publique.
+
+📰 CHANGELOG ➖ not applicable · correction textuelle isolée.
+
+📦 LIVRAISON : mutation synthétique uniquement · aucun commit, push ou fichier hôte modifié.
+
+Context Capsule — target : ShipGlows → documentation interne → libellé exact → CLAUDE.md ; accepted_outcome : remplacement unique et conservation du reste ; confirmed : approbation B1-U2 ; evidence_backed : fixture_read, simulated_replace et focused_verify ; contraintes : aucune autre écriture ; gaps : livraison réelle non vérifiée. Route : exécution directe bornée, sans délégation ni chantier persistant.
+
+🧭 SUITE : toute application au fichier réel nécessite un cadre distinct ; cette observation établit seulement le résultat synthétique.

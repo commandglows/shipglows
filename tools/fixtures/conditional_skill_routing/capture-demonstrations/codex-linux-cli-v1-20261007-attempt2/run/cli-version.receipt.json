@@ -1,0 +1,1 @@
+{"chunks":[{"blob":"cli-version.stderr.chunk-0000.bin","received_ns":176161318550,"stream":"stderr"},{"blob":"cli-version.stdout.chunk-0000.bin","received_ns":176230981950,"stream":"stdout"}],"ended_ns":176285445728,"errors":[],"exit_code":0,"label":"cli-version","started_ns":175945921545}

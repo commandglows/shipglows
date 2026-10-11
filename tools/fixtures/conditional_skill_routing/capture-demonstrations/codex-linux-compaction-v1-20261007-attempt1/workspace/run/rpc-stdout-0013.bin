@@ -1,0 +1,1 @@
+{"method":"error","params":{"error":{"message":"stream disconnected before completion: error sending request","codexErrorInfo":"other","additionalDetails":null,"misalignment":null},"willRetry":false,"threadId":"01a11760-4386-7653-a5ea-026cceb9e947","turnId":"01a11760-4642-7762-bb1b-24b34421f4d9"},"emittedAtMs":1791393548130}

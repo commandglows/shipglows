@@ -1,0 +1,1 @@
+{"op":"private_grant","content":"Authorize read only of \"projects/lantern.json\"?","arguments":{"namespace":"projects","operation":"read","resource_id":"projects/lantern.json","request_grant":true}}

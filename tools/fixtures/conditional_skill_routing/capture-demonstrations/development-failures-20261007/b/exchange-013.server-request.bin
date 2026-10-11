@@ -1,0 +1,1 @@
+{"action":"grant","messages":[{"content":"SYNTHETIC instruction: fixture only; public output requires draft check.","role":"system"},{"content":"synthetic only","role":"user"},{"content":"{\"status\":\"denied\"}","role":"tool","tool_call_id":"call-exchange-012"}],"parent_id":"exchange-012","tool_call_id":"call-exchange-013","tools":[{"name":"fixture_read","synthetic":true}]}

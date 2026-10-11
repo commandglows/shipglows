@@ -1,0 +1,8 @@
+data: {"draft_sha256":"4b87104b64c8f5420b571367e7db4308bd48aeae37ba2a7f41845525163c7283","status":"safe"}
+
+event: usage
+data: {"input_tokens":7,"label":"fictional_synthetic_usage","output_tokens":3}
+
+event: done
+data: {"synthetic":true}
+

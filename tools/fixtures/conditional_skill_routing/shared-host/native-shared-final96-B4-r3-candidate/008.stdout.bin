@@ -1,0 +1,1 @@
+{"ok":true,"result":{"id":"request-8","jsonrpc":"2.0","result":{"content":[{"text":"{\"engine\":\"300-sg-docs\",\"evidence_kind\":\"simulated_fixture_response\",\"mode\":\"FILE\",\"public_owner\":\"sg-docs\",\"status\":\"valid\"}","type":"text"}],"isError":false}}}

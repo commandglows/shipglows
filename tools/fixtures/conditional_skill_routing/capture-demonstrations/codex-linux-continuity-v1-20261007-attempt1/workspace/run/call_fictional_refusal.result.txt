@@ -1,0 +1,1 @@
+approval policy is Never; reject command — you cannot ask for escalated permissions if the approval policy is Never

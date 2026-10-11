@@ -1,0 +1,1364 @@
+{
+  "attempts": 50,
+  "limits": [
+    "Blocking stdio read requires external process watchdog",
+    "Callback timeout refuses release; underlying callback cancellation unproved",
+    "Parent-only receipt HMAC is separate from relay channel authentication",
+    "No OS confinement, provider identity/auth or model retention proof"
+  ],
+  "permanently_retired": false,
+  "receipts": [
+    {
+      "auth": "923ce6ff3de623d89301fd075ed880d98892ea06da035dd78bcd0c47c60ab61a",
+      "body_bytes": 34,
+      "body_sha256": "6d4b0076473e9764f716df94d5db355965b5cb3febc9a7e581e23b562daaebcb",
+      "callback_kind": "mock",
+      "duration_ns": 2922900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0001",
+      "launch_authorized": false,
+      "monotonic_ns": 175377833204800,
+      "previous_receipt_sha256": null,
+      "raw_envelope_bytes": 328,
+      "raw_envelope_sha256": "cce8b2c0a0e7668756d1ff9d65eed632aec2584cb0187b67699718b02bea0342",
+      "response_bytes": 2565,
+      "response_envelope_sha256": "99b0e8f768c48141170570dfa1e0e3b6d425df45c0c8219a60d33ef27c702e70",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "4295701d215a13048d263c9a02cae25ee655931c33a4bac39640f25ac0a2338c",
+      "response_status": 200,
+      "sequence": 1,
+      "status": "forwarded"
+    },
+    {
+      "auth": "87df7c34d0acd42874f773681e32c583868833d3f4aac0770a6b0a9672ca49ec",
+      "body_bytes": 86,
+      "body_sha256": "96f715f8950e673bd0bbaec757f9a08c0cba1079daf5c5b7ecb00818bb1b22f1",
+      "callback_kind": "mock",
+      "duration_ns": 5557700,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0002",
+      "launch_authorized": false,
+      "monotonic_ns": 175385896421000,
+      "previous_receipt_sha256": "5012864e04f66d7a662c6723e6df634418827257875904174bef45b7208d3cd5",
+      "raw_envelope_bytes": 396,
+      "raw_envelope_sha256": "e75fcddd8e2ec1739d089016628c4b4e3e74d6ac6031a8a70e2b2c5bc375394a",
+      "response_bytes": 14,
+      "response_envelope_sha256": "304759733d5fa5b8c308fd37c3e77095ec3e4e9cd7924a14a2f4cb380397a511",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "fc80ba7b1ebbf068334cfd8e15eff95df9fd6c372a3d979c185ce0f18b6c409c",
+      "response_status": 200,
+      "sequence": 2,
+      "status": "forwarded"
+    },
+    {
+      "auth": "125fd4ce95aa74bb6b6eaada592b5c279dacdccae2f445197d2a33c3890b8011",
+      "body_bytes": 39,
+      "body_sha256": "c852b20675cf13a26a66cc07c7bc030ed4ea2b1fa423df1d8e656b003386186e",
+      "callback_kind": "mock",
+      "duration_ns": 3997600,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0003",
+      "launch_authorized": false,
+      "monotonic_ns": 175385924748100,
+      "previous_receipt_sha256": "07b110b9c4e3a313cb2c9dedaf8c6ea24e915821ada10298c9ddbf2bd3a01fdc",
+      "raw_envelope_bytes": 332,
+      "raw_envelope_sha256": "83245a11537c0b802c46cb62a5146e18d8f2dd9687ffa5c4c299be952239589d",
+      "response_bytes": 126,
+      "response_envelope_sha256": "68eff3cc4199afb2e807d5388c367d68f275dd2a437bc796ab503f2a1c000e73",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "276a7e82cb73a1611da7e37fe9f7a49796866c9ae8fd2316233ac1f944a4ca4f",
+      "response_status": 200,
+      "sequence": 3,
+      "status": "forwarded"
+    },
+    {
+      "auth": "0300b1ee5dedf09fc47d7c0bc73d0cfec9ef5459c4aa16e112425f5b058a5773",
+      "body_bytes": 83,
+      "body_sha256": "e7563549dac0043c3efcecbac93f96927d2cb8e27a8fd40b2c70c06bfbb60164",
+      "callback_kind": "mock",
+      "duration_ns": 2128800,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0004",
+      "launch_authorized": false,
+      "monotonic_ns": 175386268799200,
+      "previous_receipt_sha256": "eafd3fdbce98f2bbd16c88fa7f488657a610d3014994a52a5b552c9330506f9d",
+      "raw_envelope_bytes": 392,
+      "raw_envelope_sha256": "e938c8a6938db14e775a16005fa268116357a79219f94799282248518ea66503",
+      "response_bytes": 14,
+      "response_envelope_sha256": "7c61b2fd27f339837cd427c0b48374690c85e332fdf0d13275bc9067df792388",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "fc80ba7b1ebbf068334cfd8e15eff95df9fd6c372a3d979c185ce0f18b6c409c",
+      "response_status": 200,
+      "sequence": 4,
+      "status": "forwarded"
+    },
+    {
+      "auth": "bd8fcfbeaf47b4bcd67c0c462c2d4b636bcbf21131685556515f5029ab5d8855",
+      "body_bytes": 32359,
+      "body_sha256": "6c64da57909f98f4615ff09c095cd45c490d584e61f847ebef855dff8dab24ed",
+      "callback_kind": "mock",
+      "duration_ns": 12849900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0005",
+      "launch_authorized": false,
+      "monotonic_ns": 175386549289500,
+      "previous_receipt_sha256": "c2c3412ed77d72c8a2ee4480a5df917c20ed67f60051d1098a599c4e5fe7fa63",
+      "raw_envelope_bytes": 43428,
+      "raw_envelope_sha256": "ec743fbfd6002602c0175ace6d52ab256f65463267b45ddac3eef23114c501dc",
+      "response_bytes": 2767,
+      "response_envelope_sha256": "9bed82c8aadd75325f76619cfce3ff9b9459f6968044bab6c2338162c397aa97",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "a1a47a6223c4980600a68b4ba405038af3845801d08351f6271aa8b9573b5884",
+      "response_status": 200,
+      "sequence": 5,
+      "status": "forwarded"
+    },
+    {
+      "auth": "95de9bdee3a127662f1626d52107c6ff5301be0d1637979b083b782e58f739f1",
+      "body_bytes": 276,
+      "body_sha256": "343d7ec0ceaf7b0e63e07e88c359c65e2098ae0b96bf117460e875142d71980d",
+      "callback_kind": "mock",
+      "duration_ns": 994557300,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0006",
+      "launch_authorized": false,
+      "monotonic_ns": 175387675678900,
+      "previous_receipt_sha256": "a1a00576efe70d0aaaf3b389e04305f1f325fffc7add759032cfdb079fea061f",
+      "raw_envelope_bytes": 648,
+      "raw_envelope_sha256": "252e390a1dad5648ce969d45d1c002a840f043c7a749564bb9d0b45d7789a5a7",
+      "response_bytes": 4828,
+      "response_envelope_sha256": "744a5eb821cab0205b102fc028f0e3cec5061991bdc265dddf191fc210189b82",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "ebd99ccabd955d60dc172baf70caf2361672eeb679af68ddeda3382ed0462ba2",
+      "response_status": 200,
+      "sequence": 6,
+      "status": "forwarded"
+    },
+    {
+      "auth": "1f6338a7dfc13e943acb7a58e683dd9afce6720dbe185e96d2029f4665f0aa7d",
+      "body_bytes": 39115,
+      "body_sha256": "a29ec2e8a4a829690657d7b2273c9f63dfcc4a95a3e11eb26229ac3fe471f3da",
+      "callback_kind": "mock",
+      "duration_ns": 15103400,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0007",
+      "launch_authorized": false,
+      "monotonic_ns": 175387788534000,
+      "previous_receipt_sha256": "14770fa963e1b20cdb8c81523d52a4db80b3733641aba092a060a85147300c6e",
+      "raw_envelope_bytes": 52436,
+      "raw_envelope_sha256": "186fcdbe8fecaae9b199c464f085aa1c5d9e9bd8675b62dfe76a8b27dcc92741",
+      "response_bytes": 2771,
+      "response_envelope_sha256": "3f2c9c608672ecdaf71bf1208b38ca3de84c561404efdaadf0a404d23e077201",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "a20118efae24527180d8d21c85e2158f6d12d3f487e060280c278dc09ea1cf91",
+      "response_status": 200,
+      "sequence": 7,
+      "status": "forwarded"
+    },
+    {
+      "auth": "3df829a4a07e980a12122bc10cde2a3d89834503a479896e3e7be674fcb0eb5f",
+      "body_bytes": 277,
+      "body_sha256": "84ad2019ce31558f658f2824311b9b0454042132f0729e422078c1425ac1c3ed",
+      "callback_kind": "mock",
+      "duration_ns": 573029100,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0008",
+      "launch_authorized": false,
+      "monotonic_ns": 175388404864800,
+      "previous_receipt_sha256": "32a0c5e22112f35f8699cb1e777fcc0a9ed8cc5feeb42b6357955ec96ee530db",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "b1fa6d2d871f1a10cdfd46508fb097c7b92000946cec28571bd4beb861db9f33",
+      "response_bytes": 4238,
+      "response_envelope_sha256": "8584aaf8d8e03d7a5fafb1b6697f54f67b6b5f9f787a0fbe59bba4867ee70c2d",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "cf498eda657eb6841e983847573a484aba79646757b2d8cd4997d477041e748c",
+      "response_status": 200,
+      "sequence": 8,
+      "status": "forwarded"
+    },
+    {
+      "auth": "ad332b77cf7b0eb10536e1bc66d8d4ea7c646654667a0c2503dbca8b8d88b1a8",
+      "body_bytes": 45087,
+      "body_sha256": "e8eec4303f8b4e341ce03deee64624cf5ea0df8c9efd122cd48fdf8675ecf482",
+      "callback_kind": "mock",
+      "duration_ns": 15763900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0009",
+      "launch_authorized": false,
+      "monotonic_ns": 175388634863600,
+      "previous_receipt_sha256": "cdcbb22eb969a7e8bbe5dddea36f93a5cbacedac155600fe9d5c3d651bb20a2e",
+      "raw_envelope_bytes": 60396,
+      "raw_envelope_sha256": "b3ffbe10118cfc81494d9610c9f7b91ebb22fdb688174d6add5f351a7060766f",
+      "response_bytes": 2779,
+      "response_envelope_sha256": "d409585be98cb1be02070718eac95d06d52062f60293339223132a155060d651",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "dfb14db9d9a8cd9183567c5c37e384d108afc0f1568d0bf0865677259636f10f",
+      "response_status": 200,
+      "sequence": 9,
+      "status": "forwarded"
+    },
+    {
+      "auth": "daf69036bf9ee944e7f798f14cef57b6fcf58d906ea8aa185d3bdc20e67c3957",
+      "body_bytes": 278,
+      "body_sha256": "332851e71177cd747bbd28a722d102c401fb9a0dc195f43fc7315147c662d552",
+      "callback_kind": "mock",
+      "duration_ns": 629229000,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0010",
+      "launch_authorized": false,
+      "monotonic_ns": 175389311524200,
+      "previous_receipt_sha256": "60211111f5d828d4ebcff9c17e5f36bad6a3db0833195889a6fc4b861c17f4f3",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "a537232f3344bcbe4d9dc7cd57327551228fdfca63de75c731587c64e196dd7f",
+      "response_bytes": 3550,
+      "response_envelope_sha256": "8b82e2d7a596b364799e021183752489b6d17a0478431b63e579b6036cb29151",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "46d9be5ac5321dacb5bec73fb9c25ed45888b0344b1550f9fd0ce7e348d64426",
+      "response_status": 200,
+      "sequence": 10,
+      "status": "forwarded"
+    },
+    {
+      "auth": "f52af29ddc018c0c865a7ebff757937fa78cb4b3fe37ca97a72a74c0249db6b2",
+      "body_bytes": 50139,
+      "body_sha256": "4707fdc13023bdbe84b06c982e388dc9d1cc1ab9328e8d984d652420b633bc38",
+      "callback_kind": "mock",
+      "duration_ns": 8775200,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0011",
+      "launch_authorized": false,
+      "monotonic_ns": 175389474717500,
+      "previous_receipt_sha256": "f1849d7d111d1c539d65ec9a95ad69c5a6d4aaf1ce3a59185cc5b17ddb6da54c",
+      "raw_envelope_bytes": 67132,
+      "raw_envelope_sha256": "162eafa5682ff549e7a8da78809384efa744db1ffabaae8f7d1ec1158b22f25f",
+      "response_bytes": 2763,
+      "response_envelope_sha256": "7b3c689d1219517ff6ff5b6a5f9e11e8b3a9a2a697b7b5b58fbe1112a7cfc7ec",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "d929b847726ff1ce93b525244165026f941b4f09f22204100d515465104d14f0",
+      "response_status": 200,
+      "sequence": 11,
+      "status": "forwarded"
+    },
+    {
+      "auth": "b7c92ee191ccaffa7492e805ce5ce7f3a2fe59a6f32c869971b1b21bec236276",
+      "body_bytes": 275,
+      "body_sha256": "e13bd4fb82d891c1686bf7959331fb9a6dc9425b8ed7579d22e2c897452c1a91",
+      "callback_kind": "mock",
+      "duration_ns": 513483500,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0012",
+      "launch_authorized": false,
+      "monotonic_ns": 175390022362300,
+      "previous_receipt_sha256": "b9f35eab925d56876f58c162c600da8217b8052bfba8e9c23b7dd774ee82f555",
+      "raw_envelope_bytes": 648,
+      "raw_envelope_sha256": "7adaa7ce45385c6e31dce6d286e29b2d38a320345e61bb8b4e5f1f05a84dc3e5",
+      "response_bytes": 6634,
+      "response_envelope_sha256": "2358505bfb7e66d6b2feb632d89d575c32958b8caa81512f1029133a96a5a5ca",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "d31176fc1c9f5d8eec9320c7812a44a2a9274655d2d21048b9b6f34e37969de8",
+      "response_status": 200,
+      "sequence": 12,
+      "status": "forwarded"
+    },
+    {
+      "auth": "52ea0c36030633a656a06a86ef89e4695f410c28c7a0b1a8abfdecdbf28d514b",
+      "body_bytes": 59303,
+      "body_sha256": "da1960d1bb3c3adc6e6ec6b6f26a9d4f043303568f3505f87487b93355450abb",
+      "callback_kind": "mock",
+      "duration_ns": 27575800,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0013",
+      "launch_authorized": false,
+      "monotonic_ns": 175390187039800,
+      "previous_receipt_sha256": "2b30ae96a53c6036198bc72cbc83317d4db8004451733744bc2b5c2d965bf6b5",
+      "raw_envelope_bytes": 79352,
+      "raw_envelope_sha256": "a650049a9fba69cc5bcec91f70889261e583fa2ec002d487a8a9dc85b4a95589",
+      "response_bytes": 2767,
+      "response_envelope_sha256": "20b25c2e54ecaa617ad0e06e5e1d0272e6cf1e9b0d2764481b29d68a9dd600de",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "fc4419d02849a0b764b5c21eb5325e8f97a30115716de3cd1d9f7242729835c7",
+      "response_status": 200,
+      "sequence": 13,
+      "status": "forwarded"
+    },
+    {
+      "auth": "9f0c17b2bba65bc141c3c9f89fe4e7730e48fffc49aa0538480c4bbd273dc88b",
+      "body_bytes": 276,
+      "body_sha256": "476dad1f415b0b0cab8dbe47674a2cdf3617731b8d4c585d52852f00cdd43cdc",
+      "callback_kind": "mock",
+      "duration_ns": 598489900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0014",
+      "launch_authorized": false,
+      "monotonic_ns": 175390866441500,
+      "previous_receipt_sha256": "7edb68bb937ef5e872dd093a164fc7ade26f0b9bb219edf4cd20324bdd2cff98",
+      "raw_envelope_bytes": 648,
+      "raw_envelope_sha256": "d1f47a1a5e1289d00bd0f125c8b1b55400cc636729a66b036e28c951d6ce3913",
+      "response_bytes": 8717,
+      "response_envelope_sha256": "69176b5565b11f2acac58545366039e84de052c993acd5e31f9a572f760ef578",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "63b35c3a60f54bd36b97708a75e0bd0ae4a79e1d7688432cfba96d64d6ba4ddb",
+      "response_status": 200,
+      "sequence": 14,
+      "status": "forwarded"
+    },
+    {
+      "auth": "c9a1d7a5dacfbd3185925106fd2b2531a21db3c790673c4c6862432aa5188af0",
+      "body_bytes": 71243,
+      "body_sha256": "f89cf0f94138b5a1a433f143d25237d0e75ea3b09a1178a27d5338210404bffe",
+      "callback_kind": "mock",
+      "duration_ns": 26713800,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0015",
+      "launch_authorized": false,
+      "monotonic_ns": 175391097695800,
+      "previous_receipt_sha256": "35575d2cbf51261e4c4969ed63a47a1a8825f63934411df424bd2fb48e2d422a",
+      "raw_envelope_bytes": 95272,
+      "raw_envelope_sha256": "bc7c0491962ff5a5b2d88b15f6f1b5b0cd887ef5a7976b5bbbdd590f8869b973",
+      "response_bytes": 2751,
+      "response_envelope_sha256": "9a58777f7cc2b8e1e8c8a5d53d5ae7cd6d9fcd981af9d90019dc5b28bf9d1779",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "e9949ace68f5db95aa77b7fc5708d0fd82f3336d513ceba7e676a0f492e7430d",
+      "response_status": 200,
+      "sequence": 15,
+      "status": "forwarded"
+    },
+    {
+      "auth": "de54b944949c645d2762e29245d39eeee4f534fdc1a65251f4fde86501256ec6",
+      "body_bytes": 273,
+      "body_sha256": "106e293d7b1ecaa4d0fa2ef87dbc914c6ad216c605e47b6674b053751a36b97d",
+      "callback_kind": "mock",
+      "duration_ns": 544719300,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0016",
+      "launch_authorized": false,
+      "monotonic_ns": 175391700950900,
+      "previous_receipt_sha256": "da4362e6cbbb39624381292a31d09d47b207422de37d4eef925ffa431ff78a44",
+      "raw_envelope_bytes": 644,
+      "raw_envelope_sha256": "3a8c607a27c5463e38d67a5b9e960f8b7e210e792ccb7548dedc4cc0e7a43bdd",
+      "response_bytes": 8261,
+      "response_envelope_sha256": "e82490bbdd4bed474d5341729cb66471438cd293e41719b99a35ae69eddccda1",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "70e6664e6c1ffbfd302e85a673a7921e87bc88d4439f04be72bfbcc5785cfcc6",
+      "response_status": 200,
+      "sequence": 16,
+      "status": "forwarded"
+    },
+    {
+      "auth": "d548fc2a76cc9ed98c952719dca8a000bcafb9315b6b74fa8d4781a86ab46092",
+      "body_bytes": 82575,
+      "body_sha256": "4dea51457824a7fc3094c0817edac7e4318071485eedd01d6b2237e609414768",
+      "callback_kind": "mock",
+      "duration_ns": 18187300,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0017",
+      "launch_authorized": false,
+      "monotonic_ns": 175391860115100,
+      "previous_receipt_sha256": "831da8241ee82efd9cf102e5a2838fef189f3f47870e4c4a327290dabf8188e2",
+      "raw_envelope_bytes": 110380,
+      "raw_envelope_sha256": "cef18482dd9ce8fa2248358a05932792188a832e817f1753567f7629f8b820a3",
+      "response_bytes": 2783,
+      "response_envelope_sha256": "7437d11cd910b93fe9752a871a7c33af781ad021f07c769e4de1f20fd130c6b0",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "a70e47f603be5878ae4441630b839db9b33e2254183cec6a1d4ea90f71d66cff",
+      "response_status": 200,
+      "sequence": 17,
+      "status": "forwarded"
+    },
+    {
+      "auth": "71aa35c026a080bbcd2a99bcef4ff63c7aff1eb5f819ae74341be10468f37217",
+      "body_bytes": 279,
+      "body_sha256": "a15f9ecf201c9a8e351e2949cfe810ef90b096f16d9281027a7433ba3732ed95",
+      "callback_kind": "mock",
+      "duration_ns": 768040300,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0018",
+      "launch_authorized": false,
+      "monotonic_ns": 175392683136500,
+      "previous_receipt_sha256": "d4069ecf4ed8ea65e13fb15a02a1416065cd3bf746c36b181d86047c9778d133",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "25e8c46dd951c102947fb3825bfd45535c8700d34f21c8a7048e494041f0971d",
+      "response_bytes": 2140,
+      "response_envelope_sha256": "e5e55e43c54f15471e6ddb2793e77549bded0f8e46909d88e24c1a9a1a2bbddb",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "600126e16acc2c364010d8be1447bc53a67a8d22dcf6c500533c023b123aaff7",
+      "response_status": 200,
+      "sequence": 18,
+      "status": "forwarded"
+    },
+    {
+      "auth": "93c24bfe12aa322d784ed2caf128ff74a9466e39579176770c9db16774643b23",
+      "body_bytes": 85751,
+      "body_sha256": "800142c0cec916102e7442915d20702c674d077de98e559ade05391bea19d0e3",
+      "callback_kind": "mock",
+      "duration_ns": 23908700,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0019",
+      "launch_authorized": false,
+      "monotonic_ns": 175392860916800,
+      "previous_receipt_sha256": "61ffa548e84c8faf057090ee1c0d4cc97793c92d1ac4c0f3c955a096ec3dfd5c",
+      "raw_envelope_bytes": 114616,
+      "raw_envelope_sha256": "05c79906b47a648c9ff7c974579f6766ef8208c3d630eb39cb8dc47099b57ecf",
+      "response_bytes": 2771,
+      "response_envelope_sha256": "8ae56ca958b506b02e96342d70d03206699e44dbd47c71ab64fdcb8acf942225",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "aaa565829684f3f4e8a59991038167b31f31c91d95f04ac08ef5b53029cf8a46",
+      "response_status": 200,
+      "sequence": 19,
+      "status": "forwarded"
+    },
+    {
+      "auth": "9a706359d5ba8c2643217dca948a29d236e7817a60bfd6a0c2356bf36372dadc",
+      "body_bytes": 277,
+      "body_sha256": "c69bcbba77f4594e93fdc5aaff92611f03b65b6e9b45cd175a3fde12ec43c9e3",
+      "callback_kind": "mock",
+      "duration_ns": 503685800,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0020",
+      "launch_authorized": false,
+      "monotonic_ns": 175393431080800,
+      "previous_receipt_sha256": "171b2d45d2691dd5845b98513668a374df55a8b1565052a2dd48fd102fbc5590",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "2127ee10add039586a89c7bd9af0fa4c91f0170aafe629479593032db5c6357b",
+      "response_bytes": 6244,
+      "response_envelope_sha256": "7effeb8c95f625aa5c2d70109ccd41706aa21ecf5723ba477d7c823850bbbd5c",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "c48193caa23f37c72d01c3ee9143627569b02574e680b1e4cd962da07cc12d28",
+      "response_status": 200,
+      "sequence": 20,
+      "status": "forwarded"
+    },
+    {
+      "auth": "2c56cfdec568758c08121b8e702843ef207757921fffec5e59298333dc306a8b",
+      "body_bytes": 94395,
+      "body_sha256": "d926b65cf91618afa027e12d4bdc5827c95db042e945cab07bddf9389a04d380",
+      "callback_kind": "mock",
+      "duration_ns": 20387800,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0021",
+      "launch_authorized": false,
+      "monotonic_ns": 175393627843400,
+      "previous_receipt_sha256": "d6e4a841955de0639b510d516c2410467ea9df51faf84ca95d88640c14904530",
+      "raw_envelope_bytes": 126140,
+      "raw_envelope_sha256": "3ddeb16093f5a795b91aa020ccb202f8f751fa2c4b84761a01715dd8354a8199",
+      "response_bytes": 2779,
+      "response_envelope_sha256": "cae2551b6fcf529601527fbebd4b033f467b1a868b0a6b642e11e059dbc73244",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "20774bbb7ab2451db40be26eaefea8d08e4feaba28a244956eadf13f9b2273f0",
+      "response_status": 200,
+      "sequence": 21,
+      "status": "forwarded"
+    },
+    {
+      "auth": "4382c2b049d12cc46e1e71dd10c25331bc5ec19a24fda1519d15da6586e9bf56",
+      "body_bytes": 278,
+      "body_sha256": "9b52e71df1e33bbd64fd9eab28a298eb029cc9f1ec559a81b64da939daf7a6a2",
+      "callback_kind": "mock",
+      "duration_ns": 502888000,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0022",
+      "launch_authorized": false,
+      "monotonic_ns": 175394178586500,
+      "previous_receipt_sha256": "36e0c1ed4aea7c07a040945c446ce00e3346cd90b0040dc003fb8e1f86756af8",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "d1fe9357ed3b0d1439b95524863f311cfc1e9b364a86b6d959586ae6c0f81037",
+      "response_bytes": 3704,
+      "response_envelope_sha256": "7eed53954d19f53783ca4c1d52f17a8f9717a0e5566ac2817ff2e6c4236673f9",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "38bf567945f4496de9be1ff142f87c6468011797b88a8fe90885baf624a97545",
+      "response_status": 200,
+      "sequence": 22,
+      "status": "forwarded"
+    },
+    {
+      "auth": "de45064201bfd2cfba13d954372279423f96263f5588120fe43ce3f16ea5631f",
+      "body_bytes": 99655,
+      "body_sha256": "7c19fb45f11d48e19468322e4853c0cb53d7f8b0a818fa0934798770e751cd33",
+      "callback_kind": "mock",
+      "duration_ns": 34962300,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0023",
+      "launch_authorized": false,
+      "monotonic_ns": 175394390822100,
+      "previous_receipt_sha256": "9620ae328fd381ca82b1c466d68207103b89f7a6805837d80427f1530e231329",
+      "raw_envelope_bytes": 133156,
+      "raw_envelope_sha256": "ff8712711604f685a356a3752d5175a16376c5ccd7c4e04810cece8309509ed5",
+      "response_bytes": 2787,
+      "response_envelope_sha256": "97ae9b48bce9790decb732f03142fd4ee0c3262fea9bf97adfe82effdd9f30f0",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "722f5a924dc638691c9b64954ccc002580193e23d3792488717601e9e1f42eb3",
+      "response_status": 200,
+      "sequence": 23,
+      "status": "forwarded"
+    },
+    {
+      "auth": "8b05b67b233f655f9f5bbf7fd5e3649b3fe3346c35e4593a6a907d373f9255a1",
+      "body_bytes": 278,
+      "body_sha256": "2ff505d6b78bb6ae3cb7f4130c66bd50160eefcb9632ec54b9ea6394c40cc880",
+      "callback_kind": "mock",
+      "duration_ns": 679474200,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0024",
+      "launch_authorized": false,
+      "monotonic_ns": 175395126033700,
+      "previous_receipt_sha256": "59a57c3996edc78ad258533212e96daf6c88f37775934a289ce209bd47a887d5",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "faa4817a648e896f77743546c2aa5f8d5350a6e7f3134e8b543850074194882f",
+      "response_bytes": 18610,
+      "response_envelope_sha256": "c44e642c39ded9e3a5ab949bb6e571520ed060a7bb1c5290004001bf7a356871",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "8dd3404a5d9f00e2e8fabedf5583472590c59c2a0389c76e1cfd4002e73b7b36",
+      "response_status": 200,
+      "sequence": 24,
+      "status": "forwarded"
+    },
+    {
+      "auth": "7b8903f66500248d8946314901b2c7e9c8a222f3783056dab5c7cfaf9911b6f3",
+      "body_bytes": 124791,
+      "body_sha256": "6480acfdc4c145bb56b5eb9b62cb1c02ecbf8cfdfc50fd62d4a2e898c4a92419",
+      "callback_kind": "mock",
+      "duration_ns": 28625000,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0025",
+      "launch_authorized": false,
+      "monotonic_ns": 175395329382200,
+      "previous_receipt_sha256": "dc118208116452b9a76cd4e17ed2ca92b724e95b34b12d9f6143a7549eda387b",
+      "raw_envelope_bytes": 166668,
+      "raw_envelope_sha256": "b1e61a8e18e54e5b8b3ff3d34d813aeacc805fe47c47267b6526e13f89ec70cb",
+      "response_bytes": 2795,
+      "response_envelope_sha256": "a6d4b59ea4301d485efe403d620f2b663853f607577fc2602238e527e9c0c56b",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "1f7bf36ab5c10505646750d60f059b17ae6074e6b72456737f56937bf6b98f9b",
+      "response_status": 200,
+      "sequence": 25,
+      "status": "forwarded"
+    },
+    {
+      "auth": "5b95e7b2230f73b66a63e8689a379deaf0f9cf9f9e9871275731897b646a2014",
+      "body_bytes": 280,
+      "body_sha256": "d50ab1c6a5ef2d7538bd2906af579629b0f72807139598ff1f2f08e10eba492e",
+      "callback_kind": "mock",
+      "duration_ns": 640732500,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0026",
+      "launch_authorized": false,
+      "monotonic_ns": 175396038467700,
+      "previous_receipt_sha256": "1b95958ff2e5e34f26455720459491b81fb90f9c317cefc2d7ff4904a13ad778",
+      "raw_envelope_bytes": 656,
+      "raw_envelope_sha256": "b86b9dca7541f7b6451101ce11485854e08140e00bb9fa6b51e612df96f293d6",
+      "response_bytes": 8683,
+      "response_envelope_sha256": "2b75509f58eab0b20114255e89ce001f0aa8764691f9cad0d85452d8e3fd985c",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "5d8a43ccfb13bc0b5f0be1c7354535ea604883470dfc15ed93d5db04c00f0c6f",
+      "response_status": 200,
+      "sequence": 26,
+      "status": "forwarded"
+    },
+    {
+      "auth": "b9ce8d979c6a5a8ba9a8ff5743a9c0e4ede1bc3f02d1c73eff01607558616dfe",
+      "body_bytes": 136695,
+      "body_sha256": "d113f2ff757871a71f34cac2b92bd9a13eb1d977b8be5fd984ccfeda7224c739",
+      "callback_kind": "mock",
+      "duration_ns": 28941600,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0027",
+      "launch_authorized": false,
+      "monotonic_ns": 175396253807400,
+      "previous_receipt_sha256": "f1238f344bd509bf7e19dcedb6e4d11c71075c681ba7d5f7caae32a527055544",
+      "raw_envelope_bytes": 182540,
+      "raw_envelope_sha256": "72829900cddd67370bd13be7235d779f4902866f98a9d9e8715386e9296b4fd9",
+      "response_bytes": 2791,
+      "response_envelope_sha256": "b04ba818fb451883d0f8c9e73e3ee7c36336f28adf9b29560949fe29f12c55a6",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "08cff0d419bf4c112388a826b350ef737b5540a5633c997015e35ddc0322aa53",
+      "response_status": 200,
+      "sequence": 27,
+      "status": "forwarded"
+    },
+    {
+      "auth": "ca60f2b27ae2f8de63dcdeb94f750261ba32f9793e5324afec03bc1f756bfeac",
+      "body_bytes": 279,
+      "body_sha256": "30217f34534ef13ded9160182655ca16d3aba294d90b4983e0ed894bf0ddb593",
+      "callback_kind": "mock",
+      "duration_ns": 538572500,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0028",
+      "launch_authorized": false,
+      "monotonic_ns": 175396889897400,
+      "previous_receipt_sha256": "e6381b3f50fcd98e477b2d4b387d7473d261e09a7d53aa30f54576b8df72c4b7",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "e82509dc8d1c6e1f001a2a348abad3ef8cda655605c3c04ef000e7156a0eba08",
+      "response_bytes": 4938,
+      "response_envelope_sha256": "e26d334927a5ce8fec664fbc7ba2788388931ab01636629f2765f0c0b412789e",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "376498368196f7e1fb3dae61c76ae2c621e4933b259f92b3b3046e8b55ab50fa",
+      "response_status": 200,
+      "sequence": 28,
+      "status": "forwarded"
+    },
+    {
+      "auth": "baa1664663ebf40f17b302bcf925c67077c5abda52e4cff8ac8b7d5e9cb1f461",
+      "body_bytes": 143607,
+      "body_sha256": "fb04d183d6fb147d0fd4db6e77612b844168a2bd0f7fdea241a335f186c0fbed",
+      "callback_kind": "mock",
+      "duration_ns": 19602100,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0029",
+      "launch_authorized": false,
+      "monotonic_ns": 175397046146700,
+      "previous_receipt_sha256": "2913a5e9a9aca7f2af42629269f152afbc455169904eed6798579e5c7a164526",
+      "raw_envelope_bytes": 191756,
+      "raw_envelope_sha256": "30525843defe6cada81711587aad8b385f8104a30b5bd19178977d516e70ccf5",
+      "response_bytes": 2775,
+      "response_envelope_sha256": "346a3fdf9e8611cc7a5903efdeaa431d8da07bf70176aaac4520943201e0e759",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "c4d72295809981b07ea73af72f3aeb2b2d7c336a1f9ec2e74b0e713df45547cf",
+      "response_status": 200,
+      "sequence": 29,
+      "status": "forwarded"
+    },
+    {
+      "auth": "203d61e2161daa8e0f9d70e12138e0f7f717a15cdb870f910d5e8fd70c13758a",
+      "body_bytes": 276,
+      "body_sha256": "3125731a3da30bdc5af9aa1c72180ce2f7a944948f91e07e51f168a5ac3870bc",
+      "callback_kind": "mock",
+      "duration_ns": 586320400,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0030",
+      "launch_authorized": false,
+      "monotonic_ns": 175397678084100,
+      "previous_receipt_sha256": "d27908d6dcfb6a9aa4cef334bfdd5b4ac1e9829c36222e09ac99017b7981e716",
+      "raw_envelope_bytes": 648,
+      "raw_envelope_sha256": "855c19492145e2416c4c90b7dd6a7a2381d4e3f4955accec47c77a504dd9f0cd",
+      "response_bytes": 8544,
+      "response_envelope_sha256": "d2e4c7ec62a2a8127ac6f1978c9a33e05c34ad0a342e11afb9a5e674a69e8e4e",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "ab94bde1cae4c51fe95589d3f278d5ef87194eb8b826c289e14ffa0b6c1c7217",
+      "response_status": 200,
+      "sequence": 30,
+      "status": "forwarded"
+    },
+    {
+      "auth": "b9ec6a07d79e1922e3221e0df4e1a74a88cc481d000a0e3e5d9ae2f89d9f0cbd",
+      "body_bytes": 155319,
+      "body_sha256": "97ba6e099512cec8350097a4f0a5e7d8dbf50899690d1a13da25c1a5dc4a5ce2",
+      "callback_kind": "mock",
+      "duration_ns": 34124800,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0031",
+      "launch_authorized": false,
+      "monotonic_ns": 175397900835600,
+      "previous_receipt_sha256": "4c32cac71a7a9164680670674abb831b8e122dfffb65b9b51886d25eff0745fd",
+      "raw_envelope_bytes": 207372,
+      "raw_envelope_sha256": "46f4add1fb9386922e0f6dade61038f25acb24ef3e84b814420877f42aca4b8a",
+      "response_bytes": 2807,
+      "response_envelope_sha256": "00d3d0fc279f21b540a352184529afa0612760f8c281401c855a7667f105c01f",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "bd78019674b38dde15ddd5f918d379d32b42cbe0e348124934eaba92911a9ea2",
+      "response_status": 200,
+      "sequence": 31,
+      "status": "forwarded"
+    },
+    {
+      "auth": "8b03ebb9af1c14719a298d823d9aeb42162d3d959ad1fbeda5c9815535e2bff3",
+      "body_bytes": 282,
+      "body_sha256": "5976d47bcc56a2783dd0ab6c7c235d27e06dbb1ce19b7897f9209cc61bdcce22",
+      "callback_kind": "mock",
+      "duration_ns": 607882500,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0032",
+      "launch_authorized": false,
+      "monotonic_ns": 175398621158700,
+      "previous_receipt_sha256": "c21184c15f32849994142601d1e858b3bb6c6facf3ce70b3090fd7de6cca15a4",
+      "raw_envelope_bytes": 656,
+      "raw_envelope_sha256": "8027ecad7e3c975eeab28142a08c5c42e2eea24b2937fa2c1dcce9302e326c99",
+      "response_bytes": 2626,
+      "response_envelope_sha256": "1ed0668755792de5be3d4760d1ef156ffae8f68c94ec606c8201f5a59f88991b",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "3340084b287a133c6cf6de3b3c3c8252dc6daa07af4f4d7507196394facc2b30",
+      "response_status": 200,
+      "sequence": 32,
+      "status": "forwarded"
+    },
+    {
+      "auth": "0c699469713304873f476bca2ac63a6a66843769dd38134c0d59ca6c24cdcdc4",
+      "body_bytes": 159151,
+      "body_sha256": "4d2b12e3b10e4a79794639660c54bc126aa2407a8332b946bc9984649eab04cf",
+      "callback_kind": "mock",
+      "duration_ns": 28240400,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0033",
+      "launch_authorized": false,
+      "monotonic_ns": 175398812955000,
+      "previous_receipt_sha256": "e5c92a5de9d4cbec0f84e8624a911db9a02d6572336bb8e76e01e02bcfe793f0",
+      "raw_envelope_bytes": 212484,
+      "raw_envelope_sha256": "fbef0ea998c9661f7ccb599948af9245baa7a72a2cf4c94a5135ab0cce56c86d",
+      "response_bytes": 2775,
+      "response_envelope_sha256": "8fbb26dd9206c2481c8a2d0580e16e601f0de6564b37db5f641ae9f273e58921",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "ce16d112ec95e7c0c0d45d90fcb1c03512afe6e4605b8a25806a15c6b2976947",
+      "response_status": 200,
+      "sequence": 33,
+      "status": "forwarded"
+    },
+    {
+      "auth": "fa2de02b163c3c23eb5aa331b673f781b16ee4b2a645ef643dee5a0c5f4640cc",
+      "body_bytes": 276,
+      "body_sha256": "32d2309d7a3b11f7401c857d911922bc58446156497ec3cdafea3b4fb00aacc3",
+      "callback_kind": "mock",
+      "duration_ns": 522035000,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0034",
+      "launch_authorized": false,
+      "monotonic_ns": 175399371809800,
+      "previous_receipt_sha256": "33efc731a5fc606cd73d6ba36f436ae3507eb8181ae202fab4019597ed8e0020",
+      "raw_envelope_bytes": 648,
+      "raw_envelope_sha256": "e1a7649f58aaf7d008974bf6a3e6bfde9886d458b208832942352752148e9e16",
+      "response_bytes": 8213,
+      "response_envelope_sha256": "c111dd9a71e460165013665c95e20a24c1d30d9fcf89394b3a771f41859fb9ed",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "dbfde7385b749c414d57b129c7b8ed47f342fe28b0f2e469a4bbe3fd53785e6f",
+      "response_status": 200,
+      "sequence": 34,
+      "status": "forwarded"
+    },
+    {
+      "auth": "57faef0c6bd8aecbf5930c67196065fe59ae104b60be30cb16dc46227cf1f085",
+      "body_bytes": 170423,
+      "body_sha256": "872628f946df382625e77c6791d37b1b27b9269fc83e55df26973a9f5e34eb5e",
+      "callback_kind": "mock",
+      "duration_ns": 27729600,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0035",
+      "launch_authorized": false,
+      "monotonic_ns": 175399515537300,
+      "previous_receipt_sha256": "ed7b7667ee78ec77fb7665188826b4f8b2218f26e408855135bdf950e4929625",
+      "raw_envelope_bytes": 227512,
+      "raw_envelope_sha256": "d4b0e2ef94042bb18adb24ccc5b3d411d8a8b375dfdd9bf5b1354fdb0d0b448f",
+      "response_bytes": 2811,
+      "response_envelope_sha256": "c82d122bfef94d1559b691f3c12828c2e1e2315b06f22c471472930826cb03de",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "f937d37ecd4d6e7536eaf85876da9f11954fccf3ae160d58ada231778b82640e",
+      "response_status": 200,
+      "sequence": 35,
+      "status": "forwarded"
+    },
+    {
+      "auth": "d46ab3ed24b03a699dc8ee4dc1676bb6a08ed8617221472849f92714fe28e6a7",
+      "body_bytes": 283,
+      "body_sha256": "cdaada3eaf5fa8f56243f4bb72ac5664d369d03e4ef14c54e02d5f326ca62610",
+      "callback_kind": "mock",
+      "duration_ns": 439894700,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0036",
+      "launch_authorized": false,
+      "monotonic_ns": 175400000419900,
+      "previous_receipt_sha256": "bf282d39fc6a9f48216d3ac4eacd614fcfa81433b909e89872510c8c0be661e3",
+      "raw_envelope_bytes": 660,
+      "raw_envelope_sha256": "26014c48f6968d3341a0d124271a872f9697f3e18c968757c0f79bcc4b7a5c23",
+      "response_bytes": 1772,
+      "response_envelope_sha256": "8c26a25589d1bec08a78a23898b87287e084eb8aa5373a5e26e2124ece7daf20",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "0a66457b8f19d1ca3c6aa722831cb970d0cdcf379b418e1fbcff99e19c6e7336",
+      "response_status": 200,
+      "sequence": 36,
+      "status": "forwarded"
+    },
+    {
+      "auth": "df70e53e2e9e3aa60fd87b616acd02d978012b8e06cbac16aaea7823f566eebe",
+      "body_bytes": 173115,
+      "body_sha256": "5d89f256dd4e4556c2d5860a9f9c5d947a122daa158c23af457feee07b89ebef",
+      "callback_kind": "mock",
+      "duration_ns": 28988800,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0037",
+      "launch_authorized": false,
+      "monotonic_ns": 175400122302800,
+      "previous_receipt_sha256": "0ca6592ced1024f5b9995f936d4c2d2a913609a360e21a24765defce538a59c5",
+      "raw_envelope_bytes": 231100,
+      "raw_envelope_sha256": "6b0655b9c326b2c6d8cf726ffc5f19f564150798148720f1ecd6140d01cc3da6",
+      "response_bytes": 2787,
+      "response_envelope_sha256": "159efd57601584c90d7f145094196e27b0a47cc090a86035577889ec83accf9a",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "b55e91f4a9f5a81bd3c100ec69917f42942c7ab2eaa17202b9192bb4751ab030",
+      "response_status": 200,
+      "sequence": 37,
+      "status": "forwarded"
+    },
+    {
+      "auth": "db489764f569c7f00a12129f8cb7358d35ebf784b49b70ef917e5206b5f754a7",
+      "body_bytes": 278,
+      "body_sha256": "15041d6266ad514f5793acd37b919a3f73dffebc4119461bc380d0a74d328bd7",
+      "callback_kind": "mock",
+      "duration_ns": 436477300,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0038",
+      "launch_authorized": false,
+      "monotonic_ns": 175400596673200,
+      "previous_receipt_sha256": "68209b604e842f4c27120d84b74b5e2c8ef8ccb259ac9105765275ba58bb56f0",
+      "raw_envelope_bytes": 652,
+      "raw_envelope_sha256": "fd040898496c1fa4d842f66605d883d87dc42a785bb1e11fa5776d3474a75d58",
+      "response_bytes": 11697,
+      "response_envelope_sha256": "7356e7cda634f611de0508de71f5d906a32fc928aad64a5311b3834b221a28d2",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "a872a0229c998197fbad9e29f56456bc4abb033f9a9e863058f104469d8a3662",
+      "response_status": 200,
+      "sequence": 38,
+      "status": "forwarded"
+    },
+    {
+      "auth": "4b41c3b7c4c76b6e9686e8a632867bda0c39f9b30121e5b5271ab0bf1f436501",
+      "body_bytes": 189035,
+      "body_sha256": "4914a8faf955a6a54b9cabd5193ad64b1cdd3cf5e66d6a445d041d38c44ef0e7",
+      "callback_kind": "mock",
+      "duration_ns": 30868400,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0039",
+      "launch_authorized": false,
+      "monotonic_ns": 175400777142200,
+      "previous_receipt_sha256": "70b7dfc5f028743b3cd9b8d44864a7c48ed64e26f8ceb6096aaa5669ca7739a8",
+      "raw_envelope_bytes": 252328,
+      "raw_envelope_sha256": "67620f9c33cc6c6d3175b9c1748e999afe17ceccf43290c5331eeffb6f293612",
+      "response_bytes": 2747,
+      "response_envelope_sha256": "e5490ac74c4e68c180f574456af303907dd9c668ad03f04e79fef18e6a4c8a4b",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "c836c505ca71ad4b712941256927619b4dccad5169705b6c4d9ce112d91f6cb8",
+      "response_status": 200,
+      "sequence": 39,
+      "status": "forwarded"
+    },
+    {
+      "auth": "9ca50e4cbcdc5913597a6d6776555ad9a4e2b7595a5f0845366b116f117501fb",
+      "body_bytes": 272,
+      "body_sha256": "62ec61244b7555fd358a85cc7bb505b74eefbac6d6a81ddae49d698598ec726e",
+      "callback_kind": "mock",
+      "duration_ns": 462531900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0040",
+      "launch_authorized": false,
+      "monotonic_ns": 175401291831600,
+      "previous_receipt_sha256": "cfc5bfadbe6477fa0d13102799aed6367f2d8bb3385c609a7212328c159b27dc",
+      "raw_envelope_bytes": 644,
+      "raw_envelope_sha256": "63fc54ea574fee8dacaa45d4e82dff8945a5a46678b8e055b934db5df04d24d9",
+      "response_bytes": 275,
+      "response_envelope_sha256": "2b5cbf238a7e3fc512d3b57b1be6717179298e07619f3c51fbbbfae5cb863925",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "33fcb462fe92314c89c566839b658b698e4efd66b496fa703bc023cefd9ed6a3",
+      "response_status": 200,
+      "sequence": 40,
+      "status": "forwarded"
+    },
+    {
+      "auth": "f794d60563732d0c367a8ecdff30cfad495db79527db632fb0c902c034bbad19",
+      "body_bytes": 189715,
+      "body_sha256": "e5b8624256d0217d167c98d0ac898922f1a64c9a5ba6c4c15fe2755f951350cf",
+      "callback_kind": "mock",
+      "duration_ns": 24849400,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0041",
+      "launch_authorized": false,
+      "monotonic_ns": 175401441289100,
+      "previous_receipt_sha256": "618157d0db5e6a2963bd8e729199c8937bdf72a80c62e40b39439645612e932f",
+      "raw_envelope_bytes": 253236,
+      "raw_envelope_sha256": "828d12d91a3d05556a76e5358a0698090f92f113240a51ff8656d790e85db74d",
+      "response_bytes": 2743,
+      "response_envelope_sha256": "35d4446343d8fba23e7eed97800b7fea2d36dd79f6fe02c5a1aca99c11ced3ec",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "a55528024d508db30920109d8ccbe816b5faadba148e146f6eb691d9be3af785",
+      "response_status": 200,
+      "sequence": 41,
+      "status": "forwarded"
+    },
+    {
+      "auth": "5adfc71966999375cfea7ce1c1cf6fa5c092909ed3f3bedc68f6e4a306def02d",
+      "body_bytes": 271,
+      "body_sha256": "1b1f8c013efded9d824695ed6177644fd5b7b4bc9a380625ed08a0f495a22756",
+      "callback_kind": "mock",
+      "duration_ns": 334305900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0042",
+      "launch_authorized": false,
+      "monotonic_ns": 175401823583500,
+      "previous_receipt_sha256": "651fca36a5c849dbeadd6367aa321784697120d8b9ee320916886c8a0e6ab2c8",
+      "raw_envelope_bytes": 644,
+      "raw_envelope_sha256": "656de44b6e408e9d9bb7cf410fae7ee82f07ae71b30e871da042e43e32f1b62d",
+      "response_bytes": 352,
+      "response_envelope_sha256": "deafcaef962258483de8567419ff02739363c4930e2392765df27553307cb632",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "f025aedbabd652d971855acce0d2523b6896b59dfcc88f3c89ad718386a91281",
+      "response_status": 200,
+      "sequence": 42,
+      "status": "forwarded"
+    },
+    {
+      "auth": "349369f77898063fbbccb887801dcd532cd9d503b402f8d10babfecc7960e225",
+      "body_bytes": 190495,
+      "body_sha256": "b0947af86ed63c4198cfd2e82989a7e285bd6f76ad8818d03075154c8602b6a0",
+      "callback_kind": "mock",
+      "duration_ns": 25637100,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0043",
+      "launch_authorized": false,
+      "monotonic_ns": 175401957391000,
+      "previous_receipt_sha256": "fbd7e9a77f90f63c26de820ab81f9f1a4fce3febb400e05e3a9d6e9809c72d09",
+      "raw_envelope_bytes": 254276,
+      "raw_envelope_sha256": "461e89e5b64eeea469824179e7c727cbdff5bf90d2b1013d80a959ad8ca3a98a",
+      "response_bytes": 2919,
+      "response_envelope_sha256": "07085503a20880e46046edb390572a8364f5cd86039a18af9b9517b17c189363",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "c6b7759ebb297621a82c452604144861c1171a823398fa6881a006b7929f93c6",
+      "response_status": 200,
+      "sequence": 43,
+      "status": "forwarded"
+    },
+    {
+      "auth": "dc973ad5ace6aa9401c9a45471c37834607614c5f689c6f693c5304966ae33f6",
+      "body_bytes": 296,
+      "body_sha256": "7e4b4a5fc89e69939eb54e193281f4027341c1ad690d8c2a2ffce45408bc5e66",
+      "callback_kind": "mock",
+      "duration_ns": 6145900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0044",
+      "launch_authorized": false,
+      "monotonic_ns": 175401997785800,
+      "previous_receipt_sha256": "423e100c067434328cb48556d83c32f7d391de37bbdfdd6e7a7b69ab3bd56301",
+      "raw_envelope_bytes": 676,
+      "raw_envelope_sha256": "fde647139ccc60b9f6ef72f86a058f2e76143347f44c93ab0470837060304752",
+      "response_bytes": 132,
+      "response_envelope_sha256": "93ad46930237c4026d49c4b69b9723e44340a7065b78583a2978bf893f091d4f",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "c86cb236cd644a9a6b12704c75f0760a8c48ca1cb00e7aa4a8f56f6dcfa1961e",
+      "response_status": 200,
+      "sequence": 44,
+      "status": "forwarded"
+    },
+    {
+      "auth": "6ea1c364f39bca42235e178d0b2d441c307f71c97886a0c57beffde215f8638a",
+      "body_bytes": 191023,
+      "body_sha256": "9e7897d62e7fc666abd08f30780b202a400fb9a7e897bbaa084e74bfa60f4a8a",
+      "callback_kind": "mock",
+      "duration_ns": 30677900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0045",
+      "launch_authorized": false,
+      "monotonic_ns": 175402144637500,
+      "previous_receipt_sha256": "c9b85d351efd0510c5dbbf2bc551120d5827c6ce7ab47a382d599904bd196684",
+      "raw_envelope_bytes": 254980,
+      "raw_envelope_sha256": "9cc072ceae94d0d228d507e8c1504cefbb580d5add08bb82a9f3347d2e23daee",
+      "response_bytes": 3123,
+      "response_envelope_sha256": "2a0b7afe03d4ea210298da288ba1b206e217fd92d6ed9dc2ea9ac5ab24b99dc6",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "cff422745c5a32f5d5185805e91dcf550f37e5a3c5d8db176656b89019de1f69",
+      "response_status": 200,
+      "sequence": 45,
+      "status": "forwarded"
+    },
+    {
+      "auth": "306c887daead1ba41f133ee39f54cb7bed908411290e43df69c6ad90016c6aa9",
+      "body_bytes": 332,
+      "body_sha256": "f4e9baa854d802593f6b428c322260be6742700643720caefe1811967a0a2c6b",
+      "callback_kind": "mock",
+      "duration_ns": 1859000,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0046",
+      "launch_authorized": false,
+      "monotonic_ns": 175402177893500,
+      "previous_receipt_sha256": "3e539869b6eef7b3c309cde95ffd61b0a70c7621ffa0e549bd34c51afe3ae7f8",
+      "raw_envelope_bytes": 724,
+      "raw_envelope_sha256": "713a68ea0b967137fb869fe8f45e7e1c886b07290bf118a80349f955d0ca5b0a",
+      "response_bytes": 239,
+      "response_envelope_sha256": "3d891cfb933fc00796d3f683a25e4ee4460be93c1a81cd11e1b115e220376b36",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "0fef6a7b4786733225ee9af2e2483e2f235282d943c4436e98eff4c02c423262",
+      "response_status": 200,
+      "sequence": 46,
+      "status": "forwarded"
+    },
+    {
+      "auth": "14e78ea17edb39768df11c4202d3e012b551988d0fb680317636f688f1babc6e",
+      "body_bytes": 191751,
+      "body_sha256": "ff6c6ae6c2c7fbebe0e67ae9ff134f6d0c29503f68d2a771c4ab80f27160989e",
+      "callback_kind": "mock",
+      "duration_ns": 25264900,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0047",
+      "launch_authorized": false,
+      "monotonic_ns": 175402310712100,
+      "previous_receipt_sha256": "0f9ac4f373821f3570f30991e22186244f163ef2dc113b99de4099936c13708a",
+      "raw_envelope_bytes": 255948,
+      "raw_envelope_sha256": "9dc73d4dc850e1ce33918135eae0b8e92051f05b9d3b6f3cb5d3fb2c37691bfc",
+      "response_bytes": 2919,
+      "response_envelope_sha256": "9d9ec6b90dc65721057ec860853b306d7e305fd905d89de5244864421f90db14",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "75bbdca036ee1551384ce224952834ba56c27e72896409721f4d6b7acf4eabf7",
+      "response_status": 200,
+      "sequence": 47,
+      "status": "forwarded"
+    },
+    {
+      "auth": "ce87e4ba5f8dd7a9340aa77f9d252f8b39668b7877b263ad0b7fc5fb28e99aef",
+      "body_bytes": 296,
+      "body_sha256": "226bf67289bf64e2ebf7ff8411b23978f67dee2cd980bd6cc1a5cdf9d6d4b778",
+      "callback_kind": "mock",
+      "duration_ns": 4569100,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0048",
+      "launch_authorized": false,
+      "monotonic_ns": 175402355050500,
+      "previous_receipt_sha256": "1fcfde536eb131379ceb36f47c6e976635b7ac0f970b53979f6af1abde201943",
+      "raw_envelope_bytes": 676,
+      "raw_envelope_sha256": "10cff7f16897943e5c937039de46080ed0925be66ba8e5c8c194e14c507dc043",
+      "response_bytes": 410,
+      "response_envelope_sha256": "0c956a78ee266c9f5545043944f0676b1c3c737782dd4a03099236c3b6c6a009",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "249ed1ba6a5464204aa21cf25b20baafb94808a8c76c482d8c84291db84c341d",
+      "response_status": 200,
+      "sequence": 48,
+      "status": "forwarded"
+    },
+    {
+      "auth": "7185289cd8f63b55ed25b82debb6e563134ae08b56b9ecc37ed92bc284a28574",
+      "body_bytes": 192651,
+      "body_sha256": "378b72bc8f142035a6c0d2df49ab46947d0352070302f6870d11c7624be939b3",
+      "callback_kind": "mock",
+      "duration_ns": 29270200,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0049",
+      "launch_authorized": false,
+      "monotonic_ns": 175402485026400,
+      "previous_receipt_sha256": "4dce5cc6175a5cd25c4cf588c8a4ba638fe6faba24025dac7755013a48c74e09",
+      "raw_envelope_bytes": 257148,
+      "raw_envelope_sha256": "1c17ebb6db4b5ebc250c2e0157b9e8f479b6c1fe408e53670b5fdaac9a70e427",
+      "response_bytes": 3727,
+      "response_envelope_sha256": "6bf7ef55c2a08d7dec3548dd45a6c78484d22aa9d7d6be758f6b5155814c9301",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "910ad99e1ae48d8e9d5459a8829492da79c9621ef0086ecd8ed2ef0434d46e90",
+      "response_status": 200,
+      "sequence": 49,
+      "status": "forwarded"
+    },
+    {
+      "auth": "3461a8637f21ce7171304267b50c3ae674b2b8ee072a0e0d435c34aebbb9c53d",
+      "body_bytes": 39,
+      "body_sha256": "c852b20675cf13a26a66cc07c7bc030ed4ea2b1fa423df1d8e656b003386186e",
+      "callback_kind": "mock",
+      "duration_ns": 1401300,
+      "endpoint": "case-controller",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "case-child-0050",
+      "launch_authorized": false,
+      "monotonic_ns": 175402573411800,
+      "previous_receipt_sha256": "161071951403c1e3bc5a8b7b01140d248258f0df94387a4f4e706295ad1fd1e9",
+      "raw_envelope_bytes": 332,
+      "raw_envelope_sha256": "a0d9144d6ee32a4d73e22fc7c85bdfb309ced4d66199e6fe303109994b63e43f",
+      "response_bytes": 13,
+      "response_envelope_sha256": "28ad9be08572b7f4ecdc6f9d37801c7480566bdce3b7515bcc751afce1aad825",
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "response_released": true,
+      "response_sha256": "87b85550cd63a0cc5b49b3ba4874fc9ed4b7ffef04dc78fa5c0e949c0b0812e0",
+      "response_status": 200,
+      "sequence": 50,
+      "status": "forwarded"
+    }
+  ],
+  "request_bytes": 2873862,
+  "response_bytes": 182976
+}

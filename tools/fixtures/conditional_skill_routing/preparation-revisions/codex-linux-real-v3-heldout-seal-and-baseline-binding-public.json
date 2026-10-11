@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "status": "sealed_complete_fresh_v3_executable_baseline_binding",
+  "experiment_id": "conditional-skill-routing-codex-linux-real-v3-prepared",
+  "heldout_cases": 8,
+  "families": 4,
+  "cold": 4,
+  "continuation": 4,
+  "french_english_per_family": true,
+  "sealed_before_tuning": true,
+  "payload_storage": "dedicated_evaluator_owned_directory_outside_repository_default_search_scope",
+  "physical_os_identity_isolation_claimed": false,
+  "private_payload_sha256": "4719a261467bac3839753f856c613d5844d177fb6ab67da2142564480139c125",
+  "private_payload_bytes": 79131,
+  "private_payload_unchanged": true,
+  "baseline_manifest_sha256": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25",
+  "dependencies": {
+    "tools\\conditional_skill_routing_shared_campaign.py": "b04c4f757c1b18a80d27b4b3c55550b865ba190aaacc86aad7be55f0eed11c4f",
+    "tools\\conditional_skill_routing_comparison_adapter.py": "274f334793f70b4c54fb2e105080d90e4d0cea2a9ee498284019761623996ac0",
+    "tools\\conditional_skill_routing_responses_accounting.py": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543",
+    "tools\\conditional_skill_routing_cli_tuning_transport_probe.py": "50d484d1f87eea51e3db7254e2495eb3db7dbd7a7f477273290b12a6678e2ace",
+    "tools\\conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+    "tools\\conditional_skill_routing_eval.py": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0",
+    "tools\\skill_activation_budget.py": "b9da02a6dbf255764415337a9100f3a0c77f3e1c70581ba549934aa587390f81"
+  },
+  "author_validator_sha256": "470416a379a90466d7d78e682c5b1debc8f2e8282301c596c11303c34e0519cf",
+  "exact_source_bytes_archived": true,
+  "executable_baseline_binding_complete": true,
+  "final_generic_parent_transport_profile_attachment_pending": true,
+  "candidate_binding_pending_future_freeze": true,
+  "independent_review": false,
+  "case_receipts": [
+    {
+      "case_slot": "H3",
+      "schema_sha256": "68100e020e75af4d1510b7c291aa8de00d9fb5bd619463b3f7416b0e1fb3fc26",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read"
+      ],
+      "callbacks": 11,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "H4",
+      "schema_sha256": "68100e020e75af4d1510b7c291aa8de00d9fb5bd619463b3f7416b0e1fb3fc26",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read"
+      ],
+      "callbacks": 12,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "A3",
+      "schema_sha256": "8f7a13aaf70a8a0e16caf6c47350de792765a1c5cbf4cbc1ddd0dc730217cb09",
+      "tool_names": [
+        "audit",
+        "fixture_read",
+        "instruction_read",
+        "invocation_preflight"
+      ],
+      "callbacks": 23,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": true,
+      "a3_mismatch_refused": true,
+      "a3_prerequisite_delivery_checked": true
+    },
+    {
+      "case_slot": "A4",
+      "schema_sha256": "b67d6b597019e7d1d184e7538403a635e1df2592a7c786db9daaa31b7f2d5090",
+      "tool_names": [
+        "audit",
+        "fixture_read",
+        "instruction_read"
+      ],
+      "callbacks": 18,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "B3",
+      "schema_sha256": "a973c057006479947e94606f0b15c99ba3229cc94e893232606a9bd854bca6ff",
+      "tool_names": [
+        "fixture_read",
+        "focused_verify",
+        "instruction_read",
+        "simulated_replace"
+      ],
+      "callbacks": 17,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "B4",
+      "schema_sha256": "9c639c77136bc8f2ab177b826f05e2a0da9fa3ef99c50411cc9ea438c0224275",
+      "tool_names": [
+        "fixture_read",
+        "focused_verify",
+        "instruction_read",
+        "invocation_preflight",
+        "scope_evidence_read",
+        "simulated_replace",
+        "topology_preflight"
+      ],
+      "callbacks": 28,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": null,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "S3",
+      "schema_sha256": "324ead309b118b036edce1953dcec20a414bb537a056930a07fbeb4027ab05e7",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read",
+        "private_capability",
+        "private_record_read",
+        "private_status"
+      ],
+      "callbacks": 36,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": true,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    },
+    {
+      "case_slot": "S4",
+      "schema_sha256": "324ead309b118b036edce1953dcec20a414bb537a056930a07fbeb4027ab05e7",
+      "tool_names": [
+        "fixture_read",
+        "instruction_read",
+        "private_capability",
+        "private_record_read",
+        "private_status"
+      ],
+      "callbacks": 40,
+      "all_exactly_delivered": true,
+      "private_redaction_pass": true,
+      "a3_identity_consistent": null,
+      "a3_mismatch_refused": null,
+      "a3_prerequisite_delivery_checked": null
+    }
+  ],
+  "retired_v2_case_set_used": false,
+  "historical_evaluator_payload_read": false,
+  "model_calls": 0,
+  "campaign_runs": [],
+  "limits": [
+    "Complete new eight-case contract set replaces retired v2 eligibility, not historical evidence",
+    "In-memory deterministic executable validation only; no heldout CLI/model/campaign run",
+    "Future generic parent transport/profile and independent review pending",
+    "Storage scope precaution is not hard OS evaluator isolation",
+    "No private prompt/expectation/fixture or directory disclosed in this public receipt"
+  ]
+}

@@ -1,0 +1,9 @@
+event: tool_result
+data: {"status":"visible","text":"Public synthetic summary","tool_call_id":"call-exchange-029"}
+
+event: usage
+data: {"input_tokens":7,"label":"fictional_synthetic_usage","output_tokens":3}
+
+event: done
+data: {"synthetic":true}
+

@@ -1,0 +1,1 @@
+{"op":"checkpoint","declaration":{"type":"checkpoint","kind":"Explicit exact-record grant obtained; private runtime capability remains blocked with unknown status; stopped before record access and reported the unresolved public-summary goal without persistence or publication"}}

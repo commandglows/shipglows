@@ -1,0 +1,3 @@
+event: tool_result
+data: {"can_read":false,"synthetic":true,"tool_call_id":"call-exchange-016"}
+
