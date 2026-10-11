@@ -30,7 +30,7 @@ class BusinessContextMeshContractTests(unittest.TestCase):
             "business/product.md",
             "business/gtm.md",
             "branding/branding.md",
-            "business/portfolio-project-pitch-links.md",
+            "projects/index.md",
             "business/project-competitors-and-inspirations.md",
             "business/affiliate-programs.md",
         )

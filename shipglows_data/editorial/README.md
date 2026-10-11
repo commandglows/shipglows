@@ -83,7 +83,7 @@ This layer complements, but does not replace, `shipglows_data/editorial/content-
 
 Use `skills/references/content-quality-rubric.md` when a workflow, spec, or operator asks whether content is good enough for a specific project. The rubric is shared across `sg-content` (including `repurpose`), `sg-redact`, `sg-enrich`, `009-sg-marketing` modes, `sg-seo`, and `sg-verify`; do not create a project-specific skill for scoring.
 
-The scoring context comes from `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, `shipglows_data/business/gtm.md`, `shipglows_data/business/portfolio-project-pitch-links.md`, `shipglows_data/editorial/content-map.md`, `shipglows_data/editorial/page-intent-map.md`, and `shipglows_data/editorial/claim-register.md`. A valid report includes the global score, criterion scores, weights, final status, blocked reasons, evidence, recommendations, confidence, and applied project-rule revisions.
+The scoring context comes from `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, `shipglows_data/business/gtm.md`, `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md`, `shipglows_data/editorial/content-map.md`, `shipglows_data/editorial/page-intent-map.md`, and `shipglows_data/editorial/claim-register.md`. A valid report includes the global score, criterion scores, weights, final status, blocked reasons, evidence, recommendations, confidence, and applied project-rule revisions.
 
 Allowed final statuses are `ready`, `needs revision`, `blocked`, and `publishable with caveats`. Blocking criteria such as unsupported sensitive claims, unresolved project context, missing or invalid surfaces, stale rules, conflicting score state, or missing required schema fields override the numeric score.
 
@@ -91,7 +91,7 @@ Allowed final statuses are `ready`, `needs revision`, `blocked`, and `publishabl
 
 - `shipglows_data/editorial/content-map.md` remains the canonical content surface map.
 - `shipglows_data/editorial/ROADMAP.md` is an operational backlog, not a governance artifact and not a chantier registry.
-- Public content must stay inside `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, `shipglows_data/business/gtm.md`, `shipglows_data/business/portfolio-project-pitch-links.md`, specs, verified behavior, and explicit evidence.
+- Public content must stay inside `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, `shipglows_data/business/gtm.md`, specs, verified behavior, and explicit evidence.
 - The Editorial Reader diagnoses public-content impact and claim impact. It does not edit, stage, format, or run destructive commands.
 - Shared editorial files are sequential integration surfaces unless a ready spec assigns exclusive write ownership.
 - Astro runtime content keeps the schema declared in `site/src/content.config.ts`.

@@ -67,7 +67,7 @@ Use these contracts to bound public copy:
 - `shipglows_data/business/product.md`: user problem, desired outcomes, workflow scope, non-goals.
 - `shipglows_data/branding/branding.md`: voice, trust posture, vocabulary, and claim boundaries.
 - `shipglows_data/business/gtm.md`: public promise, channels, objections, proof limits, and conversion path.
-- `shipglows_data/business/portfolio-project-pitch-links.md`: index of versioned pitch-file URLs for `#shipglows-owner` and `#portfolio` reasoning.
+- `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md`: index of versioned pitch-file URLs for `#shipglows-owner` and `#portfolio` reasoning.
 - `shipglows_data/technical/guidelines.md`: internal language doctrine and documentation rules.
 - `shipglows_data/business/project-competitors-and-inspirations.md`: optional competitors, alternatives, inspiration, and anti-pattern registry.
 - `shipglows_data/business/affiliate-programs.md`: optional affiliate, referral, partner, sponsorship, and disclosure registry.

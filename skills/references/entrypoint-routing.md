@@ -119,8 +119,8 @@ Tags such as `#partner`, `#growth`, `#traffic`, `#acquisition`, `#offer`, `#roi`
 - if a stronger owner skill or ShipGlows route materially improves adoption or first success, surface it as the recommended path instead of stopping at neutral advice
 - when several edits are possible, choose the smallest durable change that improves conversion, clarity, adoption, retention, or operator leverage
 - when `#traffic` or `#acquisition` is present, bias toward channel-to-landing fit, tracking readiness, and measurable acquisition learning; use `Tariq` as the relevant profile when the user asks who should arbitrate
-- when `#pitch` is present, reload `shipglows_data/business/portfolio-project-pitch-links.md` and prefer the active project's own pitch URL if the index points to one before answering or routing
-- when `#portfolio` is present, reload `shipglows_data/business/portfolio-project-pitch-links.md` and scan the index for the most relevant cross-project opportunity before answering or routing
+- when `#pitch` is present, reload `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` and prefer the active project's own pitch URL if the index points to one before answering or routing
+- when `#portfolio` is present, reload `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` and scan the index for the most relevant cross-project opportunity before answering or routing
 
 ### Content Tags
 

@@ -131,8 +131,8 @@ Explicit feature hints use the `#feature:<term>` form only. They are routing hin
 | `#founder-mode` | Recenter on founder-level delegation: business decision surface, not technician micromanagement | `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` |
 | `#founder` | Recenter on the user as a business owner who wants useful decisions, growth, and clarity | `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` |
 | `#shipglows-owner` | Recenter on the operator as owner of ShipGlows and adjacent assets, with portfolio-level arbitration | `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` |
-| `#pitch` | Recenter on the current project's own pitch file and core identity | `$SHIPGLOWS_ROOT/shipglows_data/business/portfolio-project-pitch-links.md` |
-| `#portfolio` | Recenter on the portfolio pitch-links index and cross-project opportunity scanning | `$SHIPGLOWS_ROOT/shipglows_data/business/portfolio-project-pitch-links.md` |
+| `#pitch` | Recenter on the current project's own pitch file and core identity | `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` |
+| `#portfolio` | Recenter on the portfolio pitch-links index and cross-project opportunity scanning | `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` |
 | `#no-drift` | Recenter on staying on target, choosing, and acting without exploratory drift | `$SHIPGLOWS_ROOT/skills/references/entrypoint-routing.md` |
 | `#canon` | Recenter on the canonical source of truth and avoid parallel doctrine copies | `$SHIPGLOWS_ROOT/shipglows_data/technical/code-docs-map.md` |
 | `#drift` | Recenter on code-doc divergence, stale surfaces, and misaligned contracts | `$SHIPGLOWS_ROOT/shipglows_data/technical/code-docs-map.md` |

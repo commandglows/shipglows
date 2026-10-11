@@ -155,7 +155,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             "shipglows_data/business/product.md",
             "shipglows_data/business/gtm.md",
             "shipglows_data/branding/branding.md",
-            "portfolio-project-pitch-links.md",
+            "projects/index.md",
             "project-competitors-and-inspirations.md",
             "affiliate-programs.md",
             "Do not read every family by default",

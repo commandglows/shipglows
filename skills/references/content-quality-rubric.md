@@ -99,7 +99,7 @@ Load project rules from governance artifacts, never from content text:
 2. `shipglows_data/business/product.md`
 3. `shipglows_data/branding/branding.md`
 4. `shipglows_data/business/gtm.md`
-5. `shipglows_data/business/portfolio-project-pitch-links.md`
+5. `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md`
 6. `shipglows_data/editorial/content-map.md`
 7. `shipglows_data/editorial/page-intent-map.md` when available
 8. `shipglows_data/editorial/claim-register.md` when available

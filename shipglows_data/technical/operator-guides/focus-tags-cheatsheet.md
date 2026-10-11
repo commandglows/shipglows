@@ -98,8 +98,8 @@ Use these when you want the agent to think like a business partner instead of a 
 | `#founder-mode` | a founder-facing decision surface instead of technician-level back-and-forth | `skills/references/operator-partnership-contract.md` |
 | `#founder` | the user as a business owner who wants useful decisions, growth, and clarity | `skills/references/operator-partnership-contract.md` |
 | `#shipglows-owner` | the operator as owner of ShipGlows and adjacent assets, with portfolio-level arbitration | `skills/references/operator-partnership-contract.md` |
-| `#pitch` | reload the current project's pitch file and core identity | `shipglows_data/business/portfolio-project-pitch-links.md` |
-| `#portfolio` | scan the pitch links index for the best cross-project opportunity | `shipglows_data/business/portfolio-project-pitch-links.md` |
+| `#pitch` | reload the current project's pitch file and core identity | `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` |
+| `#portfolio` | scan the pitch links index for the best cross-project opportunity | `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` |
 
 Short usage note: use `#pitch` for one project’s identity, and `#portfolio` when you want the wider portfolio view before answering.
 

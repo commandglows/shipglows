@@ -23,7 +23,6 @@ linked_systems:
   - shipglows_data/business/product.md
   - shipglows_data/branding/branding.md
   - shipglows_data/business/gtm.md
-  - shipglows_data/business/portfolio-project-pitch-links.md
 depends_on:
   - artifact: "shipglows_data/editorial/content-map.md"
     artifact_version: "0.9.0"
@@ -40,9 +39,6 @@ depends_on:
   - artifact: "shipglows_data/business/gtm.md"
     artifact_version: "1.2.0"
     required_status: reviewed
-  - artifact: "shipglows_data/business/portfolio-project-pitch-links.md"
-    artifact_version: "0.1.0"
-    required_status: draft
   - artifact: "skills/references/private-memory-store.md"
     artifact_version: "1.1.0"
     required_status: active
@@ -120,14 +116,14 @@ Before final classification, load only the relevant canonical context:
 - `shipglows_data/branding/branding.md` when voice, trust posture, vocabulary, or claim boundaries matter
 - `shipglows_data/business/gtm.md` when offer, CTA, funnel, distribution, or positioning matters
 - `shipglows_data/editorial/content-map.md` when public content, repurposing, docs, FAQ, article, landing page, or skill-page placement matters
-- `shipglows_data/business/portfolio-project-pitch-links.md` when choosing between several portfolio projects matters
+- `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` when choosing between several portfolio projects matters
 - `skills/references/private-memory-store.md` when cached private pitch contents or a temporary unassigned-source record could change classification
 
 Do not load every corpus by default. Load the smallest set that changes classification quality.
 
 ## Portfolio Project Index
 
-When the source could belong to more than one project, load `shipglows_data/business/portfolio-project-pitch-links.md` before choosing the project. Use it as an index, not as a substitute for each project's own business, product, brand, or GTM docs.
+When the source could belong to more than one project, load `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` before choosing the project. Use it as an index, not as a substitute for each project's own business, product, brand, or GTM docs.
 
 Project selection should consider:
 

@@ -23,7 +23,6 @@ linked_systems:
   - skills/references/source-intake-classification.md
   - skills/references/private-memory-store.md
   - skills/emailing/SKILL.md
-  - shipglows_data/business/portfolio-project-pitch-links.md
 evidence:
   - "Operator request 2026-06-29: use local email corpus as daily source material for project routing and idea validation."
   - "Local mail store observed at /home/claude/Mail with Maildir folders and notmuch index."

@@ -67,7 +67,7 @@ Skip this mesh for routine reversible mechanics whose outcome cannot differ unde
 | Product | `shipglows_data/business/product.md` | promise, outcomes, capabilities, scope, non-goals | behavior, journey, experience, scope, or acceptance changes |
 | Go-to-market | `shipglows_data/business/gtm.md` | positioning, offer, objections, channels, conversion, claim limits | acquisition, conversion, pricing, launch, or public promise matters |
 | Brand | `shipglows_data/branding/branding.md` | voice, vocabulary, feeling, trust posture, forbidden claims | a user-facing experience, message, identity, or recovery moment changes |
-| Portfolio | `shipglows_data/business/portfolio-project-pitch-links.md` | cross-project identity and current pitch locations | portfolio priority, project comparison, shared narrative, or pitch routing matters |
+| Portfolio | `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` | cross-project identity and current pitch locations | portfolio priority, project comparison, shared narrative, or pitch routing matters |
 | Alternatives | `shipglows_data/business/project-competitors-and-inspirations.md` | known competitors, alternatives, inspirations, anti-patterns | differentiation, build-versus-adopt, market contrast, or prior-art risk matters |
 | Partnerships | `shipglows_data/business/affiliate-programs.md` | affiliate, referral, sponsorship, partner, and disclosure truth | recommendations, monetized links, partnerships, or disclosure obligations matter |
 
