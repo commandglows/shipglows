@@ -24,3 +24,6 @@ tmp_shipglows*.sh
 site/.playwright-mcp/
 /.shipglows-auto/
 /.shipglows/
+
+# Windows env-var expansion artifacts
+/%SystemDrive%/
