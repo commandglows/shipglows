@@ -108,9 +108,9 @@ def request_search(args: argparse.Namespace, opener=None) -> dict:
     api_key = os.environ.get("PARALLEL_API_KEY", "").strip()
     if not api_key:
         raise ParallelError("PARALLEL_API_KEY is not set; provide your key in the process environment.")
-    queries = [query.strip() for query in args.query]
+    queries = [query.strip() for query in [*getattr(args, "terms", []), *(args.query or [])]]
     if not queries or any(not query for query in queries):
-        raise ParallelError("At least one non-empty --query is required.")
+        raise ParallelError("At least one non-empty query is required (positional or --query).")
     if len(queries) > 5:
         raise ParallelError("Parallel accepts at most five search queries per request.")
     if any(len(query) > 200 for query in queries):
@@ -409,7 +409,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Search the web with Parallel and return cited page excerpts.")
     subparsers = parser.add_subparsers(dest="command", required=True)
     search = subparsers.add_parser("search", help="make one Parallel Search API request")
-    search.add_argument("--query", action="append", required=True, help="keyword query; repeat up to five times")
+    search.add_argument("terms", nargs="*", metavar="QUERY", help="keyword query as a positional argument (same as --query)")
+    search.add_argument("--query", action="append", help="keyword query; repeat up to five times (positional queries count too)")
     search.add_argument("--objective", help="optional natural-language research objective")
     search.add_argument("--mode", choices=MODES, default="fast", help="search mode (default: fast)")
     search.add_argument("--domain", type=normalize_domain, help="mark exact-domain and subdomain results")

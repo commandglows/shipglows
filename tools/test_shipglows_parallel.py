@@ -72,6 +72,16 @@ class ParallelCliTests(unittest.TestCase):
         self.assertIn("not a Google SERP", result["result_order"])
         self.assertEqual(captured["timeout"], 30)
 
+    def test_accepts_positional_query_and_merges_with_flag(self):
+        _, captured = self.call(["search", "coach bien-être"], response())
+        self.assertEqual(json.loads(captured["request"].data)["search_queries"], ["coach bien-être"])
+        _, captured = self.call(["search", "coach bien-être", "--query", "coach santé"], response())
+        self.assertEqual(json.loads(captured["request"].data)["search_queries"], ["coach bien-être", "coach santé"])
+
+    def test_search_without_any_query_is_rejected(self):
+        with self.assertRaises(Exception):
+            self.call(["search"], response())
+
     def test_accepts_two_queries_and_objective(self):
         _, captured = self.call(
             ["search", "--query", "coaching bien-être", "--query", "coach santé Paris", "--objective", "Find qualified sources"],
