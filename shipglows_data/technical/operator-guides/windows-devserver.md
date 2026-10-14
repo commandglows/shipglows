@@ -452,6 +452,8 @@ le Job Object exact et ne publie `stopped` qu'après disparition prouvée de l'i
 et du service ; sinon le registre reste inchangé et l'erreur est visible. Un stop
 déjà accompli reste idempotent et efface toute erreur live obsolète.
 
+Pour les projets web (dont Astro), l'attente de readiness suit le budget demandé par l'appelant, plafonné à 300 secondes. Un démarrage à froid d'un gros site Astro peut dépasser 60 secondes : ce plafond n'est plus de 60 secondes. Si le serveur ne répond toujours pas après 300 secondes, l'état passe à `error` avec la fin du log.
+
 Flutter Web démarre silencieusement dans un Chrome headless dédié et contrôlé
 par Flutter. Le registre ne passe à `running` qu'après les événements machine
 `app.start` puis `app.started` ; une réponse HTTP ou TCP seule ne prouve pas que
