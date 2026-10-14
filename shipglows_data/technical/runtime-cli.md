@@ -743,7 +743,10 @@ registry in read-only mode and never launches a fallback server.
 Native Windows Flutter Web starts through `flutter run --machine -d chrome` in
 a ShipGlows-owned headless Chrome profile. Readiness requires matching
 `app.start` and `app.started` JSON events; HTTP or TCP availability alone never
-marks it running. `s reload -ProjectPath <path>` dispatches an authenticated
+marks it running. During an active Flutter Windows build, startup is cut only
+after 300 seconds without any file write under `build/windows` (reported as a
+stalled build) or after a 1800-second hard cap; other devices keep the
+600-second build window. `s reload -ProjectPath <path>` dispatches an authenticated
 hot reload only to a running managed Flutter session. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug

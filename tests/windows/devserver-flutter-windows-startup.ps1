@@ -47,6 +47,14 @@ try{
             if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'build timed out'){throw 'Active Flutter build progress did not receive its dedicated startup window.'}
             $transitionAt=[datetime]'2026-09-04T20:00:00Z';$timing=Update-SgFlutterReadinessWindow $true $false $transitionAt.AddMinutes(-1) 90 $transitionAt
             if($timing.ActiveProgress-or$timing.Deadline-ne$transitionAt.AddSeconds(90)){throw 'Flutter debug attachment did not receive a fresh deadline after a long build completed.'}
+            $buildRoot=Join-Path $stateRoot 'build\windows';New-Item -ItemType Directory -Path $buildRoot -Force|Out-Null;[IO.File]::WriteAllText((Join-Path $buildRoot 'old.obj'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $buildRoot 'old.obj'),[datetime]::UtcNow.AddHours(-1))
+            $clock.Restart();$stalledBuild=Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 30 $buildRoot 1;$clock.Stop()
+            if($clock.ElapsedMilliseconds-gt3000-or$stalledBuild.Error-notmatch'stalled'){throw 'A Flutter Windows build without output was not cut by the stall timeout.'}
+            $activityAt=[datetime]'2026-09-04T20:00:00Z';$stall=Update-SgFlutterBuildStallDeadline $activityAt $activityAt.AddMinutes(-10) $activityAt.AddSeconds(-2) 300 $activityAt
+            if($stall.StallDeadline-ne$activityAt.AddSeconds(300)-or$stall.LastActivityUtc-ne$activityAt.AddSeconds(-2)){throw 'Fresh Flutter build output did not extend the stall deadline.'}
+            $idle=Update-SgFlutterBuildStallDeadline $activityAt $activityAt.AddSeconds(-2) $activityAt.AddSeconds(-2) 300 $activityAt.AddMinutes(1)
+            if($idle.StallDeadline-ne$activityAt){throw 'Unchanged Flutter build output extended the stall deadline.'}
+            if((Get-SgLatestWriteUtc (Join-Path $stateRoot 'missing'))-ne[datetime]::MinValue){throw 'A missing build directory did not report the minimum write time.'}
             function Test-SgProcessIdentity {$false}
             $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
             if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}

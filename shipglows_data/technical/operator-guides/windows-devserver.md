@@ -455,7 +455,10 @@ déjà accompli reste idempotent et efface toute erreur live obsolète.
 Flutter Web démarre silencieusement dans un Chrome headless dédié et contrôlé
 par Flutter. Le registre ne passe à `running` qu'après les événements machine
 `app.start` puis `app.started` ; une réponse HTTP ou TCP seule ne prouve pas que
-l'application a exécuté `main()`. L'action Open remplace cette session headless
+l'application a exécuté `main()`. Pendant un build Flutter Windows actif, le
+démarrage n'est interrompu qu'après 5 minutes sans écriture dans `build/windows`
+(build bloqué) ou au plafond de 30 minutes ; un premier build à froid qui
+progresse n'est donc plus coupé. L'action Open remplace cette session headless
 par un Chrome visible toujours contrôlé par Flutter, afin de conserver le hot
 reload. Start et Restart restent silencieux et recréent une session headless
 gérée ; aucun navigateur ne s'ouvre avant l'action explicite Open.
