@@ -57,6 +57,7 @@ class CaseController:
         self.live_attempts=0
         require(callable(provider_callback),"injected mock provider callback required")
         self.subject=integration.ComparisonAdapter(prepared,thread_id="parent-pending-thread",turn_id="parent-pending-turn")
+        self.subject.accounting.allow_generated_reasoning = provider_kind == "live"
         self.provider_callback=provider_callback
         self.guard=strict_profile()
         self.guard.NAMES=[row["name"] for row in self.subject.schema]
@@ -85,7 +86,8 @@ class CaseController:
     def _validate_function(self,item):
         require(type(item) is dict and item.get("type")=="function_call" and item.get("name") in self.subject.tools,
                 "nonbroker/unknown provider function refused")
-        require(set(item)<={"type","id","call_id","name","arguments","status"} and item.get("status")=="completed",
+        require(set(item)<={"type","id","call_id","name","arguments","status"}
+                and (item.get("status")=="completed" or self.provider_kind=="live" and item.get("status") is None),
                 "malformed function item")
         require(all(type(item.get(key)) is str and item[key] for key in ("id","call_id","arguments")),"missing function identity")
         args=wire.decoded(item["arguments"].encode())
@@ -187,9 +189,14 @@ class CaseController:
                 origin="authorized_live_provider" if self.provider_kind=="live" else "injected_mock_provider"
             require(type(reply) is dict and set(reply)=={"status","headers","body"} and type(reply["body"]) is bytes,"unknown provider reply")
             require(reply["status"]==200 and event_stream_type(reply["headers"]),"provider reply status/type refused")
-            gate=self.guard.gate_complete_sse(reply["body"],self.seen_calls)
+            if self.provider_kind == "live":
+                from tools import conditional_skill_routing_live_stream as live_stream
+                gate=live_stream.gate_complete_sse(reply["body"],self.seen_calls,self._validate_function)
+            else:
+                gate=self.guard.gate_complete_sse(reply["body"],self.seen_calls)
             self.seen_calls.update(gate["call_ids"])
-            completed=schemas.completed_response(reply["body"])
+            completed=(live_stream.completed_response(reply["body"]) if self.provider_kind=="live"
+                       else schemas.completed_response(reply["body"]))
             for item in completed["output"]:
                 if item["type"]=="function_call":
                     self.offered_calls[item["call_id"]]={"name":item["name"],"arguments":wire.decoded(item["arguments"].encode()),"callback_received":False,
@@ -203,7 +210,8 @@ class CaseController:
                                    "response_sha256":wire.sha(reply["body"]),"non_tools_values_unchanged":True,"origin":origin,
                                    "accounting":accounted,"gate":gate,
                                    "instruction_metric_inclusion":"synthetic_history_priming_excluded" if origin=="exact_fixture_history_replay_no_provider_call" else "subject_provider_request_mock_only"})
-            return {"status":200,"headers":reply["headers"],"body_b64":base64.b64encode(reply["body"]).decode()}
+            return {"status":200,"headers":{**reply["headers"],"content-type":"text/event-stream"},
+                    "body_b64":base64.b64encode(reply["body"]).decode()}
         raise ControllerError("unknown case-control operation")
 
     def summary(self):

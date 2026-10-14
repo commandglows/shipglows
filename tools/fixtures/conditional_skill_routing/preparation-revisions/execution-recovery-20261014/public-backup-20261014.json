@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-14",
+  "scope": "public_sources_mock_evidence_and_readiness_receipts_only",
+  "archive": "C:\\Users\\Diane\\ShipGlows\\shipglows\\tools\\fixtures\\conditional_skill_routing\\preparation-revisions\\execution-recovery-20261014\\recovery-public-bundle-20261014.tar.gz",
+  "wsl_public_backup": "\\\\wsl.localhost\\Ubuntu\\home\\claude\\.local\\share\\shipglows-isolated-codex-0.160.1\\public\\recovery-20261014\\recovery-public-bundle-20261014.tar.gz",
+  "archive_sha256": "80c14bfb10a37a8e5c047fc5d6cd83f1282f3965dba35642c77b15240522b5df",
+  "archive_bytes": 4792723,
+  "public_file_count": 288,
+  "copy_hash_verified": true,
+  "includes_private_payload_or_index_or_generator": false,
+  "stage_sha256": "baa2043468be8fb9df865b6a2206ffd38803dc81d52ecdb591f80f2e75f40c52",
+  "coordinator_preflight_sha256": "565bd8113deb3eda594a559c14a893e10f2fea5f8235380c477c96940fdf8b10",
+  "model_calls": 0,
+  "launch_performed": false,
+  "operator_model_and_cost_authorization_retained": true
+}

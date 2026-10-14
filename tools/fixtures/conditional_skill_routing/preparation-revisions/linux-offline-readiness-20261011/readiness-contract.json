@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "artifact": "immutable_preparation_contract_without_receipt_backreferences",
+  "campaign_id": "codex-linux-isolated-v4-20261011-prepared",
+  "campaign_started": false,
+  "consumer_profile_sha256": "2b0f1d7b398fd3cd89db638ba98925472651fa608520b9d0ad17a65097792318",
+  "consumer_profile_path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-consumer-profile.json",
+  "current_documentary_sources": {
+    "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "bf787adcf495967313569ac9a42c9556415e4065fc16fcc8d71b9ac0a8253082",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd"
+  },
+  "scope": "offline preparation; no private payload, provider, budget or launch",
+  "heldout_attachment_required": true,
+  "receipt_references_intentionally_excluded": true,
+  "historical_v3_public_seal": {
+    "path": "tools/fixtures/conditional_skill_routing/preparation-revisions/codex-linux-real-v3-heldout-seal-and-baseline-binding-public.json",
+    "sha256": "f9cdbfa91553587a288a831e3678dc79ce714a88254ec445f5c6871cd8c5021b"
+  },
+  "historical_v3_is_not_current_heldout_binding": true,
+  "required_fresh_heldout_generation": "independent synthetic v4, complete 8 cases, sealed before tuning"
+}

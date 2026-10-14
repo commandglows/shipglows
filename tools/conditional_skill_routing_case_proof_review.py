@@ -7,6 +7,7 @@ No model/provider/held-out reads. Returns hashes/counts/checks, never model text
 import base64
 from pathlib import Path
 from tools import conditional_skill_routing_parent_transport as wire
+from tools.conditional_skill_routing_cli_case_child import context_loss_reason
 
 # Captured at import, never reread during a long-running proof. Caller must
 # compare against its immutable pre-execution source snapshot before accepting.
@@ -42,7 +43,11 @@ def _rpc(workspace,pattern):
             if line:result.append(wire.decoded(line))
     return result
 
-def _completed(raw):
+def _completed(raw, *, live=False, validate_function_item=None):
+    if live:
+        from tools import conditional_skill_routing_live_stream
+        conditional_skill_routing_live_stream.gate_complete_sse(raw, frozenset(), validate_function_item)
+        return conditional_skill_routing_live_stream.completed_response(raw)
     require(type(raw) is bytes and 0<len(raw)<=1024*1024 and raw.endswith(b"\n\n"))
     events=[]
     for block in raw[:-2].split(b"\n\n"):
@@ -90,7 +95,7 @@ def review(raw_frames,replies,controller,workspace,channel,childfacts,*,child_de
     native={"commandExecution","fileChange","mcpToolCall","webSearch","collabAgentToolCall","contextCompaction","compaction"}
     for event in rpc_out:
         params=event.get("params",{})
-        require(not opaque(event))
+        require(context_loss_reason(event) is None)
         require(event.get("method") not in ("thread/compacted","thread/contextLost","thread/contextCompacted"))
         if type(params) is dict:
             require(params.get("item",{}).get("type") not in native)
@@ -150,7 +155,8 @@ def review(raw_frames,replies,controller,workspace,channel,childfacts,*,child_de
             http_id="cli-http-%03d"%model_index
             require((workspace/"run"/(http_id+".request.bin")).read_bytes()==original_raw)
             require((workspace/"run"/(http_id+".parent-response.bin")).read_bytes()==exchange["response"])
-            completed=_completed(exchange["response"])
+            completed=_completed(exchange["response"], live=controller.provider_kind=="live",
+                validate_function_item=controller._validate_function if controller.provider_kind=="live" else None)
             model_records.append({"original_request_sha256":wire.sha(original_raw),"forwarded_request_sha256":wire.sha(exchange["request"]),"response_sha256":wire.sha(exchange["response"]),"completed":completed,"origin":record["origin"]})
         else:require(op in ("bootstrap","bind_thread","begin_turn","next_user_turn"))
     require(not pending and callback_index==len(actual_callbacks)==len(controller.subject.callbacks) and model_index==len(controller.raw_exchanges)==len(controller.responses))
@@ -162,6 +168,9 @@ def review(raw_frames,replies,controller,workspace,channel,childfacts,*,child_de
                 params=known[cid]["parameters"]
                 require(item["name"]==params["tool"] and equal(wire.decoded(item["arguments"].encode()),params["arguments"]))
                 offered_calls[cid]=True
+            elif item["type"] == "reasoning":
+                require(controller.provider_kind=="live")
+                continue
             else:
                 require(item.get("role")=="assistant" and type(item.get("content")) is list)
                 require(all(p.get("type")=="output_text" and type(p.get("text")) is str for p in item["content"]))

@@ -69,7 +69,9 @@ class ResponsesAccounting:
     source span inside it. Repeated history counts delivered text on each request
     but is not a new read invocation. A new call_id represents a reread.
     """
-    def __init__(self, resources=None, injections=()):
+    def __init__(self, resources=None, injections=(), *, allow_generated_reasoning=False):
+        require(type(allow_generated_reasoning) is bool, "invalid generated reasoning policy")
+        self.allow_generated_reasoning = allow_generated_reasoning
         resources = {} if resources is None else resources
         require(type(resources) is dict and all(type(k) is str and k and type(v) is str and v
                                                for k, v in resources.items()), "invalid resources")
@@ -177,6 +179,22 @@ class ResponsesAccounting:
             require(type(item) is dict, "nonobject Responses item")
             kind = item.get("type", "message")
             path = "input[" + str(index) + "]"
+            if kind == "reasoning" and self.allow_generated_reasoning:
+                require(set(item) <= {"type", "id", "status", "summary", "content", "encrypted_content"}
+                        and type(item.get("id")) is str and item["id"]
+                        and item.get("status") in (None, "completed"), "invalid generated reasoning item")
+                for field, expected in (("summary", "summary_text"), ("content", "reasoning_text")):
+                    values = item.get(field, [])
+                    require(type(values) is list and all(type(v) is dict and set(v) == {"type", "text"}
+                            and v.get("type") == expected and type(v.get("text")) is str for v in values),
+                            "invalid generated reasoning text")
+                require(item.get("encrypted_content") is None or type(item["encrypted_content"]) is str,
+                        "invalid generated encrypted reasoning")
+                parts.append({"kind": "generated_reasoning", "path": path,
+                    "item_sha256": digest(json.dumps(item, sort_keys=True).encode()),
+                    "encrypted_content_present": bool(item.get("encrypted_content")),
+                    "decoded_reasoning_characters": None, "instruction_coverage": "not_credited"})
+                continue
             if kind == "function_call":
                 require(type(item.get("call_id")) is str and item["call_id"]
                         and item["call_id"] not in calls and type(item.get("name")) is str
@@ -227,6 +245,10 @@ class ResponsesAccounting:
                         "historical call identity/arguments changed")
             events, coverage, delivered = [], {}, set()
             for part in parts:
+                if part.get("kind") == "generated_reasoning":
+                    events.append({**provenance, **part, "type": "generated_reasoning",
+                        "generated_content_measurement": "UNKNOWN", "instruction_coverage": "not_credited"})
+                    continue
                 if part.get("kind") == "function_call":
                     events.append({**provenance, "type": "function_call", "path": part["path"],
                                    "call_id": part["call_id"], "name": part["name"],
@@ -274,11 +296,15 @@ class ResponsesAccounting:
                 resource_coverage[resource_id] = {"spans": [_span(source, start, end) for start, end in spans],
                                                   "characters": count, "full": count == len(source),
                                                   "model_retention": "UNKNOWN"}
-            receipt = {**provenance, "status": "accounted", "complete_input_text_accounting": True,
+            generated = [part for part in parts if part.get("kind") == "generated_reasoning"]
+            receipt = {**provenance, "status": "accounted", "complete_input_text_accounting": not generated,
+                       "excluded_generated_reasoning_items": len(generated),
+                       "decoded_generated_reasoning_measurement": "UNKNOWN" if generated else "not_present",
                        "text_characters": sum(len(part.get("text", "")) for part in parts),
                        "call_count": len(calls), "read_calls_present": sorted(delivered),
                        "coverage": resource_coverage, "events": events,
                        "limits": ["Function names/arguments and JSON framing excluded from text counts",
+                                  "Generated reasoning is excluded from instruction coverage; opaque generated content remains UNKNOWN",
                                   "Known injection occurrences may overlap; never add to total text twice",
                                   "Provider delivery does not prove model retention or instruction compliance"]}
             self.events.extend(events)

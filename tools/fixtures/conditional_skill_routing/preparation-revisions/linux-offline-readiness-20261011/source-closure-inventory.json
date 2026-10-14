@@ -1,0 +1,1094 @@
+{
+  "schema_version": 1,
+  "status": "frozen_bytes_and_declared_spans_verified_semantic_review_pending",
+  "baseline_manifest_sha256": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25",
+  "public_cases_sha256": "ca4c0226a8bb90cdc13e54dd0484e6dfd888264574eb1fd5c6af6f7e27086659",
+  "current_documentary_sources": {
+    "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "bf787adcf495967313569ac9a42c9556415e4065fc16fcc8d71b9ac0a8253082",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd"
+  },
+  "original_snapshots_preserved": true,
+  "source_count": 52,
+  "source_inventory": {
+    "router-public": {
+      "path": "skills/shipglows/SKILL.md",
+      "source_sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2",
+      "normalized_characters": 1631
+    },
+    "router": {
+      "path": "skills/000-shipglows/SKILL.md",
+      "source_sha256": "3d5d830d3ee17f5d8d1c9c09cbc8e0cd70c0862f059153f859a066b9ef73740d",
+      "normalized_characters": 7958
+    },
+    "help-public": {
+      "path": "skills/sg-help/SKILL.md",
+      "source_sha256": "e798bfaed2ac39ee2253d7154c56b6d6b01ac9453c1b8268b24169599338272a",
+      "normalized_characters": 1443
+    },
+    "help": {
+      "path": "skills/302-sg-help/SKILL.md",
+      "source_sha256": "91ec70d72aade9dfc02a613971baba1cbc55400e7729707f9da89548ebb0cad5",
+      "normalized_characters": 11596
+    },
+    "docs-public": {
+      "path": "skills/sg-docs/SKILL.md",
+      "source_sha256": "ed8642d9734c8676ba7b3ad1c51d54c81a2efd89f558493e178da6660aaeab50",
+      "normalized_characters": 1305
+    },
+    "docs": {
+      "path": "skills/300-sg-docs/SKILL.md",
+      "source_sha256": "cf82c6a04d08be7d4a83f20723a696248a9cf4fea7d54fc6d9c41789720ea603",
+      "normalized_characters": 6712
+    },
+    "content-public": {
+      "path": "skills/sg-content/SKILL.md",
+      "source_sha256": "19469d7f076ec603a511737cd0bee4a1b2d9fb84740a8b475bd815f1d17bc298",
+      "normalized_characters": 1314
+    },
+    "content": {
+      "path": "skills/007-sg-content/SKILL.md",
+      "source_sha256": "a72c339fd990eb4a8e1becdef063f54f32ac10c16cc648bc95c40b5a63b14a90",
+      "normalized_characters": 6735
+    },
+    "private-public": {
+      "path": "skills/sg-private/SKILL.md",
+      "source_sha256": "dd36a51e75bc3525c4babddc7ab248fe6d88ce01c040e5871b4e3652656dff9c",
+      "normalized_characters": 1847
+    },
+    "private": {
+      "path": "skills/603-sg-private/SKILL.md",
+      "source_sha256": "1865cb9ddda57c399596e21a5730e3038a71bfcccb3407b6615906a62164bb89",
+      "normalized_characters": 3511
+    },
+    "core": {
+      "path": "skills/900-shipglows-core/SKILL.md",
+      "source_sha256": "fd050eb5aea84067503adcc37de61d6a7d2f8ab8f12c1e6e46cdc08affbd7821",
+      "normalized_characters": 8071
+    },
+    "draft": {
+      "path": "skills/200-sg-redact/SKILL.md",
+      "source_sha256": "f1de7837514bb2915d85487a4d38b98334079d451693d008d0570ff53d90856a",
+      "normalized_characters": 5583
+    },
+    "canonical": {
+      "path": "skills/references/canonical-paths.md",
+      "source_sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7",
+      "normalized_characters": 3373
+    },
+    "private-roots": {
+      "path": "skills/references/canonical-runtime-and-private-roots.md",
+      "source_sha256": "89cf17632865c8fb863c1dbd6c9a92478c84145a64f32ecff2d7ac06a50b1f30",
+      "normalized_characters": 2696
+    },
+    "autonomy": {
+      "path": "skills/references/intent-to-outcome-autonomy.md",
+      "source_sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157",
+      "normalized_characters": 4027
+    },
+    "execution": {
+      "path": "skills/references/intent-to-outcome-execution.md",
+      "source_sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777",
+      "normalized_characters": 3526
+    },
+    "decision": {
+      "path": "skills/references/decision-quality-contract.md",
+      "source_sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2",
+      "normalized_characters": 6026
+    },
+    "functional": {
+      "path": "skills/references/functional-excellence-contract.md",
+      "source_sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193",
+      "normalized_characters": 8403
+    },
+    "context": {
+      "path": "skills/references/context-quality-contract.md",
+      "source_sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440",
+      "normalized_characters": 8483
+    },
+    "approval": {
+      "path": "skills/references/mutation-plan-approval.md",
+      "source_sha256": "f2965ff263b188793522fa823ef8917e17a003fc132bf37ece1dab165e09e630",
+      "normalized_characters": 13927
+    },
+    "preflight": {
+      "path": "skills/references/skill-invocation-preflight.md",
+      "source_sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b",
+      "normalized_characters": 4726
+    },
+    "aliases": {
+      "path": "skills/references/expert-mode-aliases.md",
+      "source_sha256": "88c0626620a990f73d41fd50287191ad05cee492b1424e28f9f25b0481ddc850",
+      "normalized_characters": 4614
+    },
+    "fidelity": {
+      "path": "skills/references/skill-execution-fidelity.md",
+      "source_sha256": "e846303fb66c7047630514714369b1e58d1bd0731b2ba79a773fa91ef6601b17",
+      "normalized_characters": 18052
+    },
+    "report": {
+      "path": "skills/references/reporting-contract.md",
+      "source_sha256": "19beb84b2471e080e61c883e111a36681d90a10d94c47613ab1190bc0b08791c",
+      "normalized_characters": 8169
+    },
+    "report-agent": {
+      "path": "skills/references/reporting-agent-handoff.md",
+      "source_sha256": "3d61622d0ac22bab74c1b84b7ca4aa969e3b35dcee37641f27b6d3c1378db499",
+      "normalized_characters": 2462
+    },
+    "report-audit": {
+      "path": "skills/references/reporting-blocked-and-audit.md",
+      "source_sha256": "35b31f8d92f73942a4de343d3a149118e0c1a0673d20cf71d1dbc1e49dbf8871",
+      "normalized_characters": 3205
+    },
+    "report-closure": {
+      "path": "skills/references/reporting-closure.md",
+      "source_sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55",
+      "normalized_characters": 5201
+    },
+    "docs-reflection": {
+      "path": "skills/references/documentation-reflection-gate.md",
+      "source_sha256": "2fd2544e240c19ade14dea28789b4eb162d8876a20aa3492d21656ca0adeffe3",
+      "normalized_characters": 7765
+    },
+    "editorial-reflection": {
+      "path": "skills/references/editorial-reflection-gate.md",
+      "source_sha256": "863c78d423a42525e3e128f64d07019d1023f28d6ec0b27f65a48e8ed79c01d2",
+      "normalized_characters": 6132
+    },
+    "tracking": {
+      "path": "skills/references/chantier-tracking.md",
+      "source_sha256": "68c334165965fe6b931aa27984447b8dced89527815381b40f4e4150922218e7",
+      "normalized_characters": 11337
+    },
+    "question": {
+      "path": "skills/references/question-contract.md",
+      "source_sha256": "ffeb8f0a1ebc9f65cff5fa66fa05105ce1fa7b0ffa25fd93cd0474a97db03f90",
+      "normalized_characters": 6115
+    },
+    "choice": {
+      "path": "skills/references/strategic-choice-contract.md",
+      "source_sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969",
+      "normalized_characters": 6419
+    },
+    "private-data": {
+      "path": "skills/references/private-data-repo-contract.md",
+      "source_sha256": "ff41cd8acbdd7f37167ffc79999e6207e73e7964d30d6181b9eccf403b3b0614",
+      "normalized_characters": 10065
+    },
+    "editorial": {
+      "path": "skills/references/editorial-content-corpus.md",
+      "source_sha256": "e9bf631f3f856f8d9be5cccd0b9ffdfa548ef2d4cde7c0e1b6d7976818c8db36",
+      "normalized_characters": 6328
+    },
+    "public-default": {
+      "path": "skills/references/public-first-content-default.md",
+      "source_sha256": "840ace52c52cd2ddca5a6300595ee7040b45a5ac056fb8db2cc2240d716d0e19",
+      "normalized_characters": 3122
+    },
+    "rubric": {
+      "path": "skills/references/content-quality-rubric.md",
+      "source_sha256": "94bd7d58daec8e3fcd8171229d53d33b466f4c7b3d0afa56aa5c774c3cb5649f",
+      "normalized_characters": 11950
+    },
+    "owned-preflight": {
+      "path": "skills/references/shipglows-owned-preflight.md",
+      "source_sha256": "00919f51ca2ae547f93c7a599a43531db4172629fcf5b5d981d2f626f9628a0a",
+      "normalized_characters": 1962
+    },
+    "content-handoff": {
+      "path": "skills/references/content-owner-handoffs.md",
+      "source_sha256": "ee3cfcd4552edfbb69c345e80f80e221eeff66ef2cdf17965db6306927992141",
+      "normalized_characters": 3371
+    },
+    "source-intake": {
+      "path": "skills/references/source-intake-classification.md",
+      "source_sha256": "c71be9af51740d3bfd8a42daaa1eb1bb8d4d352b2799bca39379bbc61c656cac",
+      "normalized_characters": 15569
+    },
+    "core-audit": {
+      "path": "skills/900-shipglows-core/references/core-audit-and-improvement.md",
+      "source_sha256": "7fa3a51d8511d4c0310d63eb54ea334adeb0df0d01d298113dcc089c7d9dec66",
+      "normalized_characters": 1994
+    },
+    "docs-file": {
+      "path": "skills/300-sg-docs/references/simple-bootstrap-playbooks.md",
+      "source_sha256": "684896da81203ccc47d9c3d33b55faca00de66b148230160a56f05804ad95c7e",
+      "normalized_characters": 2717
+    },
+    "content-router": {
+      "path": "skills/007-sg-content/references/content-router.md",
+      "source_sha256": "871b3dd80ccf45a95f6c7e7008259390244e828f8366f890f7bc2cf2dcddb0b0",
+      "normalized_characters": 2063
+    },
+    "content-quality": {
+      "path": "skills/007-sg-content/references/content-governance-and-quality.md",
+      "source_sha256": "4a7a5780f2b9c39d37f0da3cfbc9dff7513a7c168ef0ccc80db81e9d6385e956",
+      "normalized_characters": 2673
+    },
+    "content-proof": {
+      "path": "skills/007-sg-content/references/content-delivery-and-proof.md",
+      "source_sha256": "e15079eb3f72e4f8aab2e4996d8b79ef106d62cd856b13081d93ef5b02c64b6c",
+      "normalized_characters": 2045
+    },
+    "draft-router": {
+      "path": "skills/200-sg-redact/references/redaction-workflow.md",
+      "source_sha256": "e78dd3d540c79dda7b38f1869b9e62bd1413f173b9fbbce3a407d88ef6119187",
+      "normalized_characters": 3308
+    },
+    "draft-context": {
+      "path": "skills/200-sg-redact/references/redaction-context-and-governance.md",
+      "source_sha256": "0a54d49e49cd78de4b244730719e894ab1f23238ea300fa9588f98d42eba5f6a",
+      "normalized_characters": 2165
+    },
+    "draft-body": {
+      "path": "skills/200-sg-redact/references/redaction-drafting-and-optimization.md",
+      "source_sha256": "700e16aeb1db2f4d3bf25dd4625b0ccff77de2f93d0af2fd13c7415ccddc5806",
+      "normalized_characters": 1966
+    },
+    "host-agent": {
+      "path": "AGENT.md",
+      "source_sha256": "c968b0c31b5457370da0d311a68e9a83dc5cd19dcb5478735e2db5d0edfe79f7",
+      "normalized_characters": 9586
+    },
+    "governing-spec": {
+      "path": "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md",
+      "source_sha256": "f1f50fcbbe508d743687e2faa08fe5d21ab670dd90797309b418dd3d03b3eb5d",
+      "normalized_characters": 32347
+    },
+    "calibration": {
+      "path": "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md",
+      "source_sha256": "59597101e9d1aa1f03346b6b3c961ade06c4e21b4fc6a03080f1fd62a1c69f48",
+      "normalized_characters": 26226
+    },
+    "business-mesh": {
+      "path": "skills/references/business-context-mesh.md",
+      "source_sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a",
+      "normalized_characters": 9625
+    },
+    "draft-quality": {
+      "path": "skills/200-sg-redact/references/redaction-quality-and-reporting.md",
+      "source_sha256": "3ce58a076b1536fca9b6d8b932d9fb131ea1b2631ab34cadf0ee80aa18930e28",
+      "normalized_characters": 1542
+    }
+  },
+  "normative_providers": [
+    {
+      "obligation": "O1",
+      "resource_id": "router",
+      "spans": [
+        {
+          "start": 0,
+          "end": 7958,
+          "sha256": "7455ea7f2ada5d6edaad20837c54f640fb1089cc4b28c2ad531cd847d959ff8c"
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "autonomy",
+      "spans": [
+        {
+          "start": 0,
+          "end": 4027,
+          "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a"
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "help-public",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1443,
+          "sha256": "5da94fde2f805c257dd8c317cb869405fa477777c4c3992151b940950f9ee4d9"
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "docs-public",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1305,
+          "sha256": "f36563c08b1ca86a5f452915b3e0066d22cc1a97483dca6c8f27b9f50708584b"
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "content-public",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1314,
+          "sha256": "619c930f64e96f96e396a4c948e186c8923f8d22234baeecd50305594565fef3"
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "private-public",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1847,
+          "sha256": "3801518e0f84704a4678d09076ce191caf2d9d5124ea03c282a056c6b8261abe"
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "core",
+      "spans": [
+        {
+          "start": 0,
+          "end": 8071,
+          "sha256": "6b3d6def9dd5f1028025b9496c8ab706ff420bbaaf19b999e9a77c377245962b"
+        }
+      ]
+    },
+    {
+      "obligation": "O1",
+      "resource_id": "content-handoff",
+      "spans": [
+        {
+          "start": 0,
+          "end": 3371,
+          "sha256": "6b0f151a7f7f9cee9aae38848f866eb27ea44df5ee15ca4336048871db96d110"
+        }
+      ]
+    },
+    {
+      "obligation": "O2",
+      "resource_id": "approval",
+      "spans": [
+        {
+          "start": 0,
+          "end": 13927,
+          "sha256": "8e90abe4f746a4f7b66b1510dbd79cf8236f8642f181706816e15a78fdd4f9b9"
+        }
+      ]
+    },
+    {
+      "obligation": "O3",
+      "resource_id": "canonical",
+      "spans": [
+        {
+          "start": 0,
+          "end": 3373,
+          "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+        }
+      ]
+    },
+    {
+      "obligation": "O3",
+      "resource_id": "private-roots",
+      "spans": [
+        {
+          "start": 0,
+          "end": 2696,
+          "sha256": "9fcceb9d3e99d6e63b26cf46a97d11c8b835b3c8e3929322b8309f5a6155be49"
+        }
+      ]
+    },
+    {
+      "obligation": "O3",
+      "resource_id": "owned-preflight",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1962,
+          "sha256": "bee42532e4b6b3217bd830b57992867b5d65887441e12aa8c690a5ea76cf37ad"
+        }
+      ]
+    },
+    {
+      "obligation": "O4",
+      "resource_id": "preflight",
+      "spans": [
+        {
+          "start": 0,
+          "end": 4726,
+          "sha256": "13ed73c32dac08ce968c19fde550d8b0ecb5470a9cb743fa0641b365eac62b6c"
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report",
+      "spans": [
+        {
+          "start": 0,
+          "end": 8169,
+          "sha256": "8264eafe08f2d1cca841ec7fddbbb04c2ce0de22321f6207588f6fa96a79d355"
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report-agent",
+      "spans": [
+        {
+          "start": 0,
+          "end": 2462,
+          "sha256": "caf11d46f55cfb9beab9edb3a2091188352166a67fd752b284d7620c2d84c4d6"
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report-audit",
+      "spans": [
+        {
+          "start": 0,
+          "end": 3205,
+          "sha256": "3d2d67b53849a7eec8e07bd6f36b8b17f077f142ff14c0178a2970aa957fb8c6"
+        }
+      ]
+    },
+    {
+      "obligation": "O5",
+      "resource_id": "report-closure",
+      "spans": [
+        {
+          "start": 0,
+          "end": 5201,
+          "sha256": "8a1fee681d1a055a94d745d5bab9b4e6b2d6de90680d8ab57ebdefe1c0061e55"
+        }
+      ]
+    },
+    {
+      "obligation": "O7",
+      "resource_id": "private",
+      "spans": [
+        {
+          "start": 0,
+          "end": 3511,
+          "sha256": "2d3b5c7d2ed045c61d5786c7767a9aae3cd2fe04506fc6f7a8f0073c6b97ee34"
+        }
+      ]
+    },
+    {
+      "obligation": "O7",
+      "resource_id": "private-data",
+      "spans": [
+        {
+          "start": 0,
+          "end": 10065,
+          "sha256": "5b5d1ba3080c149ceabddd134af9cc26d525edd391bf9e62f0657d5d89adbba1"
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "content",
+      "spans": [
+        {
+          "start": 0,
+          "end": 6735,
+          "sha256": "3b40ac72e95e9d51d866f79cee5264d758a99d8951fcb17308b14a13a29ba155"
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "content-quality",
+      "spans": [
+        {
+          "start": 0,
+          "end": 2673,
+          "sha256": "10e92648efe7379a5a134dba886774e0869cb25c8f6db8a081a742d65a6c8123"
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "content-proof",
+      "spans": [
+        {
+          "start": 0,
+          "end": 2045,
+          "sha256": "5e5e5cec01a7f101f967203f01b83ff670d803323e0bfcc27e96272df236af92"
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "router",
+      "spans": [
+        {
+          "start": 0,
+          "end": 7958,
+          "sha256": "7455ea7f2ada5d6edaad20837c54f640fb1089cc4b28c2ad531cd847d959ff8c"
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "docs",
+      "spans": [
+        {
+          "start": 0,
+          "end": 6712,
+          "sha256": "85187e77860a439ec2c237348a2fcef0e5847c4794f5a7b20354a1576a215f41"
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "docs-file",
+      "spans": [
+        {
+          "start": 0,
+          "end": 2717,
+          "sha256": "5cd6cee314a82801e340e9dac952cb156a75b04b0cafcf22198a1b1537cf9376"
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "core-audit",
+      "spans": [
+        {
+          "start": 0,
+          "end": 1994,
+          "sha256": "9e14d402675bd69c1af1c34d350891bd5f94f7fc7e81f1818e609a2cf4497a5e"
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "content",
+      "spans": [
+        {
+          "start": 0,
+          "end": 6735,
+          "sha256": "3b40ac72e95e9d51d866f79cee5264d758a99d8951fcb17308b14a13a29ba155"
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "draft",
+      "spans": [
+        {
+          "start": 0,
+          "end": 5583,
+          "sha256": "b4d0f400a29ebf7edc94be7d5c1cfcb1be9f5bd3332ce5dc3f47d380c213ee1a"
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "approval",
+      "spans": [
+        {
+          "start": 0,
+          "end": 13927,
+          "sha256": "8e90abe4f746a4f7b66b1510dbd79cf8236f8642f181706816e15a78fdd4f9b9"
+        }
+      ]
+    },
+    {
+      "obligation": "O8",
+      "resource_id": "private-data",
+      "spans": [
+        {
+          "start": 0,
+          "end": 10065,
+          "sha256": "5b5d1ba3080c149ceabddd134af9cc26d525edd391bf9e62f0657d5d89adbba1"
+        }
+      ]
+    },
+    {
+      "obligation": "O9",
+      "resource_id": "approval",
+      "spans": [
+        {
+          "start": 0,
+          "end": 13927,
+          "sha256": "8e90abe4f746a4f7b66b1510dbd79cf8236f8642f181706816e15a78fdd4f9b9"
+        }
+      ]
+    }
+  ],
+  "original_obligations": [
+    {
+      "id": "O1",
+      "origin": "original",
+      "text": "Preserve all goals, exclusions and owner/direct route before action.",
+      "original_anchor_ids": [
+        "router",
+        "autonomy"
+      ]
+    },
+    {
+      "id": "O2",
+      "origin": "original",
+      "text": "Effective authorization before mutation or external effect.",
+      "original_anchor_ids": [
+        "host-agent",
+        "approval"
+      ]
+    },
+    {
+      "id": "O3",
+      "origin": "original",
+      "text": "Canonical resource identity and missing-resource stop before use.",
+      "original_anchor_ids": [
+        "canonical"
+      ]
+    },
+    {
+      "id": "O4",
+      "origin": "original",
+      "text": "Validate actual explicit invocation before activation; quotations remain inert.",
+      "original_anchor_ids": [
+        "preflight"
+      ]
+    },
+    {
+      "id": "O5",
+      "origin": "original",
+      "text": "Appropriate evidence, limitations and no false completion at report.",
+      "original_anchor_ids": [
+        "report"
+      ]
+    },
+    {
+      "id": "O6",
+      "origin": "proposed",
+      "text": "Resolve material UNKNOWN and re-enter invalidated decisions before dependent action.",
+      "original_anchor_ids": [],
+      "supporting_original_constraints": [
+        "context",
+        "autonomy",
+        "approval"
+      ],
+      "candidate_provider_status": "not_created",
+      "coverage_status": "not_demonstrated",
+      "note": "Existing context/authority constraints support safe resolution but are not claimed to implement the proposed candidate vocabulary. No fabricated O6 provider."
+    },
+    {
+      "id": "O7",
+      "origin": "original",
+      "text": "Explicit namespace/operation grant before private read; infer no persistence.",
+      "original_anchor_ids": [
+        "private",
+        "private-data"
+      ]
+    },
+    {
+      "id": "O8",
+      "origin": "original",
+      "text": "Public claims/redaction before output; separate publication authority.",
+      "original_anchor_ids": [
+        "content",
+        "approval",
+        "private-data"
+      ]
+    },
+    {
+      "id": "O9",
+      "origin": "original",
+      "text": "Bounded change, unrelated data preservation and proportional proof.",
+      "original_anchor_ids": [
+        "router",
+        "docs",
+        "approval"
+      ]
+    }
+  ],
+  "source_ids": [
+    "aliases",
+    "approval",
+    "autonomy",
+    "business-mesh",
+    "canonical",
+    "choice",
+    "content",
+    "content-handoff",
+    "content-proof",
+    "content-public",
+    "content-quality",
+    "content-router",
+    "context",
+    "core",
+    "core-audit",
+    "decision",
+    "docs",
+    "docs-file",
+    "docs-public",
+    "docs-reflection",
+    "draft",
+    "draft-body",
+    "draft-context",
+    "draft-quality",
+    "draft-router",
+    "editorial",
+    "editorial-reflection",
+    "execution",
+    "fidelity",
+    "functional",
+    "help",
+    "help-public",
+    "owned-preflight",
+    "preflight",
+    "private",
+    "private-data",
+    "private-public",
+    "private-roots",
+    "public-default",
+    "question",
+    "report",
+    "report-agent",
+    "report-closure",
+    "router",
+    "router-public",
+    "rubric",
+    "source-intake",
+    "tracking"
+  ],
+  "public_case_maps": {
+    "H1": [
+      "router-public",
+      "router",
+      "canonical",
+      "help-public",
+      "docs-public",
+      "content-public",
+      "report",
+      "report-agent",
+      "context",
+      "help"
+    ],
+    "H2": [
+      "router-public",
+      "router",
+      "canonical",
+      "help-public",
+      "docs-public",
+      "content-public",
+      "autonomy",
+      "report",
+      "report-agent",
+      "context",
+      "help"
+    ],
+    "A1": [
+      "router-public",
+      "router",
+      "canonical",
+      "autonomy",
+      "decision",
+      "context",
+      "preflight",
+      "aliases",
+      "execution",
+      "functional",
+      "core",
+      "core-audit",
+      "fidelity",
+      "report",
+      "report-agent",
+      "choice",
+      "tracking"
+    ],
+    "A2": [
+      "router-public",
+      "router",
+      "canonical",
+      "autonomy",
+      "decision",
+      "context",
+      "execution",
+      "functional",
+      "core",
+      "core-audit",
+      "fidelity",
+      "report",
+      "report-agent",
+      "choice",
+      "tracking"
+    ],
+    "B1": [
+      "router-public",
+      "router",
+      "canonical",
+      "approval",
+      "question",
+      "functional",
+      "decision",
+      "report",
+      "report-agent",
+      "context",
+      "report-closure",
+      "docs-reflection",
+      "editorial-reflection",
+      "choice"
+    ],
+    "B2": [
+      "router-public",
+      "router",
+      "canonical",
+      "approval",
+      "question",
+      "functional",
+      "decision",
+      "preflight",
+      "docs-public",
+      "autonomy",
+      "execution",
+      "docs",
+      "docs-file",
+      "context",
+      "report",
+      "report-agent",
+      "report-closure",
+      "docs-reflection",
+      "editorial-reflection",
+      "choice",
+      "tracking"
+    ],
+    "S1": [
+      "router-public",
+      "router",
+      "canonical",
+      "autonomy",
+      "decision",
+      "context",
+      "functional",
+      "execution",
+      "content-public",
+      "content",
+      "owned-preflight",
+      "content-router",
+      "content-quality",
+      "content-handoff",
+      "editorial",
+      "public-default",
+      "content-proof",
+      "private-public",
+      "private",
+      "private-roots",
+      "private-data",
+      "approval",
+      "report",
+      "report-agent",
+      "tracking",
+      "source-intake",
+      "rubric",
+      "draft",
+      "draft-router",
+      "draft-context",
+      "draft-body",
+      "draft-quality",
+      "business-mesh"
+    ],
+    "S2": [
+      "router-public",
+      "router",
+      "canonical",
+      "autonomy",
+      "decision",
+      "context",
+      "functional",
+      "execution",
+      "content-public",
+      "content",
+      "owned-preflight",
+      "content-router",
+      "content-quality",
+      "content-handoff",
+      "editorial",
+      "public-default",
+      "content-proof",
+      "private-public",
+      "private",
+      "private-roots",
+      "private-data",
+      "approval",
+      "question",
+      "report",
+      "report-agent",
+      "choice",
+      "tracking",
+      "source-intake",
+      "rubric",
+      "draft",
+      "draft-router",
+      "draft-context",
+      "draft-body",
+      "draft-quality",
+      "business-mesh"
+    ]
+  },
+  "static_accounting": {
+    "status": "valid",
+    "errors": [],
+    "scenarios": {
+      "A1": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 22885,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 9805,
+          "selection": 2983,
+          "engine": 2018,
+          "audit": 5012,
+          "report": 2659
+        },
+        "depth_after_selection": 2,
+        "baseline_tokens": 22885,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      },
+      "A2": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 20549,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 7469,
+          "selection": 2983,
+          "engine": 2018,
+          "audit": 5012,
+          "report": 2659
+        },
+        "depth_after_selection": 2,
+        "baseline_tokens": 20549,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      },
+      "B1": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 17809,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 2834,
+          "authority": 5011,
+          "report": 9556
+        },
+        "depth_after_selection": 2,
+        "baseline_tokens": 17809,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      },
+      "B2": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 25666,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 6137,
+          "authority": 5011,
+          "selection": 3990,
+          "owner": 327,
+          "engine": 1678,
+          "execution": 680,
+          "report": 7435
+        },
+        "depth_after_selection": 2,
+        "baseline_tokens": 25666,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      },
+      "H1": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 8022,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 2834,
+          "report": 4780
+        },
+        "depth_after_selection": 2,
+        "baseline_tokens": 8022,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      },
+      "H2": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 8022,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 2834,
+          "report": 4780
+        },
+        "depth_after_selection": 2,
+        "baseline_tokens": 8022,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      },
+      "S1": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 30852,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 7469,
+          "selection": 5390,
+          "owner": 329,
+          "engine": 1684,
+          "draft": 5394,
+          "access": 4531,
+          "report": 2659,
+          "proof": 2988
+        },
+        "depth_after_selection": 3,
+        "baseline_tokens": 30852,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      },
+      "S2": {
+        "structural_status": "valid",
+        "budget_status": "within_budget",
+        "selected_tokens": 32381,
+        "stage_increments": {
+          "entry": 408,
+          "routing": 7469,
+          "selection": 5390,
+          "owner": 329,
+          "engine": 1684,
+          "draft": 5394,
+          "access": 4531,
+          "authority": 1529,
+          "report": 2659,
+          "proof": 2988
+        },
+        "depth_after_selection": 3,
+        "baseline_tokens": 32381,
+        "reduction_percent": 0.0,
+        "violations": [],
+        "measurement": "declared_unique_reads",
+        "errors": []
+      }
+    }
+  },
+  "heldout_payload_read": false,
+  "model_calls": 0,
+  "independent_review": false,
+  "limitations": [
+    "Full applicability to the exact private held-out set remains pending independent evaluator attachment.",
+    "Frozen original source bytes are experimental resources, not a claim that current canonical skills are identical."
+  ]
+}

@@ -55,4 +55,37 @@ class RuntimeTests(unittest.TestCase):
                 with runtime.verified_runtime(self.out): raise ValueError('consumer error')
         self.assertTrue(self.cleaned())
 
+
+
+class VerifiedLocalBinary(unittest.TestCase):
+    def test_matching_content_is_copied_and_invalid_content_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / 'source'
+            data = b'\x7fELFsynthetic-test-only'
+            source.write_bytes(data)
+            with patch.object(runtime, 'ELF_BYTES', len(data)), patch.object(runtime, 'ELF_SHA256', hashlib.sha256(data).hexdigest()):
+                runtime.copy_verified_binary(source, root / 'accepted')
+                self.assertEqual((root / 'accepted').read_bytes(), data)
+                source.write_bytes(b'x' * len(data))
+                with self.assertRaisesRegex(RuntimeError, 'hash mismatch'):
+                    runtime.copy_verified_binary(source, root / 'rejected')
+                source.write_bytes(b'short')
+                with self.assertRaisesRegex(RuntimeError, 'size'):
+                    runtime.copy_verified_binary(source, root / 'wrong-size')
+
+    def test_selected_bad_binary_never_falls_back_to_network(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            output = root / 'receipts'
+            output.mkdir()
+            with patch.dict(runtime.os.environ, {'SHIPGLOWS_CODEX_LINUX_BINARY': str(root / 'missing')}), patch.object(runtime.urllib.request, 'urlopen') as network:
+                with self.assertRaisesRegex(RuntimeError, 'unavailable'):
+                    with runtime.verified_runtime(output):
+                        self.fail('invalid binary admitted')
+                network.assert_not_called()
+            self.assertFalse(__import__('json').loads((output / 'temporary-runtime-cleanup.json').read_bytes())['exists_after_cleanup'])
+
+
+
 if __name__ == '__main__': unittest.main()

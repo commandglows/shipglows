@@ -27,6 +27,8 @@ PARENT_DEPENDENCIES = ('conditional_skill_routing_comparison_case_controller.py'
     'conditional_skill_routing_runner.py', 'conditional_skill_routing_eval.py', 'conditional_skill_routing_shared_campaign.py', 'skill_activation_budget.py',
     'conditional_skill_routing_parent_https.py', 'conditional_skill_routing_verified_runtime.py',
     'conditional_skill_routing_case_proof_review.py','conditional_skill_routing_real_comparison_preflight.py')
+PARENT_DEPENDENCIES += ('conditional_skill_routing_live_stream.py', 'conditional_skill_routing_subscription.py',
+    'conditional_skill_routing_subscription_run.py', 'conditional_skill_routing_subscription_eval.py')
 
 def require(ok, message):
     if not ok: raise RuntimeError(message)
@@ -74,9 +76,22 @@ def evaluate_ephemeral_capture(evaluator, controller, workspace, stage_plan, cas
     campaign_id = stage_plan.get('campaign_id')
     require(type(campaign_id) is str and campaign_id, 'campaign identity required for evaluator receipt')
     before = capture_inventory(workspace)
+    require('parent-only-provider-exchanges' not in before, 'reserved observation inventory name')
+    def parent_inventory():
+        provider = getattr(controller, 'provider_callback', None)
+        exchanges = getattr(provider, 'raw_exchanges', None)
+        if not exchanges:
+            return {}
+        raw = packed([{**row, 'request':base64.b64encode(row['request']).decode(),
+            'response':base64.b64encode(row['response']).decode()} for row in exchanges])
+        return {'parent-only-provider-exchanges':{'bytes':len(raw), 'sha256':sha(raw)}}
+    before.update(parent_inventory())
     observation_digest = capture_inventory_sha256(before)
     receipt = evaluator(controller, workspace, observation_digest)
-    require(capture_inventory(workspace) == before, 'evaluator modified ephemeral capture workspace')
+    after = capture_inventory(workspace)
+    require('parent-only-provider-exchanges' not in after, 'reserved observation inventory name')
+    after.update(parent_inventory())
+    require(after == before, 'evaluator modified ephemeral capture workspace')
     return validate_evaluator_receipt(receipt, case_id=case_id, campaign_id=campaign_id,
         observation_manifest_sha256=observation_digest)
 
@@ -235,7 +250,8 @@ def _execute(label, case_id, *, trusted_controller=None, evaluator=None, stage_p
     process, timer, collector = None, None, None
     fake_credential = b'FAKE_CASE_PARENT_CREDENTIAL_NOT_SENT_01601'
     fake_evaluator = b'FAKE_CASE_PARENT_EVALUATOR_NOT_SENT_01601'
-    markers = (fake_credential, fake_evaluator, receipt_key) + (() if mock_only else (provider.credential.encode(),))
+    markers = (fake_credential, fake_evaluator, receipt_key) + (() if mock_only else
+        (provider.credential.encode(),) + ((provider.account_id.encode(),) if provider.account_id else ()))
     transmitted_hashes = []
     with verified_runtime(output) as (binary, folder):
         workspace = folder/'subject-output'; workspace.mkdir()
@@ -291,11 +307,6 @@ def _execute(label, case_id, *, trusted_controller=None, evaluator=None, stage_p
             raw_audit = replay(raw_frames,replies,controller,provider,channel,workspace)
             independent_audit = independent_case_review(raw_frames,replies,controller,workspace,channel,facts,
                 child_dependencies=child_inventory,expected_cli_sha256=ELF_SHA256)
-            if not mock_only:
-                # The trusted evaluator consumes raw observations before deletion.
-                # Only its hash-bound, content-free verdict becomes durable.
-                evaluation_receipt = evaluate_ephemeral_capture(
-                    evaluator, controller, workspace, stage_plan, case_id)
         except Exception as error:
             errors.append({'type':type(error).__name__, 'sha256':sha(str(error).encode())})
             controller.retired = True
@@ -306,12 +317,24 @@ def _execute(label, case_id, *, trusted_controller=None, evaluator=None, stage_p
             if process:
                 for stream in (process.stdin,process.stdout,process.stderr):
                     if stream and not stream.closed: stream.close()
+            if not mock_only:
+                # Preserve successes AND failed/partial attempts for independent
+                # evaluation, after the subject is stopped and before raw cleanup.
+                try:
+                    evaluation_receipt = evaluate_ephemeral_capture(
+                        evaluator, controller, workspace, stage_plan, case_id)
+                except Exception as error:
+                    errors.append({'type':'evaluator_'+type(error).__name__, 'sha256':sha(str(error).encode())})
             raw_inventory = capture_inventory(workspace)
             require(all(verify(row,receipt_key) for row in bridge.receipts), 'parent receipt signatures invalid')
     controller_summary = controller.summary()
     prepared = controller.subject.prepared
     redaction = (prepared.redaction.receipts[-1]['redaction'] == 'pass') if hasattr(prepared,'redaction') and prepared.redaction and prepared.redaction.receipts else None
-    save(output/'controller-summary.json',controller_summary)
+    save(output/'controller-summary.json', controller_summary if mock_only else {
+        'schema_sha256':controller_summary['schema_sha256'], 'retired':controller.retired,
+        'model_calls':controller.live_attempts, 'provider_kind':controller.provider_kind,
+        'full_summary_sha256':sha(packed(controller_summary)),
+        'content':'evaluator-only', 'receipts':len(controller.receipts)})
     provider_summary = provider.summary() if mock_only else {'model_calls':controller.live_attempts, 'receipts':provider.receipts}
     save(output/'provider-summary.json',provider_summary)
     messages = controller.subject.responses if mock_only else [
@@ -390,14 +413,26 @@ def execute_prepared_controller(label, case_id, controller, approved_stage_plan,
     budget=approved_stage_plan['budget']; callback=controller.provider_callback
     require(callback.max_calls<=budget['max_provider_requests'] and callback.total_output_limit<=budget['max_tokens']
             and callback.deadline-time.monotonic()<=budget['max_seconds'], 'callback exceeds approved stage ceilings')
-    require(callable(callback.input_cost_budget_guard)
+    if callback.auth_mode == 'chatgpt_subscription':
+        require(plan_provider.get('auth_mode') == 'chatgpt_subscription'
+                and plan_provider.get('api_fallback_disabled') is True
+                and callback.endpoint == 'https://chatgpt.com/backend-api/codex/responses'
+                and callable(callback.input_cost_budget_guard)
+                and callable(getattr(callback.input_cost_budget_guard, 'observe_response', None))
+                and callback.input_cost_budget_guard.max_tokens <= budget['max_tokens']
+                and budget.get('token_limit_mode') == 'observe_then_stop'
+                and budget.get('stop_on_unknown_usage') is True
+                and callback.approved_budget.get('review_id') == budget.get('review_id'),
+                'reviewed subscription-only quota admission and observed-usage stop policy required')
+    else:
+        require(callable(callback.input_cost_budget_guard)
             and type(callback.verified_model_ceiling) is dict
             and callback.verified_model_ceiling.get('model')==plan_provider['model']
             and type(callback.verified_model_ceiling.get('max_output_tokens')) is int
             and callback.verified_model_ceiling['max_output_tokens']<=budget['max_tokens']
             and callback.verified_model_ceiling.get('review_id')
             and callback.approved_budget.get('review_id')==budget.get('review_id'),
-            'reviewed input/cost admission and model-output ceilings must match the selected budget')
+                'reviewed input/cost admission and model-output ceilings must match the selected budget')
     return _execute(label,case_id,trusted_controller=controller,evaluator=evaluator,stage_plan=approved_stage_plan)
 
 def execute(label, case_id):

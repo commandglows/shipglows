@@ -1,10 +1,10 @@
 ---
 artifact: review
 metadata_schema_version: "1.0"
-artifact_version: "1.0.4"
+artifact_version: "1.0.5"
 project: ShipGlows
 created: "2026-10-07"
-updated: "2026-10-10"
+updated: "2026-10-11"
 status: draft
 source_skill: sg-engineering
 scope: conditional-skill-routing-real-comparison-preparation-only
@@ -30,10 +30,31 @@ evidence:
   - "All 105 historical sealed references rehashed unchanged; focused live evaluator-receipt guard tests passed."
   - "Preparation preflight rejects non-finite spend ceilings; regression tests cover NaN, infinities and capture-workspace symlink guards."
   - "2026-10-10: added an exact offline gate-to-receipt binding register; no gate was self-approved and launch readiness remains false."
-next_step: "Obtain the distinct v3 evaluator/profile attachment and offline gate reviews; keep account/model/budget and launch authority deferred until a separate launch decision."
+next_step: "Use the current isolated v5 preparation stage and its independent receipts; keep account/model/budget and launch authority deferred until a separate launch decision."
 ---
 
 # Real-model comparison: preparation only
+
+## Current isolated preparation, 2026-10-11
+
+The current stage is
+`tools/fixtures/conditional_skill_routing/preparation-revisions/linux-offline-readiness-v5-20261011/readiness-stage.json`.
+Run the public checker with `--template` pointing explicitly to that file. The
+original default template and the v3 pending packets below remain historical,
+inactive evidence; their status does not describe the new independent v5 stage.
+Exact current profile/contract hashes, access commands, native mock proof,
+guarded test results and exclusions are in
+`shipglows_data/workflow/reviews/conditional-skill-routing-linux-test-handoff.md`.
+
+The existing immutable specification v1.4.7 and calibration v1.4.0 are the
+documentary baseline. A new independent synthetic v5 seal is prepared outside
+the author context; only public attestations and exact executable/schema hashes
+are linked. New campaign/runtime identity checks and a contract without receipt
+backreferences prevent a label-only PASS or circular hash dependency. Offline
+preparation is distinct from live launch: exit 0 means preparation complete only;
+provider/model/budget and concrete execution authority remain deferred.
+
+## Historical preparation register
 
 This document prepares a new comparison. No campaign, model session, authentication check, provider call or refreshed candidate is launched. The accompanying JSON is an inactive readiness template, not an executable campaign manifest. `ready_to_launch=false` and `execution_authorized=false`. Original cases, expectations, candidate pages, grades, manifests and sealed evidence remain historical and unchanged. Migration remains NO-GO.
 

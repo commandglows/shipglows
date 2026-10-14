@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "artifact": "independent_existing_v5_resume_revalidation",
+  "recorded_at_utc": "2026-10-14T08:04:25.211271+00:00",
+  "reviewer": "/root/independent_linux_review",
+  "independent_review": true,
+  "status": "pass_offline_only",
+  "campaign_id": "codex-linux-isolated-v5-20261011-prepared",
+  "consumer_profile_sha256": "2b0f1d7b398fd3cd89db638ba98925472651fa608520b9d0ad17a65097792318",
+  "delivered_entrypoint": "tools/conditional-skill-routing-linux.ps1 evaluator-shell",
+  "exit_code": 0,
+  "content_free_verifier_output": {
+    "status": "pass_offline_only",
+    "resume_id": "csr-v5-8e637ac5c344f81a226eb4dc",
+    "index_sha256": "fcc9158c0d37e30ec5b29221fecf896773f2897e898ef2521396680b77915e48",
+    "sealed_hashes_match": true,
+    "public_dependencies_readonly": true,
+    "generic_adapter_available": true,
+    "launch_performed": false
+  },
+  "public_index_hash_matches_historical_resume_receipt": true,
+  "artifact_hashes": {
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/linux-offline-readiness-v5-20261011/v5-independent-seal-and-binding-public.json": "17dbf3a8ff6432a1d85348e5819bb8629088c06ed0b6cefd400ce0c25c6df323",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/linux-offline-readiness-v5-20261011/v5-independent-resume-public.json": "3fbdd341d74a0bff54cda8af53d16496703f7c75037a399981831c5d4d1fe48a",
+    "tools/conditional_skill_routing_evaluator_resume.py": "32fcdfa2789c78ddaa028071e6d2c5e1fc814f31bc805a0aea07b5d20fef8e07",
+    "tools/conditional-skill-routing-linux.ps1": "aff2ca978bbf375d3d6a1b33e32ec4da7f7b8646e3ceedc98e75d587712ccd9e",
+    "tools/conditional_skill_routing_linux_environment.py": "2002cb7816b2a46a3a5510770f29b74dbeb64e00ae7fb4bbba736975d2448f5d"
+  },
+  "historical_semantic_a3_binding_attestation_date": "2026-10-11",
+  "current_revalidation_scope": "Existing sealed artifact hashes, public dependency read-only mount and generic prepare_adapter import only",
+  "private_payload_index_contents_disclosed": false,
+  "private_payload_read_into_review_context": false,
+  "private_payload_bytes_read_only_by_isolated_hash_verifier": true,
+  "generator_imported": false,
+  "new_seal_or_case_created": false,
+  "heldout_collection_or_scoring_performed": false,
+  "subject_or_provider_launched": false,
+  "model_calls": 0,
+  "limitations": [
+    "This current hash check preserves the historical fresh-v5/A3/generic-binding attestations; it is not a new semantic evaluation or model observation.",
+    "Eight new public mock transport proofs and complete gate receipts remain separate preparation dependencies."
+  ]
+}

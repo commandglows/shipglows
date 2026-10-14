@@ -23,7 +23,7 @@ THRESHOLDS = {"case_candidate_median_ratio_max": 1.0,
     "lost_goals_max": 0, "unresolved_routing_loops_max": 0}
 TUNING = [family + str(index) for family in "HABS" for index in (1, 2)]
 HELDOUT = [family + str(index) for family in "HABS" for index in (3, 4)]
-BASELINE_GATES = ["execution_authority", "source_closure", "fresh_heldout_seal",
+BASELINE_GATES = ["execution_authority", "new_campaign_id", "source_closure", "fresh_heldout_seal",
     "a3_fixture_identity_review", "fixture_only_runtime", "complete_scenario_transport",
     "instruction_role_span_capture", "context_loss_compaction_policy", "independent_readiness_review"]
 FINAL_GATES = ["baseline_eight_receipt", "candidate_substitution_review", "candidate_freeze_receipt"]
@@ -79,6 +79,7 @@ def evidence_error(root, name, row, campaign, profile_hash=None):
         return "receipt is not bound to exact chosen consumer profile"
     checks = receipt.get("checks")
     required = {"execution_authority": ["separate_concrete_execution_approval", "provider_effects_and_budget_scoped"],
+        "new_campaign_id": ["inactive_campaign_identity_reserved", "sealed_fresh_set_bound", "consumer_profile_bound"],
         "source_closure": ["original_o1_o9_preserved", "mandatory_load_closure_reviewed", "complete_normative_source_spans_hashed", "baseline_source_revision_frozen", "authority_hierarchy_identical"],
         "independent_readiness_review": ["all_offline_gates_reviewed", "deferred_launch_parameters_explicit", "no_real_model_run_claimed", "preparation_only"],
         "fresh_heldout_seal": ["executable_binding_complete", "author_confidentiality_preserved", "complete_fresh_set"],
@@ -164,12 +165,25 @@ def check(document, root=ROOT):
     max_spend = budget.get("max_spend")
     valid_spend = ((type(max_spend) is int and max_spend > 0)
         or (type(max_spend) is float and math.isfinite(max_spend) and max_spend > 0))
+    provider = document.get("provider", {})
+    if provider.get("auth_mode") == "chatgpt_subscription":
+        valid_spend = (provider.get("endpoint") == "https://chatgpt.com/backend-api/codex/responses"
+            and provider.get("api_fallback_disabled") is True
+            and budget.get("subscription_usage_authorized") is True
+            and budget.get("token_limit_mode") == "observe_then_stop"
+            and budget.get("stop_on_unknown_usage") is True
+            and budget.get("currency") == "subscription_usage"
+            and type(max_spend) is int and max_spend == 0)
+    elif provider.get("auth_mode") not in (None, "api_key"):
+        valid_spend = False
     if not valid_spend or not nonempty(budget.get("currency")):
         missing.append("budget.spend_currency")
     evidence = document.get("evidence", {})
     issues = {name: evidence_error(root, name, evidence.get(name), document.get("campaign_id"), document.get("consumer", {}).get("profile_sha256")) for name in BASELINE_GATES + FINAL_GATES}
     missing += [name + ": " + issues[name] for name in BASELINE_GATES if issues[name]]
     offline_missing = [name + ": " + issues[name] for name in BASELINE_GATES if name != "execution_authority" and issues[name]]
+    # Runtime identity is observable offline, independently of provider/budget.
+    offline_missing += [item for item in missing if item.startswith("consumer.")]
     if "new_campaign_id" in missing:
         offline_missing.insert(0, "new_campaign_id")
     prepared = not structural and not offline_missing

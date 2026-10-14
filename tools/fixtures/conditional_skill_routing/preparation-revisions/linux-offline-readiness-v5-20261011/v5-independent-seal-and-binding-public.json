@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "status": "sealed_fresh_v5_synthetic_and_generic_baseline_binding_verified",
+  "prepared_by": "independent-evaluator",
+  "reviewer": "/root/independent_linux_review",
+  "campaign_id": "codex-linux-isolated-v5-20261011-prepared",
+  "heldout_cases": 8,
+  "families": 4,
+  "cold": 4,
+  "continuation": 4,
+  "french_english_per_family": true,
+  "private_heldout_payload": "579b5b740432cec8d380b03262e20d16f708920a742222e8d5991012be612f54",
+  "cases_sha256": "b07e45115d7ccc6447299da7e9ee937b95135ba4c2e54b6aec937164fad59bb2",
+  "sealed_before_tuning": true,
+  "fresh_formulations": true,
+  "previous_private_content_or_generator_read": false,
+  "private_content_not_disclosed": true,
+  "generic_api": "shared_campaign.prepare_adapter + CaseController + ComparisonAdapter",
+  "case_receipts": [
+    {
+      "slot": "H3",
+      "schema_sha256": "345fc8383fbd772d4b868ba4ace5063ea0d7acd9e726c331b7154c922f93290b",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read"
+      ],
+      "callbacks": 11,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    },
+    {
+      "slot": "H4",
+      "schema_sha256": "345fc8383fbd772d4b868ba4ace5063ea0d7acd9e726c331b7154c922f93290b",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read"
+      ],
+      "callbacks": 12,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    },
+    {
+      "slot": "A3",
+      "schema_sha256": "938f6817448ae373b9c8db0c32067d3e6085c607ab8e15336853f34afadc26ff",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "audit",
+        "invocation_preflight"
+      ],
+      "callbacks": 22,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    },
+    {
+      "slot": "A4",
+      "schema_sha256": "a39ea0d2cadd208a0870eff94d710bc24107c661083737796ed59ec3398cac5a",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "audit"
+      ],
+      "callbacks": 18,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    },
+    {
+      "slot": "B3",
+      "schema_sha256": "9aba490bb68674879eb1101394d4ea36a646edd36659372f7ddaff97d1157896",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "simulated_replace",
+        "focused_verify"
+      ],
+      "callbacks": 17,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    },
+    {
+      "slot": "B4",
+      "schema_sha256": "7c22a512aecee382eeff26dc47e618cde9946497a3eac1708514a2a3c5d1d2cf",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "simulated_replace",
+        "scope_evidence_read",
+        "focused_verify",
+        "invocation_preflight",
+        "topology_preflight"
+      ],
+      "callbacks": 28,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    },
+    {
+      "slot": "S3",
+      "schema_sha256": "4180dbbcc9ae73ff7d36a525dd02928196a31c5022a5f3131e04991ae538c20a",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "private_status",
+        "private_capability",
+        "private_record_read"
+      ],
+      "callbacks": 36,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    },
+    {
+      "slot": "S4",
+      "schema_sha256": "4180dbbcc9ae73ff7d36a525dd02928196a31c5022a5f3131e04991ae538c20a",
+      "tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "private_status",
+        "private_capability",
+        "private_record_read"
+      ],
+      "callbacks": 40,
+      "all_callbacks_exactly_delivered": true,
+      "input_instructions_unchanged": true,
+      "in_memory_binding_complete": true
+    }
+  ],
+  "a3_identity_new_against_public_seed": true,
+  "a3_identity_path_body_preflight_audit_consistent": true,
+  "a3_mismatch_refused": true,
+  "a3_prerequisite_delivery_refusal_then_success": true,
+  "payload_frozen": true,
+  "model_calls": 0,
+  "subject_sessions": 0,
+  "campaign_runs": [],
+  "scoring_performed": false,
+  "author_active_collection_performed": false,
+  "consumer_profile_sha256": "2b0f1d7b398fd3cd89db638ba98925472651fa608520b9d0ad17a65097792318",
+  "preparation_contract_sha256": "6285eb1e51ab17325bdbdbf3687f80ca8ab65b2b6339a85ca3bff4e360394513",
+  "resume_id": "csr-v5-8e637ac5c344f81a226eb4dc",
+  "resume_index_sha256": "fcc9158c0d37e30ec5b29221fecf896773f2897e898ef2521396680b77915e48",
+  "public_support_path": "/opt/evaluator/support-v5",
+  "public_dependencies_accessible_via_delivered_evaluator_shell": true,
+  "no_op_action_normalization": "Absent optional actions become empty ReleasedFixtureActions; no grant added",
+  "limits": [
+    "Deterministic in-memory fixture binding,not native subject/model observation or scoring",
+    "Trusted same-host coordinator,no malicious-host claim",
+    "Candidate binding deferred after later authoring/freeze",
+    "V4 retired for reused A3 identity;v5 created independently from public seeds without v4payload access"
+  ],
+  "failed_binding_attempts_preserved": 1,
+  "wsl_memory_policy": "Existing host default; temporary2GB configuration was not applied and was removed. No fixed2GBcap claimed."
+}

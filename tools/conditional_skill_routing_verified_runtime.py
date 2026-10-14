@@ -3,6 +3,7 @@ import base64
 from contextlib import contextmanager
 import hashlib
 import json
+import os
 from pathlib import Path
 import tarfile
 import tempfile
@@ -20,6 +21,23 @@ def save(path, value):
     with Path(path).open('x', encoding='utf-8') as stream:
         json.dump(value, stream, indent=2)
 
+
+def copy_verified_binary(source, destination):
+    """Copy an explicitly selected local ELF; reject mismatches without fallback."""
+    source = Path(source)
+    if source.is_symlink() or not source.is_file() or source.stat().st_size != ELF_BYTES:
+        raise RuntimeError('installed ELF unavailable or unexpected size')
+    digest, size = hashlib.sha256(), 0
+    with source.open('rb') as stream, Path(destination).open('xb') as target:
+        while chunk := stream.read(1024 * 1024):
+            digest.update(chunk)
+            size += len(chunk)
+            if size > ELF_BYTES:
+                raise RuntimeError('installed ELF size changed')
+            target.write(chunk)
+    if size != ELF_BYTES or digest.hexdigest() != ELF_SHA256:
+        raise RuntimeError('installed ELF hash mismatch')
+
 @contextmanager
 def verified_runtime(output):
     output = Path(output)
@@ -29,6 +47,15 @@ def verified_runtime(output):
         with tempfile.TemporaryDirectory(prefix='sg-case-parent-runtime-') as temporary:
             folder = Path(temporary)
             save(output / 'temporary-runtime-created.json', {'temporary_folder': str(folder), 'installed_globally': False})
+            installed = os.environ.get('SHIPGLOWS_CODEX_LINUX_BINARY')
+            if installed:
+                binary = folder / 'codex'
+                copy_verified_binary(installed, binary)
+                save(output / 'download-receipt.json', {'source_kind':'explicit_verified_local_ELF',
+                     'elf_bytes':ELF_BYTES, 'elf_sha256':ELF_SHA256,
+                     'temporary_folder':str(folder), 'reverified':True, 'publisher_request_performed':False})
+                yield binary, folder
+                return
             archive = folder / 'codex.tgz'
             sha256, sha512, size = hashlib.sha256(), hashlib.sha512(), 0
             request = urllib.request.Request(URL, headers={'User-Agent':'ShipGlows-mock-proof'})

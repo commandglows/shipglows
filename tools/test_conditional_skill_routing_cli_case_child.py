@@ -1,5 +1,6 @@
 import base64
 import io
+import threading
 import unittest
 from tools import conditional_skill_routing_cli_case_child as child
 from tools import conditional_skill_routing_parent_transport as wire
@@ -50,6 +51,56 @@ class ChildContractTests(unittest.TestCase):
         self.assertEqual(writer.getvalue(),before)
 
 class ContextBoundaryTests(unittest.TestCase):
+    def test_only_typed_generated_reasoning_cipher_is_not_context_loss(self):
+        event={"method":"item/completed", "params":{"threadId":"thread", "turnId":"turn",
+            "item":{"type":"reasoning", "id":"reasoning-1", "summary":[], "content":[],
+                    "encryptedContent":"synthetic-generated-cipher"}}}
+        self.assertIsNone(child.context_loss_reason(event))
+        for mutate in (lambda v:v["params"]["item"].update(type="compaction"),
+                       lambda v:v["params"].update(other={"encrypted_content":"unknown-context"}),
+                       lambda v:v["params"]["item"].update(summary=[{"encrypted_content":"hidden-context"}])):
+            import copy
+            value=copy.deepcopy(event);mutate(value)
+            self.assertIsNotNone(child.context_loss_reason(value))
+
+    def test_retirement_between_validation_and_emission_refuses_output(self):
+        class Relay:
+            retired=False
+            def call(self,op,args):return {"retired":True,"coverage":"UNKNOWN","event_sha256":wire.sha(wire.packed(args["event"]))}
+        boundary=child.ContextBoundary(Relay(),wire)
+        validated=threading.Event();retired=threading.Event();emitted=[];errors=[]
+        def emitter():
+            boundary.ensure();validated.set()
+            self.assertTrue(retired.wait(2))
+            try:boundary.release(lambda:emitted.append("stale"))
+            except ValueError as error:errors.append(str(error))
+        thread=threading.Thread(target=emitter);thread.start()
+        self.assertTrue(validated.wait(2))
+        with self.assertRaises(ValueError):boundary.observe({"method":"thread/compacted","params":{}})
+        retired.set();thread.join(2)
+        self.assertFalse(thread.is_alive());self.assertEqual(emitted,[])
+        self.assertEqual(len(errors),1)
+
+    def test_already_admitted_emission_finishes_before_retirement(self):
+        class Relay:
+            retired=False
+            def call(self,op,args):return {"retired":True,"coverage":"UNKNOWN","event_sha256":wire.sha(wire.packed(args["event"]))}
+        boundary=child.ContextBoundary(Relay(),wire)
+        admitted=threading.Event();finish=threading.Event();loss_requested=threading.Event();order=[]
+        def emit():
+            admitted.set();self.assertTrue(finish.wait(2));order.append("emitted")
+        def lose():
+            loss_requested.set()
+            try:boundary.observe({"method":"thread/compacted","params":{}})
+            except ValueError:order.append("retired")
+        emitter=threading.Thread(target=lambda:boundary.release(emit));emitter.start()
+        self.assertTrue(admitted.wait(2))
+        observer=threading.Thread(target=lose);observer.start();self.assertTrue(loss_requested.wait(2))
+        self.assertFalse(boundary.retired)
+        finish.set();emitter.join(2);observer.join(2)
+        self.assertFalse(emitter.is_alive() or observer.is_alive())
+        self.assertEqual(order,["emitted","retired"])
+
     def test_pinned_structural_loss_signals_and_transcript_inertness(self):
         for event in [{"method":"thread/compacted","params":{}},
                       {"method":"item/started","params":{"item":{"type":"contextCompaction","id":"compact"}}},

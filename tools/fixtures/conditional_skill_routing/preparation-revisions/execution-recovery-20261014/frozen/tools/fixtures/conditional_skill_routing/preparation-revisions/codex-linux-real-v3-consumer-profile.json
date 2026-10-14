@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "artifact": "immutable_offline_consumer_profile",
+  "name": "Codex CLI Linux app-server with instrumented trusted proxy",
+  "version": "0.160.1",
+  "binary_sha256": "f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35",
+  "host": {
+    "os": "WSL Ubuntu Linux",
+    "arch": "x86_64",
+    "bwrap_version": "0.11.1",
+    "trusted_coordinator": "Windows parent; same WSL host/kernel, no malicious-host claim"
+  },
+  "code_sha256": {
+    "tools/conditional_skill_routing_case_proof_review.py": "5e4bfe7ba62d48f1f401e9ed81b4a19c67b2492443f75d4ce3e49d4a530aef88",
+    "tools/conditional_skill_routing_cli_broker_profile.py": "7c25cf087b5a1d4e800889bb1ccd16fad8e65da2b16f3085dd6c4a4e72e07dd7",
+    "tools/conditional_skill_routing_cli_case_child.py": "5886c095a8891fb2e0e1e4d47b8db15758a9a47b6b4103741a8c512852655584",
+    "tools/conditional_skill_routing_cli_case_launch.py": "78c5647fe202516738fab8e4f58b316f8377061484d30c3e181869f3f0df5f17",
+    "tools/conditional_skill_routing_cli_tuning_transport_probe.py": "50d484d1f87eea51e3db7254e2495eb3db7dbd7a7f477273290b12a6678e2ace",
+    "tools/conditional_skill_routing_comparison_adapter.py": "f63762a3153a39dd288f3c85f8e86197a0830851a46f5a6fd1ef95a0f8ad0249",
+    "tools/conditional_skill_routing_comparison_case_controller.py": "5066ac33b9cd94434abdb87b3185836d23de6eaa1644a7b40f095d5cef5c2de2",
+    "tools/conditional_skill_routing_eval.py": "03f4b697a4f8643cb4758e10a381abe9815c9788e275b65eb3dc0c2a6aa59cf0",
+    "tools/conditional_skill_routing_linux_environment.py": "2002cb7816b2a46a3a5510770f29b74dbeb64e00ae7fb4bbba736975d2448f5d",
+    "tools/conditional_skill_routing_parent_https.py": "d95a6139ff4188e28eb23581ed359d61893453afb85ea526fa8dc927a3cbc89b",
+    "tools/conditional_skill_routing_parent_transport.py": "0ab459436259c04556988e48b6b944df0483269e5ff060fd132a8282634ac190",
+    "tools/conditional_skill_routing_real_comparison_preflight.py": "3e0fdac512dbd960b14275a672cbee3dc5411dd58388a2bd11139bfa965417f0",
+    "tools/conditional_skill_routing_responses_accounting.py": "bf23df2226a435532e469ef77df7c6841ef6ac58e7d72f9badc7af27b7a24543",
+    "tools/conditional_skill_routing_runner.py": "84f014418582557b07fe9ee4d57221ddc02f57a44aaec568bd8150ec0c87115b",
+    "tools/conditional_skill_routing_shared_campaign.py": "b04c4f757c1b18a80d27b4b3c55550b865ba190aaacc86aad7be55f0eed11c4f",
+    "tools/conditional_skill_routing_verified_runtime.py": "316a1013fa7564ab82b559e3635ce18d5a79281ca22550995773f7d8942d461a",
+    "tools/skill_activation_budget.py": "b9da02a6dbf255764415337a9100f3a0c77f3e1c70581ba549934aa587390f81"
+  },
+  "frozen_artifact_sha256": {
+    "tools/fixtures/conditional_skill_routing/manifest.json": "320e67617d89b6f9e7e7bca5e4b619c0ba60105de60574a5b73d39b73411bb25",
+    "tools/fixtures/conditional_skill_routing/cases.json": "ca4c0226a8bb90cdc13e54dd0484e6dfd888264574eb1fd5c6af6f7e27086659",
+    "tools/fixtures/conditional_skill_routing/preparation-revisions/linux-offline-readiness-20261011/source-closure-inventory.json": "be4f5c1eea6ba7a81cf38ce7e74870e289588cdd8577bec9215969e19c572f64",
+    "shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md": "bf787adcf495967313569ac9a42c9556415e4065fc16fcc8d71b9ac0a8253082",
+    "shipglows_data/workflow/reviews/conditional-skill-routing-calibration.md": "5e617dd1de6e64e17164374af729dd02385b25a2b6795a5a995f094e8f4082bd"
+  },
+  "public_tuning_schema_catalog": {
+    "H1": {
+      "tools_sha256": "345fc8383fbd772d4b868ba4ace5063ea0d7acd9e726c331b7154c922f93290b",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read"
+      ],
+      "case_schema_sha256": "345fc8383fbd772d4b868ba4ace5063ea0d7acd9e726c331b7154c922f93290b"
+    },
+    "H2": {
+      "tools_sha256": "345fc8383fbd772d4b868ba4ace5063ea0d7acd9e726c331b7154c922f93290b",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read"
+      ],
+      "case_schema_sha256": "345fc8383fbd772d4b868ba4ace5063ea0d7acd9e726c331b7154c922f93290b"
+    },
+    "A1": {
+      "tools_sha256": "d19958a798a7963b7778c040e03d7828853959d158d0d76e856af8a421f11e5b",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "audit",
+        "invocation_preflight"
+      ],
+      "case_schema_sha256": "d19958a798a7963b7778c040e03d7828853959d158d0d76e856af8a421f11e5b"
+    },
+    "A2": {
+      "tools_sha256": "084c9e005d5742625b0e791d029357767adc3150680403d2c670f4d1ad3e35a9",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "audit"
+      ],
+      "case_schema_sha256": "084c9e005d5742625b0e791d029357767adc3150680403d2c670f4d1ad3e35a9"
+    },
+    "B1": {
+      "tools_sha256": "f0667295336546d55edbe8cd33c5de4a32c52dbd00ce68d9de6dbdfe022f2699",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "simulated_replace",
+        "focused_verify"
+      ],
+      "case_schema_sha256": "f0667295336546d55edbe8cd33c5de4a32c52dbd00ce68d9de6dbdfe022f2699"
+    },
+    "B2": {
+      "tools_sha256": "d5aef90fb7ceb5856fa873bfa4a3cb3360dc5c7e8288396efe7b3c40013641be",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "simulated_replace",
+        "scope_evidence_read",
+        "focused_verify",
+        "invocation_preflight",
+        "topology_preflight"
+      ],
+      "case_schema_sha256": "d5aef90fb7ceb5856fa873bfa4a3cb3360dc5c7e8288396efe7b3c40013641be"
+    },
+    "S1": {
+      "tools_sha256": "4180dbbcc9ae73ff7d36a525dd02928196a31c5022a5f3131e04991ae538c20a",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "private_status",
+        "private_capability",
+        "private_record_read"
+      ],
+      "case_schema_sha256": "4180dbbcc9ae73ff7d36a525dd02928196a31c5022a5f3131e04991ae538c20a"
+    },
+    "S2": {
+      "tools_sha256": "4180dbbcc9ae73ff7d36a525dd02928196a31c5022a5f3131e04991ae538c20a",
+      "registered_tool_names": [
+        "instruction_read",
+        "fixture_read",
+        "private_status",
+        "private_capability",
+        "private_record_read"
+      ],
+      "case_schema_sha256": "4180dbbcc9ae73ff7d36a525dd02928196a31c5022a5f3131e04991ae538c20a"
+    }
+  },
+  "authority_profile": "current-host-post-proposal",
+  "subject_boundary": {
+    "outer": "WSL bubblewrap unshare-all",
+    "mounted": [
+      "read-only system directories",
+      "subject-only temporary workspace",
+      "exact child relay and two helper snapshots",
+      "pinned ELF"
+    ],
+    "case_store_evaluator_credentials_mounted": false,
+    "egress": "no nonloopback route; trusted parent transport only",
+    "native_tools": "not claimed disabled; complete SSE rejected before dispatch for unknown/nonbroker calls"
+  },
+  "evaluator_boundary": {
+    "offline_entrypoint": "installed separate bubblewrap evaluator",
+    "own_input_alias": "/opt/evaluator/inputs",
+    "private_dataset_attachment": "required independent receipt; not performed by author"
+  },
+  "observation": {
+    "cli_original_and_model_offered_separate": true,
+    "only_tools_may_be_filtered": true,
+    "input_instructions_unchanged_required": true,
+    "actual_callback_outputs_and_all_requests_required": true,
+    "clock": "monotonic capture boundaries; hidden latency UNKNOWN",
+    "context_loss": "opaque input retires case and invalidates contingent authority",
+    "cleanup": "raw capture ephemeral; content-free receipts after exact replay"
+  },
+  "deferred_launch_binding": {
+    "controller_approved_profile": "separate live hash includes endpoint/model/account/settings/budget reviews",
+    "provider_model_budget_selected": false,
+    "execution_authorized": false,
+    "no_live_launch_from_this_profile": true
+  },
+  "receipts_embedded": false,
+  "heldout_schema_policy": "Exact independent per-case inventories are bound in evaluator receipt; generic runtime profile does not contain private per-case schemas."
+}

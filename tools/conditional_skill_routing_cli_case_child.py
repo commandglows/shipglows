@@ -90,7 +90,23 @@ def context_loss_reason(event):
                        or opaque(child) for key,child in value.items())
         if type(value) is list:return any(opaque(child) for child in value)
         return False
-    if opaque(event):return "opaque_native_context"
+    inspected = event
+    if method in ("item/started", "item/completed") and type(params) is dict:
+        item = params.get("item", {})
+        if (type(item) is dict and item.get("type") == "reasoning"
+                and set(item) <= {"type", "id", "summary", "content", "status", "encryptedContent", "encrypted_content"}
+                and type(item.get("id")) is str and item["id"]
+                and all(type(params.get(k)) is str and params[k] for k in ("threadId", "turnId"))
+                and item.get("status") in (None, "completed", "in_progress", "inProgress")
+                and all(type(item.get(k, [])) is list and all(type(v) is str for v in item.get(k, []))
+                        for k in ("summary", "content"))
+                and all(item.get(k) is None or type(item[k]) is str for k in ("encryptedContent", "encrypted_content"))):
+            # Only the typed native generated-reasoning cipher is exempt.
+            # Compaction notifications above and every other opaque path still
+            # retire the run; this grants no instruction-retention evidence.
+            clean = {k:v for k,v in item.items() if k not in ("encryptedContent", "encrypted_content")}
+            inspected = {**event, "params":{**params, "item":clean}}
+    if opaque(inspected):return "opaque_native_context"
     return None
 
 
@@ -105,11 +121,19 @@ class ContextBoundary:
         self.retired=False;self.receipts=[];self.lock=threading.Lock()
     def ensure(self):
         with self.lock:require(not self.retired,"native context loss permanently retired child")
+    def release(self,emit):
+        """Linearize actual output with retirement, not merely its validation.
+
+        An emission admitted first finishes before retirement; an emission
+        ordered after retirement never starts. emit must not reenter boundary.
+        """
+        with self.lock:
+            require(not self.retired,"native context loss permanently retired child")
+            return emit()
     def call(self,op,parameters):
         self.ensure()
         result=self.relay.call(op,parameters)
-        self.ensure()
-        return result
+        return self.release(lambda:result)
     def observe(self,event):
         reason=context_loss_reason(event)
         if reason is None:return False
@@ -156,6 +180,8 @@ def run(cli,out,dependency_root,transport,profile):
         capture.document("tool-callback-%03d.json"%len(callbacks),callbacks[-1])
         return result
     class Rpc(profile.Rpc):
+        def send(self,value):
+            return boundary.release(lambda:super(Rpc,self).send(value))
         def collect(self,name,stream):
             count,total=0,0
             try:
@@ -197,8 +223,7 @@ def run(cli,out,dependency_root,transport,profile):
                 content_type=result["headers"].get("content-type","")
                 require(len(body)<=profile.BODY_LIMIT and content_type in ("application/json","text/event-stream"),"parent response admission")
                 capture.save(identifier+".parent-response.bin",body)
-                boundary.ensure()
-                profile.send_http(self,result["status"],body,content_type)
+                boundary.release(lambda:profile.send_http(self,result["status"],body,content_type))
                 record.update(status=result["status"],sent_complete=True,response_sha256=transport.sha(body))
                 if content_type=="text/event-stream":record["sse_bytes_emitted"]=len(body)
             except Exception as error:

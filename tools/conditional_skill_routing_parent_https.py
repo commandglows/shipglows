@@ -43,14 +43,21 @@ class PreparedHTTPSCallback:
                  total_response_bytes=12 * 1024 * 1024, max_output_tokens=512,
                  total_output_tokens=6144, request_timeout=15.0, session_timeout=120.0,
                  connection_factory=None, approved_budget=None, verified_model_ceiling=None,
-                 input_cost_budget_guard=None):
+                 input_cost_budget_guard=None, auth_mode="api_key", injected_account_id=None):
         require(type(launch_authorized) is bool, "invalid launch authority")
         require(type(endpoint) is str, "fixed HTTPS endpoint required")
         parsed = urlsplit(endpoint)
+        require(auth_mode in ("api_key", "chatgpt_subscription"), "unsupported authentication mode")
+        subscription = auth_mode == "chatgpt_subscription"
         require(parsed.scheme == "https" and parsed.hostname and parsed.username is None
                 and parsed.password is None and not parsed.query and not parsed.fragment
                 and parsed.port in (None, 443) and re.fullmatch(r"[a-z0-9.-]+", parsed.hostname)
-                and parsed.path in ("/v1/responses", "/responses"), "unsupported fixed HTTPS origin/path")
+                and ((subscription and endpoint == "https://chatgpt.com/backend-api/codex/responses")
+                     or (not subscription and parsed.path in ("/v1/responses", "/responses"))),
+                "unsupported fixed HTTPS origin/path")
+        require((subscription and type(injected_account_id) is str
+                 and re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", injected_account_id))
+                or (not subscription and injected_account_id is None), "invalid parent subscription account binding")
         require(type(model) is str and re.fullmatch(r"[A-Za-z0-9_.:/-]{1,128}", model), "named exact model required")
         require(type(account_label) is str and re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", account_label), "nonsecret account label required")
         require(type(required_settings) is dict and required_settings
@@ -67,6 +74,7 @@ class PreparedHTTPSCallback:
         for limit in (request_timeout, session_timeout):
             require(type(limit) in (int, float) and 0 < limit <= 300, "bounded deadline required")
         self.endpoint, self.host, self.path = endpoint, parsed.hostname, parsed.path
+        self.auth_mode, self.account_id = auth_mode, injected_account_id
         self.model, self.account_label = model, account_label
         self.settings = required_settings
         self.launch_authorized, self.credential = launch_authorized, injected_credential
@@ -78,6 +86,9 @@ class PreparedHTTPSCallback:
         self.deadline = time.monotonic() + session_timeout
         self.calls = self.request_bytes = self.response_bytes = self.output_tokens_reserved = 0
         self.receipts = []
+        # Parent memory only. The evaluator consumes these before cleanup;
+        # request auth headers/account identifiers are never stored here.
+        self.raw_exchanges = []
         self.lock = threading.Lock()
         require(approved_budget is None or (type(approved_budget) is dict
                 and set(approved_budget) == {"review_id", "max_calls", "max_request_bytes", "max_response_bytes",
@@ -108,7 +119,9 @@ class PreparedHTTPSCallback:
     def __call__(self, raw, caller_deadline):
         with self.lock:
             connection, response = None, None
+            chunks, captured = [], False
             record = {"endpoint": self.endpoint, "model": self.model, "account_label": self.account_label,
+                      "auth_mode": self.auth_mode, "api_billing_route": self.auth_mode == "api_key",
                       "launch_authorized": self.launch_authorized, "request_sha256": sha(raw) if type(raw) is bytes else None,
                       "request_bytes": len(raw) if type(raw) is bytes else None,
                       "credential_in_receipt": False, "network_started": False, "response_released": False}
@@ -131,8 +144,22 @@ class PreparedHTTPSCallback:
                 for key, expected in self.settings.items():
                     require(key in body and type(body[key]) is type(expected) and packed(body[key]) == packed(expected),
                             "request setting differs from frozen profile: " + key)
+                subscription_observed = self.auth_mode == "chatgpt_subscription"
+                if subscription_observed:
+                    require(callable(self.input_cost_budget_guard)
+                            and callable(getattr(self.input_cost_budget_guard, "observe_response", None)),
+                            "subscription observation/quota guard required")
+                    require(self.input_cost_budget_guard(raw, deadline) is True, "subscription quota admission refused")
                 tokens = body.get("max_output_tokens")
-                if "max_output_tokens" not in body:
+                if subscription_observed and "max_output_tokens" not in body:
+                    # The subscription catalog did not expose an enforceable
+                    # output cap. Do not substitute the separately billed API's
+                    # model card or claim a hard token ceiling. Observe usage,
+                    # preserve an overrun, and stop before another request.
+                    tokens = None
+                    record["reservation_source"] = "subscription_observed_usage_only"
+                    record["hard_token_cap_available"] = False
+                elif "max_output_tokens" not in body:
                     require(self.verified_model_ceiling is not None, "missing output cap requires separately verified model ceiling")
                     require(self.input_cost_budget_guard is not None, "missing output cap launch blocked pending reviewed input/cost enforcement")
                     # Guard owns actual tokenizer/pricing/profile ceilings; this
@@ -143,20 +170,23 @@ class PreparedHTTPSCallback:
                     record["model_ceiling_review_id"] = self.verified_model_ceiling["review_id"]
                 else:
                     record["reservation_source"] = "explicit_request_cap"
-                require(type(tokens) is int and 0 < tokens <= self.max_output_tokens
+                require(tokens is None and subscription_observed or type(tokens) is int and 0 < tokens <= self.max_output_tokens
                         and self.output_tokens_reserved + tokens <= self.total_output_limit,
                         "explicit max_output_tokens budget required")
-                self.output_tokens_reserved += tokens
+                if tokens is not None:
+                    self.output_tokens_reserved += tokens
                 record["output_tokens_reserved"] = tokens
                 remaining = deadline - time.monotonic()
                 require(remaining > 0, "HTTPS deadline expired")
                 # This is the only point where the real default factory could run.
                 connection = self.connection_factory(self.host, 443, remaining)
                 record["network_started"] = True
-                connection.request("POST", self.path, body=raw,
-                                   headers={"Content-Type": "application/json", "Accept-Encoding": "identity",
-                                            "Authorization": "Bearer " + self.credential,
-                                            "Content-Length": str(len(raw))})
+                headers = {"Content-Type": "application/json", "Accept-Encoding": "identity",
+                           "Authorization": "Bearer " + self.credential, "Content-Length": str(len(raw))}
+                if self.auth_mode == "chatgpt_subscription":
+                    headers.update({"ChatGPT-Account-ID": self.account_id, "originator": "codex_cli_rs",
+                                    "User-Agent": "codex_cli_rs/0.160.1"})
+                connection.request("POST", self.path, body=raw, headers=headers)
                 response = connection.getresponse()
                 status = response.status
                 require(type(status) is int and 100 <= status <= 599, "invalid HTTPS response status")
@@ -174,7 +204,6 @@ class PreparedHTTPSCallback:
                     if value is not None:
                         require(type(value) is str and len(value) <= 256 and all(32 <= ord(c) <= 126 for c in value), "invalid sanitized HTTPS header")
                         headers[name] = value
-                require(headers.get("content-type", "").split(";", 1)[0] in ("application/json", "text/event-stream"), "unsupported HTTPS content type")
                 chunks = []
                 observed = 0
                 while True:
@@ -194,11 +223,21 @@ class PreparedHTTPSCallback:
                 require(content_length is None or observed == int(content_length), "partial HTTPS body/content length mismatch")
                 require(time.monotonic() <= deadline, "HTTPS response deadline")
                 result = b"".join(chunks)
+                self.raw_exchanges.append({"request": raw, "response": result,
+                    "response_status": status, "response_complete": True})
+                captured = True
+                if subscription_observed:
+                    record["subscription_usage"] = self.input_cost_budget_guard.observe_response(result)
+                require(headers.get("content-type", "").split(";", 1)[0] in ("application/json", "text/event-stream"), "unsupported HTTPS content type")
                 record.update({"status": "returned", "response_status": status, "response_bytes": len(result),
                                "response_sha256": sha(result), "sanitized_headers": headers, "response_released": True})
                 self.receipts.append(record)
                 return {"status": status, "headers": headers, "body": result}
             except Exception as error:
+                if record["network_started"] and not captured:
+                    self.raw_exchanges.append({"request": raw, "response": b"".join(chunks),
+                        "response_status": response.status if response is not None else None,
+                        "response_complete": False})
                 # Never retain error text: TLS/provider exceptions can include auth.
                 record.update({"status": "refused", "exception_type": type(error).__name__,
                                "exception_sha256": sha(str(error).encode("utf-8", errors="replace"))})
@@ -220,7 +259,8 @@ class PreparedHTTPSCallback:
 
     def durable_receipts(self):
         return packed({"receipts": self.receipts, "calls": self.calls, "request_bytes": self.request_bytes,
-                       "response_bytes": self.response_bytes, "output_tokens_reserved": self.output_tokens_reserved,
+                       "response_bytes": self.response_bytes,
+                       "output_tokens_reserved": None if self.auth_mode == "chatgpt_subscription" else self.output_tokens_reserved,
                        "limits": ["No redirects/retries/decompression; fixed host/path/model/settings",
                                   "No credential lookup; injected authorization stays in parent request only",
                                   "No actual provider/model/account selection inferred or network proof from fake tests",

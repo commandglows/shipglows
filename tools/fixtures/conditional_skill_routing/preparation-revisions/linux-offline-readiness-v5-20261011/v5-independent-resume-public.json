@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "resume_verified_through_delivered_evaluator_shell_offline_only",
+  "campaign_id": "codex-linux-isolated-v5-20261011-prepared",
+  "consumer_profile_sha256": "2b0f1d7b398fd3cd89db638ba98925472651fa608520b9d0ad17a65097792318",
+  "resume_id": "csr-v5-8e637ac5c344f81a226eb4dc",
+  "index_sha256": "fcc9158c0d37e30ec5b29221fecf896773f2897e898ef2521396680b77915e48",
+  "isolated_resume_hash_verification": true,
+  "payload_unchanged": true,
+  "collection_authorized": false,
+  "independent_evaluator_only": true,
+  "public_dependency_root": "/opt/evaluator/support-v5",
+  "dependencies_readonly": true,
+  "delivered_entrypoint": "tools/conditional-skill-routing-linux.ps1 evaluator-shell",
+  "verification_command": "& ./tools/conditional-skill-routing-linux.ps1 evaluator-shell -c 'python3 /opt/evaluator/support-v5/verify_resume.py csr-v5-8e637ac5c344f81a226eb4dc'",
+  "verifier_source_path": "tools/conditional_skill_routing_evaluator_resume.py",
+  "verifier_source_sha256": "32fcdfa2789c78ddaa028071e6d2c5e1fc814f31bc805a0aea07b5d20fef8e07",
+  "proof": {
+    "delivered_entrypoint_exit_code": 0,
+    "sealed_hashes_match": true,
+    "public_dependencies_readonly": true,
+    "generic_adapter_available": true,
+    "launch_performed": false
+  },
+  "procedure": [
+    "After author inactivity, enter the delivered evaluator-shell. This does not authorize collection/scoring/provider launch.",
+    "Run verification_command; compare opaque index hash with this receipt. Never print or export the private index paths.",
+    "Inside evaluator only, resolve own /opt/evaluator/inputs/.independent-resume/<resume_id>.json and verify payload/manifest hashes,public seal,campaign and exact consumer profile.",
+    "Existing /opt/evaluator/support-v5 is read-only and importable; no custom mount needed. Use shared_campaign.prepare_adapter for generic baseline binding.",
+    "Normalize absent optional actions to empty ReleasedFixtureActions without granting capability. Candidate binding follows later independently reviewed freeze."
+  ],
+  "memory_policy": "Existing host default; temporary2GB configuration was not applied and was removed. No fixed2GBcap claimed."
+}
