@@ -34,8 +34,8 @@ next_step: none
 
 The ShipGlows app records an audit result in its Cockpit only from a
 machine-readable verdict. This contract defines that verdict so every audit
-owner states its result the same way. A run without a verdict still completes;
-the app simply shows the audit as not concluded.
+owner states its result the same way. A run without a verdict still completes, but records nothing:
+the app keeps showing the previous result, or "never run" when there is none.
 
 ## When To Emit
 
