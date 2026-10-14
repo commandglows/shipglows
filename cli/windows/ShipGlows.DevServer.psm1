@@ -921,7 +921,7 @@ function Test-SgPortAvailable([int]$Port) {
     }
 }
 
-function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false, [switch]$NoPort) {
+function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false, [switch]$NoPort, [switch]$PreservePort) {
     if ($RequestedPort -ne 0 -and ($RequestedPort -lt 1024 -or $RequestedPort -gt 65535)) { throw 'Requested port must be 0 or between 1024 and 65535.' }
     $token = [guid]::NewGuid().ToString('N')
     if ($NoPort) {
@@ -929,14 +929,15 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
             param($data)
             $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
             if (-not $entry) { throw "Project is not registered: $ProjectPath" }
-            $entry.port = 0
+            # Native Flutter targets listen on no HTTP port but keep the surface port for a later Web launch.
+            if (-not $PreservePort) { $entry.port = 0 }
             $entry.status = 'reserved'
             $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $token -Force
             $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue ([DateTime]::UtcNow.ToString('o')) -Force
         }
         $reservedEntry = $result.projects | Where-Object { $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $token } | Select-Object -First 1
         if (-not $reservedEntry) { throw "No-port reservation could not be persisted for: $ProjectPath" }
-        return [pscustomobject]@{ Port=0; Token=$token }
+        return [pscustomobject]@{ Port=[int]$reservedEntry.port; Token=$token }
     }
     $result = Invoke-SgRegistryMutation $Config {
         param($data)
@@ -997,6 +998,17 @@ function Set-SgReservationState([object]$Config, [string]$ProjectPath, [string]$
     Invoke-SgRegistryMutation $Config {
         param($data)
         $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath -and $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $Token } | Select-Object -First 1
+        if (-not $entry -and $EntryData -and $EntryData.PSObject.Properties['pid'] -and [int]$EntryData.pid -gt 0 -and $EntryData.PSObject.Properties['startTimeUtc'] -and $EntryData.startTimeUtc) {
+            # A concurrent reconciliation may clear the token of a live launch; the exact recorded process identity still proves ownership.
+            $launchTicks = ConvertTo-SgUtcStartTicks $EntryData.startTimeUtc
+            $entry = $data.projects | Where-Object {
+                $sameProcess = $false
+                if ($_.path -eq $ProjectPath -and [int]$_.pid -eq [int]$EntryData.pid -and $_.PSObject.Properties['startTimeUtc'] -and $_.startTimeUtc) {
+                    try { $sameProcess = (ConvertTo-SgUtcStartTicks $_.startTimeUtc) -eq $launchTicks } catch { $sameProcess = $false }
+                }
+                $sameProcess
+            } | Select-Object -First 1
+        }
         if (-not $entry) { throw "Port reservation was lost for: $ProjectPath" }
         if ($EntryData) {
             foreach ($property in $EntryData.PSObject.Properties) {
@@ -2361,7 +2373,7 @@ function Get-SgStartupFailure([string]$ErrorLogPath, [string]$Fallback = 'Proces
 
 function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '') {
     if ($Kind -eq 'flutter-web') { return Wait-SgFlutterReady $LogPath $TimeoutSeconds }
-    $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 60))
+    $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 300))
     do {
         if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
             return [pscustomobject]@{ Ready=$false; AppId=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
@@ -2562,8 +2574,11 @@ function Reconcile-SgRegistry([object]$Config) {
             }
             if ($live) {
                 if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Get-SgOwnedFlutterNativePids $entry).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(Test-SgHttpReady ([int]$entry.port)){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Managed process is alive, but its local service port is not responding.' -Force}}else{$entry.status = 'running'}
-                if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
-                if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+                # A live launch that is still starting owns its reservation until Start-SgProjectCore commits it.
+                if ($entry.status -ne 'starting') {
+                    if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
+                    if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+                }
             } elseif (-not $freshReservation) {
                 $flutterResidual=$entry.kind-eq'flutter-web'-and(@(Get-SgOwnedFlutterNativePids $entry).Count-gt0-or@(Get-SgOwnedFlutterListenerPids $entry).Count-gt0-or@(Get-SgOwnedFlutterBrowserPids $entry).Count-gt0)
                 if($flutterResidual){$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Owned Flutter process remains after supervisor exit.' -Force}elseif($entry.status-ne'error'){$entry.status = 'stopped'}
@@ -2966,10 +2981,12 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if ($alreadyRunning -and $Restart -and [string]$entry.kind -ne 'flutter-web') { [void](Stop-SgProject $Config $entry.path -PreserveBackend) }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
-    $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort -NoPort:([string]$entry.kind -eq 'obsidian-plugin')
+    $flutterNative = [string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')
+    $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort -NoPort:([string]$entry.kind -eq 'obsidian-plugin' -or $flutterNative) -PreservePort:$flutterNative
     $port = $reservation.Port
     $reservationToken = $reservation.Token
     if ([string]$entry.kind -eq 'obsidian-plugin') { Write-SgInfo 'Obsidian plugin watch has no HTTP port.' }
+    elseif ($flutterNative) { Write-SgInfo "Flutter $($settings.FlutterDevice) target needs no HTTP port reservation." }
     elseif ($explicitPort) { Write-SgInfo "Using configured port: $port" }
     elseif ($previousPort -gt 0 -and $previousPort -eq $port) { Write-SgInfo "Reusing persistent port: $port" }
     else { Write-SgInfo "Assigned port: $port" }
@@ -3045,7 +3062,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
-    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 (Join-Path $launchPath 'build\windows') 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 90 $entryData $err}
+    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 (Join-Path $launchPath 'build\windows') 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 300 $entryData $err}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         if ($kind -eq 'obsidian-plugin') {

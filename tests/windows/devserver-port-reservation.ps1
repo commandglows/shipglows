@@ -30,6 +30,34 @@ try {
     $invalidPort = $false
     try { Reserve-SgProjectPort $config $one 70000 $true | Out-Null } catch { $invalidPort = $_.Exception.Message -like 'Requested port must be*' }
     if (-not $invalidPort) { throw 'An out-of-range requested port was accepted.' }
+
+    # Native Flutter launches reserve no HTTP port but keep the surface port for a later Web launch.
+    $native = Reserve-SgProjectPort $config $one -NoPort -PreservePort
+    $nativeEntry = (Read-SgRegistry $config).projects | Where-Object path -eq $one | Select-Object -First 1
+    if ($native.Port -ne $oneEntry.port -or $nativeEntry.port -ne $oneEntry.port -or $nativeEntry.reservationToken -ne $native.Token) { throw 'A native Flutter reservation dropped the persistent surface port.' }
+
+    # A concurrent reconciliation clearing the token must not fail the launch that owns the live process.
+    $startTime = '2026-10-14T08:00:00.0000000Z'
+    $module = Get-Module ShipGlows.DevServer
+    & $module { param($c,$p,$t) Invoke-SgRegistryMutation $c { param($data); $item=@($data.projects|Where-Object{$_.path-eq$p})[0]; $item.status='starting'; $item.pid=4242; $item|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $t -Force; $item.reservationToken=$null; $item.reservationTimeUtc=$null } | Out-Null } $config $one $startTime
+    Set-SgReservationState $config $one $native.Token 'running' ([pscustomobject]@{ pid=4242; startTimeUtc=$startTime })
+    $committed = (Read-SgRegistry $config).projects | Where-Object path -eq $one | Select-Object -First 1
+    if ($committed.status -ne 'running' -or $committed.pid -ne 4242) { throw 'A launch whose token was cleared by reconciliation was not committed by process identity.' }
+    $foreign = $false
+    try { Set-SgReservationState $config $one $native.Token 'running' ([pscustomobject]@{ pid=4243; startTimeUtc=$startTime }) } catch { $foreign = $_.Exception.Message -like 'Port reservation was lost*' }
+    if (-not $foreign) { throw 'A launch with a different process identity reclaimed a lost reservation.' }
+
+    # Reconciliation keeps the token of a live launch that is still starting.
+    & $module { param($c,$p) Invoke-SgRegistryMutation $c { param($data); $item=@($data.projects|Where-Object{$_.path-eq$p})[0]; $item.kind='flutter-web'; $item|Add-Member -NotePropertyName flutterDeviceId -NotePropertyValue 'windows' -Force; $item.status='starting'; $item.reservationToken='live-start-token'; $item.reservationTimeUtc=[DateTime]::UtcNow.AddMinutes(-20).ToString('o') } | Out-Null } $config $one
+    & $module {
+        param($c)
+        function Get-SgProcessSnapshotMap { @{} }
+        function Test-SgProcessIdentity { param($Entry) [int]$Entry.pid -eq 4242 }
+        function Get-SgFlutterSupervisorState { $null }
+        Reconcile-SgRegistry $c | Out-Null
+    } $config
+    $reconciled = (Read-SgRegistry $config).projects | Where-Object path -eq $one | Select-Object -First 1
+    if ($reconciled.status -ne 'starting' -or $reconciled.reservationToken -ne 'live-start-token') { throw 'Reconciliation cleared the reservation of a live launch that is still starting.' }
     Write-Host 'Windows DevServer transactional port reservation: OK'
 } finally {
     Get-Job -ErrorAction SilentlyContinue | Remove-Job -Force -ErrorAction SilentlyContinue
