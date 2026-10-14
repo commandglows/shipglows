@@ -27,3 +27,7 @@ site/.playwright-mcp/
 
 # Windows env-var expansion artifacts
 /%SystemDrive%/
+
+# Conditional skill routing local runtime copies and recovery bundles
+/.csr-*/
+tools/fixtures/conditional_skill_routing/preparation-revisions/**/*.tar.gz
