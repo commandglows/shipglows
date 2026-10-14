@@ -8,6 +8,7 @@ try {
     & $module {
         $project = 'C:\workspace\gocharbon\app'
         $entry = [pscustomobject]@{kind='flutter-web';port=3001;path=$project;launchPath=$project;commandSignature='ShipGlows:flutter-web:3001:C:\workspace\gocharbon\app';pid=18120;flutterLaunchDirectory='C:\runtime\flutter-launch\bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';flutterSdkRoot='C:\flutter'}
+        function Test-SgTcpPortListening { $true }
         function Get-NetTCPConnection { @([pscustomobject]@{OwningProcess=16484}) }
         function Get-CimInstance { @(
             [pscustomobject]@{ProcessId=16484;ParentProcessId=15000;ExecutablePath='C:\flutter\bin\cache\dart-sdk\bin\dartvm.exe';CommandLine='dartvm C:\runtime\flutter-launch\bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb --web-port 3001'},
@@ -30,6 +31,7 @@ try {
         if ($browserPids.Count -ne 1 -or $browserPids[0] -ne 200) { throw 'Flutter browser ownership must require the exact ShipGlows profile path.' }
 
         $orphanEntry=[pscustomobject]@{kind='flutter-web';port=3005;path=$project;launchPath=$project;pid=0;commandSignature='';browserProfilePath='C:\runtime\flutter-launch\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\chrome-profile';flutterLaunchDirectory='C:\runtime\flutter-launch\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';flutterSdkRoot='C:\flutter'}
+        function Test-SgTcpPortListening { $true }
         function Get-NetTCPConnection { @([pscustomobject]@{OwningProcess=301},[pscustomobject]@{OwningProcess=302},[pscustomobject]@{OwningProcess=303},[pscustomobject]@{OwningProcess=304},[pscustomobject]@{OwningProcess=305}) }
         function Get-CimInstance { @(
             [pscustomobject]@{ProcessId=301;ParentProcessId=0;ExecutablePath='C:\flutter\bin\cache\dart-sdk\bin\dart.exe';CommandLine='dart.exe --web-port 3005 --user-data-dir="C:\runtime\flutter-launch\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\chrome-profile"'},
@@ -53,7 +55,7 @@ try {
             function Stop-SgOwnedFlutterListener { $false }; function Stop-SgOwnedFlutterBrowser { $false }
             function Invoke-SgRegistryMutation { param($Config,$Mutation); & $Mutation ([pscustomobject]@{projects=@($retryEntry)}) }
             function Test-SgProjectCatalogEntry { $true }
-            $cleanupConfig=[pscustomobject]@{RuntimeDirectory=$runtime}
+            $cleanupConfig=[pscustomobject]@{RuntimeDirectory=$runtime;RegistryPath=(Join-Path $runtime 'registry.json')}
             if (-not (Stop-SgProject $cleanupConfig $project)) { throw 'Retried Flutter stop did not report residual cleanup.' }
             if (Test-Path -LiteralPath $launch) { throw 'Retried Flutter stop left residual launch artifacts.' }
             if ($script:stopped -contains 99999) { throw 'Retried Flutter cleanup stopped an unrelated process.' }
@@ -68,7 +70,7 @@ try {
         function Remove-SgFlutterLaunchArtifacts { $true }
         function Write-SgWarn([string]$Message){$script:warnings+=$Message}
         function Invoke-SgRegistryMutation { param($Config,$Mutation);& $Mutation ([pscustomobject]@{projects=@($supervisedEntry)}) }
-        if(-not(Stop-SgProject ([pscustomobject]@{RuntimeDirectory='C:\runtime'}) $project)){throw 'Supervisor-proven Flutter stop was not reported.'}
+        if(-not(Stop-SgProject ([pscustomobject]@{RuntimeDirectory='C:\runtime';RegistryPath='C:\runtime\registry.json'}) $project)){throw 'Supervisor-proven Flutter stop was not reported.'}
         if(@($script:warnings|Where-Object{$_-match'Stale or unverified'}).Count-ne0){throw 'Supervisor-proven Flutter stop emitted a stale-process warning.'}
     }
     Write-Host 'Windows DevServer Flutter ownership stop: OK'

@@ -7,6 +7,7 @@ $fixture=Join-Path ([IO.Path]::GetTempPath()) ('sg-backend-'+[guid]::NewGuid().T
 $surface=Join-Path $fixture 'surface'
 $runtime=Join-Path $fixture 'runtime'
 $external=$null
+$bodyError=$null; $cleanupError=$null
 function Assert-Throws([scriptblock]$Action,[string]$Pattern) {
     try { & $Action; throw 'Expected rejection was not raised.' } catch { if ($_.Exception.Message -notmatch $Pattern) { throw } }
 }
@@ -123,10 +124,13 @@ try {
     } 'fixture application configuration failed'
     if (-not (Test-SgPortAvailable $backendPort)) { throw 'Backend survived application preflight failure.' }
     Write-Host 'Backend manifest, preservation, remote verification, local lifecycle and supervision: OK'
-} finally {
+} catch { $bodyError=$_ } finally {
     if ($external) { if (-not $external.HasExited) { $external.Kill($true) }; $external.Dispose() }
     if (Get-Variable config -ErrorAction SilentlyContinue) { try { [void](Stop-SgProject $config $surface) } catch { Write-Warning $_ } }
     $env:SHIPGLOWS_MANAGED_PWSH=$previousManagedPowerShell
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue
-    if ([IO.Path]::GetFullPath($fixture).StartsWith([IO.Path]::GetTempPath(),[StringComparison]::OrdinalIgnoreCase) -and (Split-Path $fixture -Leaf) -like 'sg-backend-*') { Remove-Item -LiteralPath $fixture -Recurse -Force }
+    if ([IO.Path]::GetFullPath($fixture).StartsWith([IO.Path]::GetTempPath(),[StringComparison]::OrdinalIgnoreCase) -and (Split-Path $fixture -Leaf) -like 'sg-backend-*') { try { Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction Stop } catch { $cleanupError=$_ } }
 }
+# A cleanup failure must not mask the assertion that left the fixture behind.
+if ($bodyError) { throw $bodyError }
+if ($cleanupError) { throw $cleanupError }

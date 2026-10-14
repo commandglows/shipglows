@@ -115,9 +115,8 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
         $saved = @{}
         try {
             # Public policy flags only; never enumerate, save or export secrets.
-            if ($recipe.doppler -cne 'NONE') {
-                foreach ($key in $recipe.forbiddenTrueDefines) { $saved[$key] = [Environment]::GetEnvironmentVariable($key,'Process'); [Environment]::SetEnvironmentVariable($key,'false','Process') }
-            }
+            # Forced off with or without Doppler so an ambient bypass never reaches the resolver.
+            foreach ($key in $recipe.forbiddenTrueDefines) { $saved[$key] = [Environment]::GetEnvironmentVariable($key,'Process'); [Environment]::SetEnvironmentVariable($key,'false','Process') }
             $result = & $Runner $runnerFile $arguments
         } finally { foreach ($key in $saved.Keys) { [Environment]::SetEnvironmentVariable($key,$saved[$key],'Process') } }
         if (-not $result -or $result.ExitCode -ne 0) { throw 'Flutter configuration preflight failed. Check the declared configuration source and required public client configuration; the existing session was preserved.' }
