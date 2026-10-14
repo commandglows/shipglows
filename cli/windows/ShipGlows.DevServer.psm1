@@ -357,7 +357,8 @@ function Read-SgBrowserExtensionManifest([string]$ManifestPath) {
     if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $item.Length -gt 1048576) { throw "Unsafe browser extension manifest: $ManifestPath" }
     try { $manifest = [IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json -ErrorAction Stop }
     catch { throw "Invalid browser extension manifest '$ManifestPath': $($_.Exception.Message)" }
-    if (-not $manifest.PSObject.Properties['manifest_version']) { return $null }
+    # An empty or non-object manifest.json is not a browser extension manifest.
+    if ($manifest -isnot [pscustomobject] -or -not $manifest.PSObject.Properties['manifest_version']) { return $null }
     if ([int]$manifest.manifest_version -notin @(2,3) -or [string]::IsNullOrWhiteSpace([string]$manifest.name) -or [string]::IsNullOrWhiteSpace([string]$manifest.version)) { throw "Invalid browser extension manifest '$ManifestPath': name, version, and manifest_version 2 or 3 are required." }
     return $manifest
 }

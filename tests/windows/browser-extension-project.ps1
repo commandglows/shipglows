@@ -128,6 +128,15 @@ try {
     Assert-Sg ($migratedPaths -notcontains (Join-Path $staleRoot 'site')) 'Installer synchronization retained a vanished launch surface from a residual project root.'
     Assert-Sg (@((Read-SgRegistry $config).projects | Where-Object { $_.rootPath -eq $staleRoot }).Count -eq 1) 'Synchronization must preserve stale registry history until an explicit unregister action.'
 
+    # An empty or non-object manifest.json must not abort project discovery (installer migration).
+    foreach ($content in @('', '[]', '"text"')) {
+        $odd = Join-Path $fixture ('odd-manifest-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $odd -Force | Out-Null
+        [IO.File]::WriteAllText((Join-Path $odd 'manifest.json'), $content, [Text.UTF8Encoding]::new($false))
+        $parsed = & $module { param($Path) Read-SgBrowserExtensionManifest $Path } (Join-Path $odd 'manifest.json')
+        Assert-Sg ($null -eq $parsed) "A non-object manifest.json was treated as a browser extension: '$content'"
+    }
+
     Write-Host 'Windows browser-extension project support: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue
