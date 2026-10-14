@@ -10,6 +10,7 @@ param(
     [string]$InstallMode = $(if ($env:SHIPGLOWS_INSTALL_MODE) { $env:SHIPGLOWS_INSTALL_MODE } else { '' }),
     [string]$InstallSurface = $(if ($env:SHIPGLOWS_INSTALL_SURFACE) { $env:SHIPGLOWS_INSTALL_SURFACE } else { '' }),
     [string]$DevelopmentRoot = $(if ($env:SHIPGLOWS_DEVELOPMENT_ROOT) { $env:SHIPGLOWS_DEVELOPMENT_ROOT } else { Join-Path (Join-Path $env:USERPROFILE 'ShipGlows') 'shipglows' }),
+    [string]$SourceCheckout = $(if ($env:SHIPGLOWS_SOURCE_CHECKOUT) { $env:SHIPGLOWS_SOURCE_CHECKOUT } else { '' }),
     [switch]$DownloadOnly,
     [switch]$UpdateDeveloperTools
 )
@@ -187,6 +188,30 @@ function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref, [string]$Cur
         Commit = $commitSha
         ArchiveUrl = "https://github.com/$repositoryPath/archive/$commitSha.zip"
     }
+}
+function Resolve-LocalCheckoutSource([string]$CheckoutPath, [string]$Ref, [string]$GitPath = 'git.exe') {
+    # The linked maintainer channel installs from its own checkout, which also
+    # works when the GitHub repository is private.
+    if ([string]::IsNullOrWhiteSpace($CheckoutPath) -or -not [IO.Path]::IsPathRooted($CheckoutPath)) { Fail 'SourceCheckout must be an absolute path.' }
+    $checkout = [IO.Path]::GetFullPath($CheckoutPath)
+    if (-not (Test-Path -LiteralPath (Join-Path $checkout 'install-shipglows.ps1') -PathType Leaf)) { Fail "SourceCheckout is not a ShipGlows checkout: $checkout" }
+    $commitSha = (& $GitPath -C $checkout rev-parse --verify --quiet "$Ref^{commit}" 2>$null | Out-String).Trim().ToLowerInvariant()
+    if ($LASTEXITCODE -ne 0 -or $commitSha -notmatch '^[0-9a-f]{40}$') { Fail "Could not resolve ShipGlows ref in the linked checkout: $Ref" }
+    [PSCustomObject]@{
+        Commit = $commitSha
+        ArchiveUrl = $null
+        Checkout = $checkout
+    }
+}
+function Save-ShipglowsSourceArchive([object]$Source, [string]$ArchivePath, [string]$CurlPath = 'curl.exe', [string]$GitPath = 'git.exe') {
+    if ($Source.PSObject.Properties['Checkout'] -and $Source.Checkout) {
+        # Same layout as a GitHub archive: one top-level directory, committed content only.
+        & $GitPath -C $Source.Checkout archive --format=zip "--prefix=shipglows-$($Source.Commit)/" -o $ArchivePath $Source.Commit
+        if ($LASTEXITCODE -ne 0) { Fail 'Could not archive the linked ShipGlows checkout.' }
+        return
+    }
+    & $CurlPath -fsSL --retry 3 --retry-all-errors --retry-delay 2 $Source.ArchiveUrl -o $ArchivePath
+    if ($LASTEXITCODE -ne 0) { Fail 'ShipGlows download failed.' }
 }
 function Assert-PowerShellSyntax([string]$Path) {
     $parseTokens = $null
@@ -430,7 +455,7 @@ if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
     Write-Warn "The WSL launcher is present, but its runtime and distributions were not probed; this installer will continue in native Windows $InstallMode mode."
 }
 
-$source = Resolve-GitHubSource -RepositoryUrl $RepoUrl -Ref $Branch
+$source = if ($SourceCheckout) { Resolve-LocalCheckoutSource -CheckoutPath $SourceCheckout -Ref $Branch } else { Resolve-GitHubSource -RepositoryUrl $RepoUrl -Ref $Branch }
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("shipglows-windows-" + [guid]::NewGuid().ToString('N'))
 $archivePath = Join-Path $tempRoot 'shipglows.zip'
 $extractRoot = Join-Path $tempRoot 'extract'
@@ -444,9 +469,9 @@ $defaultHiddenParent = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.ship
 $defaultRuntimeRoot = [IO.Path]::GetFullPath((Join-Path $defaultHiddenParent 'runtime')).TrimEnd('\')
 
 try {
-    Write-Info "Downloading ShipGlows Windows files from commit $($source.Commit)..."
-    & curl.exe -fsSL --retry 3 --retry-all-errors --retry-delay 2 $source.ArchiveUrl -o $archivePath
-    if ($LASTEXITCODE -ne 0) { Fail 'ShipGlows download failed.' }
+    if ($source.PSObject.Properties['Checkout']) { Write-Info "Archiving ShipGlows Windows files from linked checkout commit $($source.Commit)..." }
+    else { Write-Info "Downloading ShipGlows Windows files from commit $($source.Commit)..." }
+    Save-ShipglowsSourceArchive -Source $source -ArchivePath $archivePath
 
     [void](Extract-ShipglowsWindowsFiles -ArchivePath $archivePath -DestinationPath $extractRoot -FullMode ($InstallMode -eq 'full'))
     $actionGeneratedRelativePaths = @()

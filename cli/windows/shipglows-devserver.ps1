@@ -735,7 +735,7 @@ function Invoke-SgUpdate {
         # A linked checkout is the maintainer channel, not an ordinary runtime
         # install.  Preserve that surface so its live Codex skills are
         # reconciled after the runtime payload is refreshed.
-        $installerArguments = @('-InstallMode','full','-InstallSurface','maintainer','-Branch',$source.Branch)
+        $installerArguments = @('-InstallMode','full','-InstallSurface','maintainer','-Branch',$source.Branch,'-SourceCheckout',$source.Root)
     } else {
         if (-not $curl) { $script:curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe')) }
         if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
