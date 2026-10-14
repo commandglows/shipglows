@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-05"
+updated: "2026-10-14"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-blocked-and-audit
@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/references/reporting-contract.md
   - skills/references/strategic-choice-contract.md
+  - skills/references/audit-verdict-contract.md
 depends_on:
   - artifact: "skills/references/strategic-choice-contract.md"
     artifact_version: "1.2.0"
@@ -24,6 +25,7 @@ supersedes: []
 evidence:
   - "Extracted from reporting-contract.md in wave 13."
   - "Operator decision 2026-08-13: unfinished chantier choices must support strategic business steering and guided follow-up."
+  - "2026-10-14: app-launched audits must end with a machine-readable verdict so the Cockpit can record their result."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -56,6 +58,8 @@ instruction and compact layout. Completed work receives no unfinished-choice blo
 ## Audit Reports
 
 Audit skills report findings first. In user mode include scope, clear/issues/blocked result, the few highest-severity findings, proof gaps, and `Chantier potentiel` when applicable. Keep large domain matrices only when comparison changes the decision. Detailed scoring, commands, assumptions, and handoff notes belong to agent mode.
+
+When the invocation asks for a `shipglows-verdict` block or names a health dimension scope (`seo: 406-sg-seo audit`), load `$SHIPGLOWS_ROOT/skills/references/audit-verdict-contract.md` and end the final message with exactly one verdict block, after the report, in every report mode.
 
 ## Recurrence-Claim Boundary
 
