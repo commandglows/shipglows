@@ -19,6 +19,9 @@ Non-trivial routing loads `intent-to-outcome-autonomy.md`; resolve
 under one public owner here. If sufficiency, authority, freshness, conflict,
 compaction or handoff may change routing, load `context-quality-contract.md`;
 keep its qualified Context Capsule, never memory as truth.
+Whenever which projects exist, or which one is meant, matters, read
+`$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` and `projects/registry.json`
+(read-only; writes stay with `sg-private` and the CLI).
 
 Offer once to privately remember verified reusable pointers to avoid future research, unless known saved or declined. Do not inspect private stores or presume
 absence; route to `sg-private` only after interest.
