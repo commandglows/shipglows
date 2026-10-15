@@ -75,10 +75,24 @@ try {
             New-Item -ItemType Directory -Path (Join-Path $windowsFixture 'windows'),(Join-Path $windowsFixture 'desktop') -Force | Out-Null
             [IO.File]::WriteAllText((Join-Path $windowsFixture 'shipglows-dev.cmd'),'@exit /b 0')
             if ((Get-SgRuntimeSettings $windowsFixture).FlutterDevice -ne 'windows') { throw 'A Flutter Windows surface did not default to live Windows development.' }
-            $devEntry=[pscustomobject]@{kind='flutter-web';flutterDevice='windows';name='Fixture';path=$windowsFixture}
-            $shortcutPath=Install-SgFlutterDevShortcut $devEntry (Join-Path $windowsFixture 'desktop') (Join-Path $windowsFixture 'shipglows-dev.cmd')
-            $shortcut=(New-Object -ComObject WScript.Shell).CreateShortcut($shortcutPath)
-            if ($shortcut.Arguments -notmatch '^start -ProjectPath ' -or $shortcut.TargetPath -ne (Join-Path $windowsFixture 'shipglows-dev.cmd')) { throw 'Flutter Dev shortcut does not route to the managed live start command.' }
+            $desktop=Join-Path $windowsFixture 'desktop';$launcher=Join-Path $windowsFixture 'shipglows-dev.cmd';$shell=New-Object -ComObject WScript.Shell
+            $repo=Join-Path $windowsFixture 'dreamglows';$surface=Join-Path $repo 'windows_app';$web=Join-Path $repo 'site';$worktree=Join-Path $windowsFixture 'wt-dreamglows\windows_app'
+            New-Item -ItemType Directory -Path (Join-Path $repo '.git\worktrees\wt1'),$surface,$web,$worktree -Force | Out-Null
+            [IO.File]::WriteAllText((Join-Path $windowsFixture 'wt-dreamglows\.git'),"gitdir: $(Join-Path $repo '.git\worktrees\wt1')")
+            $legacy=$shell.CreateShortcut((Join-Path $desktop 'ShipGlows - windows_app - Dev.lnk'));$legacy.TargetPath=$launcher;$legacy.Description="ShipGlows managed Flutter Dev shortcut v1 | $surface";$legacy.Save()
+            $stale=$shell.CreateShortcut((Join-Path $desktop 'ShipGlows - old - Dev.lnk'));$stale.TargetPath=$launcher;$stale.Description="ShipGlows managed Flutter Dev shortcut v1 | $worktree";$stale.Save()
+            $devEntry=[pscustomobject]@{kind='flutter-web';flutterDevice='windows';name='windows_app';path=$surface}
+            $shortcutPath=Install-SgDevShortcut $devEntry $desktop $launcher
+            $shortcut=$shell.CreateShortcut($shortcutPath)
+            if ([IO.Path]::GetFileName($shortcutPath) -ne 'dreamglows-windows_app - Dev.lnk') { throw "Dev shortcut must use the canonical repository-surface name, got $shortcutPath." }
+            if ($shortcut.Arguments -ne "start -ProjectPath `"$surface`"" -or $shortcut.TargetPath -ne $launcher) { throw 'Flutter Dev shortcut does not route to the managed live start command.' }
+            if (@(Get-ChildItem -LiteralPath $desktop -Filter '*.lnk').Count -ne 1) { throw 'Legacy-named and worktree Dev shortcuts were not retired.' }
+            if ($null -ne (Install-SgDevShortcut ([pscustomobject]@{kind='flutter-web';flutterDevice='windows';name='windows_app';path=$worktree}) $desktop $launcher)) { throw 'A linked worktree received a Desktop shortcut.' }
+            $webPath=Install-SgDevShortcut ([pscustomobject]@{kind='vite';name='site';path=$web}) $desktop $launcher
+            if ($shell.CreateShortcut($webPath).Arguments -notmatch ' -Open$') { throw 'A web Dev shortcut must open the running server.' }
+            if ($null -ne (Install-SgDevShortcut ([pscustomobject]@{kind='python';name='api';path=$web}) $desktop $launcher)) { throw 'Only Tauri, web and Flutter dev servers get a Desktop shortcut.' }
+            $foreign=$shell.CreateShortcut($shortcutPath);$foreign.Description='hand-made';$foreign.Save()
+            if ($null -ne (Install-SgDevShortcut $devEntry $desktop $launcher) -or $shell.CreateShortcut($shortcutPath).Description -ne 'hand-made') { throw 'A foreign shortcut was overwritten.' }
         } finally { Remove-Item -LiteralPath $windowsFixture -Recurse -Force -ErrorAction SilentlyContinue }
 
         $script:openCalls = @()

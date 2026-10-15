@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-26"
-updated: "2026-10-04"
+updated: "2026-10-15"
 status: active
 source_skill: 900-shipglows-core
 scope: latest-build-artifact-access
@@ -26,6 +26,7 @@ evidence:
   - "Operator decision 2026-08-26: Local and CI artifact lanes remain visibly distinct."
   - "Focused pressure scenarios preserve last-known-good cached artifacts and reject unsafe paths."
   - "Operator decision 2026-10-04: Desktop shortcuts are reserved for live Dev projects; built artifacts remain in ShipGlows cache and command status."
+  - "Operator decision 2026-10-15: only shipglows-dev start creates canonical `<repository>-<surface> - Dev` shortcuts; raw release outputs are deleted once the registered build is tested."
 next_review: "2026-11-26"
 next_step: "/103-sg-verify latest build artifact access"
 ---
@@ -49,7 +50,11 @@ Keep four independent per-project cache lanes, identified in status output as:
 
 ShipGlows copies each validated package into its per-user local cache, so deleting a worktree does not invalidate the published build. Artifact publication does not create or modify Desktop shortcuts.
 
-Desktop shortcuts are reserved for live development projects and use the name `<Project> - Dev`. Build artifacts are accessed through the ShipGlows command output; publication never launches a Windows executable, installs an APK, starts a device, or proves device behavior.
+Desktop shortcuts are created only by `shipglows-dev start` for live development servers and use the name `<repository>-<surface> - Dev`. Build artifacts are accessed through the ShipGlows command output; publication never launches a Windows executable, installs an APK, starts a device, or proves device behavior.
+
+## Cleanup after testing
+
+The cache keeps the last two validated generations per lane, so the raw release output in the checkout is redundant once registered. After the registered build has been tested, delete `build\windows\x64\runner\Release` or `build\app\outputs` in that checkout. Never delete the cache lanes by hand.
 
 ## Agent commands
 

@@ -175,8 +175,17 @@ protected API access separately; none substitutes for either of the others.
 or after observing a successful trusted CI build with a named complete artifact,
 load `skills/references/latest-build-artifact-access.md`. Publish the validated
 output through `cli/windows/shipglows-build-artifacts.ps1`, keep Local and CI
-lanes separate, and report the cached artifact path. Build publication never
-creates a Desktop shortcut; Desktop shortcuts are reserved for live Dev projects.
+lanes separate, and report the cached artifact path. Once that registered build
+has been tested, delete the raw release output left in the checkout
+(`build\windows\x64\runner\Release`, `build\app\outputs`); the cache keeps the
+last two validated generations per lane. Build publication never creates a
+Desktop shortcut.
+
+`DEV-SHORTCUT-OWNERSHIP`: only `shipglows-dev start` creates Desktop shortcuts,
+named `<repository>-<surface> - Dev`, for live Tauri, web and Flutter dev servers
+of a main checkout. Never create, copy or edit a Desktop shortcut by hand, and
+never for a build artifact, a Python API or a Git worktree. A missing shortcut is
+a DevServer gap to report, not a reason to improvise one.
 A failed build or unsafe artifact keeps the prior last-known-good lane; never
 launch or install it automatically. Linux, macOS, and iOS outputs retain their
 host-specific limits.

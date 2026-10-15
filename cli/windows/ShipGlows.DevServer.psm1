@@ -2889,38 +2889,79 @@ function Resolve-SgFlutterAndroidDevice([string]$FlutterPath, [string]$Requested
     throw "Android emulator did not become ready within $TimeoutSeconds seconds: $AvdName"
 }
 
-function Install-SgFlutterDevShortcut([object]$Entry, [string]$DesktopPath = '', [string]$LauncherPath = '') {
-    if (-not $Entry -or $Entry.kind -ne 'flutter-web' -or $Entry.flutterDevice -notin @('windows','android')) { return $null }
+# Git checkout facts read from .git without a subprocess. RepositoryRoot is the main
+# checkout (null outside Git); IsLinkedWorktree marks `git worktree add` checkouts.
+function Get-SgGitCheckoutInfo([string]$Path) {
+    $current = [IO.Path]::GetFullPath($Path).TrimEnd('\','/')
+    while ($current) {
+        $dotGit = Join-Path $current '.git'
+        if ([IO.Directory]::Exists($dotGit)) { return [pscustomobject]@{RepositoryRoot=$current;IsLinkedWorktree=$false} }
+        if ([IO.File]::Exists($dotGit)) {
+            $gitDir = ([IO.File]::ReadAllText($dotGit) -replace '^\s*gitdir:\s*','').Trim()
+            if (-not [IO.Path]::IsPathRooted($gitDir)) { $gitDir = Join-Path $current $gitDir }
+            $gitDir = [IO.Path]::GetFullPath($gitDir).TrimEnd('\','/')
+            if ($gitDir -match '^(?<common>.+)[\\/]worktrees[\\/][^\\/]+$') { return [pscustomobject]@{RepositoryRoot=(Split-Path $Matches['common'] -Parent);IsLinkedWorktree=$true} }
+            return [pscustomobject]@{RepositoryRoot=$current;IsLinkedWorktree=$false}
+        }
+        $parent = Split-Path $current -Parent
+        if (-not $parent -or $parent -eq $current) { break }
+        $current = $parent
+    }
+    [pscustomobject]@{RepositoryRoot=$null;IsLinkedWorktree=$false}
+}
+
+$script:SgDevShortcutMarkerPrefixes = @('ShipGlows managed Dev shortcut v2 | ','ShipGlows managed Flutter Dev shortcut v1 | ')
+
+# Project path recorded by a ShipGlows Dev shortcut description, or $null for a foreign shortcut.
+function Get-SgDevShortcutOwner([string]$Description) {
+    foreach ($prefix in $script:SgDevShortcutMarkerPrefixes) {
+        if ($Description.StartsWith($prefix, [StringComparison]::Ordinal)) { return $Description.Substring($prefix.Length).Trim() }
+    }
+    $null
+}
+
+# The Desktop holds one `<repository>-<surface> - Dev` shortcut per live dev server (Tauri,
+# Astro, Vite, Flutter) of a main checkout. Builds and linked worktrees never get one.
+function Install-SgDevShortcut([object]$Entry, [string]$DesktopPath = '', [string]$LauncherPath = '') {
+    if (-not $Entry -or [string]$Entry.kind -notin @('tauri','astro','vite','flutter-web')) { return $null }
+    $projectPath = [IO.Path]::GetFullPath([string]$Entry.path).TrimEnd('\','/')
+    $checkout = Get-SgGitCheckoutInfo $projectPath
+    if ($checkout.IsLinkedWorktree) { Write-SgInfo 'Dev shortcut skipped: Git worktrees never get a Desktop shortcut.'; return $null }
     $desktop = if ($DesktopPath) { [IO.Path]::GetFullPath($DesktopPath) } else { [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop) }
     if ([string]::IsNullOrWhiteSpace($desktop) -or -not (Test-Path -LiteralPath $desktop -PathType Container)) { throw 'The Windows Desktop directory is unavailable.' }
     $launcher = if ($LauncherPath) { [IO.Path]::GetFullPath($LauncherPath) } else { Join-Path $PSScriptRoot 'shipglows-dev.cmd' }
     if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) { throw 'The managed ShipGlows DevServer launcher is unavailable.' }
-    $displayName = [string]$Entry.name
+    $displayName = if ($checkout.RepositoryRoot) { Get-SgCanonicalSurfaceName $checkout.RepositoryRoot $projectPath } else { [string]$Entry.name }
     if ([string]::IsNullOrWhiteSpace($displayName) -or $displayName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) { throw 'The project name cannot be used for a Windows Dev shortcut.' }
     $path = Join-Path $desktop ("$displayName - Dev.lnk")
-    $marker = "ShipGlows managed Flutter Dev shortcut v1 | $([string]$Entry.path)"
-    $legacyPath = Join-Path $desktop ("ShipGlows - $displayName - Dev.lnk")
-    if (Test-Path -LiteralPath $path -PathType Leaf) {
-        $existing = (New-Object -ComObject WScript.Shell).CreateShortcut($path)
-        if ([string]$existing.Description -cne $marker) { throw "Existing shortcut is not owned by ShipGlows: $path" }
+    $shell = New-Object -ComObject WScript.Shell
+    if ((Test-Path -LiteralPath $path -PathType Leaf) -and $null -eq (Get-SgDevShortcutOwner ([string]$shell.CreateShortcut($path).Description))) {
+        Write-SgWarn "Dev shortcut skipped: $path is not owned by ShipGlows."
+        return $null
     }
+    $device = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+    $opensBrowser = $Entry.kind -in @('astro','vite') -or ($Entry.kind -eq 'flutter-web' -and $device -notin @('windows','android'))
     $temporary = Join-Path $desktop ('.shipglows-dev-shortcut-' + [guid]::NewGuid().ToString('N') + '.lnk')
     try {
-        $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut($temporary)
+        $shortcut = $shell.CreateShortcut($temporary)
         $shortcut.TargetPath = $launcher
-        $shortcut.Arguments = "start -ProjectPath `"$([string]$Entry.path)`""
-        $shortcut.WorkingDirectory = [string]$Entry.path
-        $shortcut.Description = $marker
+        $shortcut.Arguments = "start -ProjectPath `"$projectPath`"" + $(if ($opensBrowser) { ' -Open' } else { '' })
+        $shortcut.WorkingDirectory = $projectPath
+        $shortcut.Description = "$($script:SgDevShortcutMarkerPrefixes[0])$projectPath"
         $shortcut.Save()
         Move-Item -LiteralPath $temporary -Destination $path -Force
     } finally { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
-    if ((Test-Path -LiteralPath $legacyPath -PathType Leaf) -and $legacyPath -ne $path) {
+    # Retire this project's managed shortcuts under older names and those left by deleted or worktree checkouts.
+    foreach ($candidate in @(Get-ChildItem -LiteralPath $desktop -Filter '*.lnk' -File)) {
+        if ($candidate.FullName -eq $path) { continue }
         try {
-            $legacy = (New-Object -ComObject WScript.Shell).CreateShortcut($legacyPath)
-            if ([string]$legacy.Description -ceq $marker) { Remove-Item -LiteralPath $legacyPath -Force }
-        } catch { }
+            $owner = Get-SgDevShortcutOwner ([string]$shell.CreateShortcut($candidate.FullName).Description)
+            if ($null -eq $owner) { continue }
+            $ownerPath = [IO.Path]::GetFullPath($owner).TrimEnd('\','/')
+            if ($ownerPath -eq $projectPath -or -not (Test-Path -LiteralPath $ownerPath -PathType Container) -or (Get-SgGitCheckoutInfo $ownerPath).IsLinkedWorktree) { Remove-Item -LiteralPath $candidate.FullName -Force }
+        } catch { Write-SgWarn "Stale Dev shortcut left in place: $($candidate.Name)" }
     }
-    Write-SgInfo "Flutter Dev shortcut ready: $([IO.Path]::GetFileNameWithoutExtension($path))"
+    Write-SgInfo "Dev shortcut ready: $displayName - Dev"
     return $path
 }
 
@@ -3089,7 +3130,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         if($readiness.PSObject.Properties['DaemonPid']){$entryData.flutterDaemonPid=[int]$readiness.DaemonPid}
         Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData
         try { Start-SgManagedProcessExitMonitor $Config $entry.path ([int]$snapshot.Pid) ([string]$snapshot.StartTimeUtc) } catch { Write-SgWarn "Process exit monitoring could not start: $($_.Exception.Message)" }
-        if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')) { [void](Install-SgFlutterDevShortcut $entryData) }
+        try { [void](Install-SgDevShortcut $entryData) } catch { Write-SgWarn "Dev shortcut skipped: $($_.Exception.Message)" }
     } else {
         $entryData.status = 'error'
         if($kind-eq'flutter-web'){$entryData.flutterStartupState='error'}
@@ -3325,5 +3366,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

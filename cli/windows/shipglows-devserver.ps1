@@ -19,6 +19,7 @@ param(
     [switch]$Screenshot,
     [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
     [string]$FlutterDeviceId = '',
+    [switch]$Open,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
     [string]$MenuSessionRequestPath = '',
@@ -128,7 +129,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s status                           Show every project surface and state'
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
-    Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>]'
+    Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>] [-Open]'
     Write-Host '  s extension-inspect [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Json]'
     Write-Host '  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
@@ -1016,8 +1017,9 @@ try {
         }
         'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
-            if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
-            else { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+            # -Open (web Dev shortcuts) starts a visible session and opens it once running.
+            $startPath = if ($ProjectPath) { $ProjectPath } else { $entry = Get-SelectedProject 'start'; if ($entry) { $entry.path } else { $null } }
+            if ($startPath) { $started = Invoke-SgRequiredStart $startPath $Port -Visible:$Open; if ($Open) { Open-SgManagedProject $started } }
         }
         'reload' {
             if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path>' }
