@@ -1468,3 +1468,9 @@ The current Codex plugin alpha is outside the repository at `/home/claude/plugin
 The canonical internal governance corpus lives under `shipglows_data/`. The repository root keeps runtime/bootstrap entrypoints and explicitly documented compatibility files only.
 
 Useful older plans, implementation summaries, and one-off reports live under [`shipglows_data/workflow/archives/`](./shipglows_data/workflow/archives/repository-history/) as inactive history, not current doctrine. Classified duplicate, generated, empty-facade, and unreferenced scratch material is deleted instead of archived indefinitely.
+
+## License
+
+The skills in [`skills/`](./skills/) are open source under the [MIT License](./skills/LICENSE).
+
+Everything else in this repository is not licensed for reuse: all rights reserved. The ShipGlows application, runner, and managed service are proprietary and live outside this repository.
