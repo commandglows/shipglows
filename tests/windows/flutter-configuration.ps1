@@ -30,7 +30,8 @@ try {
         Save-Recipe
         $script:response=[ordered]@{schemaVersion='shipglows.flutter-configuration.v1';dartDefines=[ordered]@{AUTH0_DOMAIN='fixture.invalid';AUTH0_CLIENT_ID='fixture-client';AUTH0_AUDIENCE='fixture-api';AUTH_BYPASS='false'};environment=@{AUTH0_DOMAIN='fixture.invalid'}}
         $script:argsSeen=@()
-        $runner={param($File,$Arguments) $script:argsSeen=$Arguments; Assert-Config ($env:AUTH_BYPASS -ceq 'false') 'Bypass policy was not applied in child environment.'; [pscustomobject]@{ExitCode=0;Output=($script:response|ConvertTo-Json -Depth 5 -Compress)}}
+        $script:fileSeen=$null
+        $runner={param($File,$Arguments) $script:fileSeen=$File; $script:argsSeen=$Arguments; Assert-Config ($env:AUTH_BYPASS -ceq 'false') 'Bypass policy was not applied in child environment.'; [pscustomobject]@{ExitCode=0;Output=($script:response|ConvertTo-Json -Depth 5 -Compress)}}
         $prior=[Environment]::GetEnvironmentVariable('AUTH_BYPASS','Process')
         [Environment]::SetEnvironmentVariable('AUTH_BYPASS','original','Process')
         try {
@@ -40,6 +41,8 @@ try {
             Assert-Config ($env:AUTH_BYPASS -ceq 'original') 'Parent environment was not restored.'
             Assert-Config ('--no-fallback' -in $script:argsSeen -and '--preserve-env=AUTH_BYPASS' -in $script:argsSeen) 'Doppler scope/fallback policy missing.'
             Assert-Config ($script:argsSeen[0] -ceq 'run' -and $script:argsSeen[1] -ceq '--project' -and $script:argsSeen[2] -ceq 'fixture' -and $script:argsSeen[3] -ceq '--config' -and $script:argsSeen[4] -ceq 'dev') 'Declared Doppler scope was not used.'
+            $separator=[array]::IndexOf([string[]]$script:argsSeen,'--')
+            Assert-Config ($script:fileSeen -ceq 'C:\fixture\doppler.exe' -and $separator -ge 0 -and $script:argsSeen[$separator+1] -ceq 'C:\fixture\python.exe' -and $script:argsSeen[$separator+2] -like '*config.py') 'Doppler must run Python on the declared resolver.'
             $second=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
             Assert-Config ($first.Fingerprint -ceq $second.Fingerprint) 'Identical configuration fingerprint is unstable.'
             $entry=[pscustomobject]@{flutterConfigurationFingerprint=$first.Fingerprint}
@@ -84,6 +87,17 @@ try {
             $withoutDoppler=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
             Assert-Config ($withoutDoppler.HasRecipe -and $withoutDoppler.Fingerprint -cne $first.Fingerprint) 'Doppler NONE did not produce a distinct configured launch.'
             Assert-Config ('run' -notin $script:argsSeen -and '--project' -notin $script:argsSeen -and '--config' -notin $script:argsSeen -and '--no-fallback' -notin $script:argsSeen) 'Doppler NONE unexpectedly invoked Doppler or inherited its scope.'
+            Assert-Config ($script:fileSeen -ceq 'C:\fixture\python.exe' -and $script:argsSeen[0] -like '*config.py' -and 'C:\fixture\python.exe' -notin $script:argsSeen) 'Doppler NONE must run the resolver directly under Python, not Python as its own script.'
+            # Real transport: a NONE recipe must execute its resolver end to end.
+            $realPython=(Get-Command python.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+            if ($realPython) {
+                [IO.File]::WriteAllText((Join-Path $Fixture 'config.py'),"import json`nprint(json.dumps({'schemaVersion':'shipglows.flutter-configuration.v1','dartDefines':{'AUTH0_DOMAIN':'fixture.invalid','AUTH0_CLIENT_ID':'fixture-client','AUTH0_AUDIENCE':'fixture-api','AUTH_BYPASS':'false'},'environment':{'AUTH0_DOMAIN':'fixture.invalid'}}))")
+                function Get-SgCommandPath { param($Names) if ($Names[0] -eq 'python.exe') { $realPython } else { "C:\fixture\$($Names[0])" } }
+                $executed=Get-SgFlutterConfiguration $Fixture $settings 3010
+                Assert-Config ($executed.Defines['AUTH0_CLIENT_ID'] -ceq 'fixture-client') 'Doppler NONE resolver did not run under the real Python transport.'
+                function Get-SgCommandPath { param($Names) "C:\fixture\$($Names[0])" }
+                [IO.File]::WriteAllText((Join-Path $Fixture 'config.py'),'# fixture resolver, never executed')
+            }
             $recipe.doppler=@{project='fixture';config='dev'}
             $recipe.doppler.config='dev'; $recipe.configurationScript='../outside.py'; Save-Recipe
             Expect-Blocked {Read-SgFlutterRecipe $Fixture}

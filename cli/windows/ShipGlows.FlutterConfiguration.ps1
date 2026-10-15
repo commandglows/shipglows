@@ -106,10 +106,11 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
             if (-not $doppler) { throw 'The declared Flutter recipe requires Doppler. No unauthenticated fallback is allowed.' }
             $arguments += @('run','--project',[string]$recipe.doppler.project,'--config',[string]$recipe.doppler.config,'--no-fallback','--no-check-version')
             if ($recipe.forbiddenTrueDefines.Count -gt 0) { $arguments += '--preserve-env=' + ($recipe.forbiddenTrueDefines -join ',') }
-            $arguments += '--'
+            $arguments += @('--',$python)
             $runnerFile = $doppler
         }
-        $arguments += @($python,$recipe.ScriptPath,'--configuration-json','--target',$resolverTarget)
+        # Python is the runner without Doppler; never pass it again as its own script.
+        $arguments += @($recipe.ScriptPath,'--configuration-json','--target',$resolverTarget)
         if ($origin) { $arguments += @('--web-origin',$origin) }
         if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgPublicFlutterResolver $File $Arguments } }
         $saved = @{}
