@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-10-14"
 status: active
 source_skill: 400-sg-audit
 scope: audit-scope-routing
@@ -42,6 +42,23 @@ Determine applicability from project structure, manifests, public surfaces, busi
 - SEO: `406-sg-seo audit` plus one target branch
 - translation/i18n: `407-sg-translate audit`
 - live deployment/runtime truth: `405-sg-prod`
+
+## Health Dimensions
+
+The ShipGlows app launches one owner per health dimension with the scope `<dimension>: <owner>` and records the run's `shipglows-verdict` block (`skills/references/audit-verdict-contract.md`):
+
+| Dimension | Owner launched by the app |
+| --- | --- |
+| `seo` | `406-sg-seo audit` |
+| `performance` | `010-sg-technical performance` |
+| `security` | `010-sg-technical audit` |
+| `tech` | `010-sg-technical` |
+| `content` | `009-sg-marketing` |
+| `design` | `006-sg-design audit ui` |
+| `translation` | `407-sg-translate audit` |
+| `production` | `405-sg-prod` |
+
+A verdict always names the dimension of its scope. A global audit reports one verdict per selected cell only when each cell runs as its own launched audit.
 
 Read each selected owner's activation contract and exact playbook directly. Do not search for retired generic headings.
 
