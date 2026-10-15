@@ -36,7 +36,7 @@ function Fail([string]$Message) { throw $Message }
 try {
     $bootstrapText = [IO.File]::ReadAllText($bootstrap)
     $installerText = [IO.File]::ReadAllText($installer)
-    Assert-Contains $bootstrapText 'cli/\(\?:private_data\\\.py\|environment/' 'Windows bootstrap does not use the closed private-data and environment package allowlist.'
+    Assert-Contains $bootstrapText 'cli/\(\?:private_data\\\.py\|shipglows_readwise\\\.py\|readwise_oauth\\\.py\|environment/' 'Windows bootstrap does not use the closed private-data and environment package allowlist.'
     Assert-Contains $bootstrapText 'environmentDirectory\s*=\s*Join-Path\s+\$ShipglowsDir' 'Windows bootstrap does not target the selected runtime.'
     Assert-Contains $bootstrapText "'cli\\environment'" 'Windows bootstrap does not target runtime\cli\environment.'
     Assert-Contains $bootstrapText "'ShipGlows\.ExtensionLab\.js'" 'Windows bootstrap does not include Extension Lab in its closed Windows package.'
@@ -64,12 +64,13 @@ try {
     $archiveEnvironment = Join-Path $archiveSource 'cli\environment'
     $archiveLocal = Join-Path $archiveSource 'local'
     New-Item -ItemType Directory -Path $archiveWindows,(Join-Path $archiveEnvironment 'schemas'),$archiveLocal -Force | Out-Null
-    foreach ($windowsFile in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.Backend.ps1','ShipGlows.BackendSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
+    foreach ($windowsFile in @('ShipGlows.CliLauncher.cs','ShipGlows.MenuSession.ps1','shipglows-menu.cmd','shipglows-menu.txt','shipglows-readwise.cmd','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.Backend.ps1','ShipGlows.BackendSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
         Copy-Item -LiteralPath (Join-Path $root "cli\windows\$windowsFile") -Destination (Join-Path $archiveWindows $windowsFile)
     }
     Copy-Item -LiteralPath (Join-Path $root 'shipglows-version.json') -Destination (Join-Path $archiveSource 'shipglows-version.json')
     Copy-Item -LiteralPath (Join-Path $root 'local\install_local.ps1') -Destination (Join-Path $archiveLocal 'install_local.ps1')
     Copy-Item -LiteralPath (Join-Path $root 'cli\private_data.py') -Destination (Join-Path $archiveSource 'cli\private_data.py')
+    foreach ($readwiseFile in @('shipglows_readwise.py','readwise_oauth.py')) { Copy-Item -LiteralPath (Join-Path $root "cli\$readwiseFile") -Destination (Join-Path $archiveSource "cli\$readwiseFile") }
     Copy-Item -LiteralPath (Join-Path $root 'cli\install-turso-cloud.sh') -Destination (Join-Path $archiveSource 'cli\install-turso-cloud.sh')
     foreach ($pythonFile in @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','versions.py','windows_tauri_backend.py')) {
         Copy-Item -LiteralPath (Join-Path $environmentSource $pythonFile) -Destination (Join-Path $archiveEnvironment $pythonFile)
@@ -81,7 +82,7 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 40) { throw "Installer extracted $($entries.Count) files instead of the closed set of 40." }
+    if ($entries.Count -ne 46) { throw "Installer extracted $($entries.Count) files instead of the closed set of 46." }
     if (-not ($entries -match 'ShipGlows\.CliLauncher\.cs$')) { throw 'Installer did not extract the native CLI launcher source.' }
     if (-not ($entries -match 'ShipGlows\.ExtensionLab\.js$')) { throw 'Installer did not extract the Extension Lab runtime.' }
     if (-not ($entries -match 'ShipGlows\.ObsidianLab\.js$')) { throw 'Installer did not extract the Obsidian Lab runtime.' }

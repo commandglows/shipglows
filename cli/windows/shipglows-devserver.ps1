@@ -109,7 +109,10 @@ if ($Action.Trim().ToLowerInvariant() -eq 'private-data') {
         [Console]::Error.WriteLine('ShipGlows private-data commands require Python 3.')
         exit 2
     }
-    & $python.Source $privateDataScript @($ShortcutPath)
+    $privateDataArguments = @($ShortcutPath)
+    # PowerShell binds `--repo <URL>` to -RepositoryUrl by prefix; hand it back to the control plane.
+    if ($PSBoundParameters.ContainsKey('RepositoryUrl')) { $privateDataArguments += @('--repo', $RepositoryUrl) }
+    & $python.Source $privateDataScript @privateDataArguments
     exit $LASTEXITCODE
 }
 
