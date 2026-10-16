@@ -20,6 +20,10 @@ if('--web-run-headless'-in$visibleRunArgs){throw 'Visible Flutter launch still r
 foreach($expected in @('run','--machine','-d','chrome','--web-hostname','127.0.0.1','--web-port','3010','--web-browser-flag=--user-data-dir=C:\managed chrome profile')){if($expected-notin$visibleRunArgs){throw "Visible Flutter launch is missing: $expected"}}
 if(@($visibleRunArgs|Where-Object{$_-match'localhost'}).Count-ne0){throw 'Visible Flutter launch advertised localhost instead of 127.0.0.1.'}
 $webServerRunArgs=@(New-SgFlutterRunArguments 'web-server' 3010 '' $false)
+$profileRunArgs=@(New-SgFlutterRunArguments 'windows' 0 '' $false 'profile')
+if('--profile'-notin$profileRunArgs-or'--release'-in$profileRunArgs-or$profileRunArgs[1]-cne'--machine'){throw 'Profile Flutter launch must add --profile after --machine and never --release.'}
+if('--profile'-in$webServerRunArgs-or'--profile'-in(@(New-SgFlutterRunArguments 'windows' 0 '' $false))){throw 'Debug Flutter launch unexpectedly requested profile mode.'}
+try{[void](New-SgFlutterRunArguments 'windows' 0 '' $false 'release');throw 'Release mode was accepted by the managed supervisor.'}catch{if($_.Exception.Message-eq'Release mode was accepted by the managed supervisor.'){throw}}
 if('--web-run-headless'-in$webServerRunArgs-or@($webServerRunArgs|Where-Object{$_-like'--web-browser-flag=*'}).Count-ne0){throw 'Explicit web-server mode inherited Chrome-only arguments.'}
 $savedLocalAppData=$env:LOCALAPPDATA;$savedChromeExecutable=$env:CHROME_EXECUTABLE;$browserFixture=Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-browser-{0}" -f [guid]::NewGuid().ToString('N'))
 try {

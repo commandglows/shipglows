@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: shipglows
 created: "2026-09-05"
-updated: "2026-09-07"
+updated: "2026-10-16"
 status: active
 source_skill: sg-development
 scope: flutter-configured-launch
@@ -90,6 +90,18 @@ selects an explicit target for this launch without rewriting `.shipglows.env`.
 project's durable selection. Android fingerprints include the resolved device;
 Web preflight pins the origin to the port that will actually be reserved.
 
+`-FlutterMode debug|profile` selects the run mode of the same managed session
+(`.shipglows.env` may declare `SHIPGLOWS_FLUTTER_MODE=debug|profile` durably;
+`debug` is the default). `profile` runs `flutter run --machine --profile -d <device>`
+through the same supervisor, Doppler wrapper and public-define projection as
+debug, for performance measurement with Flutter attached. `--release` is never
+a managed session; release artifacts stay with the build publisher. The mode is
+part of the session fingerprint, so switching debug/profile restarts the session,
+and the registry entry records `flutterMode` for `s status`. Flutter supports
+neither hot reload nor hot restart in profile mode ("Restart is not supported in
+profile mode"): the source watcher stays off and `s reload` refuses with the
+`s restart` alternative, which rebuilds the profile session. `s stop` is unchanged.
+
 The project's standalone build entrypoints use the same resolver. A debug app,
 profile/release artifact and an authenticated interactive session are distinct
 outcomes. Build artifacts still use the official artifact publisher after actual
@@ -114,6 +126,10 @@ exposed; disclose the exception. Broken or missing configured auth requires
 diagnosis and never authorizes bypass. A rendered login screen does not prove
 login. Requested end-to-end validation requires login and protected-access proof
 or the exact remaining limitation and user-only step.
+
+`tests/windows/devserver-flutter-mode.ps1` covers the mode parameter end to end:
+`.shipglows.env` parsing, supervisor arguments (`--profile`, never `--release`),
+fingerprint invalidation, registry/status display and the profile reload refusal.
 
 The focused configuration test covers missing recipes for known auth dependencies,
 public projects without auth, disabled bypass flags, missing required values,

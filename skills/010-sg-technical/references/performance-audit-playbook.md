@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-10-07"
+updated: "2026-10-16"
 status: active
 source_skill: 010-sg-technical
 scope: performance-audit-playbook
@@ -77,6 +77,8 @@ What performance risks are limiting this scope across bundle, rendering, loading
 - **`$ARGUMENTS` is empty** → PROJECT MODE: full performance audit.
 
 Keep the boundary explicit: stay in `010-sg-technical performance` when performance is already the dominant audit domain. Route back to `400-sg-audit` only when the operator needs multi-domain audit planning or consolidation beyond performance.
+
+Flutter measurements come from the managed profile session: `s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile` (the registry records `flutterMode: profile`; `s reload` is refused because Flutter supports neither hot reload nor hot restart in profile, `s restart … -FlutterMode profile` rebuilds; `s stop` is unchanged). Profile compiles like release (AOT, no asserts) while keeping the VM service and DevTools attached, so jank, raster, memory and timeline figures are representative. Debug-mode figures are never performance evidence, release has no attached tooling, and a hand-run `flutter run --profile` or `flutter drive --profile` outside the managed surface is not an accepted measurement path.
 
 ---
 

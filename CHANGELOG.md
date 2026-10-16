@@ -31,6 +31,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ## [Unreleased]
 
+- Added `-FlutterMode debug|profile` to `s start` (and `SHIPGLOWS_FLUTTER_MODE` in `.shipglows.env`): the managed Flutter session can run `flutter run --machine --profile -d <device>` for performance measurement with the same supervisor, Doppler wrapper and public-define projection as debug. The registry records `flutterMode`, `s status` shows it, the session fingerprint restarts on a mode change, the source watcher stays off in profile and `s reload` refuses with the `s restart … -FlutterMode profile` alternative (Flutter supports neither hot reload nor hot restart in profile mode). `--release` is never a managed session.
 - Added `shipglows check` to the Windows CLI: runs the lint and test scripts declared by `package.json` or `pubspec.yaml`; placeholder lint scripts count as not configured and Bun lockfiles are refused.
 - Added `trigger: manual` to `.shipglows/required-gate.json` so a managed-project gate runs on `workflow_dispatch` only; `ruleset-plan`/`ruleset-apply` refuse it, and `audit --repository --ruleset-id` flags a ruleset that still requires the gate.
 

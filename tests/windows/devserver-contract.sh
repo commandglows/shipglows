@@ -73,6 +73,7 @@ for regression in \
   devserver-registry-migration.ps1 \
   devserver-flutter-background.ps1 \
   devserver-flutter-supervisor.ps1 \
+  devserver-flutter-mode.ps1 \
   devserver-flutter-stop.ps1 \
   devserver-metadata-sync.ps1 \
   devserver-dependency-setup.ps1 \

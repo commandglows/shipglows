@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-10-07"
+updated: "2026-10-16"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-security-ui-runtime
@@ -41,7 +41,7 @@ Visual success requires rendered human evidence when the contract demands it. St
 
 ## Flutter Proof Ladder
 
-Use widget/unit tests first, then the managed live `flutter run` session on the registry-backed active development target. Use Flutter Web smoke (`108-sg-browser` for non-auth, `109-sg-auth-debug` for auth) when browser behavior is relevant, not as a substitute for the selected native target. APK/AAB or standalone Windows builds are release/package checkpoints for risks that depend on installation, packaging, native plugins/DLLs, production mode, performance, or startup without Flutter attached. IME, permissions, overlays, notifications, services, native plugins/channels, pickers, camera/mic, storage, installation, and device performance remain target-scoped. Skipping practical live-target evidence without a concrete exception yields `partial` or `not verified`.
+Use widget/unit tests first, then the managed live `flutter run` session on the registry-backed active development target. Measure performance only in the managed profile session (`s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile`; rebuild with `s restart … -FlutterMode profile`, since profile supports neither hot reload nor hot restart), never from debug numbers and never with a hand-run `flutter run --profile` or `flutter drive --profile`. Use Flutter Web smoke (`108-sg-browser` for non-auth, `109-sg-auth-debug` for auth) when browser behavior is relevant, not as a substitute for the selected native target. APK/AAB or standalone Windows builds are release/package checkpoints for risks that depend on installation, packaging, native plugins/DLLs, production mode, or startup without Flutter attached. IME, permissions, overlays, notifications, services, native plugins/channels, pickers, camera/mic, storage, installation, and device performance remain target-scoped. Skipping practical live-target evidence without a concrete exception yields `partial` or `not verified`.
 
 ## Runtime And External Proof
 

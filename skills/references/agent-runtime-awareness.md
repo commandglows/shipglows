@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.12.0"
+artifact_version: "3.13.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-10-16"
@@ -138,7 +138,7 @@ Firebase Device Streaming authentication, project selection, billing, and device
 and must never be automated. Report the recorded Firebase state and exact next
 action without claiming a hosted device is callable until the current turn proves it.
 
-`FLUTTER-LIVE-DEVELOPMENT`: ordinary Flutter implementation and debugging use the managed `flutter run` session for the selected target. It is the normal development loop because it keeps logs and reload available. On Android, honor an explicitly configured connected device; otherwise reuse a ready Android emulator or start the provisioned `ShipGlows_API_36` AVD and wait for Flutter device readiness. Do not create a release build merely to expose an iterative correction. Use a standalone build only for an explicit release checkpoint or targeted proof that depends on packaging, native plugins or DLLs, installation, production-mode behavior, performance, or startup without Flutter attached.
+`FLUTTER-LIVE-DEVELOPMENT`: ordinary Flutter implementation and debugging use the managed `flutter run` session for the selected target. It is the normal development loop because it keeps logs and reload available. On Android, honor an explicitly configured connected device; otherwise reuse a ready Android emulator or start the provisioned `ShipGlows_API_36` AVD and wait for Flutter device readiness. Do not create a release build merely to expose an iterative correction. For performance measurement with Flutter attached, use the managed profile session (`s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile`; the registry records `flutterMode`, profile sessions support neither hot reload nor hot restart, so `s restart … -FlutterMode profile` rebuilds them) instead of a hand-run `flutter run --profile` or `flutter drive --profile`; debug-mode numbers are not performance evidence and no managed session uses `--release`. Use a standalone build only for an explicit release checkpoint or targeted proof that depends on packaging, native plugins or DLLs, installation, production-mode behavior, or startup without Flutter attached.
 
 `FLUTTER-CONFIGURED-LAUNCH`: a short request such as "lance l'app Windows en mode dev" or "lance le build web" includes the project's declared authentication and service configuration. Resolve target and mode from durable evidence; use the project recipe and its declared Doppler scope without asking the operator to repeat technical setup. The Windows manager reads `.shipglows.flutter.json`, runs its allowlisted public configuration resolver through Doppler, transfers frontend parameters to Dart and native parameters to Gradle, and revalidates the configuration fingerprint before reusing a session. Missing configuration blocks before replacing a running session. Never replace the recipe with a bare Flutter command, a bypass or an older artifact. The project's build entrypoints must use the same resolver. See `cli/windows/ShipGlows.FlutterConfiguration.ps1` and `shipglows_data/technical/flutter-configured-launch.md` for the bounded recipe contract. Distinguish configuration checked, process running, interactive login verified and protected API access verified; compilation or `app.started` alone proves neither login nor product access.
 

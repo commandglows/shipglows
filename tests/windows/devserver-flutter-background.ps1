@@ -41,6 +41,10 @@ try {
         $windows = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'windows' '' $launch 'ShipGlowsFlutter-launch-123'
         $windowsArguments = $windows.Arguments -join ' '
         if ($windowsArguments -notmatch '-Device windows' -or $windowsArguments -match '-Port|ProfilePath|web-hostname|web-port') { throw 'Flutter Windows must launch without web port or browser profile arguments.' }
+        if ($windowsArguments -notmatch '-Mode debug') { throw 'Flutter launch must default to the debug mode explicitly.' }
+        $profileSpec = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'windows' '' $launch 'ShipGlowsFlutter-launch-123' 'profile'
+        if (($profileSpec.Arguments -join ' ') -notmatch '-Mode profile') { throw 'Flutter profile launch did not reach the supervisor.' }
+        try { [void](Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'windows' '' $launch 'ShipGlowsFlutter-launch-123' 'release'); throw 'Release mode was accepted as a managed launch.' } catch { if ($_.Exception.Message -eq 'Release mode was accepted as a managed launch.') { throw } }
         $android = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'emulator-5554' '' $launch 'ShipGlowsFlutter-launch-123'
         $androidArguments = $android.Arguments -join ' '
         if ($androidArguments -notmatch '-Device emulator-5554' -or $androidArguments -match '-Port|ProfilePath|web-hostname|web-port') { throw 'Flutter Android must launch by exact device id without web arguments.' }
@@ -126,6 +130,6 @@ try {
     $source = Get-Content -LiteralPath $modulePath -Raw
     foreach($expected in @('Invoke-CimMethod -ClassName Win32_Process -MethodName Create','-RedirectStandardOutput','-RedirectStandardError','-PassThru -Wait -WindowStyle Hidden','ShowWindow=[uint16]0')){if(-not$source.Contains($expected)){throw 'Managed detached launches must redirect logs and hide the process window.'}}
     $supervisorSource = Get-Content -LiteralPath (Join-Path (Split-Path $modulePath) 'ShipGlows.FlutterSupervisor.ps1') -Raw
-    foreach ($expected in @("'run','--machine','-d'",'--web-run-headless','--web-hostname','--web-port','--dart-define-from-file=','app.restart')) { if (-not $supervisorSource.Contains($expected)) { throw "Flutter supervisor launch contract is missing: $expected" } }
+    foreach ($expected in @('''run'',''--machine''','''-d'',$Device','if ($Mode -eq ''profile'') { $arguments+=''--profile'' }','--web-run-headless','--web-hostname','--web-port','--dart-define-from-file=','app.restart')) { if (-not $supervisorSource.Contains($expected)) { throw "Flutter supervisor launch contract is missing: $expected" } }
     Write-Host 'Windows DevServer Flutter background launch: OK'
 } finally { Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue }

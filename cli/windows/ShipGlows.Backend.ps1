@@ -163,7 +163,7 @@ function Initialize-SgBackend($Config, $Plan, $Existing) {
     } catch { if ($created) { Stop-SgBackend $state }; throw }
 }
 
-function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort=0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice='', [string]$FlutterDeviceId='', [switch]$Restart) {
+function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort=0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice='', [string]$FlutterDeviceId='', [ValidateSet('','debug','profile')][string]$FlutterMode='', [switch]$Restart) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     if (-not (Test-SgProjectPath $path $Config.Workspace)) { throw 'Project must be inside the ShipGlows workspace before backend launch.' }
     $existing = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
@@ -187,7 +187,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if ($existing -and (Test-SgProcessIdentity $existing) -and (-not $oldBackend -or $oldBackend.fingerprint -ne $backend.fingerprint)) {
             $Restart=$true
         }
-        $result = Start-SgProjectCore $Config $path $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup:$RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -Restart:$Restart
+        $result = Start-SgProjectCore $Config $path $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup:$RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -Restart:$Restart
         if ($result.status -eq 'running') {
             if (($backend.process -and -not (Test-SgProcessIdentity $backend.process)) -or ($backend.mode -ne 'none' -and -not (Test-SgBackendReady $plan.Manifest.readiness))) { [void](Stop-SgProject $Config $path); throw 'Backend lost readiness during application startup.' }
             $result | Add-Member -NotePropertyName backend -NotePropertyValue $backend -Force

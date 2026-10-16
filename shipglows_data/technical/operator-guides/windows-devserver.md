@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.30.0"
+artifact_version: "1.31.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-05"
+updated: "2026-10-16"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -493,7 +493,11 @@ uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
 Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `<dépôt>-<surface> - Dev` (par exemple `dreamglows-windows_app - Dev`), qui démarre la session ou réutilise celle déjà active. La même règle vaut pour les serveurs de dev Tauri, Astro, Vite et Flutter web ; pour le web, le raccourci ajoute `-Open` et ouvre le navigateur une fois le serveur prêt. Un worktree Git ne reçoit jamais de raccourci. Au démarrage, les raccourcis ShipGlows du même projet sous un ancien nom, et ceux qui pointent vers un worktree ou un dossier disparu, sont retirés. Un raccourci non créé par ShipGlows n’est jamais écrasé, et un échec de raccourci n’empêche jamais le démarrage. Seul `shipglows-dev start` crée ces raccourcis : aucun raccourci fait à la main.
 
-Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev. Une fois le build enregistré testé, la sortie brute du checkout (`build\windows\x64\runner\Release`, `build\app\outputs`) est supprimée : le cache conserve déjà les deux dernières générations validées.
+Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`.
+
+`s start -ProjectPath <app> -FlutterDevice windows -FlutterMode profile` lance la même session supervisée en mode profile (`flutter run --machine --profile -d windows`), avec le wrapper Doppler et la projection de configuration publique du projet, pour mesurer les performances avec Flutter attaché. `-FlutterMode debug` est la valeur par défaut ; `.shipglows.env` peut déclarer `SHIPGLOWS_FLUTTER_MODE=debug|profile` durablement. Le mode fait partie de l’empreinte de session : passer de debug à profile redémarre la session gérée. Le registre mémorise `flutterMode` et `s status` l’affiche (`Live session | profile`). En profile, Flutter ne sait faire ni hot reload ni hot restart (« Restart is not supported in profile mode ») : la surveillance des sources est désactivée et `s reload` refuse en renvoyant vers `s restart … -FlutterMode profile`, qui reconstruit la session profile ; `s stop` ne change pas. Aucune session gérée n’utilise `--release` : les builds release passent par la publication d’artefacts.
+
+Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev. Une fois le build enregistré testé, la sortie brute du checkout (`build\windows\x64\runner\Release`, `build\app\outputs`) est supprimée : le cache conserve déjà les deux dernières générations validées.
 
 ### Flutter Android en développement
 

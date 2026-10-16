@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-26"
-updated: "2026-10-15"
+updated: "2026-10-16"
 status: active
 source_skill: 900-shipglows-core
 scope: latest-build-artifact-access
@@ -33,7 +33,7 @@ next_step: "/103-sg-verify latest build artifact access"
 
 # Latest Build Artifact Access
 
-This contract is not the ordinary Flutter development loop. Iterative Flutter work uses the managed live `flutter run` session. Refresh a build lane only after a successful release build or an explicit standalone/package-sensitive validation checkpoint.
+This contract is not the ordinary Flutter development loop. Iterative Flutter work uses the managed live `flutter run` session, and performance measurement uses the managed profile session (`s start … -FlutterMode profile`), not a build lane. Refresh a build lane only after a successful release build or an explicit standalone/package-sensitive validation checkpoint.
 
 ## Trigger
 

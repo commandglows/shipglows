@@ -718,8 +718,9 @@ function Get-SgProjectKind([string]$ProjectPath) {
     throw "Unsupported or ambiguous project. Supported kinds: Obsidian plugins, Astro, Vite, browser extensions, Python/FastAPI with uv/requirements, Flutter."
 }
 
-function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '') {
+function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '', [string]$FlutterMode = '') {
     $portValue = if ($Port -gt 0) { ":$Port" } else { 'pending' }
+    $modeSuffix = if ($FlutterMode) { " | $FlutterMode" } else { '' }
     switch ($Kind) {
         'tauri' {
             return [pscustomobject]@{
@@ -758,7 +759,7 @@ function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$Flutter
             if ($FlutterDevice -eq 'android') {
                 return [pscustomobject]@{
                     Label = 'Flutter Android app'
-                    PortLabel = 'Live session'
+                    PortLabel = "Live session$modeSuffix"
                     Artifact = 'managed Flutter Android session'
                     StartOutcome = 'Managed Flutter Android session ready'
                     StartNextAction = 'Develop with live logs and reload; use the Dev shortcut to reuse this session.'
@@ -769,7 +770,7 @@ function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$Flutter
             if ($FlutterDevice -eq 'windows') {
                 return [pscustomobject]@{
                     Label = 'Flutter Windows app'
-                    PortLabel = 'Live session'
+                    PortLabel = "Live session$modeSuffix"
                     Artifact = 'managed Flutter Windows session'
                     StartOutcome = 'Managed Flutter Windows session ready'
                     StartNextAction = 'Develop with live logs and reload; use the Dev shortcut to reuse this session.'
@@ -779,7 +780,7 @@ function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$Flutter
             }
             return [pscustomobject]@{
                 Label = 'Flutter app'
-                PortLabel = "App $portValue"
+                PortLabel = "App $portValue$modeSuffix"
                 Artifact = 'managed Chrome session'
                 StartOutcome = 'Managed Flutter app session ready'
                 StartNextAction = 'Next: run s open -ProjectPath <path> to open or focus the managed app session.'
@@ -807,7 +808,8 @@ function Format-SgProjectStatus([object]$Entry) {
     $port = if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 }
     $status = if ($Entry.PSObject.Properties['status'] -and $Entry.status) { [string]$Entry.status } else { 'discovered' }
     $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
-    $experience = Get-SgProjectExperience $kind $port $flutterDevice
+    $flutterMode = if ($kind -in @('flutter','flutter-web') -and $Entry.PSObject.Properties['flutterMode']) { [string]$Entry.flutterMode } else { '' }
+    $experience = Get-SgProjectExperience $kind $port $flutterDevice $flutterMode
     if ($kind -eq 'obsidian-plugin') {
         $surfaceState = if ($Entry.PSObject.Properties['surfaceState'] -and $Entry.surfaceState) { [string]$Entry.surfaceState } else { 'detected' }
         $validationState = if ($Entry.PSObject.Properties['validationState'] -and $Entry.validationState) { [string]$Entry.validationState } else { 'validation-unavailable' }
@@ -865,7 +867,7 @@ function Get-SgProjectLogKey([object]$Entry) {
 
 function Get-SgRuntimeSettings([string]$ProjectPath) {
     $defaultFlutterDevice = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container) { 'windows' } else { 'chrome' }
-    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy'; ReadyTimeoutSeconds = 0 }
+    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; FlutterMode = 'debug'; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy'; ReadyTimeoutSeconds = 0 }
     $file = Join-Path $ProjectPath '.shipglows.env'
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $settings }
     foreach ($rawLine in @(Get-Content -LiteralPath $file)) {
@@ -885,6 +887,8 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
             $settings.FlutterDevice = $Matches[1]
         } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE_ID=([A-Za-z0-9._:-]{1,128})$') {
             $settings.FlutterDeviceId = $Matches[1]
+        } elseif ($line -match '^SHIPGLOWS_FLUTTER_MODE=(debug|profile)$') {
+            $settings.FlutterMode = $Matches[1]
         } elseif ($line -match '^SHIPGLOWS_DART_DEFINE_FILE=(.+)$') {
             # A declared recipe replaces legacy per-checkout generated config.
             if (Test-Path -LiteralPath (Join-Path $ProjectPath '.shipglows.flutter.json') -PathType Leaf) { continue }
@@ -901,7 +905,7 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
         } elseif ($line -eq 'SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy') {
             $settings.ObsidianSyncMode = 'copy'
         } else {
-            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_READY_TIMEOUT_SECONDS, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, SHIPGLOWS_FLUTTER_DEVICE_ID, SHIPGLOWS_DART_DEFINE_FILE, SHIPGLOWS_OBSIDIAN_VAULT, and SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy."
+            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_READY_TIMEOUT_SECONDS, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, SHIPGLOWS_FLUTTER_DEVICE_ID, SHIPGLOWS_FLUTTER_MODE, SHIPGLOWS_DART_DEFINE_FILE, SHIPGLOWS_OBSIDIAN_VAULT, and SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy."
         }
     }
     return $settings
@@ -2083,7 +2087,7 @@ function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
     Move-Item -LiteralPath $Path -Destination $rotated -Force
 }
 
-function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '') {
+function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$FlutterMode = 'debug') {
     if ($Kind -eq 'tauri') {
         $tauri = Get-Content -LiteralPath (Join-Path $ProjectPath 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
         $devUrl = [uri]$tauri.build.devUrl
@@ -2176,7 +2180,8 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         $file = Resolve-SgPowerShellExecutable
         $args = @('-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',"`"$supervisor`"",'-LaunchDirectory',"`"$FlutterLaunchDirectory`"",'-ProjectPath',"`"$ProjectPath`"",'-FlutterPath',"`"$flutter`"")
         if ($FlutterDevice -in @('chrome','web-server')) { $args += @('-Port',[string]$Port) }
-        $args += @('-Device',$FlutterDevice,'-LaunchIdentity',$FlutterLaunchIdentity)
+        if ($FlutterMode -notin @('debug','profile')) { throw 'Managed Flutter sessions support only debug or profile mode; release builds use the artifact publisher.' }
+        $args += @('-Device',$FlutterDevice,'-LaunchIdentity',$FlutterLaunchIdentity,'-Mode',$FlutterMode)
         if ($FlutterDevice -eq 'chrome') { $args += @('-ProfilePath',"`"$FlutterProfilePath`""); if ($FlutterVisible) { $args += '-Visible' } }
         if ($DartDefineFile) { $args += @('-DartDefineFile',"`"$DartDefineFile`"") }
         $signature = $FlutterLaunchIdentity
@@ -2561,11 +2566,14 @@ function Get-SgOwnedFlutterNativePids([object]$Entry) {
     $cmake=Join-Path $project 'windows\CMakeLists.txt';if(-not(Test-Path -LiteralPath $cmake -PathType Leaf)){return @()}
     try{$cmakeText=[IO.File]::ReadAllText($cmake);$match=[regex]::Match($cmakeText,'(?im)^\s*set\s*\(\s*BINARY_NAME\s+"([A-Za-z0-9._-]+)"\s*\)\s*$');if(-not$match.Success){return @()};$expectedLeaf=$match.Groups[1].Value+'.exe'}catch{return @()}
     $runnerRoot=[IO.Path]::GetFullPath((Join-Path $project 'build\windows')).TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar
+    # The managed session owns only the runner of its own build mode: Debug by default, Profile for a profile session; a Release runner is never a managed process.
+    $runnerDirectory=if($Entry.PSObject.Properties['flutterMode']-and[string]$Entry.flutterMode-eq'profile'){'Profile'}else{'Debug'}
+    $runnerPattern='(?i)[\\/]runner[\\/]'+$runnerDirectory+'[\\/][^\\/]+\.exe$'
     $started=$null;if($Entry.PSObject.Properties['startTimeUtc']-and$Entry.startTimeUtc){try{$started=([DateTimeOffset]::Parse([string]$Entry.startTimeUtc,[Globalization.CultureInfo]::InvariantCulture)).UtcDateTime.AddSeconds(-5)}catch{}}
     $owned=@()
     foreach($process in @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)){
         try{$executable=[IO.Path]::GetFullPath([string]$process.ExecutablePath)}catch{continue}
-        if(-not$executable.StartsWith($runnerRoot,[StringComparison]::OrdinalIgnoreCase)-or$executable-notmatch'(?i)[\\/]runner[\\/]Debug[\\/][^\\/]+\.exe$'-or-not([IO.Path]::GetFileName($executable).Equals($expectedLeaf,[StringComparison]::OrdinalIgnoreCase))){continue}
+        if(-not$executable.StartsWith($runnerRoot,[StringComparison]::OrdinalIgnoreCase)-or$executable-notmatch$runnerPattern-or-not([IO.Path]::GetFileName($executable).Equals($expectedLeaf,[StringComparison]::OrdinalIgnoreCase))){continue}
         if($started-and$process.PSObject.Properties['CreationDate']-and$process.CreationDate){try{if(([datetime]$process.CreationDate).ToUniversalTime()-lt$started){continue}}catch{continue}}
         $owned+=[int]$process.ProcessId
     }
@@ -3015,7 +3023,7 @@ function Install-SgDevShortcut([object]$Entry, [string]$DesktopPath = '', [strin
     return $path
 }
 
-function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '', [switch]$Restart) {
+function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '', [ValidateSet('','debug','profile')][string]$FlutterMode = '', [switch]$Restart) {
     $requestedPath = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Reconcile-SgRegistry $Config).projects | Where-Object { $_.path -eq $requestedPath }) | Select-Object -First 1
     if (-not $entry) {
@@ -3044,7 +3052,12 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $settings.FlutterDevice=$FlutterDevice
         $settings.FlutterDeviceId=if($FlutterDevice -eq 'android'){$FlutterDeviceId}else{$FlutterDevice}
     } elseif ($FlutterDeviceId) { throw 'FlutterDeviceId requires an explicit Android FlutterDevice.' }
+    if ($FlutterMode) {
+        if ([string]$entry.kind -ne 'flutter-web') { throw 'Flutter mode selection requires a Flutter project.' }
+        $settings.FlutterMode=$FlutterMode
+    }
     $resolvedFlutterDevice = [string]$settings.FlutterDevice
+    $resolvedFlutterMode = if ([string]$settings.FlutterMode) { [string]$settings.FlutterMode } else { 'debug' }
     if ([string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
         $flutterPath=Get-SgFlutterCommandPath
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
@@ -3125,7 +3138,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }
     try {
         Invoke-SgDependencySetup $Config $launchPath $kind $setupLog | Out-Null
-        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity
+        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
         throw
@@ -3146,7 +3159,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         throw
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); flutterMode = $(if ($kind -eq 'flutter-web') { $resolvedFlutterMode } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force;$entryData|Add-Member -NotePropertyName flutterConfigurationFingerprint -NotePropertyValue $flutterConfiguration.Fingerprint -Force}
     Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
     if (-not (Test-SgProcessIdentity $entryData)) {
@@ -3161,7 +3174,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode}
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
@@ -3201,7 +3214,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
         $diagnosticFailure=Get-SgStartupFailure $err $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode}
     }
     if($kind-eq'obsidian-plugin'){
         Write-SgInfo "$($entry.name) running: artifacts copied to $($entryData.obsidianPluginPath); Obsidian load validation is unavailable."
@@ -3209,7 +3222,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"
         Write-SgInfo "Next: run s open -ProjectPath `"$($entry.path)`" to open Chrome extension tools."
     }elseif($kind-eq'flutter-web' -and $settings.FlutterDevice -in @('windows','android')){
-        Write-SgInfo "$($entry.name) $($entryData.status): managed Flutter $($settings.FlutterDevice) app"
+        Write-SgInfo "$($entry.name) $($entryData.status): managed Flutter $($settings.FlutterDevice) app ($resolvedFlutterMode mode)"
     }else{Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"}
     return $entryData
 }
