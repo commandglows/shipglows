@@ -18,8 +18,8 @@ extract_function() {
 grep -Fq 'SHIPGLOWS_INSTALL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"' "$INSTALLER"
 grep -Fq "alias shipglows='/usr/local/bin/shipglows'" "$INSTALLER"
 grep -Fq "alias sg='/usr/local/bin/sg'" "$INSTALLER"
-grep -Fq 'write_shipglows_command_wrapper shipglows "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh"' "$INSTALLER"
-grep -Fq 'write_shipglows_command_wrapper sg "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh"' "$INSTALLER"
+grep -Fq 'write_shipglows_command_wrapper shipglows "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "$SHIPGLOWS_INSTALL_ROOT"' "$INSTALLER"
+grep -Fq 'write_shipglows_command_wrapper sg "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "$SHIPGLOWS_INSTALL_ROOT"' "$INSTALLER"
 grep -Fq 'require_supported_linux_distribution || exit 1' "$INSTALLER"
 grep -Fq 'Installation incomplète' "$INSTALLER"
 
@@ -44,8 +44,28 @@ if [ -L "$SHIPGLOWS_SYSTEM_BIN_DIR/sg" ] || [ ! -x "$SHIPGLOWS_SYSTEM_BIN_DIR/sg
     echo "sg wrapper must atomically replace a legacy symlink" >&2
     exit 1
 fi
-grep -Fq 'exec "/opt/shipglows/cli/shipglows.sh" "$@"' "$SHIPGLOWS_SYSTEM_BIN_DIR/sg"
+grep -Fq "default_root='/opt/shipglows'" "$SHIPGLOWS_SYSTEM_BIN_DIR/sg"
+grep -Fq 'root="${SHIPGLOWS_ROOT:-$default_root}"' "$SHIPGLOWS_SYSTEM_BIN_DIR/sg"
+grep -Fq 'exec "$target" "$@"' "$SHIPGLOWS_SYSTEM_BIN_DIR/sg"
 grep -Fxq 'legacy-content-must-survive' "$TEST_ROOT/legacy-target"
+
+# Another Unix user cannot read the installer's private checkout: the wrapper
+# must honour that user's SHIPGLOWS_ROOT and otherwise fail with a clear message.
+mkdir -p "$TEST_ROOT/other-root/cli"
+printf '%s\n' '#!/bin/sh' 'echo "ran-from-other-root $1"' > "$TEST_ROOT/other-root/cli/shipglows.sh"
+chmod 755 "$TEST_ROOT/other-root/cli/shipglows.sh"
+if [ "$(SHIPGLOWS_ROOT="$TEST_ROOT/other-root" "$SHIPGLOWS_SYSTEM_BIN_DIR/sg" status)" != "ran-from-other-root status" ]; then
+    echo "sg wrapper must honour the caller's SHIPGLOWS_ROOT" >&2
+    exit 1
+fi
+if unreadable_output="$(env -u SHIPGLOWS_ROOT "$SHIPGLOWS_SYSTEM_BIN_DIR/sg" status 2>&1)"; then
+    echo "sg wrapper must fail when the default checkout is unreadable" >&2
+    exit 1
+fi
+case "$unreadable_output" in
+    *"set SHIPGLOWS_ROOT"*) ;;
+    *) echo "sg wrapper must explain how to point at a readable checkout" >&2; exit 1 ;;
+esac
 
 eval "$(extract_function require_supported_linux_distribution)"
 info() { :; }
