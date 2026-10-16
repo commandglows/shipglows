@@ -2441,10 +2441,13 @@ function Update-SgFlutterReadinessWindow([bool]$WasActiveProgress,[bool]$IsActiv
     [pscustomobject]@{ActiveProgress=$IsActiveProgress;Deadline=$Deadline}
 }
 
-function Get-SgLatestWriteUtc([string]$Path) {
+# Latest file write under any of the given directories (missing ones are skipped).
+function Get-SgLatestWriteUtc([string[]]$Path) {
     $latest=[datetime]::MinValue
-    if(-not$Path-or-not[IO.Directory]::Exists($Path)){return $latest}
-    try{foreach($file in ([IO.DirectoryInfo]$Path).EnumerateFiles('*',[IO.SearchOption]::AllDirectories)){if($file.LastWriteTimeUtc-gt$latest){$latest=$file.LastWriteTimeUtc}}}catch{}
+    foreach($root in @($Path)){
+        if(-not$root-or-not[IO.Directory]::Exists($root)){continue}
+        try{foreach($file in ([IO.DirectoryInfo]$root).EnumerateFiles('*',[IO.SearchOption]::AllDirectories)){if($file.LastWriteTimeUtc-gt$latest){$latest=$file.LastWriteTimeUtc}}}catch{}
+    }
     $latest
 }
 
@@ -2453,19 +2456,22 @@ function Update-SgFlutterBuildStallDeadline([datetime]$StallDeadline,[datetime]$
     [pscustomobject]@{LastActivityUtc=$LastActivityUtc;StallDeadline=$StallDeadline}
 }
 
-# With a BuildActivityPath, an active build is only cut after BuildStallTimeoutSeconds without
-# any file write under that path, or when ActiveProgressTimeoutSeconds (hard cap) is reached.
-function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [int]$ActiveProgressTimeoutSeconds = 600, [string]$BuildActivityPath = '', [int]$BuildStallTimeoutSeconds = 300) {
+# With BuildActivityPath, an active build is only cut after BuildStallTimeoutSeconds without
+# any file write under those paths, or when ActiveProgressTimeoutSeconds (hard cap) is reached.
+# Windows passes build\windows (native MSBuild) and .dart_tool\flutter_build (Dart kernel
+# compile): a large Dart compile writes nothing under build\windows for minutes.
+function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [int]$ActiveProgressTimeoutSeconds = 600, [string[]]$BuildActivityPath = @(), [int]$BuildStallTimeoutSeconds = 300) {
     $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
     $progressDeadline=(Get-Date).AddSeconds([Math]::Max($TimeoutSeconds,$ActiveProgressTimeoutSeconds))
     $activeProgress=$false;$stalled=$false
     $stallDeadline=(Get-Date).AddSeconds([Math]::Max(0,$BuildStallTimeoutSeconds));$lastActivityUtc=Get-SgLatestWriteUtc $BuildActivityPath;$nextActivityScan=Get-Date
+    $hasActivityPath=@($BuildActivityPath|Where-Object{$_}).Count-gt0
     do {
         if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-SgBoundedFileTail $StatePath 262144|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}};$currentProgress=[bool](($state.PSObject.Properties['progressActive']-and[bool]$state.progressActive)-or[string]$state.status-eq'building');$timing=Update-SgFlutterReadinessWindow $activeProgress $currentProgress $deadline $TimeoutSeconds;$deadline=$timing.Deadline;$activeProgress=$timing.ActiveProgress}catch{}}
         if($ProcessEntry-and-not(Test-SgProcessIdentity $ProcessEntry)){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor exited during startup.';DaemonPid=0}}
         $now=Get-Date
-        if($BuildActivityPath-and$now-ge$nextActivityScan){$nextActivityScan=$now.AddSeconds(5);$activity=Update-SgFlutterBuildStallDeadline $stallDeadline $lastActivityUtc (Get-SgLatestWriteUtc $BuildActivityPath) $BuildStallTimeoutSeconds $now;$stallDeadline=$activity.StallDeadline;$lastActivityUtc=$activity.LastActivityUtc}
-        if($activeProgress-and$BuildActivityPath-and$now-ge$stallDeadline){$stalled=$true;break}
+        if($hasActivityPath-and$now-ge$nextActivityScan){$nextActivityScan=$now.AddSeconds(5);$activity=Update-SgFlutterBuildStallDeadline $stallDeadline $lastActivityUtc (Get-SgLatestWriteUtc $BuildActivityPath) $BuildStallTimeoutSeconds $now;$stallDeadline=$activity.StallDeadline;$lastActivityUtc=$activity.LastActivityUtc}
+        if($activeProgress-and$hasActivityPath-and$now-ge$stallDeadline){$stalled=$true;break}
         if(((-not$activeProgress)-and$now-ge$deadline)-or($activeProgress-and$now-ge$progressDeadline)){break};Start-Sleep -Milliseconds 250
     }while($true)
     [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($stalled){"Flutter Windows build stalled: no build output for $BuildStallTimeoutSeconds seconds before app.started."}elseif($activeProgress){'Flutter Windows build timed out before app.started.'}else{'Flutter supervisor timed out before app.started.'});DaemonPid=0}
@@ -3115,7 +3121,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
-    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 (Join-Path $launchPath 'build\windows') 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 300 $entryData $err}
+    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 @((Join-Path $launchPath 'build\windows'),(Join-Path $launchPath '.dart_tool\flutter_build')) 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 300 $entryData $err}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         if ($kind -eq 'obsidian-plugin') {

@@ -55,6 +55,8 @@ try{
             $idle=Update-SgFlutterBuildStallDeadline $activityAt $activityAt.AddSeconds(-2) $activityAt.AddSeconds(-2) 300 $activityAt.AddMinutes(1)
             if($idle.StallDeadline-ne$activityAt){throw 'Unchanged Flutter build output extended the stall deadline.'}
             if((Get-SgLatestWriteUtc (Join-Path $stateRoot 'missing'))-ne[datetime]::MinValue){throw 'A missing build directory did not report the minimum write time.'}
+            $dartRoot=Join-Path $stateRoot '.dart_tool\flutter_build';New-Item -ItemType Directory -Path $dartRoot -Force|Out-Null;$freshAt=[datetime]::UtcNow.AddSeconds(-5);[IO.File]::WriteAllText((Join-Path $dartRoot 'app.dill'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $dartRoot 'app.dill'),$freshAt)
+            if((Get-SgLatestWriteUtc @($buildRoot,$dartRoot,(Join-Path $stateRoot 'missing')))-ne$freshAt){throw 'Dart kernel output under .dart_tool did not count as Flutter Windows build activity.'}
             function Test-SgProcessIdentity {$false}
             $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
             if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}
