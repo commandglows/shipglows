@@ -1283,8 +1283,31 @@ function Get-SgGitHubRepositoryIndexSignature([string[]]$RepositoryPaths) {
     }
 }
 
-function Test-SgGitHubRepositoryIdentityIndex([object]$Config, [object]$Index, [string]$Signature, [switch]$AllowCachedSignature) {
+function Get-SgGitHubWorkspaceRepositoryList([string]$Workspace) {
+    # Cheap fingerprint of the workspace: top-level directories that carry a
+    # .git marker. One directory listing, no Git invocation, no .git metadata read.
+    $list = New-Object 'System.Collections.Generic.List[string]'
+    try {
+        foreach ($directory in @(Get-ChildItem -LiteralPath $Workspace -Directory -Force -ErrorAction Stop)) {
+            if ($directory.Name.StartsWith('.') -or ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint)) { continue }
+            $full = [IO.Path]::GetFullPath($directory.FullName).TrimEnd('\','/')
+            if (Test-Path -LiteralPath (Join-Path $full '.git')) { [void]$list.Add($full.ToLowerInvariant()) }
+        }
+    } catch [UnauthorizedAccessException] { }
+    return @($list | Sort-Object -Unique)
+}
+
+function Test-SgGitHubRepositoryIdentityIndex([object]$Config, [object]$Index, [string]$Signature, [switch]$AllowCachedSignature, [string[]]$WorkspaceRepositories = @()) {
     if (-not $Index -or $Index.schemaVersion -ne 1 -or (-not $AllowCachedSignature -and [string]$Index.signature -ne $Signature) -or $null -eq $Index.repositories) { return $false }
+    if ($AllowCachedSignature) {
+        # The cached signature is only trusted while the set of workspace
+        # repositories is unchanged: a repository cloned outside this module
+        # must disappear from the clone picker in the same process.
+        if (-not $Index.PSObject.Properties['workspaceRepositories']) { return $false }
+        $indexed = @($Index.workspaceRepositories | ForEach-Object { [string]$_ } | Sort-Object -Unique)
+        $current = @($WorkspaceRepositories | Sort-Object -Unique)
+        if (($indexed -join "`n") -cne ($current -join "`n")) { return $false }
+    }
     $workspace = [IO.Path]::GetFullPath([string]$Config.Workspace).TrimEnd('\','/')
     $indexedWorkspace = try { [IO.Path]::GetFullPath([string]$Index.workspace).TrimEnd('\','/') } catch { return $false }
     if (-not $workspace.Equals($indexedWorkspace, [StringComparison]::OrdinalIgnoreCase)) { return $false }
@@ -1298,7 +1321,7 @@ function Test-SgGitHubRepositoryIdentityIndex([object]$Config, [object]$Index, [
     return $true
 }
 
-function Read-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signature, [switch]$AllowCachedSignature) {
+function Read-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signature, [switch]$AllowCachedSignature, [string[]]$WorkspaceRepositories = @()) {
     $path = Get-SgGitHubRepositoryIndexPath $Config
     $key = "$([IO.Path]::GetFullPath([string]$Config.Workspace).ToLowerInvariant())|$($path.ToLowerInvariant())"
     if (Test-Path -LiteralPath "$path.stale" -PathType Leaf) {
@@ -1307,13 +1330,13 @@ function Read-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signatur
     }
     if ($script:GitHubRepositoryIdentityMemory.ContainsKey($key)) {
         $memoryIndex = $script:GitHubRepositoryIdentityMemory[$key]
-        if (Test-SgGitHubRepositoryIdentityIndex $Config $memoryIndex $Signature -AllowCachedSignature:$AllowCachedSignature) { return $memoryIndex }
+        if (Test-SgGitHubRepositoryIdentityIndex $Config $memoryIndex $Signature -AllowCachedSignature:$AllowCachedSignature -WorkspaceRepositories $WorkspaceRepositories) { return $memoryIndex }
         [void]$script:GitHubRepositoryIdentityMemory.Remove($key)
     }
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
     try {
         $index = (Get-Content -LiteralPath $path -Raw -ErrorAction Stop) | ConvertFrom-Json -ErrorAction Stop
-        if (Test-SgGitHubRepositoryIdentityIndex $Config $index $Signature -AllowCachedSignature:$AllowCachedSignature) {
+        if (Test-SgGitHubRepositoryIdentityIndex $Config $index $Signature -AllowCachedSignature:$AllowCachedSignature -WorkspaceRepositories $WorkspaceRepositories) {
             $script:GitHubRepositoryIdentityMemory[$key] = $index
             return $index
         }
@@ -1321,7 +1344,7 @@ function Read-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signatur
     return $null
 }
 
-function Write-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signature, [string[]]$Repositories) {
+function Write-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signature, [string[]]$Repositories, [string[]]$WorkspaceRepositories = @()) {
     $path = Get-SgGitHubRepositoryIndexPath $Config
     $key = "$([IO.Path]::GetFullPath([string]$Config.Workspace).ToLowerInvariant())|$($path.ToLowerInvariant())"
     $index = [pscustomobject]@{
@@ -1330,6 +1353,7 @@ function Write-SgGitHubRepositoryIdentityIndex([object]$Config, [string]$Signatu
         generatedAt = [DateTimeOffset]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
         signature = $Signature
         repositories = @($Repositories | Sort-Object -Unique)
+        workspaceRepositories = @($WorkspaceRepositories | Sort-Object -Unique)
     }
     $script:GitHubRepositoryIdentityMemory[$key] = $index
     $temp = "$path.$([guid]::NewGuid().ToString('N')).tmp"
@@ -1370,8 +1394,11 @@ function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$Git
     if (-not (Test-Path -LiteralPath $GitPath -PathType Leaf)) { return @() }
 
     # Prefer the five-minute identity cache before inspecting every repository's
-    # .git metadata. Clone and catalog invalidation still marks it stale.
-    $cachedIndex = Read-SgGitHubRepositoryIdentityIndex $Config '' -AllowCachedSignature
+    # .git metadata. Clone and catalog invalidation still marks it stale, and
+    # the cheap workspace repository list guards against clones made outside
+    # this module (a manual `git clone` into the workspace).
+    $workspaceRepositories = Get-SgGitHubWorkspaceRepositoryList $workspace
+    $cachedIndex = Read-SgGitHubRepositoryIdentityIndex $Config '' -AllowCachedSignature -WorkspaceRepositories $workspaceRepositories
     if ($cachedIndex) { return @($cachedIndex.repositories) }
 
     $candidatePaths = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
@@ -1416,7 +1443,7 @@ function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$Git
         $ErrorActionPreference = $previousPreference
     }
     $result = @($identities | Sort-Object)
-    if ($signature) { Write-SgGitHubRepositoryIdentityIndex $Config $signature $result }
+    if ($signature) { Write-SgGitHubRepositoryIdentityIndex $Config $signature $result -WorkspaceRepositories $workspaceRepositories }
     return $result
 }
 
