@@ -31,6 +31,8 @@ or every reference here. For non-trivial outcomes it loads
 
 Keep one owner, proof and authority limits. Clear bounded requests do not authorize
 a chantier. Material uncertainty or scope growth stops for an operator-owned decision.
+Content-only changes prove by frontmatter/schema conformity and locale parity; never run a
+build, type check, lint, or test for them unless code also changed or the operator asks.
 
 ## Stop Conditions
 
