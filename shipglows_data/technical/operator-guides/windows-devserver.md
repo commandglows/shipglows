@@ -555,6 +555,19 @@ déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.
 
+Le délai de disponibilité au démarrage vaut 300 s pour un projet web et 90 s
+pour une extension ou un plugin Obsidian. Un projet plus lent au premier
+démarrage (par exemple Astro 7 avec synchronisation du contenu) le déclare dans
+son `.shipglows.env` avec `SHIPGLOWS_READY_TIMEOUT_SECONDS=<30-1800>` ; une
+valeur hors de cette plage est refusée. Les sessions Flutter gardent leur propre
+supervision.
+
+Les journaux de chaque surface vont dans
+`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<nom>-<empreinte>\`, l'empreinte étant
+dérivée du chemin du projet : deux surfaces nommées `site` dans deux dépôts ne
+partagent plus leurs fichiers `stdout.log`, `stderr.log` et `setup.log`. Le
+registre garde le chemin exact (`logPath`, `errorLogPath`) de la dernière session.
+
 Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
 
 Une extension CRXJS n'est reconnue que si elle déclare `@crxjs/vite-plugin` et

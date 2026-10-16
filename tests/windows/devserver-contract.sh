@@ -65,6 +65,7 @@ for regression in \
   devserver-user-guidance.ps1 \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
+  devserver-readiness-logs.ps1 \
   devserver-port-reservation.ps1 \
   devserver-cli-performance.ps1 \
   native-cli-launcher.ps1 \

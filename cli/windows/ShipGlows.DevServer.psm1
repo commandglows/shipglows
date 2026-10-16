@@ -850,9 +850,22 @@ function Get-SgProjectDescriptor([string]$ProjectPath) {
     return $descriptors[0]
 }
 
+# Log folder per project path: display names such as "site" repeat across monorepos.
+function Get-SgProjectLogKey([object]$Entry) {
+    $name = [string]$Entry.name
+    if ([string]::IsNullOrWhiteSpace($name)) { $name = 'project' }
+    $safeName = ($name -replace '[^A-Za-z0-9._-]', '-').Trim('-')
+    if (-not $safeName) { $safeName = 'project' }
+    $normalizedPath = [IO.Path]::GetFullPath([string]$Entry.path).TrimEnd('\','/').ToLowerInvariant()
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { $digest = $sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($normalizedPath)) } finally { $sha.Dispose() }
+    $hash = ([BitConverter]::ToString($digest, 0, 4) -replace '-', '').ToLowerInvariant()
+    return "$safeName-$hash"
+}
+
 function Get-SgRuntimeSettings([string]$ProjectPath) {
     $defaultFlutterDevice = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container) { 'windows' } else { 'chrome' }
-    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy' }
+    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy'; ReadyTimeoutSeconds = 0 }
     $file = Join-Path $ProjectPath '.shipglows.env'
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $settings }
     foreach ($rawLine in @(Get-Content -LiteralPath $file)) {
@@ -862,6 +875,10 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
             $value = $Matches[1].Trim()
             if ($value -notmatch '^\d+$' -or [int]$value -lt 1024 -or [int]$value -gt 65535) { throw "Invalid SHIPGLOWS_ENV_PORT in $file; expected a port between 1024 and 65535." }
             $settings.Port = [int]$value
+        } elseif ($line -match '^SHIPGLOWS_READY_TIMEOUT_SECONDS=(.+)$') {
+            $value = $Matches[1].Trim()
+            if ($value -notmatch '^\d+$' -or [int]$value -lt 30 -or [int]$value -gt 1800) { throw "Invalid SHIPGLOWS_READY_TIMEOUT_SECONDS in $file; expected seconds between 30 and 1800." }
+            $settings.ReadyTimeoutSeconds = [int]$value
         } elseif ($line -match '^SHIPGLOWS_AUTO_REPAIR=(true|false)$') {
             $settings.AutoRepair = $Matches[1] -eq 'true'
         } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE=(windows|android|chrome|web-server)$') {
@@ -884,7 +901,7 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
         } elseif ($line -eq 'SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy') {
             $settings.ObsidianSyncMode = 'copy'
         } else {
-            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, SHIPGLOWS_FLUTTER_DEVICE_ID, SHIPGLOWS_DART_DEFINE_FILE, SHIPGLOWS_OBSIDIAN_VAULT, and SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy."
+            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_READY_TIMEOUT_SECONDS, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, SHIPGLOWS_FLUTTER_DEVICE_ID, SHIPGLOWS_DART_DEFINE_FILE, SHIPGLOWS_OBSIDIAN_VAULT, and SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy."
         }
     }
     return $settings
@@ -2374,7 +2391,7 @@ function Get-SgStartupFailure([string]$ErrorLogPath, [string]$Fallback = 'Proces
 
 function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '') {
     if ($Kind -eq 'flutter-web') { return Wait-SgFlutterReady $LogPath $TimeoutSeconds }
-    $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 300))
+    $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 1800))
     do {
         if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
             return [pscustomobject]@{ Ready=$false; AppId=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
@@ -3049,7 +3066,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     elseif ($explicitPort) { Write-SgInfo "Using configured port: $port" }
     elseif ($previousPort -gt 0 -and $previousPort -eq $port) { Write-SgInfo "Reusing persistent port: $port" }
     else { Write-SgInfo "Assigned port: $port" }
-    $logDir = Join-Path $Config.LogDirectory $entry.name
+    $logDir = Join-Path $Config.LogDirectory (Get-SgProjectLogKey $entry)
     Ensure-SgDirectory $logDir
     $out = Join-Path $logDir 'stdout.log'; $err = Join-Path $logDir 'stderr.log'
     $setupLog = Join-Path $logDir 'setup.log'
@@ -3121,7 +3138,8 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
-    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 @((Join-Path $launchPath 'build\windows'),(Join-Path $launchPath '.dart_tool\flutter_build')) 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 300 $entryData $err}
+    $readyTimeout = if ([int]$settings.ReadyTimeoutSeconds -gt 0) { [int]$settings.ReadyTimeoutSeconds } else { 0 }
+    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 @((Join-Path $launchPath 'build\windows'),(Join-Path $launchPath '.dart_tool\flutter_build')) 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}else{300}) $entryData $err}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         if ($kind -eq 'obsidian-plugin') {
