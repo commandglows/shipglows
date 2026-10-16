@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.11.0"
+artifact_version: "3.12.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-10-06"
+updated: "2026-10-16"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -77,6 +77,14 @@ after a state transition, failed probe or contradictory observation; reading
 the registry must not start the CLI or an application.
 
 Do not derive the URL from `package.json`, framework defaults such as Astro/Vite `4321`, a remembered port, or another project. `.shipglows.env` remains the optional committed runtime-policy file; it is not the environment summary or live-state authority.
+
+For startup diagnostics, read the matching entry's `logPath` and `errorLogPath`
+(plus `setup.log` in the same folder). Each surface writes under
+`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<name>-<path-hash>\`, so two
+surfaces with the same display name (for example `site`) never share logs; a
+folder named after the bare display name belongs to an older session and may
+mix projects. A web readiness timeout is configured through `.shipglows.env`
+(`SHIPGLOWS_READY_TIMEOUT_SECONDS`, see `project-runtime-policy.md`).
 
 Report runtime capabilities from the global file before attempting tool discovery:
 
