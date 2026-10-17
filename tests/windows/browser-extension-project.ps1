@@ -137,6 +137,21 @@ try {
         Assert-Sg ($null -eq $parsed) "A non-object manifest.json was treated as a browser extension: '$content'"
     }
 
+    # A WXT extension is ready once wxt is installed; it never needs the crxjs plugin.
+    $wxt = Join-Path $fixture 'wxt-extension'
+    New-Item -ItemType Directory -Path (Join-Path $wxt 'node_modules') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $wxt 'package.json'), '{"name":"wxt-extension","scripts":{"dev":"wxt"},"devDependencies":{"wxt":"0.21.4"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt 'pnpm-lock.yaml'), "lockfileVersion: '9.0'`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt 'node_modules\.modules.yaml'), "layoutVersion: 5`n", [Text.UTF8Encoding]::new($false))
+    Assert-Sg ((Get-SgProjectKind $wxt) -eq 'browser-extension') 'WXT extension was not classified as a browser extension.'
+    Assert-Sg (-not (& $module { param($Project) Test-SgDependencyArtifacts $Project 'browser-extension' } $wxt)) 'WXT extension without wxt installed passed the dependency check.'
+    New-Item -ItemType Directory -Path (Join-Path $wxt 'node_modules\wxt') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $wxt 'node_modules\wxt\package.json'), '{"name":"wxt","version":"0.21.4"}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg (& $module { param($Project) Test-SgDependencyArtifacts $Project 'browser-extension' } $wxt) 'Installed WXT extension still required @crxjs/vite-plugin.'
+    [void](Write-SgProjectEnvironment $wxt 32146 -Kind 'browser-extension')
+    $wxtEnvironmentText = [IO.File]::ReadAllText((Join-Path $wxt 'ENVIRONMENT.md'))
+    Assert-Sg ($wxtEnvironmentText -match 'Unpacked Chrome directory: `\.output/chrome-mv3-dev`') 'WXT extension environment did not name the WXT dev output.'
+
     Write-Host 'Windows browser-extension project support: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue

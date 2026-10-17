@@ -1986,7 +1986,9 @@ function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
         elseif(Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf){$managerArtifact=Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf}
         else{$managerArtifact=Test-Path -LiteralPath (Join-Path $nodeModules '.package-lock.json') -PathType Leaf}
         if($Kind-eq'browser-extension'){
-            $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules '@crxjs\vite-plugin') 'package.json') -PathType Leaf
+            # WXT projects install wxt; only crxjs projects carry @crxjs/vite-plugin.
+            $frameworkPackage=if((Get-SgBrowserExtensionFramework (Read-SgNodePackage $ProjectPath))-eq'wxt'){'wxt'}else{'@crxjs\vite-plugin'}
+            $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $frameworkPackage) 'package.json') -PathType Leaf
         }elseif($Kind-eq'tauri'){$frameworkArtifact=Test-Path -LiteralPath (Join-Path $nodeModules '@tauri-apps\cli\package.json') -PathType Leaf}else{$frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $Kind) 'package.json') -PathType Leaf}
         return $managerArtifact -and $frameworkArtifact
     }
@@ -2794,10 +2796,11 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [strin
     if ([string]::IsNullOrWhiteSpace($Kind)) { try { $Kind = Get-SgProjectKind $ProjectPath } catch { $Kind = 'unknown' } }
     $urlValue = if ($Kind -eq 'browser-extension') { 'not applicable (browser extension)' } elseif ($Kind -eq 'obsidian-plugin') { 'not applicable (Obsidian plugin)' } elseif ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
     $extensionGuidance = if ($Kind -eq 'browser-extension') {
+        $unpackedDirectory = if ((Get-SgBrowserExtensionFramework (Read-SgNodePackage $ProjectPath)) -eq 'wxt') { '.output/chrome-mv3-dev' } else { 'dist/chrome' }
 (@"
 - Browser target: ``Chrome``
-- Unpacked Chrome directory: ``dist/chrome``
-- Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> ``dist\chrome`` -> ``s stop -ProjectPath .``
+- Unpacked Chrome directory: ``$unpackedDirectory``
+- Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> ``$($unpackedDirectory.Replace('/','\'))`` -> ``s stop -ProjectPath .``
 - Chrome profile boundary: ShipGlows opens the extension manager and generated directory but never installs the extension automatically in a personal profile.
 "@).TrimEnd() + "`n"
     } else { '' }
