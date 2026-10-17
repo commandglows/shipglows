@@ -110,13 +110,14 @@ The first three layers define the primary product promise. The fourth is a diffe
 - Workflow governance for AI-assisted engineering work.
 - Context routing and artifact-based execution.
 - Server-hosted environment management for developer workflows.
+- A visual builder for Flutter applications and Astro sites, aimed at power users, with progressive disclosure so beginners can also use it: started and planned, not shipped, no availability or pricing promise.
 - A unified operating model between AI delivery and server environment management.
 - Guided recovery when governing business context is materially incomplete, stale, or conflicting.
 
 ## Scope Out
 
 - General-purpose product management suite.
-- Beginner no-code workflow tooling.
+- Beginner-only no-code workflow tooling. Beginners may be served through progressive disclosure, but power users remain the core target.
 - Broad cloud hosting abstraction for every deployment model.
 - Generic platform-manager positioning without a strong agent-workflow angle.
 - Consulting, agency work, diagnostics, implementation missions, and human-accompaniment offers.
