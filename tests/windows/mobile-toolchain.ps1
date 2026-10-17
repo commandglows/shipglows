@@ -592,7 +592,7 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
     Assert-Sg ($flutterBaselineDefinition.Count -eq 1) 'Flutter baseline must resolve uniquely.'
     Invoke-Expression $flutterBaselineDefinition[0].Extent.Text
     $flutterBaseline = Get-SgFlutterBaseline
-    Assert-Sg ($flutterBaseline.Schema -eq 'shipglows.flutter-baseline/v1' -and $flutterBaseline.ValidatedAt -eq '2026-08-23' -and $flutterBaseline.FlutterVersion -eq '3.47.1' -and $flutterBaseline.DartVersion -eq '3.13.1' -and $flutterBaseline.Commit -eq '6655482ec06e547f90abf8ae7590466f4415978d') 'Flutter baseline must use the exact validated ShipGlows coordinates.'
+    Assert-Sg ($flutterBaseline.Schema -eq 'shipglows.flutter-baseline/v1' -and $flutterBaseline.ValidatedAt -eq '2026-10-18' -and $flutterBaseline.FlutterVersion -eq '3.47.7' -and $flutterBaseline.DartVersion -eq '3.13.5' -and $flutterBaseline.Commit -eq 'abaf9c523780a608bd46686fd5e53740a07077f8') 'Flutter baseline must use the exact validated ShipGlows coordinates.'
     foreach ($value in @($flutterBaseline.FlutterVersion,$flutterBaseline.DartVersion,$flutterBaseline.Commit)) { Assert-Sg ([string]$value -notmatch '(?i)latest|stable|nightly|beta|[x*^~<>]') 'Flutter baseline must not contain a moving version coordinate.' }
     $serviceInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgMachineToolbox' },$true))
     Assert-Sg ($serviceInstaller.Count -eq 1) 'Machine CLI toolbox installer must resolve uniquely.'
@@ -659,12 +659,12 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
         function Get-SgToolPath([string]$Name,[string[]]$Paths) { if ($Name -eq 'flutter.bat') { return (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat') }; if ($Name -eq 'git.exe') { return 'C:\git.exe' }; return '' }
         function Get-SgFlutterInstallState([string]$FlutterRoot) { [pscustomobject]@{ Status='ready'; Recovery='none'; FlutterPath=(Join-Path $FlutterRoot 'bin\flutter.bat'); DartPath=(Join-Path $FlutterRoot 'bin\dart.bat') } }
         function Add-SgUserPathEntry([string]$Directory) { [void]$capturedPath.Add($Directory) }
-        function Resolve-SgFlutterStableCommit([string]$GitPath) { return '6655482ec06e547f90abf8ae7590466f4415978d' }
+        function Resolve-SgFlutterStableCommit([string]$GitPath) { return 'abaf9c523780a608bd46686fd5e53740a07077f8' }
         function Set-SgManagedFlutterStableRevision([string]$GitPath,[string]$FlutterRoot,[string]$Commit) { [void]$stableConvergence.Add($Commit); return $true }
         function Invoke-SgVisibleBoundedProcess { [pscustomobject]@{ TimedOut=$false; ExitCode=0; Output='' } }
         Invoke-Expression $flutterInstaller[0].Extent.Text
         [void](Install-SgFlutter @((Join-Path $managedFlutterBin 'flutter.bat')) @())
-        return $capturedPath.Contains($managedFlutterBin) -and $stableConvergence.Contains('6655482ec06e547f90abf8ae7590466f4415978d')
+        return $capturedPath.Contains($managedFlutterBin) -and $stableConvergence.Contains('abaf9c523780a608bd46686fd5e53740a07077f8')
     }
     Assert-Sg $existingFlutterAddsPath 'A validated existing managed Flutter SDK must converge PATH and the resolved stable revision.'
     $stableRevisionSetter = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Set-SgManagedFlutterStableRevision' },$true))
@@ -674,7 +674,7 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
         $testLocalAppData = Join-Path $fixture 'stable-rollback-local'
         $managedRoot = Join-Path $testLocalAppData 'ShipGlows\flutter'
         $previousCommit = '1111111111111111111111111111111111111111'
-        $stableCommit = '6655482ec06e547f90abf8ae7590466f4415978d'
+        $stableCommit = 'abaf9c523780a608bd46686fd5e53740a07077f8'
         $visibleArguments = [Collections.Generic.List[string]]::new()
         $warnings = [Collections.Generic.List[string]]::new()
         $stateCounter = @{ Value = 0 }

@@ -1185,10 +1185,10 @@ function Save-SgVerifiedDownload([string]$Url, [string]$Sha256, [string]$Destina
 function Get-SgFlutterBaseline {
     return [pscustomobject]@{
         Schema = 'shipglows.flutter-baseline/v1'
-        ValidatedAt = '2026-08-23'
-        FlutterVersion = '3.47.1'
-        DartVersion = '3.13.1'
-        Commit = '6655482ec06e547f90abf8ae7590466f4415978d'
+        ValidatedAt = '2026-10-18'
+        FlutterVersion = '3.47.7'
+        DartVersion = '3.13.5'
+        Commit = 'abaf9c523780a608bd46686fd5e53740a07077f8'
     }
 }
 

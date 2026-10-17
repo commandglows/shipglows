@@ -279,8 +279,8 @@ Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
 always reconverges its own `bin` directory into the user and active installer
 `PATH`. Every full rerun converges that managed SDK to the exact
-ShipGlows-validated Flutter baseline (Flutter 3.47.1, Dart 3.13.1, commit
-`6655482ec06e547f90abf8ae7590466f4415978d`) and checks out a local branch named
+ShipGlows-validated Flutter baseline (Flutter 3.47.7, Dart 3.13.5, commit
+`abaf9c523780a608bd46686fd5e53740a07077f8`) and checks out a local branch named
 `stable` tracking the pinned `origin/shipglows-stable` ref. This baseline moves
 only through an intentional ShipGlows maintenance change, so rerunning the
 installer cannot silently change a project's SDK. ShipGlows refuses a
