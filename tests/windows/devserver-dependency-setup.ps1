@@ -7,7 +7,7 @@ try {
     New-Item -ItemType Directory -Path $fixture -Force | Out-Null
     $capture = Join-Path $fixture 'argv.txt'
     $fakeNpm = Join-Path $fixture 'npm.cmd'
-    [IO.File]::WriteAllText($fakeNpm, "@echo off`r`n>>`"$capture`" echo %*`r`nif not exist node_modules mkdir node_modules`r`ntype nul > node_modules\.package-lock.json`r`nif not exist node_modules\vite mkdir node_modules\vite`r`nif not exist node_modules\astro mkdir node_modules\astro`r`necho {}>node_modules\vite\package.json`r`necho {}>node_modules\astro\package.json`r`necho dependency-output`r`nif exist fail.flag exit /b 9`r`nif exist mutate.flag echo.>>package.json`r`n", [Text.Encoding]::ASCII)
+    [IO.File]::WriteAllText($fakeNpm, "@echo off`r`n>>`"$capture`" echo %*`r`nif not exist node_modules mkdir node_modules`r`ntype nul > node_modules\.package-lock.json`r`nif not exist node_modules\vite mkdir node_modules\vite`r`nif not exist node_modules\astro mkdir node_modules\astro`r`necho {}>node_modules\vite\package.json`r`necho {}>node_modules\astro\package.json`r`necho dependency-output`r`nif exist mismatch.flag echo ERR_PNPM_VIRTUAL_STORE_DIR_MAX_LENGTH_DIFF  This modules directory was created using a different virtual-store-dir-max-length value.`r`nif exist mismatch.flag exit /b 1`r`nif exist fail.flag exit /b 9`r`nif exist mutate.flag echo.>>package.json`r`n", [Text.Encoding]::ASCII)
     Import-Module $modulePath -Force -DisableNameChecking
     $module = Get-Module ShipGlows.DevServer
 
@@ -42,11 +42,17 @@ try {
     try { & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $locked (Join-Path $fixture 'locked.log') $fakeNpm | Out-Null } catch { $failed = $_.Exception.Message -like 'Dependency setup failed*' }
     if (-not $failed -or (Test-Path -LiteralPath $statePath)) { throw 'Failed dependency setup retained or advanced durable state.' }
     Remove-Item -LiteralPath (Join-Path $locked 'fail.flag')
+    New-Item -ItemType File -Path (Join-Path $locked 'mismatch.flag') | Out-Null
+    $mismatchMessage = ''
+    try { & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $locked (Join-Path $fixture 'locked.log') $fakeNpm | Out-Null } catch { $mismatchMessage = $_.Exception.Message }
+    if ($mismatchMessage -notlike 'Dependency setup failed*' -or $mismatchMessage -notlike '*ERR_PNPM_VIRTUAL_STORE_DIR_MAX_LENGTH_DIFF*' -or $mismatchMessage -notlike "*$(Join-Path $locked 'node_modules')*") { throw "pnpm layout mismatch was not named with its node_modules remedy: $mismatchMessage" }
+    if (-not (Test-Path -LiteralPath (Join-Path $locked 'node_modules'))) { throw 'Dependency setup deleted node_modules on a pnpm layout mismatch.' }
+    Remove-Item -LiteralPath (Join-Path $locked 'mismatch.flag')
     $changed = & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $locked (Join-Path $fixture 'locked.log') $fakeNpm
-    if (-not $changed -or @(Get-Content $capture).Count -ne 3) { throw 'Manifest change did not invalidate dependency state.' }
+    if (-not $changed -or @(Get-Content $capture).Count -ne 4) { throw 'Manifest change did not invalidate dependency state.' }
     Remove-Item -LiteralPath (Join-Path $locked 'node_modules') -Recurse -Force
     $restored = & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $locked (Join-Path $fixture 'locked.log') $fakeNpm
-    if (-not $restored -or @(Get-Content $capture).Count -ne 4) { throw 'Missing dependency artifacts did not invalidate state.' }
+    if (-not $restored -or @(Get-Content $capture).Count -ne 5) { throw 'Missing dependency artifacts did not invalidate state.' }
 
     New-Item -ItemType File -Path (Join-Path $locked 'mutate.flag') | Out-Null
     Set-Content (Join-Path $locked 'package.json') '{"mutating":true}' -Encoding UTF8

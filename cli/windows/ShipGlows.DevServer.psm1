@@ -2026,6 +2026,19 @@ function Write-SgDependencyLogRecord([IO.TextWriter]$Writer, [object]$Record) {
     Write-Output $Record
 }
 
+# pnpm refuses to reuse a node_modules created by another pnpm version or
+# layout setting (for example a global pnpm versus the corepack-pinned one).
+# Name that case and its remedy instead of a bare failure; deleting
+# node_modules stays the operator's decision.
+$script:SgPnpmLayoutMismatchCodes = @('ERR_PNPM_VIRTUAL_STORE_DIR_MAX_LENGTH_DIFF','ERR_PNPM_UNEXPECTED_STORE','ERR_PNPM_UNEXPECTED_VIRTUAL_STORE')
+
+function Get-SgDependencyFailureMessage([string]$Kind, [string]$WorkingDirectory, [string]$LogPath, [string[]]$Output) {
+    $code = $script:SgPnpmLayoutMismatchCodes | Where-Object { $mismatch = $_; @($Output | Where-Object { $_ -like "*$mismatch*" }).Count -gt 0 } | Select-Object -First 1
+    if (-not $code) { return "Dependency setup failed for $Kind. See $LogPath." }
+    $nodeModules = Join-Path $WorkingDirectory 'node_modules'
+    return "Dependency setup failed for ${Kind}: $nodeModules was created by a different pnpm version or configuration ($code). Delete that node_modules directory, then retry. See $LogPath."
+}
+
 function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath) {
     $statePath = Get-SgDependencyStatePath $Config $ProjectPath
     Ensure-SgDirectory (Split-Path -Parent $statePath)
@@ -2066,8 +2079,9 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             # exit code so this is stable with $ErrorActionPreference = 'Stop'.
             $ErrorActionPreference = 'Continue'
             if ($suppressNpmLock) { $env:npm_config_package_lock = 'false' }
-            & $pm @setupArguments 2>&1 | ForEach-Object { Write-SgDependencyLogRecord $logWriter $_ }
-            if ($LASTEXITCODE -ne 0) { throw "Dependency setup failed for $Kind." }
+            $setupOutput = New-Object Collections.Generic.List[string]
+            & $pm @setupArguments 2>&1 | ForEach-Object { $setupOutput.Add([string]$_); Write-SgDependencyLogRecord $logWriter $_ }
+            if ($LASTEXITCODE -ne 0) { throw (Get-SgDependencyFailureMessage $Kind ([string]$plan.WorkingDirectory) $LogPath $setupOutput) }
         }
         finally { $env:npm_config_package_lock = $previousNpmPackageLock; $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
         if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Kind artifacts." }
