@@ -156,6 +156,29 @@ try {
     Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145 '' '' $extension).Artifact -eq 'dist\chrome') 'CRXJS extension status lost its dist\chrome directory.'
     Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145).Artifact -eq 'dist\chrome') 'Extension status without a project path changed its default directory.'
 
+    # Open must launch a browser executable: chrome:// has no Windows handler and blocks on Open With.
+    $wxtOutput = Join-Path $wxt '.output\chrome-mv3-dev'
+    New-Item -ItemType Directory -Path $wxtOutput -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $wxtOutput 'manifest.json'), '{"name":"WXT","version":"1.0.0","manifest_version":3}', [Text.UTF8Encoding]::new($false))
+    $openEntry = [pscustomobject]@{ name='wxt-extension'; path=$wxt; kind='browser-extension'; status='running'; port=32146 }
+    foreach ($case in @(
+        @{ Browser=[pscustomobject]@{ Product='Microsoft Edge'; ExecutablePath='C:\Edge\msedge.exe'; ExtensionsUrl='edge://extensions/' }; Expected=@('C:\Edge\msedge.exe|edge://extensions/', "$wxtOutput|") },
+        @{ Browser=$null; Expected=@("$wxtOutput|") }
+    )) {
+        $launched = & $module {
+            param($Entry, $Browser)
+            $script:sgLaunched = New-Object 'System.Collections.Generic.List[string]'
+            function Get-SgExtensionManagerBrowser { return $Browser }
+            function Start-Process([string]$FilePath, [string[]]$ArgumentList) { $script:sgLaunched.Add("$FilePath|$($ArgumentList -join ' ')") }
+            function Write-SgWarn([string]$Message) { }
+            function Write-SgInfo([string]$Message) { }
+            [void](Open-SgProject $null $Entry)
+            return @($script:sgLaunched)
+        } $openEntry $case.Browser
+        Assert-Sg (($launched -join ';') -eq ($case.Expected -join ';')) "Extension open launched '$($launched -join ';')' instead of '$($case.Expected -join ';')'."
+        Assert-Sg (-not ($launched | Where-Object { $_ -like 'chrome://*' })) 'Extension open still hands a chrome:// URL to ShellExecute.'
+    }
+
     Write-Host 'Windows browser-extension project support: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue

@@ -718,6 +718,20 @@ function Get-SgProjectKind([string]$ProjectPath) {
     throw "Unsupported or ambiguous project. Supported kinds: Obsidian plugins, Astro, Vite, browser extensions, Python/FastAPI with uv/requirements, Flutter."
 }
 
+function Get-SgExtensionManagerBrowser {
+    # chrome:// has no Windows protocol handler, so ShellExecute falls back to the blocking
+    # Open With dialog. Launch an installed Chromium browser with its own extensions URL.
+    $programFilesX86 = ${env:ProgramFiles(x86)}
+    foreach ($chrome in @((Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),(Join-Path $programFilesX86 'Google\Chrome\Application\chrome.exe'),(Join-Path $env:LOCALAPPDATA 'Google\Chrome\Application\chrome.exe'))) {
+        if ($chrome -and (Test-Path -LiteralPath $chrome -PathType Leaf)) { return [pscustomobject]@{ Product='Chrome'; ExecutablePath=$chrome; ExtensionsUrl='chrome://extensions/' } }
+    }
+    foreach ($name in @('edge','vivaldi')) {
+        try { $browser = Get-SgBrowserLabExecutable $name } catch { continue }
+        return [pscustomobject]@{ Product=$browser.Product; ExecutablePath=$browser.ExecutablePath; ExtensionsUrl="$name`://extensions/" }
+    }
+    return $null
+}
+
 function Get-SgBrowserExtensionUnpackedDirectory([string]$ProjectPath) {
     # WXT dev writes its unpacked package to .output; crxjs projects keep dist\chrome.
     if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
@@ -3398,10 +3412,13 @@ function Open-SgProject([object]$Config, [object]$Entry) {
         $projectPath = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path }
         $output = @(Get-SgBrowserExtensionManifestPaths $projectPath | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | ForEach-Object { Split-Path -Parent $_ }) | Select-Object -First 1
         if (-not $output) { throw 'The browser extension has no generated unpacked directory. Wait for the Chrome development build to finish.' }
-        Start-Process 'chrome://extensions/'
+        $browser = Get-SgExtensionManagerBrowser
+        if ($browser) { Start-Process -FilePath $browser.ExecutablePath -ArgumentList $browser.ExtensionsUrl }
+        else { Write-SgWarn 'No Chrome, Edge or Vivaldi installation was found; open the browser extensions page yourself.' }
         Start-Process $output
-        Write-SgInfo "Chrome extension tools opened: chrome://extensions and $output"
-        Write-SgInfo '1. Enable Developer mode in Chrome.'
+        $managerUrl = if ($browser) { $browser.ExtensionsUrl } else { 'chrome://extensions' }
+        Write-SgInfo "Extension tools opened: $managerUrl and $output"
+        Write-SgInfo '1. Enable Developer mode in the browser.'
         Write-SgInfo '2. Choose Load unpacked.'
         Write-SgInfo "3. Select $output. ShipGlows never installs the extension automatically in your personal Chrome profile."
         return $Entry
