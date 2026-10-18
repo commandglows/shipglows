@@ -113,6 +113,18 @@ try {
     }
     if ($tauriFlap.Ready -or $tauriFlap.Error -notmatch 'Tauri dev server stopped during startup') { throw 'Tauri startup accepted a transient HTTP-ready state after the process/service exited.' }
 
+    $grace = & $module {
+        $now = [datetime]::UtcNow
+        [pscustomobject]@{
+            Fresh   = Test-SgStartupGraceActive ([pscustomobject]@{status='starting';startTimeUtc=$now.AddSeconds(-120).ToString('o')})
+            Expired = Test-SgStartupGraceActive ([pscustomobject]@{status='starting';startTimeUtc=$now.AddSeconds(-1900).ToString('o')})
+            Running = Test-SgStartupGraceActive ([pscustomobject]@{status='running';startTimeUtc=$now.ToString('o')})
+            NoStart = Test-SgStartupGraceActive ([pscustomobject]@{status='starting'})
+        }
+    }
+    if (-not $grace.Fresh) { throw 'A live web process still inside its startup window was not kept starting.' }
+    if ($grace.Expired -or $grace.Running -or $grace.NoStart) { throw 'Startup grace applied outside a bounded, timestamped starting launch.' }
+
     $secretValues = @('authBearerSecret','authBasicSecret','loneBearerSecret','tokenSecret','secretSecret','quoted password secret','apiKeySecret','dart secret')
     @(
         'Authorization: Bearer authBearerSecret',
