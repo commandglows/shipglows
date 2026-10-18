@@ -179,6 +179,41 @@ try {
         Assert-Sg (-not ($launched | Where-Object { $_ -like 'chrome://*' })) 'Extension open still hands a chrome:// URL to ShellExecute.'
     }
 
+    # A declared .shipglows.node.json runs the dev command through Doppler with only its public keys.
+    $nodeRecipe = Join-Path $extension '.shipglows.node.json'
+    $launchFor = {
+        param($Project, [bool]$WithDoppler = $true)
+        & $module {
+            param($Project, $WithDoppler)
+            function Get-SgCommandPath([string[]]$Names) {
+                if ($Names -contains 'doppler.exe') { if ($WithDoppler) { return 'C:\tools\doppler.exe' } else { return $null } }
+                return 'C:\tools\corepack.cmd'
+            }
+            (Get-SgLaunchSpec $Project 'browser-extension' 32145).Arguments -join ' '
+        } $Project $WithDoppler
+    }
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CONVEX_URL"]}', [Text.UTF8Encoding]::new($false))
+    $dopplerLaunch = & $launchFor $extension
+    Assert-Sg ($dopplerLaunch -match [regex]::Escape('call "C:\tools\doppler.exe" run --project toolglows --config dev --only-secrets CONVEX_URL --no-fallback --no-check-version --silent -- "C:\tools\corepack.cmd" pnpm@10.33.2 run dev:chrome --host 127.0.0.1 --port 32145 & rem ')) "Declared Doppler recipe did not wrap the extension launch: $dopplerLaunch"
+    $missingDoppler = $false
+    try { [void](& $launchFor $extension $false) } catch { $missingDoppler = $_.Exception.Message -match 'requires Doppler' }
+    Assert-Sg $missingDoppler 'A declared Doppler recipe fell back to an unconfigured launch when Doppler is missing.'
+    foreach ($invalid in @(
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd"},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CLERK_SECRET_KEY"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CONVEX_URL"],"command":"x"}'
+    )) {
+        [IO.File]::WriteAllText($nodeRecipe, $invalid, [Text.UTF8Encoding]::new($false))
+        $rejected = $false
+        try { [void](& $launchFor $extension) } catch { $rejected = $_.Exception.Message -match 'Node (launch )?recipe' }
+        Assert-Sg $rejected "Invalid Node recipe was accepted: $invalid"
+    }
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":"NONE","publicEnvironment":[]}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg ((& $launchFor $extension) -notmatch 'doppler') 'A Doppler NONE recipe still launched through Doppler.'
+    Remove-Item -LiteralPath $nodeRecipe -Force
+    Assert-Sg ((& $launchFor $extension) -eq $launchText) 'An undeclared Node recipe changed the existing extension launch.'
+
     Write-Host 'Windows browser-extension project support: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue

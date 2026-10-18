@@ -1846,6 +1846,40 @@ function Sync-SgDiscoveredProjectMetadata([object]$Config, [object]$Candidate) {
     return $result.projects | Where-Object { (Get-SgRunnableIdentity $_) -eq $identity } | Select-Object -First 1
 }
 
+function Read-SgNodeRecipe([string]$ProjectPath) {
+    # Optional launch recipe for Node surfaces: a Doppler development scope and the
+    # public keys it may inject. Secret values never enter launch artifacts.
+    $path = Join-Path $ProjectPath '.shipglows.node.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
+    $item = Get-Item -LiteralPath $path -Force
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Node launch recipe cannot be a reparse point.' }
+    if ($item.Length -gt 65536) { throw 'Node launch recipe exceeds 64 KiB.' }
+    try { $recipe = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Node launch recipe is not valid JSON.' }
+    $keys = @('doppler','publicEnvironment','schemaVersion')
+    if ($null -eq $recipe -or $recipe -is [array] -or (@($recipe.PSObject.Properties.Name | Sort-Object) -join ',') -cne ($keys -join ',')) { throw 'Node launch recipe fields are invalid.' }
+    if ($recipe.schemaVersion -cne 'shipglows.node-recipe.v1') { throw 'Unsupported Node launch recipe version.' }
+    if ($recipe.publicEnvironment -isnot [array]) { throw 'Node recipe publicEnvironment must be an array.' }
+    foreach ($key in $recipe.publicEnvironment) {
+        if ($key -isnot [string] -or $key -cnotmatch '^[A-Z][A-Z0-9_]{0,95}$' -or $key -match '(SECRET|PASSWORD|TOKEN|PRIVATE_KEY)') { throw 'Node recipe publicEnvironment contains a non-public or invalid key.' }
+    }
+    if (@($recipe.publicEnvironment | Select-Object -Unique).Count -ne $recipe.publicEnvironment.Count) { throw 'Node recipe publicEnvironment contains duplicate keys.' }
+    $dopplerNone = $recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE'
+    if (-not $dopplerNone -and ($null -eq $recipe.doppler -or $recipe.doppler -is [string] -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'config,project' -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$')) { throw 'Node recipe must declare Doppler as NONE or provide an exact development/staging project and config.' }
+    if (-not $dopplerNone -and $recipe.publicEnvironment.Count -eq 0) { throw 'Node recipe with Doppler must list the public keys it injects.' }
+    return $recipe
+}
+
+function Add-SgNodeRecipeLauncher([string]$ProjectPath, [string]$Command) {
+    # Wrap the managed `call "<tool>" ...` command so Doppler injects only the declared keys.
+    $recipe = Read-SgNodeRecipe $ProjectPath
+    if (-not $recipe -or ($recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE')) { return $Command }
+    $doppler = Get-SgCommandPath @('doppler.exe')
+    if (-not $doppler) { throw 'The declared Node recipe requires Doppler. No unauthenticated fallback is allowed.' }
+    if (-not $Command.StartsWith('call "')) { throw 'Node launch command cannot be wrapped by its Doppler recipe.' }
+    $only = @($recipe.publicEnvironment) -join ','
+    return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) --only-secrets $only --no-fallback --no-check-version --silent -- " + $Command.Substring(5)
+}
+
 function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port) {
     return "ShipGlows:${Kind}:${Port}:$([IO.Path]::GetFullPath($ProjectPath))"
 }
@@ -2175,12 +2209,14 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             if (-not $packageManager) { throw 'pnpm is required by pnpm-lock.yaml but is unavailable.' }
             $file = $env:ComSpec
             $command = "call `"$packageManager`" exec astro dev --host 127.0.0.1 --port $Port & rem $signature"
+            $command = Add-SgNodeRecipeLauncher $ProjectPath $command
             $args = @('/d','/s','/c',"`"$command`"")
         } else {
             $packageManager = Get-SgCommandPath @('npm.cmd','npm.exe')
             if (-not $packageManager) { throw 'npm is required but is unavailable.' }
             $file = $env:ComSpec
             $command = "call `"$packageManager`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
+            $command = Add-SgNodeRecipeLauncher $ProjectPath $command
             $args = @('/d','/s','/c',"`"$command`"")
         }
     } elseif ($Kind -in @('vite','browser-extension')) {
@@ -2199,6 +2235,7 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         } else {
             $command = "call `"$($packageManager.Manager)`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
         }
+        $command = Add-SgNodeRecipeLauncher $ProjectPath $command
         $args = @('/d','/s','/c',"`"$command`"")
     } elseif ($Kind -eq 'python') {
         $target = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'app\main.py')) { 'app.main:app' } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'main.py')) { 'main:app' } else { throw 'FastAPI entrypoint not found. V1 supports app/main.py or main.py with app.' }
