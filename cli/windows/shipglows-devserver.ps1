@@ -462,7 +462,7 @@ function Show-SgWindowsDashboard {
 function Show-SgProjectStatus([object]$Entry) {
     if (-not $Entry) { throw 'No registered project was selected.' }
     $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
-    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice '' ([string]$Entry.path)
     Write-Host ''
     Write-Host ([string]$Entry.Name) -ForegroundColor Cyan
     Write-Host (Format-SgProjectStatus $Entry)

@@ -151,6 +151,10 @@ try {
     [void](Write-SgProjectEnvironment $wxt 32146 -Kind 'browser-extension')
     $wxtEnvironmentText = [IO.File]::ReadAllText((Join-Path $wxt 'ENVIRONMENT.md'))
     Assert-Sg ($wxtEnvironmentText -match 'Unpacked Chrome directory: `\.output/chrome-mv3-dev`') 'WXT extension environment did not name the WXT dev output.'
+    $wxtExperience = Get-SgProjectExperience 'browser-extension' 32146 '' '' $wxt
+    Assert-Sg ($wxtExperience.Artifact -eq '.output\chrome-mv3-dev' -and $wxtExperience.StartOutcome -match 'chrome-mv3-dev' -and $wxtExperience.OpenNextAction -match 'chrome-mv3-dev') 'WXT extension status still names dist\chrome.'
+    Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145 '' '' $extension).Artifact -eq 'dist\chrome') 'CRXJS extension status lost its dist\chrome directory.'
+    Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145).Artifact -eq 'dist\chrome') 'Extension status without a project path changed its default directory.'
 
     Write-Host 'Windows browser-extension project support: OK'
 } finally {

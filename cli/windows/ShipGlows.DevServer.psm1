@@ -718,7 +718,15 @@ function Get-SgProjectKind([string]$ProjectPath) {
     throw "Unsupported or ambiguous project. Supported kinds: Obsidian plugins, Astro, Vite, browser extensions, Python/FastAPI with uv/requirements, Flutter."
 }
 
-function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '', [string]$FlutterMode = '') {
+function Get-SgBrowserExtensionUnpackedDirectory([string]$ProjectPath) {
+    # WXT dev writes its unpacked package to .output; crxjs projects keep dist\chrome.
+    if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
+        try { if ((Get-SgBrowserExtensionFramework (Read-SgNodePackage $ProjectPath)) -eq 'wxt') { return '.output\chrome-mv3-dev' } } catch { }
+    }
+    return 'dist\chrome'
+}
+
+function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '', [string]$FlutterMode = '', [string]$ProjectPath = '') {
     $portValue = if ($Port -gt 0) { ":$Port" } else { 'pending' }
     $modeSuffix = if ($FlutterMode) { " | $FlutterMode" } else { '' }
     switch ($Kind) {
@@ -734,14 +742,15 @@ function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$Flutter
             }
         }
         'browser-extension' {
+            $unpackedDirectory = Get-SgBrowserExtensionUnpackedDirectory $ProjectPath
             return [pscustomobject]@{
                 Label = 'Chrome extension'
                 PortLabel = "HMR $portValue"
-                Artifact = 'dist\chrome'
-                StartOutcome = 'Manifest V3 build ready in dist\chrome'
+                Artifact = $unpackedDirectory
+                StartOutcome = "Manifest V3 build ready in $unpackedDirectory"
                 StartNextAction = 'Next: run s open -ProjectPath <path> to open Chrome extension tools.'
                 OpenAction = 'Open chrome://extensions and the unpacked directory.'
-                OpenNextAction = 'In Chrome, enable Developer mode, choose Load unpacked, and select dist\chrome.'
+                OpenNextAction = "In Chrome, enable Developer mode, choose Load unpacked, and select $unpackedDirectory."
             }
         }
         'obsidian-plugin' {
@@ -809,7 +818,8 @@ function Format-SgProjectStatus([object]$Entry) {
     $status = if ($Entry.PSObject.Properties['status'] -and $Entry.status) { [string]$Entry.status } else { 'discovered' }
     $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
     $flutterMode = if ($kind -in @('flutter','flutter-web') -and $Entry.PSObject.Properties['flutterMode']) { [string]$Entry.flutterMode } else { '' }
-    $experience = Get-SgProjectExperience $kind $port $flutterDevice $flutterMode
+    $projectPath = if ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '' }
+    $experience = Get-SgProjectExperience $kind $port $flutterDevice $flutterMode $projectPath
     if ($kind -eq 'obsidian-plugin') {
         $surfaceState = if ($Entry.PSObject.Properties['surfaceState'] -and $Entry.surfaceState) { [string]$Entry.surfaceState } else { 'detected' }
         $validationState = if ($Entry.PSObject.Properties['validationState'] -and $Entry.validationState) { [string]$Entry.validationState } else { 'validation-unavailable' }
@@ -2796,7 +2806,7 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [strin
     if ([string]::IsNullOrWhiteSpace($Kind)) { try { $Kind = Get-SgProjectKind $ProjectPath } catch { $Kind = 'unknown' } }
     $urlValue = if ($Kind -eq 'browser-extension') { 'not applicable (browser extension)' } elseif ($Kind -eq 'obsidian-plugin') { 'not applicable (Obsidian plugin)' } elseif ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
     $extensionGuidance = if ($Kind -eq 'browser-extension') {
-        $unpackedDirectory = if ((Get-SgBrowserExtensionFramework (Read-SgNodePackage $ProjectPath)) -eq 'wxt') { '.output/chrome-mv3-dev' } else { 'dist/chrome' }
+        $unpackedDirectory = (Get-SgBrowserExtensionUnpackedDirectory $ProjectPath).Replace('\','/')
 (@"
 - Browser target: ``Chrome``
 - Unpacked Chrome directory: ``$unpackedDirectory``
@@ -3236,7 +3246,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if($kind-eq'obsidian-plugin'){
         Write-SgInfo "$($entry.name) running: artifacts copied to $($entryData.obsidianPluginPath); Obsidian load validation is unavailable."
     }elseif($kind-eq'browser-extension'){
-        Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"
+        Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in $(Get-SgBrowserExtensionUnpackedDirectory $entry.path)"
         Write-SgInfo "Next: run s open -ProjectPath `"$($entry.path)`" to open Chrome extension tools."
     }elseif($kind-eq'flutter-web' -and $settings.FlutterDevice -in @('windows','android')){
         Write-SgInfo "$($entry.name) $($entryData.status): managed Flutter $($settings.FlutterDevice) app ($resolvedFlutterMode mode)"
