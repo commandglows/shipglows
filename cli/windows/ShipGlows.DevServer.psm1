@@ -1864,7 +1864,12 @@ function Read-SgNodeRecipe([string]$ProjectPath) {
     }
     if (@($recipe.publicEnvironment | Select-Object -Unique).Count -ne $recipe.publicEnvironment.Count) { throw 'Node recipe publicEnvironment contains duplicate keys.' }
     $dopplerNone = $recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE'
-    if (-not $dopplerNone -and ($null -eq $recipe.doppler -or $recipe.doppler -is [string] -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'config,project' -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$')) { throw 'Node recipe must declare Doppler as NONE or provide an exact development/staging project and config.' }
+    # A production scope is accepted only with an explicit productionPublicOnly: true
+    # opt-in; the launcher still injects nothing beyond publicEnvironment.
+    $productionScope = -not $dopplerNone -and $null -ne $recipe.doppler -and $recipe.doppler -isnot [string] -and @($recipe.doppler.PSObject.Properties.Name) -ccontains 'productionPublicOnly'
+    $dopplerFields = if ($productionScope) { 'config,productionPublicOnly,project' } else { 'config,project' }
+    $configPattern = if ($productionScope) { '^(prd|prod|production)(_[a-zA-Z0-9_-]+)?$' } else { '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$' }
+    if (-not $dopplerNone -and ($null -eq $recipe.doppler -or $recipe.doppler -is [string] -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne $dopplerFields -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch $configPattern -or ($productionScope -and ($recipe.doppler.productionPublicOnly -isnot [bool] -or -not $recipe.doppler.productionPublicOnly)))) { throw 'Node recipe must declare Doppler as NONE or provide an exact development/staging project and config (a production config requires productionPublicOnly: true).' }
     if (-not $dopplerNone -and $recipe.publicEnvironment.Count -eq 0) { throw 'Node recipe with Doppler must list the public keys it injects.' }
     return $recipe
 }

@@ -198,8 +198,16 @@ try {
     $missingDoppler = $false
     try { [void](& $launchFor $extension $false) } catch { $missingDoppler = $_.Exception.Message -match 'requires Doppler' }
     Assert-Sg $missingDoppler 'A declared Doppler recipe fell back to an unconfigured launch when Doppler is missing.'
+    # A production config needs the explicit public-only opt-in and still injects only the declared keys.
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":true},"publicEnvironment":["CONVEX_URL"]}', [Text.UTF8Encoding]::new($false))
+    $productionLaunch = & $launchFor $extension
+    Assert-Sg ($productionLaunch -match [regex]::Escape('run --project toolglows --config prd --only-secrets CONVEX_URL --no-fallback')) "Opted-in production recipe did not launch with only its public keys: $productionLaunch"
     foreach ($invalid in @(
         '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd"},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":false},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":"true"},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev","productionPublicOnly":true},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":true},"publicEnvironment":["CLERK_SECRET_KEY"]}',
         '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CLERK_SECRET_KEY"]}',
         '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":[]}',
         '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CONVEX_URL"],"command":"x"}'

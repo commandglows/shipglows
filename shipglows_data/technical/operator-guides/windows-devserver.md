@@ -379,6 +379,32 @@ dans votre profil personnel. La détection automatique actuelle couvre les
 projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
 
+#### Variables publiques Doppler pour une surface Node
+
+Un fichier optionnel `.shipglows.node.json` (schéma `shipglows.node-recipe.v1`)
+à la racine d'un site, d'une app Vite ou d'une extension déclare le scope Doppler
+et la liste `publicEnvironment` des clés publiques à injecter. `s start` lance
+alors la commande dans `doppler run --project … --config … --only-secrets <clés>
+--no-fallback` : seules ces clés entrent dans le processus, jamais tout
+l'environnement. Sans Doppler, le lancement est refusé ; `"doppler": "NONE"`
+déclare une surface sans Doppler.
+
+```json
+{
+  "schemaVersion": "shipglows.node-recipe.v1",
+  "doppler": { "project": "replayglows", "config": "dev" },
+  "publicEnvironment": ["CONVEX_URL"]
+}
+```
+
+Le scope accepté par défaut est `dev`, `stg` ou `staging` (avec suffixe
+`_…` facultatif). Une config de production (`prd`, `prod`, `production`) n'est
+acceptée qu'avec `"productionPublicOnly": true` dans l'objet `doppler` : à
+utiliser uniquement quand la surface doit parler au backend de production (par
+exemple une extension qui réutilise la session de l'app hébergée) et que les
+clés listées sont publiques. Les clés au nom de secret (`SECRET`, `PASSWORD`,
+`TOKEN`, `PRIVATE_KEY`) restent refusées dans tous les cas.
+
 ### Monorepos, registre et Flutter Web
 
 Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
