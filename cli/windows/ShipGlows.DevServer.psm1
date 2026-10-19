@@ -2416,7 +2416,8 @@ function Start-SgDetachedProcess([string]$FilePath,[string[]]$ArgumentList,[stri
     }
     [void]$lines.Add("[string[]]`$launchArguments=@($argumentLiterals)")
     [void]$lines.Add("`$managedProcess=Start-Process -FilePath $(ConvertTo-SgPowerShellLiteral $FilePath) -ArgumentList `$launchArguments -WorkingDirectory $(ConvertTo-SgPowerShellLiteral $WorkingDirectory) -RedirectStandardOutput $(ConvertTo-SgPowerShellLiteral $RedirectStandardOutput) -RedirectStandardError $(ConvertTo-SgPowerShellLiteral $RedirectStandardError) -PassThru -Wait -WindowStyle Hidden")
-    [void]$lines.Add("`$managedExitCode=`$managedProcess.ExitCode;`$managedProcess.Dispose();while([ShipGlowsJobNative]::ActiveProcessCount(`$job)-gt1){Start-Sleep -Milliseconds 200};exit `$managedExitCode")
+    # Start-Process can return no handle when the supervisor is torn down while its stop request times out.
+    [void]$lines.Add("if(`$null-eq`$managedProcess){[IO.File]::AppendAllText($(ConvertTo-SgPowerShellLiteral $RedirectStandardError),('Managed supervisor process handle is unavailable after launch.'+[Environment]::NewLine));`$managedExitCode=1}else{`$managedExitCode=`$managedProcess.ExitCode;`$managedProcess.Dispose()};while([ShipGlowsJobNative]::ActiveProcessCount(`$job)-gt1){Start-Sleep -Milliseconds 200};exit `$managedExitCode")
     [void]$lines.Add("} catch { [IO.File]::AppendAllText($(ConvertTo-SgPowerShellLiteral $RedirectStandardError),(`$_.Exception.Message+[Environment]::NewLine)); exit 1 } finally { if(`$job-ne[IntPtr]::Zero){[void][ShipGlowsJobNative]::CloseHandle(`$job)} }")
     $encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines-join[Environment]::NewLine)))
     $powershell=Resolve-SgPowerShellExecutable
