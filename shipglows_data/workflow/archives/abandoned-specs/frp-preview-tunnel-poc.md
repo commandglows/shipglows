@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.1.1"
+artifact_version: "0.1.2"
 project: "ShipGlows"
 created: "2026-05-11"
 created_at: "2026-05-11 09:48:06 UTC"
-updated: "2026-07-13"
-updated_at: "2026-07-13 09:35:38 UTC"
-status: draft
+updated: "2026-10-20"
+updated_at: "2026-10-20 00:00:00 UTC"
+status: stale
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: "FRP preview tunnel POC"
@@ -41,7 +41,7 @@ evidence:
   - "FRP official README describes FRP as a fast reverse proxy that exposes local servers behind NAT/firewall to the internet."
   - "FRP official README documents TCP, UDP, HTTP, HTTPS, STCP, SUDP, XTCP and TCPMUX proxy types."
   - "FRP release v0.68.1, dated 2026-04-13, fixes a configuration-dependent authentication bypass in HTTP proxy mode when routeByHTTPUser is used with httpUser/httpPassword."
-next_step: "/sg-ready FRP preview tunnel POC"
+next_step: "None. Abandoned 2026-10-20; fail-closed checklist kept in shipglows_data/technical/local-tunnels-and-mcp-login.md."
 ---
 
 # Title
@@ -50,7 +50,7 @@ FRP preview tunnel POC
 
 # Status
 
-Draft. No implementation has been started.
+Abandoned on 2026-10-20 without implementation. FRP stays a technical benchmark only (see `shipglows_data/workflow/concurrent.md`). The fail-closed public-exposure checklist was kept in `shipglows_data/technical/local-tunnels-and-mcp-login.md`.
 
 # User Story
 

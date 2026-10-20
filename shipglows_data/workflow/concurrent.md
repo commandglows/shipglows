@@ -2,7 +2,7 @@
 artifact: veille_concurrents_inspirations
 project: shipglows
 created: "2026-05-11"
-updated: "2026-05-11"
+updated: "2026-10-20"
 status: reviewed
 source_skill: sg-veille
 scope: "inspirations techniques pour ShipGlows CLI, serveur et skills"
@@ -41,6 +41,6 @@ ShipGlows gère l'environnement serveur, PM2, Caddy, Flox, les skills et la mém
 | [BundleUp](https://betalist.com/startups/bundleup) | Inspiration intégrations | 5/10 | Peut inspirer une couche unifiée pour GitHub, Vercel, Supabase, Convex, analytics. |
 | [Impulse AI](https://betalist.com/startups/impulse-ai) | Inspiration déploiement IA | 5/10 | À surveiller si ShipGlows orchestre des déploiements modèles/agents. |
 
-## Question
+## Décision
 
-- Veux-tu que `frp` soit creusé comme alternative réelle de tunnel ShipGlows, ou seulement noté comme benchmark technique ?
+- Décidé le 2026-10-20 : `frp` reste un simple benchmark technique, pas une alternative de tunnel. Le POC prévu (spec archivée `shipglows_data/workflow/archives/abandoned-specs/frp-preview-tunnel-poc.md`) est abandonné ; sa checklist fail-closed vit dans `shipglows_data/technical/local-tunnels-and-mcp-login.md`.
