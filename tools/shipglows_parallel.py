@@ -4,57 +4,39 @@
 from __future__ import annotations
 
 import argparse
-from datetime import date, datetime, timezone
-from email.utils import parsedate_to_datetime
-from http.client import HTTPException
+from datetime import date
 import ipaddress
 import json
-import math
 import os
-import random
 import re
 import sys
-import time
-from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode, urlsplit
-from urllib.request import HTTPRedirectHandler, Request, build_opener
+from urllib.request import Request
+
+try:
+    from .shipglows_http import (
+        MAX_RESPONSE_BYTES, ProviderError, _NoRedirectHandler, _open_once, resolve_timeout as _resolve_timeout,
+        safe_message, send_json,
+    )
+except ImportError:  # run as a script or imported from the tools directory
+    from shipglows_http import (  # type: ignore[no-redef]
+        MAX_RESPONSE_BYTES, ProviderError, _NoRedirectHandler, _open_once, resolve_timeout as _resolve_timeout,
+        safe_message, send_json,
+    )
 
 API_URL = "https://api.parallel.ai/v1/search"
 EXTRACT_API_URL = "https://api.parallel.ai/v1/extract"
 API_ROOT = "https://api.parallel.ai/v1"
-MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 MODES = ("turbo", "fast", "basic", "advanced")
 TASK_PROCESSORS = ("lite", "base", "core", "pro", "ultra", "lite-fast", "base-fast", "core-fast", "pro-fast", "ultra-fast")
 MONITOR_FREQUENCIES = ("1h", "1d", "1w")
 MAX_EXTRACT_URLS = 20
 TIMEOUT_ENV = "SHIPGLOWS_PARALLEL_TIMEOUT"
 DEFAULT_TIMEOUT = 30.0
-MAX_TIMEOUT = 600.0
-MAX_ATTEMPTS = 3
-RETRY_BASE_DELAY = 1.0
-MAX_RETRY_AFTER = 60.0
-RETRYABLE_HTTP_CODES = frozenset({429, 502, 503, 504})
 
 
-class _NoRedirectHandler(HTTPRedirectHandler):
-    """Do not forward the authenticated request to a redirect target."""
-
-    def redirect_request(self, req, fp, code, msg, headers, new_url):
-        return None
-
-
-_HTTP_OPENER = build_opener(_NoRedirectHandler())
-
-
-def _open_once(request: Request, timeout: float):
-    return _HTTP_OPENER.open(request, timeout=timeout)
-
-
-_sleep = time.sleep
-
-
-class ParallelError(RuntimeError):
-    """An actionable error safe to display in the terminal."""
+class ParallelError(ProviderError):
+    """An actionable Parallel error safe to display in the terminal."""
 
 
 def normalize_domain(value: str) -> str:
@@ -81,126 +63,36 @@ def matches_domain(link: str, target: str) -> bool:
     return hostname == target or hostname.endswith("." + target)
 
 
-def safe_message(message: object, api_key: str) -> str:
-    text = str(message)
-    if api_key:
-        text = text.replace(api_key, "[REDACTED]")
-    return " ".join(text.split())[:300]
+def _error_text(value: object, api_key: str) -> str:
+    if isinstance(value, dict):
+        error = value.get("error", "Parallel request failed")
+        if isinstance(error, dict):
+            error = error.get("message", "Parallel request failed")
+        return safe_message(error, api_key)
+    return "Parallel request failed"
 
 
 def provider_error(body: bytes, api_key: str) -> str:
     try:
-        value = json.loads(body.decode("utf-8"))
-        if isinstance(value, dict):
-            error = value.get("error", "Parallel request failed")
-            if isinstance(error, dict):
-                error = error.get("message", "Parallel request failed")
-            return safe_message(error, api_key)
+        return _error_text(json.loads(body.decode("utf-8")), api_key)
     except (UnicodeDecodeError, json.JSONDecodeError):
-        pass
-    return "Parallel request failed"
+        return "Parallel request failed"
 
 
 def resolve_timeout(value: float | None, default: float = DEFAULT_TIMEOUT) -> float:
     """Return --timeout, else SHIPGLOWS_PARALLEL_TIMEOUT, else the command default."""
-    if value is None:
-        raw = os.environ.get(TIMEOUT_ENV, "").strip()
-        if not raw:
-            return default
-        try:
-            value = float(raw)
-        except ValueError:
-            raise ParallelError(f"{TIMEOUT_ENV} must be a number of seconds.") from None
-    if not math.isfinite(value) or not 0 < value <= MAX_TIMEOUT:
-        raise ParallelError(f"Timeout must be greater than 0 and at most {MAX_TIMEOUT:g} seconds.")
-    return value
-
-
-def parse_retry_after(value: str | None) -> float | None:
-    if not value:
-        return None
-    value = value.strip()
-    try:
-        seconds = float(value)
-    except ValueError:
-        try:
-            moment = parsedate_to_datetime(value)
-        except (TypeError, ValueError, IndexError):
-            return None
-        if moment.tzinfo is None:
-            moment = moment.replace(tzinfo=timezone.utc)
-        seconds = (moment - datetime.now(timezone.utc)).total_seconds()
-    return max(0.0, seconds) if math.isfinite(seconds) else None
-
-
-def backoff_delay(attempt: int) -> float:
-    """Exponential backoff (1 s, 2 s, 4 s...) plus up to 50 % random jitter."""
-    delay = RETRY_BASE_DELAY * 2 ** (attempt - 1)
-    return delay + random.uniform(0, delay / 2)
-
-
-def network_error_detail(error: BaseException, api_key: str) -> str:
-    """Name the failure and its short reason so DNS, refusal, TLS, proxy and timeouts differ."""
-    kind = type(error).__name__
-    reason = error.reason if isinstance(error, URLError) else None
-    if isinstance(reason, BaseException):
-        kind = f"{kind}/{type(reason).__name__}"
-    text = safe_message(reason if reason is not None else error, api_key)[:160]
-    return f"{kind}: {text}" if text else kind
-
-
-def _attempts_label(count: int) -> str:
-    return f"{count} attempt" + ("" if count == 1 else "s")
+    return _resolve_timeout(value, default, TIMEOUT_ENV, ParallelError)
 
 
 def send_request(request: Request, api_key: str, *, timeout: float, opener=None, retry: bool = True) -> dict:
-    """Send one API request with bounded retries and return the validated JSON object.
-
-    Network failures and HTTP 429/502/503/504 are retried up to MAX_ATTEMPTS times
-    with exponential backoff and jitter, honouring Retry-After. Other HTTP errors
-    fail at once. ``retry=False`` keeps a single attempt for requests that create
-    remote resources, so a lost response never duplicates them.
-    """
-    max_attempts = MAX_ATTEMPTS if retry else 1
-    attempt = 0
-    while True:
-        attempt += 1
-        try:
-            with (opener or _open_once)(request, timeout=timeout) as response:
-                body = response.read(MAX_RESPONSE_BYTES + 1)
-            break
-        except HTTPError as error:
-            try:
-                error_body = error.read(MAX_RESPONSE_BYTES + 1)
-            finally:
-                error.close()
-            headers = getattr(error, "headers", None)
-            retry_after = parse_retry_after(headers.get("Retry-After") if headers is not None else None)
-            message = f"Parallel HTTP {error.code}: {provider_error(error_body, api_key)} ({_attempts_label(attempt)})"
-            if error.code not in RETRYABLE_HTTP_CODES or attempt >= max_attempts:
-                raise ParallelError(message + ".") from None
-            if retry_after is not None and retry_after > MAX_RETRY_AFTER:
-                raise ParallelError(f"{message}; provider asked to retry after {retry_after:.0f}s.") from None
-            delay = retry_after if retry_after is not None else backoff_delay(attempt)
-        except (URLError, TimeoutError, OSError, HTTPException) as error:
-            if attempt >= max_attempts:
-                raise ParallelError(
-                    f"Parallel network request failed ({network_error_detail(error, api_key)}) "
-                    f"after {_attempts_label(attempt)}; timeout {timeout:g}s per attempt."
-                ) from None
-            delay = backoff_delay(attempt)
-        _sleep(delay)
-
-    if len(body) > MAX_RESPONSE_BYTES:
-        raise ParallelError("Parallel response exceeded the 4 MiB safety limit.")
-    try:
-        data = json.loads(body.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        raise ParallelError("Parallel returned invalid JSON.") from None
-    if not isinstance(data, dict):
-        raise ParallelError("Parallel returned an unexpected response format.")
+    """Send a Parallel request through the shared retrying transport and reject in-body errors."""
+    data = send_json(
+        request, provider="Parallel", secret=api_key, timeout=timeout, opener=opener, retry=retry,
+        http_error=lambda code, body: f"Parallel HTTP {code}: {provider_error(body, api_key)}",
+        error_cls=ParallelError,
+    )
     if data.get("type") == "error" or data.get("error"):
-        raise ParallelError(provider_error(body, api_key))
+        raise ParallelError(_error_text(data, api_key))
     return data
 
 

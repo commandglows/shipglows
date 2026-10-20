@@ -15,23 +15,25 @@ import json
 import os
 import re
 import sys
-from urllib.error import HTTPError, URLError
 from urllib.request import Request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from shipglows_parallel import (  # noqa: E402
-    MAX_RESPONSE_BYTES,
-    ParallelError,
-    _open_once,
-    normalize_domain,
-    request_search,
+from shipglows_http import (  # noqa: E402
+    GATEWAY_HTTP_CODES,
+    RETRYABLE_HTTP_CODES,
+    ProviderError,
+    resolve_timeout,
     safe_message,
+    send_json,
 )
+from shipglows_parallel import normalize_domain, request_search  # noqa: E402
 
 FIRECRAWL_SEARCH_URL = "https://api.firecrawl.dev/v2/search"
 PROVIDERS = ("firecrawl", "parallel")
 EXIT_ALL_FAILED = 3
+TIMEOUT_ENV = "SHIPGLOWS_SEARCH_TIMEOUT"
+DEFAULT_TIMEOUT = 30.0
 
 
 class ProviderSkipped(RuntimeError):
@@ -66,6 +68,9 @@ def search_firecrawl(args: argparse.Namespace, queries: list[str], opener=None) 
         raise ProviderSkipped("FIRECRAWL_API_KEY is not set")
     if args.location:
         raise ProviderSkipped("--location is not supported by Firecrawl")
+    # With a fallback provider waiting, credits (402) and rate limits (429) move on at once;
+    # only gateway errors and network failures are worth retrying here.
+    retry_codes = GATEWAY_HTTP_CODES if args.provider == "auto" else RETRYABLE_HTTP_CODES
     results: list[dict] = []
     seen: set[str] = set()
     for query in queries:
@@ -79,29 +84,16 @@ def search_firecrawl(args: argparse.Namespace, queries: list[str], opener=None) 
             headers={"Accept": "application/json", "Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
             method="POST",
         )
-        try:
-            with (opener or _open_once)(request, timeout=30) as response:
-                body = response.read(MAX_RESPONSE_BYTES + 1)
-        except HTTPError as error:
-            try:
-                error_body = error.read(MAX_RESPONSE_BYTES + 1)
-            finally:
-                error.close()
-            raise ParallelError(firecrawl_error(error.code, error_body, api_key)) from None
-        except (URLError, TimeoutError, OSError) as error:
-            raise ParallelError(f"Firecrawl network request failed ({type(error).__name__}).") from None
-        if len(body) > MAX_RESPONSE_BYTES:
-            raise ParallelError("Firecrawl response exceeded the 4 MiB safety limit.")
-        try:
-            data = json.loads(body.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            raise ParallelError("Firecrawl returned invalid JSON.") from None
-        if not isinstance(data, dict) or data.get("success") is False:
-            raise ParallelError(f"Firecrawl request failed: {safe_message(data.get('error', 'unknown error') if isinstance(data, dict) else 'unexpected format', api_key)}")
+        data = send_json(
+            request, provider="Firecrawl", secret=api_key, timeout=args.timeout, opener=opener,
+            retry_codes=retry_codes, http_error=lambda code, body: firecrawl_error(code, body, api_key),
+        )
+        if data.get("success") is False:
+            raise ProviderError(f"Firecrawl request failed: {safe_message(data.get('error', 'unknown error'), api_key)}")
         raw = data.get("data")
         items = raw.get("web") if isinstance(raw, dict) else raw
         if not isinstance(items, list):
-            raise ParallelError("Firecrawl response did not contain a results list.")
+            raise ProviderError("Firecrawl response did not contain a results list.")
         for item in items:
             url = item.get("url") if isinstance(item, dict) else None
             if not isinstance(url, str) or not url.startswith(("https://", "http://")) or url in seen:
@@ -124,7 +116,7 @@ def search_parallel(args: argparse.Namespace, queries: list[str], opener=None) -
     parallel_args = argparse.Namespace(
         terms=[], query=queries, objective=args.objective, mode="fast", domain=None,
         include_domain=args.include_domain, exclude_domain=args.exclude_domain,
-        after_date=args.after_date, location=args.location, max_results=args.max_results,
+        after_date=args.after_date, location=args.location, max_results=args.max_results, timeout=args.timeout,
     )
     results = request_search(parallel_args, opener=opener)["results"]
     for result in results:
@@ -138,22 +130,23 @@ SEARCHERS = {"firecrawl": search_firecrawl, "parallel": search_parallel}
 def validate(args: argparse.Namespace) -> list[str]:
     queries = [query.strip() for query in [*args.terms, *(args.query or [])]]
     if not queries or any(not query for query in queries):
-        raise ParallelError("At least one non-empty query is required (positional or --query).")
+        raise ProviderError("At least one non-empty query is required (positional or --query).")
     if len(queries) > 5 or any(len(query) > 200 for query in queries):
-        raise ParallelError("Use at most five queries of at most 200 characters each.")
+        raise ProviderError("Use at most five queries of at most 200 characters each.")
     if len(args.include_domain or args.exclude_domain or []) > 10:
-        raise ParallelError("At most ten source domains may be set per request.")
+        raise ProviderError("At most ten source domains may be set per request.")
     if args.after_date:
         try:
             if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", args.after_date):
                 raise ValueError
             date.fromisoformat(args.after_date)
         except ValueError:
-            raise ParallelError("--after-date must use YYYY-MM-DD.") from None
+            raise ProviderError("--after-date must use YYYY-MM-DD.") from None
     if args.location and not re.fullmatch(r"[A-Za-z]{2}", args.location):
-        raise ParallelError("--location must be a two-letter ISO country code.")
+        raise ProviderError("--location must be a two-letter ISO country code.")
     if args.max_results is not None and args.max_results < 1:
-        raise ParallelError("--max-results must be a positive integer.")
+        raise ProviderError("--max-results must be a positive integer.")
+    args.timeout = resolve_timeout(args.timeout, DEFAULT_TIMEOUT, TIMEOUT_ENV)
     return queries
 
 
@@ -172,6 +165,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--after-date", help="only pages published on or after YYYY-MM-DD")
     parser.add_argument("--location", help="two-letter country code (Parallel only)")
     parser.add_argument("--max-results", type=int, help="maximum number of results per query")
+    parser.add_argument("--timeout", type=float,
+                        help=f"per-attempt network timeout in seconds for every provider (default: ${TIMEOUT_ENV}, else 30)")
     return parser
 
 
@@ -179,7 +174,7 @@ def main(argv: list[str] | None = None, opener=None) -> int:
     args = build_parser().parse_args(argv)
     try:
         queries = validate(args)
-    except ParallelError as error:
+    except ProviderError as error:
         print(f"shipglows-search: {error}", file=sys.stderr)
         return 2
     attempts = []
@@ -189,7 +184,7 @@ def main(argv: list[str] | None = None, opener=None) -> int:
         except ProviderSkipped as reason:
             attempts.append({"provider": provider, "status": "skipped", "reason": str(reason)})
             continue
-        except ParallelError as error:
+        except ProviderError as error:
             attempts.append({"provider": provider, "status": "failed", "reason": str(error)})
             continue
         attempts.append({"provider": provider, "status": "ok"})

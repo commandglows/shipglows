@@ -43,6 +43,12 @@ missing keys, network errors and unsupported filters are reasons to move on,
 never a final answer. Report the provider that served the results only when it
 matters to the answer.
 
+Both providers share one transport (`tools/shipglows_http.py`): network errors
+and HTTP 502/503/504 get up to 3 attempts with backoff; in `auto` mode
+Firecrawl's 402/429 move straight to Parallel. `--timeout` (or
+`SHIPGLOWS_SEARCH_TIMEOUT`, default 30 s) sets the per-attempt timeout for every
+provider. Failure reasons name the error type, its cause and the attempt count.
+
 ## Limits
 
 - Never print, pass or persist provider keys; keys come only from the Doppler

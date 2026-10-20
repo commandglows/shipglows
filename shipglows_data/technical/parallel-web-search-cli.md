@@ -15,6 +15,9 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - tools/shipglows_parallel.py
+  - tools/shipglows_http.py
+  - tools/shipglows_search.py
+  - tools/test_shipglows_search.py
   - cli/shipglows-parallel.sh
   - cli/install.sh
   - tools/test_shipglows_parallel.py
@@ -82,7 +85,7 @@ Search can restrict results to up to ten included or excluded domains, filter pu
 ## Request and output
 
 - Search uses `POST https://api.parallel.ai/v1/search`; Extract uses `/v1/extract`; Task runs use `/v1/tasks/runs`; Monitor uses `/v1/monitors`. All use HTTPS and `x-api-key` authentication.
-- One API call per command invocation, sent through a single helper (`send_request`) with bounded retries: up to 3 attempts with exponential backoff and jitter (about 1 s then 2 s) on network failures (`URLError`, `TimeoutError`, `OSError`, dropped connections) and HTTP 429/502/503/504. A `Retry-After` header sets the wait; above 60 s the CLI stops instead of waiting. Other 4xx errors (400, 401, 403, 404…) are never retried. Search, Extract and every GET are retried; `research run`, `monitor create` and `monitor cancel` make a single attempt so a lost response never creates or charges a resource twice. No local result persistence. Monitor runs recur remotely according to the selected frequency; monitor-list pagination is not followed automatically.
+- One API call per command invocation, sent through the provider-agnostic transport `tools/shipglows_http.py` (`send_json`), shared with the Firecrawl path of `shipglows-search`, with bounded retries: up to 3 attempts with exponential backoff and jitter (about 1 s then 2 s) on network failures (`URLError`, `TimeoutError`, `OSError`, dropped connections) and HTTP 429/502/503/504. A `Retry-After` header sets the wait; above 60 s the CLI stops instead of waiting. Other 4xx errors (400, 401, 403, 404…) are never retried. Search, Extract and every GET are retried; `research run`, `monitor create` and `monitor cancel` make a single attempt so a lost response never creates or charges a resource twice. No local result persistence. Monitor runs recur remotely according to the selected frequency; monitor-list pagination is not followed automatically.
 - Redirects are rejected so the authenticated request is not forwarded to another host.
 - Search JSON contains provider, search ID, objective, input queries, selected mode, applied filters, and normalized results (position in Parallel relevance order, title, URL, date, excerpts, optional domain match). Extract JSON contains provider, extract ID, objective, whether full content was requested, normalized excerpts/full content, and per-URL errors. Task and Monitor commands preserve provider response fields, including status, research basis, citations, confidence, monitor ID, and event IDs.
 - Each response body is capped at 4 MiB. The per-attempt network timeout comes from `--timeout <seconds>` on any subcommand, else `SHIPGLOWS_PARALLEL_TIMEOUT`, else the command default (30 seconds for Search, 60 for Extract, 45 for Task run/Monitor, 90 for Task status/result); values must be above 0 and at most 600. Errors are non-zero, bounded, and redact the API key. A final network error names the exception and its short reason (for example `URLError/gaierror` for DNS, `URLError/ConnectionRefusedError`, `URLError/SSLError`, `TimeoutError`), the number of attempts made, and the timeout; HTTP errors give the status, provider message and attempt count.

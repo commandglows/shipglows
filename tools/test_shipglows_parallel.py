@@ -35,7 +35,7 @@ class ParallelCliTests(unittest.TestCase):
         self.env.start()
         self.addCleanup(self.env.stop)
         os.environ.pop(TIMEOUT_ENV, None)
-        sleeper = patch("tools.shipglows_parallel._sleep")
+        sleeper = patch("tools.shipglows_http._sleep")
         self.sleep = sleeper.start()
         self.addCleanup(sleeper.stop)
 
