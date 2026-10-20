@@ -2139,13 +2139,36 @@ function Write-SgDependencyLogRecord([IO.TextWriter]$Writer, [object]$Record) {
 $script:SgPnpmLayoutMismatchCodes = @('ERR_PNPM_VIRTUAL_STORE_DIR_MAX_LENGTH_DIFF','ERR_PNPM_UNEXPECTED_STORE','ERR_PNPM_UNEXPECTED_VIRTUAL_STORE')
 
 function Get-SgDependencyFailureMessage([string]$Kind, [string]$WorkingDirectory, [string]$LogPath, [string[]]$Output) {
+    if (@($Output | Where-Object { $_ -like '*requires symlink support*' }).Count -gt 0) { return "Dependency setup failed for ${Kind}: Flutter plugins need symlink support. $script:SgDeveloperModeRemedy See $LogPath." }
     $code = $script:SgPnpmLayoutMismatchCodes | Where-Object { $mismatch = $_; @($Output | Where-Object { $_ -like "*$mismatch*" }).Count -gt 0 } | Select-Object -First 1
     if (-not $code) { return "Dependency setup failed for $Kind. See $LogPath." }
     $nodeModules = Join-Path $WorkingDirectory 'node_modules'
     return "Dependency setup failed for ${Kind}: $nodeModules was created by a different pnpm version or configuration ($code). Delete that node_modules directory, then retry. See $LogPath."
 }
 
-function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath) {
+$script:SgDeveloperModeRemedy = 'Enable Windows Developer Mode (Settings > System > For developers, or run: start ms-settings:developers), then retry.'
+
+# Flutter links plugin sources under windows\flutter\ephemeral\.plugin_symlinks
+# during pub get whenever the project has a windows\ folder, whatever the target.
+function Test-SgSymlinkCapability {
+    try { if ([int](Get-ItemPropertyValue -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock' -Name AllowDevelopmentWithoutDevLicense -ErrorAction Stop) -eq 1) { return $true } } catch {}
+    return ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Assert-SgFlutterSymlinkSupport([string]$ProjectPath, [string]$Label) {
+    if (-not (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container)) { return }
+    if (Test-SgSymlinkCapability) { return }
+    throw "$Label cannot start: Windows Developer Mode is off, and Flutter needs it to link plugins. $script:SgDeveloperModeRemedy"
+}
+
+function Get-SgDependencyKindLabel([string]$Kind, [string]$FlutterDevice) {
+    if ($Kind -ne 'flutter-web') { return $Kind }
+    if ($FlutterDevice) { return "Flutter ($FlutterDevice)" }
+    return 'Flutter'
+}
+
+function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath, [string]$Label = '') {
+    if (-not $Label) { $Label = $Kind }
     $statePath = Get-SgDependencyStatePath $Config $ProjectPath
     Ensure-SgDirectory (Split-Path -Parent $statePath)
     $lock = $null
@@ -2187,10 +2210,10 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             if ($suppressNpmLock) { $env:npm_config_package_lock = 'false' }
             $setupOutput = New-Object Collections.Generic.List[string]
             & $pm @setupArguments 2>&1 | ForEach-Object { $setupOutput.Add([string]$_); Write-SgDependencyLogRecord $logWriter $_ }
-            if ($LASTEXITCODE -ne 0) { throw (Get-SgDependencyFailureMessage $Kind ([string]$plan.WorkingDirectory) $LogPath $setupOutput) }
+            if ($LASTEXITCODE -ne 0) { throw (Get-SgDependencyFailureMessage $Label ([string]$plan.WorkingDirectory) $LogPath $setupOutput) }
         }
         finally { $env:npm_config_package_lock = $previousNpmPackageLock; $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
-        if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Kind artifacts." }
+        if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Label artifacts." }
         $completedPlan = New-SgDependencyPlan $ProjectPath $Kind
         $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan
         if ($completedDigest -cne $digest) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
@@ -3243,6 +3266,9 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }
     $resolvedFlutterDevice = [string]$settings.FlutterDevice
     $resolvedFlutterMode = if ([string]$settings.FlutterMode) { [string]$settings.FlutterMode } else { 'debug' }
+    if ([string]$entry.kind -eq 'flutter-web') {
+        Assert-SgFlutterSymlinkSupport $(if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }) (Get-SgDependencyKindLabel 'flutter-web' $resolvedFlutterDevice)
+    }
     if ([string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
         $flutterPath=Get-SgFlutterCommandPath
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
@@ -3322,7 +3348,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         }
     }
     try {
-        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog | Out-Null
+        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog (Get-SgDependencyKindLabel $kind $resolvedFlutterDevice) | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
         $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode
     } catch {
