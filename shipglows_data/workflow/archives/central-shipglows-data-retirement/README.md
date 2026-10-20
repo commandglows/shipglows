@@ -8,15 +8,10 @@ Ce dépôt est traité comme **historique uniquement**. Les fichiers générés 
 
 ## Contenu
 
-- `inventory.json` : inventaire JSON complet du dépôt central (scan en lecture seule), incluant:
-  - `path`, `type`, `size`, `mtime`, `sha256` (lorsque raisonnable),
-  - statut git si applicable,
-  - classification et destination initiale proposées.
-- `inventory.md` : version markdown de l’inventaire pour lecture humaine.
-- `shipglows_data-central-archive.bundle` : snapshot Git de l’historique de `~/shipglows_data`.
 - `central-root-trackers/` : copie historique des trackers racine centraux modifiés (`TASKS.md`, `AUDIT_LOG.md`) conservés hors runtime.
-- `legacy-collisions/` : variantes centrales archivées lorsque le fichier local canonique existait déjà avec un contenu différent.
-- `legacy-project-trackers/` : trackers et notes des anciens projets sans workspace local ShipGlows détecté au moment de la retraite.
+- `legacy-project-trackers/` : `TASKS.md` (et `gocharbon_quiz/BUSINESS.md`) des anciens projets sans workspace local ShipGlows détecté au moment de la retraite.
+
+Supprimés le 2026-10-20 (ménage `shipglows tidy`, lot D1) et consultables uniquement dans l'historique Git : `inventory.json`, `inventory.md`, `shipglows_data_metadata_inventory.md`, `legacy-collisions/` et les `concurrent.md`/notes des `legacy-project-trackers/`. Le bundle `shipglows_data-central-archive.bundle` n'a jamais été suivi par Git.
 
 ## Décisions de migration
 

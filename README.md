@@ -202,10 +202,10 @@ unattended production shipping.
 - [skills/references/canonical-paths.md](./skills/references/canonical-paths.md) — path resolution rules for ShipGlows-owned tools, references, templates, and project-local artifacts
 - [skills/references/private-data-repo-contract.md](./skills/references/private-data-repo-contract.md) — contract for the separate private data repository used for durable operator-managed data under `~/.shipglows/data/`
 - [skills/references/design-inspiration-library.md](./skills/references/design-inspiration-library.md) — private rights-aware sales-page/design reference corpus, capture bundle, and bounded operator-selection gate
-- Runtime port and PM2 behavior is documented in [shipglows_data/technical/runtime-cli.md](./shipglows_data/technical/runtime-cli.md); the historical root note is preserved under [repository history](./shipglows_data/workflow/archives/repository-history/root-documentation/ECOSYSTEM-AND-PORTS.md).
+- Runtime port and PM2 behavior is documented in [shipglows_data/technical/runtime-cli.md](./shipglows_data/technical/runtime-cli.md); the former root note remains in Git history.
 - [local/README.md](./local/README.md) — local tunnel setup
 - [tools/codebase-mcp/README.md](./tools/codebase-mcp/README.md) — local MCP server for codebase context management
-- [repository-history/README.md](./shipglows_data/workflow/archives/repository-history/README.md) — classified historical docs, migration records, and preservation ledger
+- [repository-history/README.md](./shipglows_data/workflow/archives/repository-history/README.md) — preservation ledger of the former root archive (its files now live only in Git history)
 
 ## Private Data Repo
 
@@ -1467,7 +1467,7 @@ The current Codex plugin alpha is outside the repository at `/home/claude/plugin
 
 The canonical internal governance corpus lives under `shipglows_data/`. The repository root keeps runtime/bootstrap entrypoints and explicitly documented compatibility files only.
 
-Useful older plans, implementation summaries, and one-off reports live under [`shipglows_data/workflow/archives/`](./shipglows_data/workflow/archives/repository-history/) as inactive history, not current doctrine. Classified duplicate, generated, empty-facade, and unreferenced scratch material is deleted instead of archived indefinitely.
+Older plans, implementation summaries, and one-off reports are not kept as files: Git history is the archive. Durable decisions are distilled into canonical docs first; the leftover ledgers under [`shipglows_data/workflow/archives/`](./shipglows_data/workflow/archives/repository-history/) only record what was removed.
 
 ## License
 
