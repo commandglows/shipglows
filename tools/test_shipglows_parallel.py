@@ -8,7 +8,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 
-from tools.shipglows_parallel import API_URL, API_ROOT, EXTRACT_API_URL, ParallelError, _NoRedirectHandler, main, normalize_domain, request_search, request_research, request_monitor
+from tools.shipglows_parallel import API_URL, API_ROOT, EXTRACT_API_URL, TIMEOUT_ENV, ParallelError, _NoRedirectHandler, main, normalize_domain, request_search, request_research, request_monitor
 
 
 class FakeResponse:
@@ -34,6 +34,22 @@ class ParallelCliTests(unittest.TestCase):
         self.env = patch.dict(os.environ, {"PARALLEL_API_KEY": "test-key"})
         self.env.start()
         self.addCleanup(self.env.stop)
+        os.environ.pop(TIMEOUT_ENV, None)
+        sleeper = patch("tools.shipglows_parallel._sleep")
+        self.sleep = sleeper.start()
+        self.addCleanup(sleeper.stop)
+
+    def flaky(self, failures, value=None):
+        """Opener that raises each failure in turn, then returns ``value``."""
+        calls = []
+
+        def opener(request, timeout):
+            calls.append(timeout)
+            if len(calls) <= len(failures):
+                raise failures[len(calls) - 1]
+            return FakeResponse(value if value is not None else response())
+
+        return opener, calls
 
     def call(self, argv, value):
         captured = {}
@@ -192,12 +208,79 @@ class ParallelCliTests(unittest.TestCase):
         def http_error(request, timeout):
             raise HTTPError(API_URL, 429, "rate", {}, io.BytesIO(b'{"error":{"message":"test-key over quota"}}'))
 
-        with self.assertRaisesRegex(ParallelError, r"HTTP 429: \[REDACTED\] over quota"):
+        with self.assertRaisesRegex(ParallelError, r"HTTP 429: \[REDACTED\] over quota \(3 attempts\)"):
             request_search(main_args(["search", "--query", "coach bien-être"]), http_error)
         with self.assertRaisesRegex(ParallelError, "network request failed"):
             request_search(main_args(["search", "--query", "coach bien-être"]), lambda *_a, **_k: (_ for _ in ()).throw(URLError("offline")))
         with self.assertRaisesRegex(ParallelError, "network request failed"):
             request_search(main_args(["search", "--query", "coach bien-être"]), lambda *_a, **_k: (_ for _ in ()).throw(TimeoutError()))
+
+    def test_transient_failures_are_retried_then_succeed(self):
+        opener, calls = self.flaky([
+            URLError(OSError("getaddrinfo failed")),
+            HTTPError(API_URL, 503, "busy", {}, io.BytesIO(b"{}")),
+        ], response([{"url": "https://example.fr/", "title": "Ok"}]))
+        result = request_search(main_args(["search", "coach bien-être"]), opener)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(result["results"][0]["title"], "Ok")
+        delays = [call.args[0] for call in self.sleep.call_args_list]
+        self.assertEqual(len(delays), 2)
+        self.assertTrue(1 <= delays[0] <= 1.5 and 2 <= delays[1] <= 3, delays)
+
+    def test_retry_after_header_sets_the_delay(self):
+        opener, calls = self.flaky([HTTPError(API_URL, 429, "rate", {"Retry-After": "7"}, io.BytesIO(b"{}"))])
+        request_search(main_args(["search", "coach bien-être"]), opener)
+        self.assertEqual(len(calls), 2)
+        self.sleep.assert_called_once_with(7.0)
+
+    def test_gives_up_after_max_attempts_with_reason_and_count(self):
+        reason = ConnectionRefusedError(10061, "connection refused by test-key proxy")
+        opener, calls = self.flaky([URLError(reason)] * 5)
+        with self.assertRaises(ParallelError) as caught:
+            request_search(main_args(["search", "coach bien-être"]), opener)
+        message = str(caught.exception)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(self.sleep.call_count, 2)
+        self.assertIn("URLError/ConnectionRefusedError", message)
+        self.assertIn("connection refused", message)
+        self.assertIn("after 3 attempts", message)
+        self.assertNotIn("test-key", message)
+        self.assertIn("[REDACTED]", message)
+
+    def test_timeout_error_message_includes_timeout(self):
+        opener, _ = self.flaky([TimeoutError("timed out")] * 3)
+        with self.assertRaisesRegex(ParallelError, r"TimeoutError: timed out\) after 3 attempts; timeout 30s"):
+            request_search(main_args(["search", "coach bien-être"]), opener)
+
+    def test_client_errors_are_never_retried(self):
+        for code in (400, 401):
+            self.sleep.reset_mock()
+            opener, calls = self.flaky([HTTPError(API_URL, code, "bad", {}, io.BytesIO(b'{"error":"nope"}'))] * 3)
+            with self.assertRaisesRegex(ParallelError, rf"HTTP {code}: nope \(1 attempt\)"):
+                request_search(main_args(["search", "coach bien-être"]), opener)
+            self.assertEqual(len(calls), 1)
+            self.sleep.assert_not_called()
+
+    def test_resource_creating_posts_are_not_retried(self):
+        opener, calls = self.flaky([TimeoutError("timed out")] * 3)
+        with self.assertRaisesRegex(ParallelError, "after 1 attempt;"):
+            request_research(main_args(["research", "run", "--input", "Compare content"]), opener)
+        self.assertEqual(len(calls), 1)
+        opener, calls = self.flaky([TimeoutError("timed out")])
+        request_research(main_args(["research", "status", "--run-id", "trun_1234567890abcdef"]), opener)
+        self.assertEqual(len(calls), 2)
+
+    def test_timeout_flag_and_environment_override(self):
+        opener, calls = self.flaky([])
+        request_search(main_args(["search", "coach bien-être", "--timeout", "12.5"]), opener)
+        with patch.dict(os.environ, {TIMEOUT_ENV: "75"}):
+            request_search(main_args(["search", "coach bien-être"]), opener)
+            request_search(main_args(["search", "coach bien-être", "--timeout", "5"]), opener)
+        self.assertEqual(calls, [12.5, 75.0, 5.0])
+        with patch.dict(os.environ, {TIMEOUT_ENV: "soon"}), self.assertRaisesRegex(ParallelError, TIMEOUT_ENV):
+            request_search(main_args(["search", "coach bien-être"]), opener)
+        with self.assertRaisesRegex(ParallelError, "Timeout must be"):
+            request_search(main_args(["search", "coach bien-être", "--timeout", "0"]), opener)
 
     def test_application_json_error_redacts_key(self):
         with self.assertRaisesRegex(ParallelError, r"\[REDACTED\] denied"):

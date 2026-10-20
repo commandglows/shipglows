@@ -4,12 +4,17 @@
 from __future__ import annotations
 
 import argparse
-from datetime import date
+from datetime import date, datetime, timezone
+from email.utils import parsedate_to_datetime
+from http.client import HTTPException
 import ipaddress
 import json
+import math
 import os
+import random
 import re
 import sys
+import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -22,6 +27,13 @@ MODES = ("turbo", "fast", "basic", "advanced")
 TASK_PROCESSORS = ("lite", "base", "core", "pro", "ultra", "lite-fast", "base-fast", "core-fast", "pro-fast", "ultra-fast")
 MONITOR_FREQUENCIES = ("1h", "1d", "1w")
 MAX_EXTRACT_URLS = 20
+TIMEOUT_ENV = "SHIPGLOWS_PARALLEL_TIMEOUT"
+DEFAULT_TIMEOUT = 30.0
+MAX_TIMEOUT = 600.0
+MAX_ATTEMPTS = 3
+RETRY_BASE_DELAY = 1.0
+MAX_RETRY_AFTER = 60.0
+RETRYABLE_HTTP_CODES = frozenset({429, 502, 503, 504})
 
 
 class _NoRedirectHandler(HTTPRedirectHandler):
@@ -34,8 +46,11 @@ class _NoRedirectHandler(HTTPRedirectHandler):
 _HTTP_OPENER = build_opener(_NoRedirectHandler())
 
 
-def _open_once(request: Request, timeout: int):
+def _open_once(request: Request, timeout: float):
     return _HTTP_OPENER.open(request, timeout=timeout)
+
+
+_sleep = time.sleep
 
 
 class ParallelError(RuntimeError):
@@ -84,6 +99,109 @@ def provider_error(body: bytes, api_key: str) -> str:
     except (UnicodeDecodeError, json.JSONDecodeError):
         pass
     return "Parallel request failed"
+
+
+def resolve_timeout(value: float | None, default: float = DEFAULT_TIMEOUT) -> float:
+    """Return --timeout, else SHIPGLOWS_PARALLEL_TIMEOUT, else the command default."""
+    if value is None:
+        raw = os.environ.get(TIMEOUT_ENV, "").strip()
+        if not raw:
+            return default
+        try:
+            value = float(raw)
+        except ValueError:
+            raise ParallelError(f"{TIMEOUT_ENV} must be a number of seconds.") from None
+    if not math.isfinite(value) or not 0 < value <= MAX_TIMEOUT:
+        raise ParallelError(f"Timeout must be greater than 0 and at most {MAX_TIMEOUT:g} seconds.")
+    return value
+
+
+def parse_retry_after(value: str | None) -> float | None:
+    if not value:
+        return None
+    value = value.strip()
+    try:
+        seconds = float(value)
+    except ValueError:
+        try:
+            moment = parsedate_to_datetime(value)
+        except (TypeError, ValueError, IndexError):
+            return None
+        if moment.tzinfo is None:
+            moment = moment.replace(tzinfo=timezone.utc)
+        seconds = (moment - datetime.now(timezone.utc)).total_seconds()
+    return max(0.0, seconds) if math.isfinite(seconds) else None
+
+
+def backoff_delay(attempt: int) -> float:
+    """Exponential backoff (1 s, 2 s, 4 s...) plus up to 50 % random jitter."""
+    delay = RETRY_BASE_DELAY * 2 ** (attempt - 1)
+    return delay + random.uniform(0, delay / 2)
+
+
+def network_error_detail(error: BaseException, api_key: str) -> str:
+    """Name the failure and its short reason so DNS, refusal, TLS, proxy and timeouts differ."""
+    kind = type(error).__name__
+    reason = error.reason if isinstance(error, URLError) else None
+    if isinstance(reason, BaseException):
+        kind = f"{kind}/{type(reason).__name__}"
+    text = safe_message(reason if reason is not None else error, api_key)[:160]
+    return f"{kind}: {text}" if text else kind
+
+
+def _attempts_label(count: int) -> str:
+    return f"{count} attempt" + ("" if count == 1 else "s")
+
+
+def send_request(request: Request, api_key: str, *, timeout: float, opener=None, retry: bool = True) -> dict:
+    """Send one API request with bounded retries and return the validated JSON object.
+
+    Network failures and HTTP 429/502/503/504 are retried up to MAX_ATTEMPTS times
+    with exponential backoff and jitter, honouring Retry-After. Other HTTP errors
+    fail at once. ``retry=False`` keeps a single attempt for requests that create
+    remote resources, so a lost response never duplicates them.
+    """
+    max_attempts = MAX_ATTEMPTS if retry else 1
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            with (opener or _open_once)(request, timeout=timeout) as response:
+                body = response.read(MAX_RESPONSE_BYTES + 1)
+            break
+        except HTTPError as error:
+            try:
+                error_body = error.read(MAX_RESPONSE_BYTES + 1)
+            finally:
+                error.close()
+            headers = getattr(error, "headers", None)
+            retry_after = parse_retry_after(headers.get("Retry-After") if headers is not None else None)
+            message = f"Parallel HTTP {error.code}: {provider_error(error_body, api_key)} ({_attempts_label(attempt)})"
+            if error.code not in RETRYABLE_HTTP_CODES or attempt >= max_attempts:
+                raise ParallelError(message + ".") from None
+            if retry_after is not None and retry_after > MAX_RETRY_AFTER:
+                raise ParallelError(f"{message}; provider asked to retry after {retry_after:.0f}s.") from None
+            delay = retry_after if retry_after is not None else backoff_delay(attempt)
+        except (URLError, TimeoutError, OSError, HTTPException) as error:
+            if attempt >= max_attempts:
+                raise ParallelError(
+                    f"Parallel network request failed ({network_error_detail(error, api_key)}) "
+                    f"after {_attempts_label(attempt)}; timeout {timeout:g}s per attempt."
+                ) from None
+            delay = backoff_delay(attempt)
+        _sleep(delay)
+
+    if len(body) > MAX_RESPONSE_BYTES:
+        raise ParallelError("Parallel response exceeded the 4 MiB safety limit.")
+    try:
+        data = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        raise ParallelError("Parallel returned invalid JSON.") from None
+    if not isinstance(data, dict):
+        raise ParallelError("Parallel returned an unexpected response format.")
+    if data.get("type") == "error" or data.get("error"):
+        raise ParallelError(provider_error(body, api_key))
+    return data
 
 
 def normalize_result(item: object, position: int, target_domain: str | None) -> dict | None:
@@ -157,30 +275,7 @@ def request_search(args: argparse.Namespace, opener=None) -> dict:
         headers={"Accept": "application/json", "Content-Type": "application/json", "x-api-key": api_key},
         method="POST",
     )
-
-    try:
-        with (opener or _open_once)(request, timeout=30) as response:
-            body = response.read(MAX_RESPONSE_BYTES + 1)
-    except HTTPError as error:
-        try:
-            error_body = error.read(MAX_RESPONSE_BYTES + 1)
-        finally:
-            error.close()
-        detail = provider_error(error_body, api_key)
-        raise ParallelError(f"Parallel HTTP {error.code}: {detail}") from None
-    except (URLError, TimeoutError, OSError) as error:
-        raise ParallelError(f"Parallel network request failed ({type(error).__name__}).") from None
-
-    if len(body) > MAX_RESPONSE_BYTES:
-        raise ParallelError("Parallel response exceeded the 4 MiB safety limit.")
-    try:
-        data = json.loads(body.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        raise ParallelError("Parallel returned invalid JSON.") from None
-    if not isinstance(data, dict):
-        raise ParallelError("Parallel returned an unexpected response format.")
-    if data.get("type") == "error" or data.get("error"):
-        raise ParallelError(provider_error(body, api_key))
+    data = send_request(request, api_key, timeout=resolve_timeout(getattr(args, "timeout", None)), opener=opener)
     raw_results = data.get("results")
     if not isinstance(raw_results, list):
         raise ParallelError("Parallel response did not contain a results list.")
@@ -254,27 +349,7 @@ def request_extract(args: argparse.Namespace, opener=None) -> dict:
         headers={"Accept": "application/json", "Content-Type": "application/json", "x-api-key": api_key},
         method="POST",
     )
-    try:
-        with (opener or _open_once)(request, timeout=60) as response:
-            body = response.read(MAX_RESPONSE_BYTES + 1)
-    except HTTPError as error:
-        try:
-            error_body = error.read(MAX_RESPONSE_BYTES + 1)
-        finally:
-            error.close()
-        raise ParallelError(f"Parallel HTTP {error.code}: {provider_error(error_body, api_key)}") from None
-    except (URLError, TimeoutError, OSError) as error:
-        raise ParallelError(f"Parallel network request failed ({type(error).__name__}).") from None
-    if len(body) > MAX_RESPONSE_BYTES:
-        raise ParallelError("Parallel response exceeded the 4 MiB safety limit.")
-    try:
-        data = json.loads(body.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        raise ParallelError("Parallel returned invalid JSON.") from None
-    if not isinstance(data, dict):
-        raise ParallelError("Parallel returned an unexpected response format.")
-    if data.get("type") == "error" or data.get("error"):
-        raise ParallelError(provider_error(body, api_key))
+    data = send_request(request, api_key, timeout=resolve_timeout(getattr(args, "timeout", None), 60.0), opener=opener)
     raw_results = data.get("results")
     if not isinstance(raw_results, list):
         raise ParallelError("Parallel response did not contain a results list.")
@@ -301,7 +376,8 @@ def request_extract(args: argparse.Namespace, opener=None) -> dict:
 
 
 def api_request(method: str, path: str, payload: dict | None = None, *, query: dict | None = None,
-                opener=None, timeout: int = 45) -> dict:
+                opener=None, timeout: float = 45.0) -> dict:
+    """Call a Task/Monitor endpoint; only GET is retried because POSTs create or cancel resources."""
     api_key = os.environ.get("PARALLEL_API_KEY", "").strip()
     if not api_key:
         raise ParallelError("PARALLEL_API_KEY is not set; provide your key in the process environment.")
@@ -313,28 +389,7 @@ def api_request(method: str, path: str, payload: dict | None = None, *, query: d
     if data is not None:
         headers["Content-Type"] = "application/json"
     request = Request(url, data=data, headers=headers, method=method)
-    try:
-        with (opener or _open_once)(request, timeout=timeout) as response:
-            body = response.read(MAX_RESPONSE_BYTES + 1)
-    except HTTPError as error:
-        try:
-            error_body = error.read(MAX_RESPONSE_BYTES + 1)
-        finally:
-            error.close()
-        raise ParallelError(f"Parallel HTTP {error.code}: {provider_error(error_body, api_key)}") from None
-    except (URLError, TimeoutError, OSError) as error:
-        raise ParallelError(f"Parallel network request failed ({type(error).__name__}).") from None
-    if len(body) > MAX_RESPONSE_BYTES:
-        raise ParallelError("Parallel response exceeded the 4 MiB safety limit.")
-    try:
-        result = json.loads(body.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        raise ParallelError("Parallel returned invalid JSON.") from None
-    if not isinstance(result, dict):
-        raise ParallelError("Parallel returned an unexpected response format.")
-    if result.get("type") == "error" or result.get("error"):
-        raise ParallelError(provider_error(body, api_key))
-    return result
+    return send_request(request, api_key, timeout=timeout, opener=opener, retry=method == "GET")
 
 
 def request_research(args: argparse.Namespace, opener=None) -> dict:
@@ -351,17 +406,20 @@ def request_research(args: argparse.Namespace, opener=None) -> dict:
             payload["source_policy"] = {"include_domains": args.include_domain}
         elif args.exclude_domain:
             payload["source_policy"] = {"exclude_domains": args.exclude_domain}
-        return {"provider": "parallel", **api_request("POST", "tasks/runs", payload, opener=opener)}
+        timeout = resolve_timeout(args.timeout, 45.0)
+        return {"provider": "parallel", **api_request("POST", "tasks/runs", payload, opener=opener, timeout=timeout)}
     run_id = args.run_id.strip()
     if not re.fullmatch(r"trun_[A-Za-z0-9_-]{8,200}", run_id):
         raise ParallelError("Run ID must be a Parallel task ID such as trun_…")
     encoded_id = quote(run_id, safe="")
     suffix = "" if args.research_action == "status" else "/result"
-    return {"provider": "parallel", **api_request("GET", f"tasks/runs/{encoded_id}{suffix}", opener=opener, timeout=90)}
+    timeout = resolve_timeout(args.timeout, 90.0)
+    return {"provider": "parallel", **api_request("GET", f"tasks/runs/{encoded_id}{suffix}", opener=opener, timeout=timeout)}
 
 
 def request_monitor(args: argparse.Namespace, opener=None) -> dict:
     action = args.monitor_action
+    timeout = resolve_timeout(args.timeout, 45.0)
     if action == "create":
         query_text = args.query.strip()
         if not query_text or len(query_text) > 5000:
@@ -386,29 +444,33 @@ def request_monitor(args: argparse.Namespace, opener=None) -> dict:
         payload = {"type": "event_stream", "frequency": args.frequency, "processor": args.processor, "settings": settings}
         if args.webhook:
             payload["webhook"] = {"url": args.webhook, "event_types": ["monitor.event.detected"]}
-        return {"provider": "parallel", **api_request("POST", "monitors", payload, opener=opener)}
+        return {"provider": "parallel", **api_request("POST", "monitors", payload, opener=opener, timeout=timeout)}
     if action == "list":
         if args.limit < 1 or args.limit > 10000:
             raise ParallelError("Monitor list --limit must be between 1 and 10000.")
-        return {"provider": "parallel", **api_request("GET", "monitors", query={"limit": args.limit, "status": args.status}, opener=opener)}
+        return {"provider": "parallel", **api_request("GET", "monitors", query={"limit": args.limit, "status": args.status}, opener=opener, timeout=timeout)}
     monitor_id = args.monitor_id.strip()
     if not re.fullmatch(r"monitor_[A-Za-z0-9_-]{8,200}", monitor_id):
         raise ParallelError("Monitor ID must be a Parallel monitor ID such as monitor_…")
     encoded_id = quote(monitor_id, safe="")
     if action == "get":
-        return {"provider": "parallel", **api_request("GET", f"monitors/{encoded_id}", opener=opener)}
+        return {"provider": "parallel", **api_request("GET", f"monitors/{encoded_id}", opener=opener, timeout=timeout)}
     if action == "cancel":
-        return {"provider": "parallel", **api_request("POST", f"monitors/{encoded_id}/cancel", opener=opener)}
+        return {"provider": "parallel", **api_request("POST", f"monitors/{encoded_id}/cancel", opener=opener, timeout=timeout)}
     if args.limit < 1 or args.limit > 10000:
         raise ParallelError("Monitor events --limit must be between 1 and 10000.")
     query = {"limit": args.limit, "event_group_id": args.event_group_id}
-    return {"provider": "parallel", **api_request("GET", f"monitors/{encoded_id}/events", query=query, opener=opener)}
+    return {"provider": "parallel", **api_request("GET", f"monitors/{encoded_id}/events", query=query, opener=opener, timeout=timeout)}
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Search the web with Parallel and return cited page excerpts.")
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--timeout", type=float, help=(
+        f"per-attempt network timeout in seconds (default: ${TIMEOUT_ENV}, else 30 for search, "
+        "60 for extract, 45 for research run/monitor, 90 for research status/result)"))
     subparsers = parser.add_subparsers(dest="command", required=True)
-    search = subparsers.add_parser("search", help="make one Parallel Search API request")
+    search = subparsers.add_parser("search", parents=[common], help="make one Parallel Search API request")
     search.add_argument("terms", nargs="*", metavar="QUERY", help="keyword query as a positional argument (same as --query)")
     search.add_argument("--query", action="append", help="keyword query; repeat up to five times (positional queries count too)")
     search.add_argument("--objective", help="optional natural-language research objective")
@@ -420,13 +482,13 @@ def build_parser() -> argparse.ArgumentParser:
     search.add_argument("--after-date", help="only include pages published on or after YYYY-MM-DD")
     search.add_argument("--location", help="two-letter country code for localized results")
     search.add_argument("--max-results", type=int, help="maximum number of results")
-    extract = subparsers.add_parser("extract", help="retrieve markdown content from specific public URLs")
+    extract = subparsers.add_parser("extract", parents=[common], help="retrieve markdown content from specific public URLs")
     extract.add_argument("--url", action="append", required=True, type=normalize_public_url, help="public HTTP(S) URL; repeat up to 20 times")
     extract.add_argument("--objective", help="optional objective for focused excerpts")
     extract.add_argument("--full-content", action="store_true", help="request complete page markdown (may return large content)")
     research = subparsers.add_parser("research", help="run or retrieve asynchronous Parallel deep research")
     research_sub = research.add_subparsers(dest="research_action", required=True)
-    run = research_sub.add_parser("run", help="start a cited research task and return its run ID")
+    run = research_sub.add_parser("run", parents=[common], help="start a cited research task and return its run ID")
     run.add_argument("--input", required=True, help="research prompt, up to 15000 characters")
     run.add_argument("--processor", choices=TASK_PROCESSORS, default="pro", help="processor tier (default: pro; may affect cost and latency)")
     run.add_argument("--output", choices=("text", "auto"), default="text", help="human-readable cited report or provider-structured output")
@@ -434,11 +496,11 @@ def build_parser() -> argparse.ArgumentParser:
     run_policy.add_argument("--include-domain", action="append", type=normalize_domain)
     run_policy.add_argument("--exclude-domain", action="append", type=normalize_domain)
     for action in ("status", "result"):
-        command = research_sub.add_parser(action, help=f"retrieve research task {action}")
+        command = research_sub.add_parser(action, parents=[common], help=f"retrieve research task {action}")
         command.add_argument("--run-id", required=True)
     monitor = subparsers.add_parser("monitor", help="create and inspect scheduled web-monitor jobs")
     monitor_sub = monitor.add_subparsers(dest="monitor_action", required=True)
-    create = monitor_sub.add_parser("create", help="create a recurring event-stream monitor")
+    create = monitor_sub.add_parser("create", parents=[common], help="create a recurring event-stream monitor")
     create.add_argument("--query", required=True, help="natural-language change signal to watch")
     create.add_argument("--frequency", choices=MONITOR_FREQUENCIES, default="1d")
     create.add_argument("--processor", choices=("lite", "base"), default="lite")
@@ -447,9 +509,9 @@ def build_parser() -> argparse.ArgumentParser:
     create_policy.add_argument("--exclude-domain", action="append", type=normalize_domain)
     create.add_argument("--location", help="two-letter country code for localized monitoring")
     create.add_argument("--webhook", type=normalize_webhook_url, help="public HTTPS webhook URL for change notifications")
-    monitor_sub.add_parser("list", help="list active monitors")
+    monitor_sub.add_parser("list", parents=[common], help="list active monitors")
     for action in ("get", "cancel", "events"):
-        command = monitor_sub.add_parser(action, help=f"{action.capitalize()} a monitor")
+        command = monitor_sub.add_parser(action, parents=[common], help=f"{action.capitalize()} a monitor")
         command.add_argument("--monitor-id", required=True)
         if action == "events":
             command.add_argument("--event-group-id")
