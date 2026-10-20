@@ -75,6 +75,10 @@ def _iter_text_files(root: Path) -> Iterable[Path]:
             continue
         if any(part in SKIPPED_DIRS for part in Path(relative).parts):
             continue
+        # Fixture snapshots copy repository files; they are not consumers and
+        # dominate scan time.
+        if Path(relative).parts[:2] == ("tools", "fixtures"):
+            continue
         if path.stat().st_size > MAX_BYTES:
             continue
         yield path

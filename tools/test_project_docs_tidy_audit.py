@@ -3,6 +3,7 @@
 
 from datetime import date
 from pathlib import Path
+import subprocess
 from tempfile import TemporaryDirectory
 import unittest
 
@@ -51,6 +52,22 @@ class ProjectDocsTidyAuditTests(unittest.TestCase):
             })
             self.assertEqual(payload["trackers"]["TASKS.md"]["open_rows"], 1)
             self.assertEqual(payload["trackers"]["TASKS.md"]["done_rows"], 1)
+
+    def test_active_bugs_are_open_and_test_read_items_are_pinned(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            wf = "shipglows_data/workflow"
+            _write(root, f"{wf}/bugs/live-login-bug.md", '---\nbug_status: "fix-attempted"\nupdated: "2026-01-01"\n---\n')
+            _write(root, f"{wf}/bugs/closed-login-bug.md", '---\nbug_status: "closed"\nupdated: "2026-01-01"\n---\n')
+            _write(root, f"{wf}/specs/frozen-by-test-spec.md", _spec("2026-01-01"))
+            _write(root, "tools/test_example.py", "SPEC = 'frozen-by-test-spec.md'\n")
+            subprocess.run(["git", "-C", str(root), "add", "-A"], check=True)
+            payload = audit_project(root, dormant_days=90, today=date(2026, 10, 20))
+            classes = {Path(item["path"]).stem: item["class"] for item in payload["items"]}
+            self.assertEqual(classes["live-login-bug"], "open")
+            self.assertEqual(classes["closed-login-bug"], "dormant")
+            self.assertEqual(classes["frozen-by-test-spec"], "pinned")
 
     def test_tidy_pressure_fires_on_activity_not_time(self) -> None:
         light = {"totals": {"recent": {"files": 30, "bytes": 9000}, "delivered": {"files": 3, "bytes": 900}},

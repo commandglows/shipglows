@@ -17,6 +17,8 @@ Classes:
 - ``dormant``: none of the above and untouched for ``--dormant-days``;
 - ``recent``: everything else;
 - ``archived``: anything under a legacy ``archives/`` tree (git already keeps it);
+- ``pinned``: would be removable but a test reads it; keep it and report the
+  test coupling as debt (tests should not depend on workflow artifacts);
 - ``untracked``: not in the git index, so deleting it would be unrecoverable;
   never removable until committed or explicitly discarded by the operator.
 
@@ -46,6 +48,9 @@ WORK_DIRS = (
 )
 REMOVABLE = ("delivered", "retired", "dormant", "archived")
 LIVE = ("open", "recent")
+CLOSED_BUG = {"closed", "fixed", "verified", "wontfix", "wont-fix", "duplicate", "invalid"}
+TOKEN = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*")
+TEXT_SUFFIXES = {".md", ".json", ".py", ".sh", ".ps1", ".psm1", ".yml", ".yaml", ".toml", ".txt", ".js", ".ts", ".mjs", ".cjs"}
 TRACKERS = (
     "TASKS.md", "BACKLOG.md", "BUGS.md", "TEST_LOG.md", "AUDIT_LOG.md",
     "OPERATIONS_LOG.md", "DEPENDENCY_LOG.md",
@@ -57,7 +62,7 @@ CLOSURE_ROW = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 UPDATED = re.compile(r"^updated:\s*[\"']?(\d{4}-\d{2}-\d{2})", re.MULTILINE)
-FRONT_FIELD = re.compile(r"^(status|delivery):\s*[\"']?([A-Za-z_-]+)[\"']?\s*$", re.MULTILINE)
+FRONT_FIELD = re.compile(r"^(status|delivery|bug_status):\s*[\"']?([A-Za-z_-]+)[\"']?\s*$", re.MULTILINE)
 
 
 def _frontmatter(text: str) -> str:
@@ -98,6 +103,30 @@ def _tracked(root: Path, scope: Path) -> set[str] | None:
     return {item for item in output.split("\0") if item}
 
 
+def _reference_index(root: Path) -> dict[str, set[str]]:
+    """Token -> referencing tracked files outside the workflow corpus and fixtures."""
+    index: dict[str, set[str]] = defaultdict(set)
+    for rel in _tracked(root, Path(".")) or set():
+        parts = rel.split("/")
+        if rel.startswith(WORKFLOW.as_posix() + "/") or parts[:2] == ["tools", "fixtures"]:
+            continue
+        path = root / rel
+        if path.suffix.lower() not in TEXT_SUFFIXES or not path.is_file() or path.stat().st_size > 2_000_000:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for token in set(TOKEN.findall(text)):
+            index[token].add(rel)
+    return index
+
+
+def _is_test(rel: str) -> bool:
+    name = rel.rsplit("/", 1)[-1]
+    return rel.startswith("tests/") or (rel.startswith("tools/") and name.startswith("test_"))
+
+
 def _tracker_rows(root: Path) -> tuple[list[str], dict[str, dict[str, int]]]:
     rows: list[str] = []
     stats: dict[str, dict[str, int]] = {}
@@ -117,6 +146,8 @@ def classify(text: str, mentions_open: bool, mentions_done: bool, last: date | N
     fields = dict(FRONT_FIELD.findall(_frontmatter(text)))
     if mentions_open:
         return "open"
+    if fields.get("bug_status") and fields["bug_status"] not in CLOSED_BUG:
+        return "open"
     if fields.get("delivery") == "closed" or mentions_done or CLOSURE_ROW.search(text):
         return "delivered"
     if fields.get("status") in {"superseded", "stale"}:
@@ -135,6 +166,7 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
     touched = _last_touch(root, WORKFLOW)
     tracked = _tracked(root, WORKFLOW)
     rows, tracker_stats = _tracker_rows(root)
+    references = _reference_index(root)
     items = []
     for directory in WORK_DIRS:
         base = workflow / directory
@@ -161,10 +193,15 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
                 today=today,
                 dormant_days=dormant_days,
             )
+            inbound = sorted(set().union(*(references.get(needle, set()) for needle in (path.name,))))
+            if item_class in REMOVABLE and any(_is_test(source) for source in inbound):
+                item_class = "pinned"
             items.append({
                 "path": rel,
                 "kind": directory,
                 "class": item_class,
+                "inbound": inbound[:5],
+                "inbound_count": len(inbound),
                 "bytes": path.stat().st_size,
                 "last_commit": last.isoformat() if last else None,
             })
@@ -213,7 +250,7 @@ def main() -> int:
     parser.add_argument("--format", choices=("text", "json", "paths"), default="text")
     parser.add_argument(
         "--class", dest="classes", action="append",
-        choices=("open", "recent", *REMOVABLE, "untracked"),
+        choices=("open", "recent", *REMOVABLE, "pinned", "untracked"),
         help="Restrict listed items to one or more classes (repeatable).",
     )
     args = parser.parse_args()
@@ -234,7 +271,7 @@ def main() -> int:
         print(f"No shipglows_data/workflow in {payload['root']}")
         return 0
     print(f"Project docs tidy inventory: {payload['root']} (dormant > {payload['dormant_days']} days)")
-    for name in (*LIVE, *REMOVABLE, "untracked"):
+    for name in (*LIVE, *REMOVABLE, "pinned", "untracked"):
         total = payload["totals"].get(name)
         if total:
             print(f"  {name:<10} {total['files']:>4} files  {_size(total['bytes'])}")
@@ -244,7 +281,8 @@ def main() -> int:
         print(f"  tracker {name}: {stats['lines']} lines, open={stats['open_rows']} done={stats['done_rows']}")
     if args.classes:
         for item in listed:
-            print(f"- [{item['class']}] {item['path']} ({_size(item['bytes'])}, last {item['last_commit'] or 'unknown'})")
+            via = f", {item['inbound_count']} inbound: {', '.join(item['inbound'])}" if item["inbound_count"] else ""
+            print(f"- [{item['class']}] {item['path']} ({_size(item['bytes'])}, last {item['last_commit'] or 'unknown'}{via})")
     return 0
 
 
