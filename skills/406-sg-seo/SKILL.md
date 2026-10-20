@@ -48,6 +48,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`: shared rubric for project-aware content quality score and blocked criteria.
 - `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md`: split SEO follow-up between execution backlog and editorial roadmap.
 - `$SHIPGLOWS_ROOT/skills/references/public-author-and-social-identity-contract.md`: author, organization, project, or social-profile structured data and public identity claims.
+- `$SHIPGLOWS_ROOT/skills/references/blog-and-cms-experience-contract.md`: load when blog or article SEO depends on canonical content fields, publication state, or CMS output.
 
 ## Scope Gate
 

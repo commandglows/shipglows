@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-04"
+updated: "2026-10-20"
 status: active
 source_skill: 006-sg-design
 scope: animation-playbook
@@ -79,6 +79,8 @@ exception count. Prefer one coherent pattern family over a collection of
 unrelated reveals.
 
 ## Adapter Selection
+
+Runtime and export-format choices (Rive, Lottie/dotLottie, motion libraries) follow `$SHIPGLOWS_ROOT/skills/references/interactive-animation-runtime-contract.md`.
 
 Choose the smallest project-native solution that satisfies the contract. CSS
 transitions, the Web Animations API, and framework-native motion can be better

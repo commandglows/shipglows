@@ -50,6 +50,10 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/product-iconography-contract.md` when selecting, creating, replacing, or mapping product icons.
 - `$SHIPGLOWS_ROOT/skills/references/product-color-system-contract.md` when creating or changing semantic colors, themes, contrast, or platform mappings.
 - `$SHIPGLOWS_ROOT/skills/references/creative-asset-provenance-contract.md` when adopting, creating, transforming, licensing, redistributing, migrating, or retiring creative assets.
+- `$SHIPGLOWS_ROOT/skills/references/authenticated-experience-ui-contract.md` when authentication state changes global navigation, account menus, or signed-in surfaces.
+- `$SHIPGLOWS_ROOT/skills/references/product-access-and-license-ui-contract.md` when UI displays plans, licenses, features, quotas, or activation state.
+- `$SHIPGLOWS_ROOT/skills/references/blog-and-cms-experience-contract.md` when designing, implementing, auditing, or proving blog or CMS publishing experiences.
+- `$SHIPGLOWS_ROOT/skills/references/public-author-and-social-identity-contract.md` for author cards, bylines, contact identity, or official social links.
 - `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` when a material journey, navigation model, common interaction, or visual direction needs cross-source convention evidence; load the shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md` only before selecting or using an external connector.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when defining experience principles, critical moments, desired/avoided emotion, or a design direction that changes product intent.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.

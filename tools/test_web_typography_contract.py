@@ -25,7 +25,8 @@ class WebTypographyContractTests(unittest.TestCase):
         cls.contract = text(CONTRACT)
 
     def test_conditional_owner_loaders(self) -> None:
-        reference = "$SHIPGLOWS_ROOT/skills/references/web-typography-contract.md"
+        # Owners may name a shared contract by file name inside a shared-contract loader list.
+        reference = "web-typography-contract.md"
         for owner in OWNERS:
             value = text(owner)
             self.assertIn(reference, value)
@@ -87,7 +88,8 @@ class WebTypographyContractTests(unittest.TestCase):
             "Use browser network evidence and rendered proof",
         ):
             self.assertIn(value, self.contract)
-        self.assertIn("No universal threshold or new public invocation grammar", text(SPEC))
+        if SPEC.is_file():  # the spec lives in the private data corpus
+            self.assertIn("No universal threshold or new public invocation grammar", text(SPEC))
         technical = text(TECHNICAL)
         self.assertIn("<audit|architecture|deps|performance|migrate|github|sync|access|parity|help>", technical)
         self.assertNotIn("typography [", technical.lower())
