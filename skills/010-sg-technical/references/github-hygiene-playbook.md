@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-10-19"
+updated: "2026-10-20"
 status: active
 source_skill: 010-sg-technical
 scope: github-hygiene-playbook
@@ -119,7 +119,10 @@ git -C [path] worktree list --porcelain
 git -C [path] branch -vv
 git -C [path] for-each-ref --format='%(refname:short)|%(upstream:short)|%(upstream:track)|%(committerdate:short)|%(authorname)|%(subject)' refs/heads
 git -C [path] symbolic-ref refs/remotes/origin/HEAD
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/git_storage_check.py" [path]
 ```
+
+The storage check is read-only and stateless: it reports `due` only when the repository's own state warrants upkeep (worktree entries pointing at missing folders, loose objects, pack count, or garbage), so Git upkeep follows repository activity rather than a calendar.
 
 If GitHub-specific maintenance is needed and the repo has a GitHub remote, also gather:
 
@@ -192,6 +195,7 @@ pending.
 - `git remote prune origin`
 - delete a fully merged local branch that is not the current branch and not protected
 - fast-forward the current branch with `git pull --ff-only` when the tree is clean
+- `git worktree prune` and `git gc` (default expiry) exactly as the storage check prescribes when it reports `due`
 
 `dependabot` mode may propose or perform only these bounded actions:
 
@@ -213,6 +217,8 @@ Apply these rules before mutating anything:
 - Never auto-merge auth, billing, deploy, infra, workflow, permissions, or security-sensitive Dependabot PRs.
 - Never delete the current branch, default branch, protected release branch, or a branch with unique local commits.
 - Never bulk-delete remote branches.
+- Never run `git prune --expire=now`, `git gc --prune=now`, `git reflog expire --expire=now`, or `git gc --aggressive` without explicit operator approval: they erase the recent recovery window that makes deletions reversible.
+- Never run `git gc` while a rebase, merge, cherry-pick, or bisect is in progress, or while another Git process holds the repository lock.
 - Never treat a green check or `merge-ready` label alone as sufficient merge proof; require the full repository policy, authority, base/head, review, and risk classification.
 - Never resolve merge conflicts silently.
 - Prefer `git pull --ff-only` over merge pulls.

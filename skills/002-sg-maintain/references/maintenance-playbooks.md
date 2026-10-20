@@ -53,7 +53,7 @@ Before triage, inspect only evidence relevant to the selected lanes: current pro
 `hygiene` is a comprehensive read-only audit, not the abbreviated `quick`
 triage and not the mutating `full` lifecycle. Inspect the current project only:
 
-- Git and temporary worktree residue, using local status, refs, worktree metadata, and already available PR evidence without an implicit fetch
+- Git and temporary worktree residue, using local status, refs, worktree metadata, and already available PR evidence without an implicit fetch, plus `tools/git_storage_check.py` for local storage upkeep (`git worktree prune`, `git gc`) routed to `shipglows git` when due
 - dependencies and supply-chain posture
 - security and trust-boundary gaps
 - documentation and governance drift, plus the read-only workflow tidy inventory (`tools/project_docs_tidy_audit.py`) as a proposal when its `--check` or the `workflow-tidy` cadence says due
