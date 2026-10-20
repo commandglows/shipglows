@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-12"
+updated: "2026-10-20"
 status: active
 source_skill: 006-sg-design
 scope: design-playground
@@ -40,7 +40,7 @@ Use for `sg-design playground [route-path]`; default route is `/design-system`. 
 ## Pre-Checks
 
 1. Load the design-system token contract and identify the production-consumed authority. If no real authority exists, stop and route to `006-sg-design system`.
-2. Detect the framework. Supported generation targets are Next.js App/Pages Router, Astro, SvelteKit, Nuxt 3, Remix, and Vite React/Vue/Svelte. Unsupported or native-only targets receive a documented manual route; do not generate ad-hoc code.
+2. Detect the framework. Supported generation targets are Astro sites and Vite Vue 3 (the Tauri webview). Flutter and other unsupported or native-only targets receive a documented manual route; do not generate ad-hoc code.
 3. If multiple token sources exist, report split-brain risk and resolve the production authority before enabling save/export.
 4. If the target route exists, ask one bounded decision: `augment`, `replace`, or `cancel`. Never overwrite silently.
 
@@ -77,7 +77,7 @@ missing production password -> 404
 - Return 404 when the production gate is not configured so the route is not advertised.
 - Vite SPA has no trustworthy server gate. Mark production gating unsupported and require an external access layer; client-only gating is not security.
 
-Use the native server surface: Next middleware/server component/SSR, Astro middleware, SvelteKit server layout, Nuxt server middleware, or Remix loader. Do not invent a second auth system.
+Use the native server surface: Astro middleware or Astro SSR endpoints. Do not invent a second auth system.
 
 ## Dev-Only Save Endpoint
 

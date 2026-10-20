@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-15"
-updated: "2026-08-15"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: interactive-animation-runtime-contract
@@ -61,8 +61,8 @@ Record the smallest class that satisfies the outcome:
 1. **Native or code-driven motion.** Native CSS, Web Animations, or
    project-native motion is preferred for bounded transitions, layout changes,
    gestures, and feedback already owned by application components. Motion is a
-   code-driven library candidate for Web/React animation when its API and
-   project fit replace real complexity; it is not a cross-platform asset
+   code-driven library candidate for Web animation on Astro sites or the Tauri
+   Vue webview when its API and project fit replace real complexity; it is not a cross-platform asset
    format or an implicit dependency.
 2. **Exported vector playback.** Lottie JSON or dotLottie is a candidate for
    authored timeline animation that should be exported and played by a target
@@ -288,6 +288,5 @@ actions are unbounded; or representative rendered proof cannot be collected.
 - Rive Flutter runtime: `https://rive.app/docs/runtimes/flutter/flutter`
 - Rive runtime asset loading: `https://rive.app/docs/runtimes/loading-assets`
 - dotLottie 2.0 specification: `https://dotlottie.io/spec/2.0/`
-- Motion reduced-motion hook: `https://motion.dev/docs/react-use-reduced-motion`
 - W3C reduced-motion technique C39: `https://www.w3.org/WAI/WCAG22/Techniques/css/C39`
 - W3C Understanding SC 2.2.2: `https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html`

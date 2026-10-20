@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-11"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: cross-platform-runtime-selection
@@ -39,7 +39,7 @@ next_step: "Refresh platform support before the next runtime commitment."
 | --- | --- | --- |
 | Flutter | Android, iOS, Web, Windows, macOS, Linux | Canonical universal application shell |
 | Tauri | Desktop and mobile with web frontend and Rust host | Native exception, not the universal default |
-| Expo | Android, iOS, Web | Does not cover the native desktop footprint |
+| Expo (React Native) | Android, iOS, Web | Rejected: not used in the portfolio; does not cover the native desktop footprint |
 | .NET MAUI | Android, iOS, macOS, Windows | Does not cover Web or Linux |
 
 ## Canonical decision
@@ -49,6 +49,8 @@ next_step: "Refresh platform support before the next runtime commitment."
 3. Firebase Auth owns identity; Linux uses REST/OIDC because `firebase_auth` does not list Linux.
 4. Convex HTTP owns data and authoritative functions.
 5. Rust is added only for a measured native-engine requirement behind a typed Flutter boundary.
+
+React, Next.js, React Native, Expo and Svelte are not used and are not candidate runtimes for any ShipGlows surface. Expo appears in the matrix only as a rejected runtime.
 
 Provider SDK coverage never narrows the Flutter footprint silently. Auth0's
 official Flutter SDK covers Android, iOS, macOS, Web, and Windows but not Linux;
@@ -60,6 +62,5 @@ Linux OIDC and Windows secure-storage adapters plus signed-target proof.
 - [Flutter supported platforms](https://docs.flutter.dev/reference/supported-platforms)
 - [`firebase_auth`](https://pub.dev/packages/firebase_auth)
 - [Tauri](https://tauri.app/)
-- [Expo](https://docs.expo.dev/)
 - [.NET MAUI](https://learn.microsoft.com/dotnet/maui/supported-platforms)
 - [Auth0 Flutter SDK](https://auth0.com/docs/quickstart/native/flutter)

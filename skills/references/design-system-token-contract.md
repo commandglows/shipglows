@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.6.1"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-24"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -125,9 +125,8 @@ Treat the existing project declaration as authoritative. If it is missing, infer
 
 - Web CSS: CSS custom properties in the central token/theme/global style layer.
 - Tailwind: theme variables/config tokens; for Tailwind v4 prefer `@theme` CSS variables and `var(--...)` runtime access.
-- React/Vue/Svelte/Astro components: consume tokens through CSS variables, variant systems, or typed theme objects, not local literals.
+- Astro and Vue (Tauri webview) components: consume tokens through CSS variables, variant systems, or typed theme objects, not local literals.
 - Flutter: `ThemeData`, `ColorScheme`, `TextTheme`, `ThemeExtension`, shared `EdgeInsets`/radius/duration/curve/constants, and component themes.
-- React Native/Expo: shared theme/tokens object plus typed component variants; avoid inline literal style drift.
 - Native mobile: platform theme resources/tokens and adaptive layout APIs, not per-screen numeric drift.
 
 If multiple sources exist, stop or ask one targeted question to choose the canonical source before writing design values. Record the decision in the project design-system authority artifact, not only in the final report.

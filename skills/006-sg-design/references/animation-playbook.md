@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-04"
 updated: "2026-10-20"
@@ -109,7 +109,7 @@ not approval to add it.
   than copying desktop distances to tablet or mobile.
 - Content remains available if JavaScript, observers, or the animation engine
   fail. Never hide critical content solely until an animation initializes.
-- For React, Vue, Astro islands, or equivalent client boundaries, define scoped
+- For Vue (Tauri webview), Astro islands, Flutter widget boundaries, or equivalent client boundaries, define scoped
   initialization, mount/unmount cleanup, route-transition behavior, and
   duplicate initialization prevention. Dispose timelines, listeners, and
   scroll observers/triggers owned by the component or route.
