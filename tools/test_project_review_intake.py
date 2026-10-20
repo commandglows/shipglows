@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from uuid import uuid4
-from project_review_intake import IntakeAPI, IntakeError, Store, handler_factory, load_grants, validate
+from tools.project_review_intake import IntakeAPI, IntakeError, Store, handler_factory, load_grants, validate
 
 TOKEN = "synthetic-token-only-" + "x" * 40
 PATH = "/api/projects/shipglows/review-intake"
