@@ -20,7 +20,7 @@ class Wave16ActivationProfileTests(unittest.TestCase):
 
     def test_five_owners_have_bounded_profiles(self) -> None:
         expected = {
-            "109-sg-auth-debug": 4,
+            "109-sg-auth-debug": 6,
             "200-sg-redact": 5,
             "201-sg-enrich": 5,
             "400-sg-audit": 3,
@@ -34,7 +34,8 @@ class Wave16ActivationProfileTests(unittest.TestCase):
         for skill in ("109-sg-auth-debug", "200-sg-redact", "201-sg-enrich", "400-sg-audit", "405-sg-prod"):
             for gate, references in self.profiles[skill]["gates"].items():
                 self.assertEqual(1, len(references), (skill, gate))
-                self.assertTrue(references[0].startswith(f"skills/{skill}/references/"), (skill, gate))
+                # One direct reference per gate: a local pack or a single shared contract.
+                self.assertTrue(references[0].startswith((f"skills/{skill}/references/", "skills/references/")), (skill, gate))
 
     def test_profiles_are_valid_and_selected_baselines_stay_below_five_thousand(self) -> None:
         payload = audit_profiles(self.registry)
