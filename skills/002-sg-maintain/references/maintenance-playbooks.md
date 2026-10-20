@@ -118,6 +118,8 @@ Every delegated mission states the project root, active spec or mini-contract, m
 
 `security` first reviews bug files, then the optional bug index, for open high/critical security, auth, permission, data, webhook, or secret issues. Identify whether the project exposes auth, payments, webhooks, public APIs, multi-tenant data, admin actions, or production secrets. Route dependency and supply-chain posture to `010-sg-technical deps`; route code-level authn/authz, tenant/trust boundaries, secrets, webhooks, destructive actions, validation, secure failure, and abuse resistance to `010-sg-technical audit`.
 
+Agent fast path: when the current agent is Claude Code and its built-in `/security-review` command is callable, run it first on the pending branch changes as a vulnerability-finding pass, then feed its findings into the `010-sg-technical audit` OWASP Security Gate for triage, remediation, and verification. `/security-review` covers the diff only, uses the operator's Claude subscription, and never replaces the full audit or the dependency lane. On any other agent, or when the command is not callable, follow the `010-sg-technical audit` and `deps` route directly; never invoke a hosted or CI security scanner without operator approval.
+
 Create or continue a spec when remediation crosses the chantier threshold; execute only safe remediations through bounded owners. Verify and ship only when the security, dependency, documentation, and check gates pass. Missing `SECURITY.md`, `.env.example`, development mode, or preview-proof policy are gaps, not vulnerabilities by themselves. Recommend a dedicated security audit skill only when repeated security-only work proves that need; do not create it from this lane.
 
 ## Vercel Economy Lane
