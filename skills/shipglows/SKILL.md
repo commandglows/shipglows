@@ -21,7 +21,7 @@ current-user environment value, then `%USERPROFILE%\.shipglows\development-chann
 A valid absolute `channel: linked` root containing `skills/000-shipglows/SKILL.md`
 wins before the installed default `$HOME/.shipglows/runtime`. Verify root and
 engine, then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`.
-If missing or invalid, stop visibly; never substitute a sibling or guessed checkout.
+If missing or invalid, stop with a visible error; never fall back to a sibling runtime path or a guessed checkout.
 
 The engine owns conditional loaders; do not preload alias tables, domain skills
 or every reference here. For non-trivial outcomes it loads

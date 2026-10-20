@@ -62,7 +62,7 @@ class ProgressiveQuestionLoadingTests(unittest.TestCase):
 
     def test_replay_omissions_have_visible_entry_and_recovery_gates(self):
         router = (ROOT / "skills/000-shipglows/SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("Explicit invocations, including `$shipglows`", router)
+        self.assertIn("Explicit invocations (including `$shipglows`)", router)
         self.assertIn("run its checker", router)
         self.assertIn("invalid/ambiguous activates no substitute", router)
         self.assertIn("`skill-execution-fidelity.md` is advisory here", router)

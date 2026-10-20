@@ -18,7 +18,7 @@ class EmailingContractTests(unittest.TestCase):
     def test_provider_standard_is_discoverable_from_the_owner(self) -> None:
         skill = SKILL.read_text(encoding="utf-8")
         self.assertIn("resend-first-platform-standard.md", skill)
-        self.assertIn("provider choice", skill)
+        self.assertIn("selecting or changing the email platform", skill)
         alias = ALIAS.read_text(encoding="utf-8")
         self.assertIn("resend-first-platform-standard.md", alias)
 

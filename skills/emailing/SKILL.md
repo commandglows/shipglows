@@ -32,6 +32,7 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 - `skills/references/source-intake-classification.md`
 - `skills/references/email-sequence-storage.md` when a sequence should be retained in a project repository
 - `skills/references/email-work-routing.md` when the task crosses writing, template, delivery, provider, agent, test, or release layers
+- `skills/202-sg-emailing/references/resend-first-platform-standard.md` when selecting or changing the email platform for a new integration; resolve current project/provider truth before assuming a migration.
 - `skills/202-sg-emailing/references/accessible-email-writing-playbook.md` before drafting or auditing email content
 - `skills/202-sg-emailing/references/accessible-email-technical-playbook.md` when work touches templates, markup, provider setup, rendering, or technical QA
 - `skills/202-sg-emailing/references/email-deliverability-and-authentication-playbook.md` when work touches sending domains, SPF, DKIM, DMARC, reputation, compliance, suppression, or delivery operations
