@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-10-20"
+updated: "2026-09-05"
 status: active
 source_skill: 900-shipglows-core
 scope: mutation-git-authority
@@ -24,7 +24,7 @@ next_step: none
 
 ## Git/GitHub stewardship authority
 
-ShipGlows has standing authority to manage ordinary Git/GitHub state for in-scope work without asking for validation. At project or chantier start, each coherent validated milestone, and chantier end, refresh remote truth and converge safely: fetch/prune, inspect branch/upstream/PR/worktree relationships, stage only owned paths, create accurate commits, push them, reconcile merge-ready owned branches or pull requests into the canonical integration branch, and remove proven-integrated temporary branches and worktrees. The goal of this stewardship is the Resting State of `git-temporary-artifact-lifecycle.md`: after shipping, the repository returns to a clean integration branch with no leftover worktree, temporary branch, or open pull request.
+ShipGlows has standing authority to manage ordinary Git/GitHub state for in-scope work without asking for validation. At project or chantier start, each coherent validated milestone, and chantier end, refresh remote truth and converge safely: fetch/prune, inspect branch/upstream/PR/worktree relationships, stage only owned paths, create accurate commits, push them, reconcile merge-ready owned branches or pull requests into the canonical integration branch, and remove proven-integrated temporary branches and worktrees.
 
 Resolve the target from `project-delivery-policy.md`: non-live `development` projects integrate directly into `main`; explicitly live `published` and `sensitive-production` projects integrate into canonical `dev`, while `main` remains production. Promotion `dev -> main` is a release/deployment transition: when its applicable release, CI, preview, security, and production-authority gates are satisfied, perform the Git reconciliation without a separate Git validation.
 

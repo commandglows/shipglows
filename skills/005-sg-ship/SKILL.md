@@ -51,7 +51,7 @@ Full mode may update trackers, changelog, and durable decisions. Load `full-clos
 
 Before either mode mutates Git, load exactly one local reference: `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-execution-playbook.md`. Full mode loads its full-close playbook only after the common pre-mutation gates pass.
 
-After terminal post-push proof, load `$SHIPGLOWS_ROOT/skills/references/git-temporary-artifact-lifecycle.md` and run its Resting State sweep, always; it also governs any task-scoped branch or worktree the run owns.
+After terminal post-push proof, always load `$SHIPGLOWS_ROOT/skills/references/git-temporary-artifact-lifecycle.md` and run its Resting State sweep.
 
 ## Stops Before Mutation
 
