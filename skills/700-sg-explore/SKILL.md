@@ -59,6 +59,7 @@ Stop and hand off when:
 - Do not write code or implementation commands.
 - Do not mark tasks as closed or shipped.
 - Do not invent evidence; avoid passing unverifiable certainty as conclusion.
+- Do not create a durable report before checking for an existing one on the same topic; update the existing report instead of duplicating it.
 - Do not write `TASKS.md`, `AUDIT_LOG.md`, or legacy tracker files in place of a durable exploration report.
 - If implementation is requested, hand off to the right owner without forcing exploratory completion.
 
