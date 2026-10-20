@@ -34,6 +34,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before choosing topology; parallelize independent read-only design evidence by default and require ready write batches for concurrent edits.
 - `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before any UI, layout, token, theme, or visual-proof work.
 - `$SHIPGLOWS_ROOT/skills/references/interactive-state-transition-contract.md` before designing or changing a stateful, temporal, session-based, continuously interactive, Rive-driven, or 3D-driven interface.
+- `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` before designing, implementing, or reviewing any noticeable delay: rendering, export, preview, generation, upload, save, or any action that can stay pending.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/brand-identity-playbook.md` for `identity [scope]` after positioning, audience, and existing brand truth are resolved.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/animation-playbook.md` for `animation <audit|design|implement|tune> [scope]` after valid animation selection.
