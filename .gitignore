@@ -22,7 +22,7 @@ __pycache__/
 *.pyc
 tmp_shipglows*.sh
 site/.playwright-mcp/
-/.shipglows-auto/
+/.shipglows-blitz/
 /.shipglows/
 
 # Windows env-var expansion artifacts

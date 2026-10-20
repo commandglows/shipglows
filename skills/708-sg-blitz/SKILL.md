@@ -1,5 +1,5 @@
 ---
-name: 708-sg-auto
+name: 708-sg-blitz
 description: "Autonomous useful-work window for evidence-backed project improvements without local workload execution."
 ---
 
@@ -19,11 +19,11 @@ architecture, security, or compliance evidence. Continue without avoidable
 operator discussion, skip blocked candidates, and never manufacture work,
 reasoning, agents, or output merely to consume credits.
 
-`shipglows auto` always and implicitly applies the effective `#nolocal` posture
+`shipglows blitz` always and implicitly applies the effective `#nolocal` posture
 and `$SHIPGLOWS_ROOT/skills/references/no-local-execution-policy.md`. It cannot
-be disabled in this mode: `auto #local` and legacy `auto local` are invalid;
-`auto #nolocal` and legacy `auto nolocal` are redundant spellings with
-identical behavior. `auto #ci` is valid only as a deferred proof destination
+be disabled in this mode: `blitz #local` and legacy `blitz local` are invalid;
+`blitz #nolocal` and legacy `blitz nolocal` are redundant spellings with
+identical behavior. `blitz #ci` is valid only as a deferred proof destination
 and grants no CI trigger, push, or external-write authority.
 
 ## Frozen project root
@@ -45,7 +45,7 @@ outside-project file may be edited.
 
 Before any mutation, load
 `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md` and apply only its
-bounded Auto-session authority. It permits safe, reversible, current-project
+bounded Blitz-session authority. It permits safe, reversible, current-project
 local edits during this explicit mode; it never permits destructive,
 privileged, secret, permission, billing, production, external, commit, push, or
 deployment effects.
@@ -64,11 +64,11 @@ missing horizon means the current agent run until platform stop, operator
 interruption, or exhaustion of safe actionable candidates; never promise to
 consume an exact balance that the runtime cannot observe.
 
-Load `$SHIPGLOWS_ROOT/skills/708-sg-auto/references/auto-credit-window-playbook.md`
+Load `$SHIPGLOWS_ROOT/skills/708-sg-blitz/references/blitz-credit-window-playbook.md`
 before candidate discovery. It owns evidence eligibility, priority order,
 continuous execution, skip behavior, topology, and the final portfolio handoff.
 Load
-`$SHIPGLOWS_ROOT/skills/708-sg-auto/references/auto-session-coordination.md`
+`$SHIPGLOWS_ROOT/skills/708-sg-blitz/references/blitz-session-coordination.md`
 before every mutating candidate. Every mutation requires an atomic claim in
 the captured Git root, even when no other conversation is known. A managed
 non-Git root remains valid for read-only discovery and audit only; skip all
@@ -97,12 +97,12 @@ observable, record `Fast: unknown/not applied` internally and continue.
   parallelism without creating duplicate analysis or handoff ceremony. Keep a
   cohesive task main-only when delegation adds no material value.
 - Choose the lowest reasoning effort that preserves the required quality.
-  `high` is a normal baseline for complex auto work; use `xhigh`, `max`, or
+  `high` is a normal baseline for complex blitz work; use `xhigh`, `max`, or
   `ultra` only when concrete ambiguity, architecture, security, or error cost
   justifies the additional reasoning. Never escalate effort on a time curve or
   because credits may expire.
 - After a candidate is selected, preserve its owner, architecture, acceptance
-  contract, and security boundary; do not use auto as permission to invent
+  contract, and security boundary; do not use blitz as permission to invent
   product truth.
 - If routine proof or a material decision blocks one candidate, skip the
   candidate and continue: skip the candidate and continue with the next safe one. Ask only when the whole run
@@ -120,9 +120,9 @@ or privileged action, secrets/private data, permission/auth/billing/production
 changes, external writes, or a material product decision absent from governed
 truth.
 
-Never modify this auto engine, its no-local policy, mutation authority,
+Never modify this blitz engine, its no-local policy, mutation authority,
 permissions configuration, or equivalent autonomy guardrail from inside an
-auto run. Such self-expansion requires an ordinary explicitly approved
+blitz run. Such self-expansion requires an ordinary explicitly approved
 ShipGlows-core chantier.
 
 ## Reporting

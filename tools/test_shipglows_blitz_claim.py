@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Behavioral tests for root-local ShipGlows auto claims."""
+"""Behavioral tests for root-local ShipGlows blitz claims."""
 
 from concurrent.futures import ThreadPoolExecutor
 import os
@@ -8,14 +8,14 @@ import subprocess
 import tempfile
 import unittest
 
-from tools.shipglows_auto_claim import ClaimError, acquire_claim, complete_claim
+from tools.shipglows_blitz_claim import ClaimError, acquire_claim, complete_claim
 
 
 class ShipGlowsAutoClaimTests(unittest.TestCase):
     def make_repo(self, parent: str | None = None) -> Path:
         root = Path(tempfile.mkdtemp(dir=parent))
         subprocess.run(["git", "init", "-q", str(root)], check=True)
-        (root / ".gitignore").write_text("/.shipglows-auto/\n", encoding="utf-8")
+        (root / ".gitignore").write_text("/.shipglows-blitz/\n", encoding="utf-8")
         (root / "work.md").write_text("work\n", encoding="utf-8")
         (root / "src").mkdir()
         return root
@@ -71,7 +71,7 @@ class ShipGlowsAutoClaimTests(unittest.TestCase):
     def test_lock_symlink_escape_is_rejected_without_external_write(self) -> None:
         with tempfile.TemporaryDirectory() as parent:
             root = self.make_repo(parent)
-            claims = root / ".shipglows-auto" / "claims"
+            claims = root / ".shipglows-blitz" / "claims"
             claims.mkdir(parents=True)
             outside = Path(parent) / "outside-lock"
             outside.write_bytes(b"unchanged")

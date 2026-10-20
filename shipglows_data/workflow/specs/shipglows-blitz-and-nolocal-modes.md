@@ -10,9 +10,9 @@ updated_at: "2026-08-20 15:40:23 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
-scope: "shipglows auto and execution posture tags"
+scope: "shipglows blitz and execution posture tags"
 owner: Diane
-user_story: "As the ShipGlows operator, I want auto to remain an autonomous workflow mode while local, nolocal, and ci are composable execution tags, so every métier command can express its proof posture without confusing ownership or authority."
+user_story: "As the ShipGlows operator, I want blitz to remain an autonomous workflow mode while local, nolocal, and ci are composable execution tags, so every métier command can express its proof posture without confusing ownership or authority."
 confidence: high
 risk_level: high
 security_impact: yes
@@ -20,8 +20,8 @@ docs_impact: yes
 linked_systems:
   - skills/shipglows/SKILL.md
   - skills/000-shipglows/SKILL.md
-  - skills/708-sg-auto/SKILL.md
-  - skills/708-sg-auto/references/auto-session-coordination.md
+  - skills/708-sg-blitz/SKILL.md
+  - skills/708-sg-blitz/references/blitz-session-coordination.md
   - skills/references/no-local-execution-policy.md
   - skills/references/execution-posture-tags.md
   - skills/references/mutation-plan-approval.md
@@ -29,7 +29,7 @@ linked_systems:
   - skills/references/skill-code-index.md
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
-  - tools/test_shipglows_auto_nolocal_contract.py
+  - tools/test_shipglows_blitz_nolocal_contract.py
   - tools/test_execution_posture_tags.py
 depends_on:
   - artifact: skills/references/mutation-plan-approval.md
@@ -52,11 +52,11 @@ evidence:
 next_step: "Close the verified instruction-contract chantier when the operator requests lifecycle closure"
 ---
 
-# Spec: ShipGlows Auto And Execution Posture Tags
+# Spec: ShipGlows Blitz And Execution Posture Tags
 
 ## Title
 
-ShipGlows Auto And Execution Posture Tags
+ShipGlows Blitz And Execution Posture Tags
 
 ## Status
 
@@ -64,17 +64,17 @@ ready
 
 ## User Story
 
-As the ShipGlows operator, I want auto to remain an autonomous workflow mode while local, nolocal, and ci are composable execution tags, so every métier command can express its proof posture without confusing ownership or authority.
+As the ShipGlows operator, I want blitz to remain an autonomous workflow mode while local, nolocal, and ci are composable execution tags, so every métier command can express its proof posture without confusing ownership or authority.
 
 ## Minimal Behavior Contract
 
-`shipglows auto [optional scope or horizon]` remains the bounded autonomous useful-work mode and always receives effective `#nolocal`. `#local`, `#nolocal`, and `#ci` are position-independent execution posture tags that compose with ordinary métier and expert invocations. `#local` permits proportional local proof without forcing it; `#nolocal` defers workloads and external effects; `#ci` implies `#nolocal` and names CI only as deferred proof. Tags never grant mutation or external-write authority. `shipglows nolocal <objective>` remains a legacy alias normalized to `shipglows <objective> #nolocal`.
+`shipglows blitz [optional scope or horizon]` remains the bounded autonomous useful-work mode and always receives effective `#nolocal`. `#local`, `#nolocal`, and `#ci` are position-independent execution posture tags that compose with ordinary métier and expert invocations. `#local` permits proportional local proof without forcing it; `#nolocal` defers workloads and external effects; `#ci` implies `#nolocal` and names CI only as deferred proof. Tags never grant mutation or external-write authority. `shipglows nolocal <objective>` remains a legacy alias normalized to `shipglows <objective> #nolocal`.
 
 ## Success Behavior
 
 - Preconditions: A current project root is resolved and frozen and contains at least one safe actionable roadmap, planning, security, compliance, architecture, refactor, or implementation surface.
-- Trigger: The operator invokes `shipglows auto`, adds an execution posture tag to a command, or uses the legacy `shipglows nolocal <objective>` alias.
-- User/operator result: `auto` proceeds without avoidable discussion; ordinary commands retain their owner and apply the selected proof posture with a visible deferred-proof boundary where relevant.
+- Trigger: The operator invokes `shipglows blitz`, adds an execution posture tag to a command, or uses the legacy `shipglows nolocal <objective>` alias.
+- User/operator result: `blitz` proceeds without avoidable discussion; ordinary commands retain their owner and apply the selected proof posture with a visible deferred-proof boundary where relevant.
 - System effect: Safe local files and ignored coordination claims may be created or edited below the frozen root; useful subagents inherit the same root and nolocal boundary; no workload execution or external state change occurs; every touched work item remains open as `implemented — unverified` until normal proof runs later.
 - Success proof: Scenario-first contract tests prove routing, authority, priority order, forbidden operations, status vocabulary, stop/skip behavior, and mode separation.
 - Silent success: Not allowed; the final handoff names changed work, deferred proof, and stop reason.
@@ -82,7 +82,7 @@ As the ShipGlows operator, I want auto to remain an autonomous workflow mode whi
 ## Error Behavior
 
 - Expected failures: No eligible work, unresolved project identity, only unsafe or blocked candidates, unavailable required source truth, dirty-file ownership collision, expired horizon, or platform stop.
-- User/operator response: `auto` skips individual blocked candidates and continues; it stops only when no safe candidate remains or a hard authority/safety/platform boundary applies. `nolocal` follows the ordinary owner question/stop contract.
+- User/operator response: `blitz` skips individual blocked candidates and continues; it stops only when no safe candidate remains or a hard authority/safety/platform boundary applies. `nolocal` follows the ordinary owner question/stop contract.
 - System effect: No forbidden operation runs, no false verification or closure state is recorded, and unrelated work remains untouched.
 - Must never happen: Artificial token-wasting output or reasoning; unjustified model/effort escalation or agent fan-out; leaving the frozen root; duplicate claimed work; invented roadmap features; destructive or privileged changes; secret/credential/permission/billing/production mutation; local workload execution; external writes; commit/push/deploy; self-activation of Fast; or claims of fixed, verified, secure, compliant, complete, closed, or shipped.
 - Silent failure: Not allowed; skipped candidates and the terminal stop reason are summarized without exposing sensitive evidence.
@@ -93,14 +93,14 @@ The normal ShipGlows lifecycle optimizes delivery quality and proportional proof
 
 ## Solution
 
-Keep `auto` as the global autonomous ShipGlows mode. Move local execution posture to registry-backed `#local`, `#nolocal`, and `#ci` tags applied after owner/mode resolution. Route `auto` to internal `708-sg-auto` with implied `#nolocal`; retain `shipglows nolocal <objective>` only as a normalized compatibility alias. Fail closed on conflicts and keep tags separate from authority.
+Keep `blitz` as the global autonomous ShipGlows mode. Move local execution posture to registry-backed `#local`, `#nolocal`, and `#ci` tags applied after owner/mode resolution. Route `auto` to internal `708-sg-blitz` with implied `#nolocal`; retain `shipglows nolocal <objective>` only as a normalized compatibility alias. Fail closed on conflicts and keep tags separate from authority.
 
 ## Scope In
 
-- Public `shipglows auto`, transversal execution tags, and legacy `shipglows nolocal <objective>` compatibility routing.
-- Internal-only `708-sg-auto` engine for multi-chantier selection, ranking, execution, skip/stop behavior, receipts, and handoff.
+- Public `shipglows blitz`, transversal execution tags, and legacy `shipglows nolocal <objective>` compatibility routing.
+- Internal-only `708-sg-blitz` engine for multi-chantier selection, ranking, execution, skip/stop behavior, receipts, and handoff.
 - Shared `no-local-execution-policy.md` defining allowed static inspection/editing and forbidden workload/external-state operations.
-- Auto-session authority limited to safe, reversible, current-project local edits; posture tags retain normal mutation approval.
+- Blitz-session authority limited to safe, reversible, current-project local edits; posture tags retain normal mutation approval.
 - `#ci` as a deferred proof target only, with no push, dispatch, remote execution, or deployment authority.
 - Useful-work priority order: after safety, authority, root, claims, and evidence eligibility, maximize durable value per wall-clock minute.
 - Bounded subagents recommended for independent useful missions, with task-fit model and reasoning choices and no artificial fan-out.
@@ -121,15 +121,15 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
 
 ## Constraints
 
-- `auto` always applies `#nolocal` implicitly; no `#local` or legacy `local` override is supported.
+- `blitz` always applies `#nolocal` implicitly; no `#local` or legacy `local` override is supported.
 - `#local`, `#nolocal`, and `#ci` are execution posture tags, not owner selectors, autonomous priority selectors, or authority bypasses.
 - `#local` conflicts with `#nolocal` and `#ci`; `#ci` implies `#nolocal`; argument order never resolves a conflict.
 - Static repository discovery, source reading, bounded file editing, and read-only Git status/diff inspection remain allowed because they produce the requested work without executing the application workload.
 - A candidate must have durable evidence in roadmap, planning, specs, backlog, code risk, or a legitimate security/compliance/architecture audit surface.
-- Auto-session authority never covers remote, destructive, privileged, secret, billing, auth/permission, production, or irreversible effects.
+- Blitz-session authority never covers remote, destructive, privileged, secret, billing, auth/permission, production, or irreversible effects.
 - Unrelated dirty files are preserved; ownership collision skips the candidate.
 - The launch Git/managed root is frozen for the parent and every subagent; other repositories, clones, and worktrees are excluded.
-- Concurrent auto conversations reserve the smallest candidate/file scope below `.shipglows-auto/claims/`; fresh overlap skips the candidate.
+- Concurrent blitz conversations reserve the smallest candidate/file scope below `.shipglows-blitz/claims/`; fresh overlap skips the candidate.
 
 ## Dependencies
 
@@ -142,11 +142,11 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
 
 - Safety and explicit authority eligibility gate the candidate pool before credit intensity is scored.
 - Within the safe eligible pool, durable project value per wall-clock minute is the primary ordering dimension; model, reasoning, generation, and agents remain task-fit implementation choices.
-- `auto` never pauses for a routine implementation choice; it skips a blocked candidate and continues.
+- `blitz` never pauses for a routine implementation choice; it skips a blocked candidate and continues.
 - Execution posture tags alone never grant autonomous multi-chantier selection, mutation authority, or external effects.
 - Deferred proof remains explicit and executable later; no work item is closed from static inspection alone.
 - Useful subagents are authorized and recommended for independent missions. Parallel writes require ready, non-overlapping execution batches and remain bound by frozen-root, claim, and dirty-file ownership.
-- `auto` never changes Fast itself; unobservable Fast state is recorded as unknown and does not interrupt the run.
+- `blitz` never changes Fast itself; unobservable Fast state is recorded as unknown and does not interrupt the run.
 
 ## Links & Consequences
 
@@ -156,20 +156,20 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
 
 ## Documentation Coherence
 
-- Update the public router contract, launch cheatsheet, skill lifecycle documentation, expert code index, and `708-sg-auto` README.
-- Keep detailed execution rules in one local auto playbook and the transversal restriction in one shared policy rather than expanding the router.
+- Update the public router contract, launch cheatsheet, skill lifecycle documentation, expert code index, and `708-sg-blitz` README.
+- Keep detailed execution rules in one local blitz playbook and the transversal restriction in one shared policy rather than expanding the router.
 - Do not change unrelated CLI/user documentation.
 
 ## Edge Cases
 
-- `shipglows auto` with no explicit horizon runs until platform stop, operator interruption, or no safe actionable candidate; it cannot promise to exhaust a numeric balance.
-- `shipglows auto #nolocal` and legacy `shipglows auto nolocal` are redundant and behave exactly like `shipglows auto`.
-- `shipglows auto #ci` retains nolocal and records CI only as deferred proof; `shipglows auto #local` is invalid.
+- `shipglows blitz` with no explicit horizon runs until platform stop, operator interruption, or no safe actionable candidate; it cannot promise to exhaust a numeric balance.
+- `shipglows blitz #nolocal` and legacy `shipglows blitz nolocal` are redundant and behave exactly like `shipglows blitz`.
+- `shipglows blitz #ci` retains nolocal and records CI only as deferred proof; `shipglows blitz #local` is invalid.
 - `shipglows nolocal` without an objective reports the missing objective instead of selecting work autonomously.
 - `#local #nolocal` and `#local #ci` fail closed; duplicate compatible tags collapse deterministically.
 - A high-credit candidate requiring a build/test to know how to edit is skipped or left as analysis-only; it is not guessed into a verified fix.
 - A small high-value repair may outrank a reasoning-intensive chantier when it delivers more durable value per minute; token intensity is not a ranking goal.
-- Ten concurrent auto conversations share no account-quota telemetry. Each stays task-fit and uses root-local claims to avoid duplicate useful work rather than attempting a per-session burn curve.
+- Ten concurrent blitz conversations share no account-quota telemetry. Each stays task-fit and uses root-local claims to avoid duplicate useful work rather than attempting a per-session burn curve.
 - Security/compliance analysis may produce and apply safe local hardening, but cannot claim the system secure or compliant without deferred proof.
 - Existing `sg-docs auto` and `102-sg-start` auto-verify routes remain unchanged.
 
@@ -179,42 +179,42 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
 - One: one eligible candidate is implemented and handed off as unverified.
 - Many: independent candidates are ranked, bounded, and processed without mixing ownership.
 - Boundaries: expired horizon, context/platform stop, dirty collision, absent legacy objective, redundant nolocal, and tag conflicts are deterministic.
-- Interfaces: router, registry, auto engine, shared policy, selected owner, and deferred-proof handoff retain explicit ownership.
+- Interfaces: router, registry, blitz engine, shared policy, selected owner, and deferred-proof handoff retain explicit ownership.
 - Exceptions: unsafe, privileged, destructive, ambiguous, or proof-dependent candidates are skipped without weakening the global safety contract.
 - Simple scenarios: contract tests cover route, priority, forbidden actions, status, and mode separation without executing an application.
 
 ## Implementation Tasks
 
-- [x] Task 1: Add the shared no-local execution and auto-session authority contracts.
+- [x] Task 1: Add the shared no-local execution and blitz-session authority contracts.
   - File: `skills/references/no-local-execution-policy.md`, `skills/references/mutation-plan-approval.md`
-  - Action: Define allowed inspection/editing, forbidden workload/external actions, truthful status, and the exact bounded authority granted only by `shipglows auto`.
+  - Action: Define allowed inspection/editing, forbidden workload/external actions, truthful status, and the exact bounded authority granted only by `shipglows blitz`.
   - User story link: Enables continuous useful edits without build/test wait or repeated approval prompts.
   - Depends on: None.
-  - Validate with: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract`
+  - Validate with: `python3 -m unittest tools.test_shipglows_blitz_nolocal_contract`
   - Notes: Keep `nolocal` alone under the ordinary approval gate.
 
-- [x] Task 2: Create the internal auto orchestrator.
-  - File: `skills/708-sg-auto/SKILL.md`, `skills/708-sg-auto/references/auto-credit-window-playbook.md`, `skills/708-sg-auto/agents/openai.yaml`, `skills/708-sg-auto/README.md`
+- [x] Task 2: Create the internal blitz orchestrator.
+  - File: `skills/708-sg-blitz/SKILL.md`, `skills/708-sg-blitz/references/blitz-credit-window-playbook.md`, `skills/708-sg-blitz/agents/openai.yaml`, `skills/708-sg-blitz/README.md`
   - Action: Define candidate evidence, priority scoring, continuous skip/continue loop, topology, safety stops, deferred proof, and final receipt.
   - User story link: Turns the credit window into reasoning-intensive roadmap and hardening work.
   - Depends on: Task 1.
-  - Validate with: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract`
-  - Notes: Internal-only engine because the public product surface is `shipglows auto`.
+  - Validate with: `python3 -m unittest tools.test_shipglows_blitz_nolocal_contract`
+  - Notes: Internal-only engine because the public product surface is `shipglows blitz`.
 
 - [x] Task 3: Add public routing and registry/index identity.
   - File: `skills/shipglows/SKILL.md`, `skills/000-shipglows/SKILL.md`, `skills/references/skill-invocation-registry.json`, `skills/references/skill-code-index.md`
-  - Action: Detect `auto`/`nolocal`, hand `auto` to 708, apply the policy before normal owner routing for `nolocal`, and register code 708 without changing unrelated auto modes.
+  - Action: Detect `blitz`/`nolocal`, hand `blitz` to 708, apply the policy before normal owner routing for `nolocal`, and register code 708 without changing unrelated auto modes.
   - User story link: Makes both commands deterministic and discoverable.
   - Depends on: Tasks 1-2.
-  - Validate with: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract tools.test_skill_invocation_check && python3 tools/skill_code_index_lint.py`
-  - Notes: This task originally introduced both router forms; Task 7 retains `auto` as the mode and migrates `nolocal` to a compatibility alias for the transversal tag.
+  - Validate with: `python3 -m unittest tools.test_shipglows_blitz_nolocal_contract tools.test_skill_invocation_check && python3 tools/skill_code_index_lint.py`
+  - Notes: This task originally introduced both router forms; Task 7 retains `blitz` as the mode and migrates `nolocal` to a compatibility alias for the transversal tag.
 
 - [x] Task 4: Add scenario-first regression coverage.
-  - File: `tools/test_shipglows_auto_nolocal_contract.py`, `tools/test_skill_invocation_check.py`
+  - File: `tools/test_shipglows_blitz_nolocal_contract.py`, `tools/test_skill_invocation_check.py`
   - Action: Assert route ownership, mandatory policy composition, primary reasoning-intensity priority, authority separation, forbidden operations, truthful statuses, skip/stop behavior, and collision avoidance.
   - User story link: Prevents future simplification from losing the intended credit-window behavior.
   - Depends on: Tasks 1-3.
-  - Validate with: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract tools.test_skill_invocation_check`
+  - Validate with: `python3 -m unittest tools.test_shipglows_blitz_nolocal_contract tools.test_skill_invocation_check`
   - Notes: Contract tests inspect instructions; they do not run project workloads.
 
 - [x] Task 5: Align documentation and runtime discovery.
@@ -225,12 +225,12 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
   - Validate with: metadata lint, focused contract tests, activation graph, budget check, diff check, and affected runtime sync.
   - Notes: Documentation and runtime files are synchronized; public routing and the direct Codex expert link both resolve to the installed runtime. No application build/test/install is required.
 
-- [x] Task 6: Refine auto for useful multi-conversation work.
-  - File: `skills/708-sg-auto/SKILL.md`, `skills/708-sg-auto/references/auto-credit-window-playbook.md`, `skills/708-sg-auto/references/auto-session-coordination.md`, `skills/references/mutation-plan-approval.md`, `skills/references/master-delegation-semantics.md`, `tools/shipglows_auto_claim.py`
+- [x] Task 6: Refine blitz for useful multi-conversation work.
+  - File: `skills/708-sg-blitz/SKILL.md`, `skills/708-sg-blitz/references/blitz-credit-window-playbook.md`, `skills/708-sg-blitz/references/blitz-session-coordination.md`, `skills/references/mutation-plan-approval.md`, `skills/references/master-delegation-semantics.md`, `tools/shipglows_blitz_claim.py`
   - Action: Replace token-throughput ranking with durable value per minute, authorize and recommend task-fit subagents, freeze the launch root, add atomic cross-conversation claims, keep Fast observational, and propagate implicit nolocal to every mission.
   - User story link: Lets many autonomous conversations produce distinct useful work without artificial reasoning burn or project drift.
   - Depends on: Tasks 1-5.
-  - Validate with: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract tools.test_shipglows_auto_claim tools.test_skill_invocation_check`
+  - Validate with: `python3 -m unittest tools.test_shipglows_blitz_nolocal_contract tools.test_shipglows_blitz_claim tools.test_skill_invocation_check`
   - Notes: Claim execution is minimal root-local control-plane bookkeeping explicitly allowed by nolocal; it never runs the application workload.
 
 - [x] Task 7: Replace nolocal mode semantics with composable execution posture tags.
@@ -238,35 +238,35 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
   - Action: Add position-independent `#local`, `#nolocal`, and `#ci`; make CI imply nolocal, reject conflicts, preserve legacy nolocal normalization, and document public modes separately from execution posture.
   - User story link: Lets every métier or expert command express its proof environment without changing owner, workflow, or authority.
   - Depends on: Tasks 1-6.
-  - Validate with: `python3 -m unittest tools.test_execution_posture_tags tools.test_shipglows_auto_nolocal_contract tools.test_skill_invocation_check`
+  - Validate with: `python3 -m unittest tools.test_execution_posture_tags tools.test_shipglows_blitz_nolocal_contract tools.test_skill_invocation_check`
   - Notes: Tags are agent-invocation syntax. In Bash an unquoted hash starts a comment; no native shell flag is introduced by this task.
 
 ## Acceptance Criteria
 
-- [x] AC 1: Given `shipglows auto`, when routing resolves the mode, then it hands off to internal `708-sg-auto`, applies `nolocal` mandatorily, and treats no `local` override as valid.
-- [x] AC 2: Given multiple safe eligible candidates, when auto prioritizes work, then durable useful project value per wall-clock minute ranks first after safety/authority/evidence eligibility, without treating token consumption as value.
-- [x] AC 3: Given any auto run, when it acts locally, then static discovery, reading, editing, and read-only status/diff are allowed while builds, tests, lint, typechecks, installs, servers, browsers, containers, migrations, commits, pushes, deploys, and external writes are forbidden.
+- [x] AC 1: Given `shipglows blitz`, when routing resolves the mode, then it hands off to internal `708-sg-blitz`, applies `nolocal` mandatorily, and treats no `local` override as valid.
+- [x] AC 2: Given multiple safe eligible candidates, when blitz prioritizes work, then durable useful project value per wall-clock minute ranks first after safety/authority/evidence eligibility, without treating token consumption as value.
+- [x] AC 3: Given any blitz run, when it acts locally, then static discovery, reading, editing, and read-only status/diff are allowed while builds, tests, lint, typechecks, installs, servers, browsers, containers, migrations, commits, pushes, deploys, and external writes are forbidden.
 - [x] AC 4: Given `shipglows nolocal <objective>`, when routing resolves the request, then it retains ordinary owner selection and mutation approval while applying only the shared no-local execution policy.
-- [x] AC 5: Given a blocked or unsafe candidate, when auto can select another safe candidate, then it records the skip internally and continues without asking the operator; when none remains, it stops with the reason.
-- [x] AC 6: Given implemented work without runtime proof, when auto reports state, then it says `implemented — unverified`, leaves lifecycle closure open, and lists deferred proof commands without running them.
+- [x] AC 5: Given a blocked or unsafe candidate, when blitz can select another safe candidate, then it records the skip internally and continues without asking the operator; when none remains, it stops with the reason.
+- [x] AC 6: Given implemented work without runtime proof, when blitz reports state, then it says `implemented — unverified`, leaves lifecycle closure open, and lists deferred proof commands without running them.
 - [x] AC 7: Given unrelated `sg-docs auto` or `102-sg-start` auto-verify behavior, when the global modes are added, then those existing modes remain unchanged and collision-free.
-- [x] AC 8: Given a request to waste tokens, invent work, touch secrets/permissions/billing/production, delete data, or perform an external/irreversible action, when auto evaluates it, then it refuses or skips that action and preserves the bounded authority contract.
-- [x] AC 9: Given one or more useful independent missions, when auto selects topology, then subagents are authorized and recommended only when they improve time, isolation, or coverage; one cohesive mission may remain main-only.
-- [x] AC 10: Given any parent or delegated auto mission, when it discovers or edits project work, then it uses the immutable canonical Git/managed root captured at launch and rejects sibling repositories, clones, other worktrees, traversal, and symlink escape.
-- [x] AC 11: Given concurrent auto conversations in one root, when they claim the same candidate or overlapping paths, then atomic root-local coordination grants one owner and the others skip; abandoned claims are never silently reclaimed.
-- [x] AC 12: Given an effort or model decision, when auto selects it, then required task quality and risk justify the choice; expiring credits, elapsed time, or a desire to consume never justify escalation or artificial output.
-- [x] AC 13: Given Fast is active, inactive, or unobservable, when auto runs, then it uses only a runtime-proven active state and never self-activates Fast, edits user configuration, pauses, or attributes the parent's state to a child without evidence.
+- [x] AC 8: Given a request to waste tokens, invent work, touch secrets/permissions/billing/production, delete data, or perform an external/irreversible action, when blitz evaluates it, then it refuses or skips that action and preserves the bounded authority contract.
+- [x] AC 9: Given one or more useful independent missions, when blitz selects topology, then subagents are authorized and recommended only when they improve time, isolation, or coverage; one cohesive mission may remain main-only.
+- [x] AC 10: Given any parent or delegated blitz mission, when it discovers or edits project work, then it uses the immutable canonical Git/managed root captured at launch and rejects sibling repositories, clones, other worktrees, traversal, and symlink escape.
+- [x] AC 11: Given concurrent blitz conversations in one root, when they claim the same candidate or overlapping paths, then atomic root-local coordination grants one owner and the others skip; abandoned claims are never silently reclaimed.
+- [x] AC 12: Given an effort or model decision, when blitz selects it, then required task quality and risk justify the choice; expiring credits, elapsed time, or a desire to consume never justify escalation or artificial output.
+- [x] AC 13: Given Fast is active, inactive, or unobservable, when blitz runs, then it uses only a runtime-proven active state and never self-activates Fast, edits user configuration, pauses, or attributes the parent's state to a child without evidence.
 - [x] AC 14: Given a public or expert invocation with one execution posture tag in any token position, when preflight resolves it, then owner/mode resolution is preserved and requested/effective posture is returned deterministically.
 - [x] AC 15: Given `#ci`, when posture resolves, then effective tags include `#nolocal`, CI is only the deferred proof target, and no commit, push, dispatch, remote execution, deploy, or closure authority is added.
 - [x] AC 16: Given `#local #nolocal` or `#local #ci`, when preflight resolves posture, then it rejects the conflict instead of using argument order as precedence.
-- [x] AC 17: Given `shipglows auto`, `auto #ci`, or `auto #local`, when routing resolves the mode, then effective nolocal is implicit, CI remains deferred-only, and local is rejected.
+- [x] AC 17: Given `shipglows blitz`, `blitz #ci`, or `blitz #local`, when routing resolves the mode, then effective nolocal is implicit, CI remains deferred-only, and local is rejected.
 - [x] AC 18: Given legacy `shipglows nolocal <objective>`, when preflight resolves it, then it normalizes to the default router objective plus `#nolocal`; a missing objective remains invalid.
 
 ## Test Strategy
 
-- Unit: `python3 -m unittest tools.test_execution_posture_tags tools.test_shipglows_auto_nolocal_contract tools.test_shipglows_auto_claim tools.test_skill_invocation_check`
+- Unit: `python3 -m unittest tools.test_execution_posture_tags tools.test_shipglows_blitz_nolocal_contract tools.test_shipglows_blitz_claim tools.test_skill_invocation_check`
 - Integration: `python3 tools/skill_code_index_lint.py`, activation-graph validation, metadata lint for changed governed docs, and focused skill budget audit.
-- Runtime: affected-skill synchronization and byte/target checks for `shipglows`, `000-shipglows`, and `708-sg-auto`.
+- Runtime: affected-skill synchronization and byte/target checks for `shipglows`, `000-shipglows`, and `708-sg-blitz`.
 - Manual: Semantic review of AC 1-18; no application workload, browser, device, provider, or deployment proof.
 
 ## Test Contract
@@ -286,7 +286,7 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
 
 ### Required evidence stack
 
-- Automated / unit / integration checks: focused auto/nolocal and atomic-claim unittests, skill-code index lint, activation graph, metadata lint, budget audit, runtime sync, and `git diff --check`.
+- Automated / unit / integration checks: focused blitz/nolocal and atomic-claim unittests, skill-code index lint, activation graph, metadata lint, budget audit, runtime sync, and `git diff --check`.
 - Agent-run browser proof: None, because no browser surface changes.
 - Auth/session proof: None, because auth/session state is explicitly out of scope.
 - Contract/integration proof: Router/registry/engine/policy pressure scenarios.
@@ -296,14 +296,14 @@ Keep `auto` as the global autonomous ShipGlows mode. Move local execution postur
 ## OWASP Security Gate
 
 - Applicability: No internet-facing endpoint, auth handler, tenant boundary, or data pipeline is added.
-- Relevant safety mapping: authorization and software-integrity concerns are handled as workflow authority constraints; auto cannot expand permissions, touch secrets, install dependencies, execute untrusted workloads, or mutate production/external state.
-- Proof: Contract tests assert forbidden boundaries and the narrow auto-session authority.
+- Relevant safety mapping: authorization and software-integrity concerns are handled as workflow authority constraints; blitz cannot expand permissions, touch secrets, install dependencies, execute untrusted workloads, or mutate production/external state.
+- Proof: Contract tests assert forbidden boundaries and the narrow blitz-session authority.
 - Residual risk: Static code can still contain defects until deferred tests/builds run; every result remains explicitly unverified.
 
 ## Risks
 
 - Security impact: High if autonomy authority is vague; mitigated by an explicit allowlist, forbidden external/destructive surfaces, dirty ownership checks, and truthful unverified status.
-- Product/data/performance risk: Auto may produce broad unverified diffs; mitigate with roadmap evidence, bounded candidate slices, non-overlapping ownership, deferred proof commands, and no commit/push.
+- Product/data/performance risk: Blitz may produce broad unverified diffs; mitigate with roadmap evidence, bounded candidate slices, non-overlapping ownership, deferred proof commands, and no commit/push.
 - Credit-optimization risk: Token usage cannot be guaranteed or observed reliably; mitigate by optimizing useful value per minute, using natural multi-conversation throughput, and forbidding artificial effort, agents, or output.
 - Governance risk: an execution tag could accidentally become an approval or remote-action bypass; tests and contract wording keep authority separate and make CI deferred-only.
 
@@ -323,9 +323,9 @@ None
 
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
-| 2026-08-20 07:59:01 UTC | 100-sg-spec | GPT-5 Codex | Created autonomous credit-window and independent no-local-execution contract | draft | /101-sg-ready shipglows auto and nolocal modes |
-| 2026-08-20 08:02:27 UTC | 101-sg-ready | GPT-5 Codex | Reviewed behavior, authority separation, risk boundaries, proof, consequences, and autonomous followability | ready | /102-sg-start shipglows auto and nolocal modes |
-| 2026-08-20 08:08:32 UTC | 102-sg-start | GPT-5 Codex | Implemented shared nolocal policy, bounded auto authority, internal 708 engine, public routing, registry/index identity, scenario tests, and mapped documentation | in progress: focused source proof passed; independent review and runtime sync pending | /103-sg-verify shipglows auto and nolocal modes |
+| 2026-08-20 07:59:01 UTC | 100-sg-spec | GPT-5 Codex | Created autonomous credit-window and independent no-local-execution contract | draft | /101-sg-ready shipglows blitz and nolocal modes |
+| 2026-08-20 08:02:27 UTC | 101-sg-ready | GPT-5 Codex | Reviewed behavior, authority separation, risk boundaries, proof, consequences, and autonomous followability | ready | /102-sg-start shipglows blitz and nolocal modes |
+| 2026-08-20 08:08:32 UTC | 102-sg-start | GPT-5 Codex | Implemented shared nolocal policy, bounded auto authority, internal 708 engine, public routing, registry/index identity, scenario tests, and mapped documentation | in progress: focused source proof passed; independent review and runtime sync pending | /103-sg-verify shipglows blitz and nolocal modes |
 | 2026-08-20 08:16:51 UTC | 103-sg-verify | GPT-5 Codex | Verified AC 1-8 in source and installed runtime; independent review found and confirmed repair of public mode-route selection and invalid-form rejection | partial: behavior verified and runtime files identical; direct Codex expert link for 708 blocked by root-owned ~/.agents/skills | create the exact 708 Codex symlink with sudo, then recheck runtime discovery |
 | 2026-08-20 13:04:39 UTC | 103-sg-verify | GPT-5 Codex | Verified useful-work prioritization, mandatory nolocal, bounded subagents, frozen root, atomic claims, lock symlink defense, task-fit effort, per-agent Fast truth, runtime parity, and direct discovery | verified: 56 focused scenarios pass; independent re-review validated all AC 1-13 | await operator lifecycle closure request |
 | 2026-08-20 15:40:23 UTC | 103-sg-verify | GPT-5 Codex | Migrated nolocal from public mode semantics to registry-backed execution tags, added local/ci composition and conflicts, preserved legacy normalization, and expanded public/expert mode cheatsheets | verified: 87 focused scenarios pass in source and runtime; graph, metadata, skill audit, budget, links, and parity pass for AC 14-18 | await operator lifecycle closure request |

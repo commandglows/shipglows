@@ -7,7 +7,7 @@ created: "2026-09-05"
 updated: "2026-09-05"
 status: active
 source_skill: 900-shipglows-core
-scope: mutation-auto-authority
+scope: mutation-blitz-authority
 owner: Diane
 confidence: high
 risk_level: high
@@ -22,9 +22,9 @@ next_review: "2026-10-05"
 next_step: none
 ---
 
-## Auto-session authority
+## Blitz-session authority
 
-An explicit `shipglows auto` invocation is authority for one bounded autonomous
+An explicit `shipglows blitz` invocation is authority for one bounded autonomous
 session of safe, reversible, current-project local file creation and editing.
 This is a narrow first-message exception so the credit-window mode can continue
 without a plan/approval round trip for every selected candidate. Quoted text,
@@ -33,7 +33,7 @@ invocation aimed at an unresolved project does not activate it.
 
 At activation, freeze the current Git top-level when available, otherwise the
 already resolved managed project root. This authority covers only project edits
-and ignored auto-coordination claims below that root. Reading canonical
+and ignored blitz-coordination claims below that root. Reading canonical
 ShipGlows contracts or current official sources outside it does not authorize
 outside-project edits. Switching repositories, cloning, creating or entering a
 different worktree, or following a roadmap item into another project is outside
@@ -51,7 +51,7 @@ The authority applies only while every selected candidate:
   product, architecture, data, and security decisions;
 - records its result as `implemented — unverified` with deferred proof.
 
-The same invocation authorizes bounded subagents dispatched by `708-sg-auto`
+The same invocation authorizes bounded subagents dispatched by `708-sg-blitz`
 when their mission is independently useful and explicitly carries the frozen
 root, mandatory nolocal policy, owned paths, forbidden paths, reasoning choice,
 and stop conditions. It does not authorize agents created merely to consume
@@ -64,7 +64,7 @@ tenant, or private-data mutation; dependency installation or upgrade; builds,
 tests, lint, typechecks, servers, browsers, containers, migrations, or runtime
 workloads; commits, branches, worktrees, tags, pushes, pull requests, releases,
 deployments, publication, messages, or any external write. It also never permits
-the auto run to modify its own authority, no-local policy, agent permissions, or
+the blitz run to modify its own authority, no-local policy, agent permissions, or
 equivalent safety guardrails.
 
 When one candidate reaches an excluded boundary, skip it and continue another
@@ -75,8 +75,8 @@ the authority merely to keep the session busy.
 
 `#local`, `#nolocal`, and `#ci` remain subject to the ordinary approval path and
 grant no mutation authority. The legacy `shipglows nolocal <objective>` alias
-does the same. `shipglows auto #nolocal` and legacy `shipglows auto nolocal` are
-redundant spellings of the same bounded Auto-session authority; no `#local` or
+does the same. `shipglows blitz #nolocal` and legacy `shipglows blitz nolocal` are
+redundant spellings of the same bounded Blitz-session authority; no `#local` or
 legacy `local` override exists. `#ci` never authorizes push, dispatch, remote
 execution, deployment, or another external write.
 

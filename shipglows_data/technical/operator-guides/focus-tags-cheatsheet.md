@@ -59,7 +59,7 @@ they do not choose the owner or grant authority.
 
 `#local` conflicts with `#nolocal` and `#ci`. `#nolocal #ci` is valid. Use
 `shipglows <objective> #nolocal`; the older `shipglows nolocal <objective>`
-form is compatibility syntax only. `shipglows auto` already implies
+form is compatibility syntax only. `shipglows blitz` already implies
 `#nolocal`, accepts `#ci`, and rejects `#local`.
 
 Examples:
@@ -68,7 +68,7 @@ Examples:
 sg-development feature onboarding #local
 sg-bug fix callback #nolocal
 sg-engineering verify checkout #ci
-shipglows auto #ci until=18:00
+shipglows blitz #ci until=18:00
 ```
 
 These are agent-conversation tags. In Bash, an unquoted `#` starts a shell

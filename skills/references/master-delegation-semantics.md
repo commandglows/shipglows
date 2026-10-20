@@ -23,7 +23,7 @@ linked_systems:
   - skills/004-sg-deploy/SKILL.md
   - skills/003-sg-bug/SKILL.md
   - skills/400-sg-audit/SKILL.md
-  - skills/708-sg-auto/SKILL.md
+  - skills/708-sg-blitz/SKILL.md
   - tools/test_master_delegation_contract.py
   - skills/references/decision-quality-contract.md
   - skills/references/spec-driven-development-discipline.md
@@ -54,7 +54,7 @@ evidence:
   - "Operator correction 2026-08-07: delegation must be the observable default; use safe read-only parallelism whenever independent investigation benefits from it."
   - "Operator decision 2026-08-07: read-only work parallelizes by default through a selected no-write matrix; concurrent writes require predeclared non-overlapping Execution Batches."
   - "Operator decision 2026-08-14: delegated writes retain explicit post-message consent through the selected cumulative fast-validation or full-plan path."
-  - "Operator decision 2026-08-20: explicit shipglows auto authorizes and recommends subagents for independent useful work, but never agent fan-out or higher reasoning solely to consume credits."
+  - "Operator decision 2026-08-20: explicit shipglows blitz authorizes and recommends subagents for independent useful work, but never agent fan-out or higher reasoning solely to consume credits."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master delegation semantics"
 ---
@@ -76,7 +76,7 @@ Do not narrate routine subagent orchestration; report outcomes, evidence, blocke
 
 This applies to master and orchestrator skills that pilot multiple phases, owner skills, or execution contexts, including `000-shipglows`, `001-sg-build`, `002-sg-maintain`, `007-sg-content`, `006-sg-design`, `900-shipglows-core build`, `004-sg-deploy`, `003-sg-bug`, and `400-sg-audit`.
 
-`000-shipglows` is a special case: it is a primary router, not a lifecycle executor. It loads this reference to avoid invalid topology, then uses direct main-thread handoff to the selected skill. It must not launch selected master skills inside subagents. `708-sg-auto` is an orchestrator governed by the explicit Auto-session authority and the mandatory nolocal policy.
+`000-shipglows` is a special case: it is a primary router, not a lifecycle executor. It loads this reference to avoid invalid topology, then uses direct main-thread handoff to the selected skill. It must not launch selected master skills inside subagents. `708-sg-blitz` is an orchestrator governed by the explicit Blitz-session authority and the mandatory nolocal policy.
 
 Atomic owner skills may cite this reference only when they launch or coordinate subagents themselves.
 
@@ -94,9 +94,9 @@ Choose the lowest-overhead topology that can ship the accepted outcome safely: `
 
 Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never by itself for mutation. Every write mission requires valid mutation authority. A clear bounded request directly authorizes its few coherent enumerable actions and targets when no material direction must be chosen, and does not authorize a chantier. Outside the direct paths defined by `skills/references/mutation-plan-approval.md`, a bounded agent-proposed action or almost-clear intent may use fast validation; unknown outcomes, unbounded scope, and material directional choice require full-plan approval. Local versus remote and model reasoning effort never change this classification. A full technical plan includes ordinary exact-scope milestone commits and pushes under the contract's cumulative authority. Ask again only when the next action changes material scope, risk, data, permissions, destructive behavior, unapproved staging, closure, ship semantics, target, or introduces parallel writes not already authorized by ready `Execution Batches`.
 
-`708-sg-auto` is the narrow exception defined by Auto-session authority: the
-explicit `shipglows auto` invocation authorizes its bounded parent and delegated
-write missions without a new approval per candidate. Auto subagents are
+`708-sg-blitz` is the narrow exception defined by Blitz-session authority: the
+explicit `shipglows blitz` invocation authorizes its bounded parent and delegated
+write missions without a new approval per candidate. Blitz subagents are
 recommended when at least two independent useful missions improve elapsed time,
 isolation, or coverage. They all inherit the frozen launch root and mandatory
 nolocal policy. This exception never authorizes overlapping writes, duplicate

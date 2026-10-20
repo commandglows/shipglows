@@ -119,13 +119,13 @@ Before selection extract `#local`, `#nolocal`, `#ci` wherever present and load
 `execution-posture-tags.md`; reject conflicts. Preserve ordinary focus tags and
 owner authority; `#ci` implies nolocal and deferred proof, never external-write authority.
 
-For `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load
+For `update`, `context`/`contexte`/`env`/`environment`, `blitz`, or legacy `nolocal`, load
 `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`. Apply only the selected mode.
-Context is read-only; update resolves channel first. Explicit Auto implies nolocal,
-freezes the current project, rejects local, and never means `300-sg-docs auto`.
+Context is read-only; update resolves channel first. Explicit Blitz implies nolocal,
+freezes the current project and rejects local.
 Legacy nolocal requires an objective, loads `no-local-execution-policy.md`, normalizes
 to `<objective> #nolocal`, and preserves ordinary ownership/approval. Bare nolocal
-never invokes Auto or selects work.
+never invokes Blitz or selects work.
 
 `git` -> `sg-engineering github` (read-only default); `hygiene` -> current-project
 `sg-maintenance hygiene` read-only audit; `hygiene git` -> `sg-engineering github clean`.

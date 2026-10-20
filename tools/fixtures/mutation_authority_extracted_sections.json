@@ -1,7 +1,7 @@
 {
-  "mutation-auto-authority": {
+  "mutation-blitz-authority": {
     "sections": [
-      "Auto-session authority"
+      "Blitz-session authority"
     ],
     "sha256": "2247653d53dc1718e48afbca0160b94b76976075cbaafe44db02f266d9b70af3"
   },

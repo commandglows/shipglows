@@ -51,17 +51,17 @@ class ExecutionPostureTagTests(unittest.TestCase):
             self.assertEqual("conflicting_execution_tags", payload["error"])
 
     def test_auto_implicitly_adds_nolocal_and_rejects_local(self) -> None:
-        implicit = check("shipglows auto until=18:00")
+        implicit = check("shipglows blitz until=18:00")
         self.assertEqual("valid", implicit["status"])
         self.assertEqual([], implicit["requested_execution_tags"])
         self.assertEqual(["#nolocal"], implicit["effective_execution_tags"])
         self.assertEqual(["#nolocal"], implicit["implied_execution_tags"])
 
-        ci = check("shipglows auto #ci until=18:00")
+        ci = check("shipglows blitz #ci until=18:00")
         self.assertEqual("valid", ci["status"])
         self.assertEqual(["#ci", "#nolocal"], ci["effective_execution_tags"])
 
-        local = check("shipglows auto #local")
+        local = check("shipglows blitz #local")
         self.assertEqual("invalid", local["status"])
         self.assertEqual("unsupported_execution_tag", local["error"])
 

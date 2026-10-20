@@ -421,11 +421,11 @@
       "modes": [
         "default",
         "context",
-        "auto"
+        "blitz"
       ],
       "mode_routes": {
-        "auto": {
-          "runtime_engine": "708-sg-auto",
+        "blitz": {
+          "runtime_engine": "708-sg-blitz",
           "min_args": 0,
           "forbidden_first_args": [
             "local"
@@ -451,7 +451,7 @@
         }
       },
       "internal_engines": [
-        "708-sg-auto"
+        "708-sg-blitz"
       ]
     }
   },
@@ -1178,8 +1178,8 @@
           ]
         }
       },
-      "708-sg-auto": {
-        "body": "skills/708-sg-auto/SKILL.md",
+      "708-sg-blitz": {
+        "body": "skills/708-sg-blitz/SKILL.md",
         "baseline": [
           "skills/references/canonical-paths.md",
           "skills/references/execution-posture-tags.md",
@@ -1188,10 +1188,10 @@
         ],
         "gates": {
           "candidate-loop": [
-            "skills/708-sg-auto/references/auto-credit-window-playbook.md"
+            "skills/708-sg-blitz/references/blitz-credit-window-playbook.md"
           ],
           "multi-session-coordination": [
-            "skills/708-sg-auto/references/auto-session-coordination.md"
+            "skills/708-sg-blitz/references/blitz-session-coordination.md"
           ],
           "delegation": [
             "skills/references/master-delegation-semantics.md"
@@ -3574,7 +3574,7 @@
           "skills/references/reporting-contract.md"
         ]
       },
-      "authority-auto-selection": {
+      "authority-blitz-selection": {
         "entry": "skills/references/mutation-plan-approval.md",
         "selected_engine": "skills/references/mutation-plan-approval.md",
         "reads": [
@@ -3586,10 +3586,10 @@
             "reason": "Select standing authority without broad activation"
           },
           {
-            "path": "skills/references/mutation-auto-authority.md",
+            "path": "skills/references/mutation-blitz-authority.md",
             "parent": "skills/references/mutation-plan-approval.md",
             "stage": "authority",
-            "trigger": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+            "trigger": "Explicit shipglows blitz in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
             "reason": "Apply selected authority restrictions"
           },
           {
@@ -3620,13 +3620,13 @@
           }
         ],
         "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
-        "prompt": "authority-auto-selection",
+        "prompt": "authority-blitz-selection",
         "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
-        "assumptions": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+        "assumptions": "Explicit shipglows blitz in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
         "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
         "required_reads": [
           "skills/references/mutation-plan-approval.md",
-          "skills/references/mutation-auto-authority.md",
+          "skills/references/mutation-blitz-authority.md",
           "skills/references/no-local-execution-policy.md"
         ]
       },
@@ -3645,7 +3645,7 @@
             "path": "skills/references/mutation-git-authority.md",
             "parent": "skills/references/mutation-plan-approval.md",
             "stage": "authority",
-            "trigger": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+            "trigger": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Blitz, nolocal, milestone or final delivery.",
             "reason": "Apply selected authority restrictions"
           },
           {
@@ -3678,7 +3678,7 @@
         "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
         "prompt": "authority-git-selection",
         "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
-        "assumptions": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+        "assumptions": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Blitz, nolocal, milestone or final delivery.",
         "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
         "required_reads": [
           "skills/references/mutation-plan-approval.md",
@@ -4115,7 +4115,7 @@
         }
       }
     },
-    "708-sg-auto": {
+    "708-sg-blitz": {
       "kind": "freeform",
       "min_args": 0
     },

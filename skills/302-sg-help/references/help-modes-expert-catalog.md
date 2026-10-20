@@ -25,7 +25,7 @@ supersedes: []
 evidence:
   - "The métier-first public catalog keeps numeric runtime identities available through an explicit expert view."
   - "Operator decision 2026-08-16: document current-project hygiene and its safe Git cleanup specialization."
-  - "Operator decision 2026-08-20: include internal 708-sg-auto while documenting execution posture as public tags rather than expert modes."
+  - "Operator decision 2026-08-20: include internal 708-sg-blitz while documenting execution posture as public tags rather than expert modes."
   - "Operator decision 2026-08-27: describe 900 as the internal DX-system owner while retaining its existing expert modes and shipglows_app boundary."
 next_review: "2026-09-04"
 next_step: "none"
@@ -105,7 +105,7 @@ from the named public skill mode.
 `705-sg-conversation-audit` — default | latest | path | export shipglows
 `706-continue` — default
 `707-name` — default
-`708-sg-auto` — internal engine for public `shipglows auto`; effective `#nolocal` is mandatory
+`708-sg-blitz` — internal engine for public `shipglows blitz`; effective `#nolocal` is mandatory
 `800-tmux-capture-conversation` — default | --tab
 `801-clean-conversation-transcript` — default
 `900-shipglows-core` — audit | build | refresh | packaging | help

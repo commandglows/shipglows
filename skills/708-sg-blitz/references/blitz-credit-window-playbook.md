@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-20"
 updated: "2026-08-20"
 status: active
-source_skill: 708-sg-auto
+source_skill: 708-sg-blitz
 scope: autonomous-credit-window
 owner: Diane
 confidence: high
@@ -14,8 +14,8 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/708-sg-auto/SKILL.md
-  - skills/708-sg-auto/references/auto-session-coordination.md
+  - skills/708-sg-blitz/SKILL.md
+  - skills/708-sg-blitz/references/blitz-session-coordination.md
   - skills/references/no-local-execution-policy.md
 depends_on: []
 supersedes: []
@@ -24,10 +24,10 @@ evidence:
   - "Operator correction 2026-08-20: optimize useful work rather than token consumption; do not force reasoning effort merely to consume expiring credits."
   - "Operator decision 2026-08-20: subagents are authorized and recommended for independent useful missions, while auto remains confined to its launch root and always implies nolocal."
 next_review: "2026-09-20"
-next_step: "/103-sg-verify shipglows auto and nolocal modes"
+next_step: "/103-sg-verify shipglows blitz and nolocal modes"
 ---
 
-# Auto Credit Window Playbook
+# Blitz Credit Window Playbook
 
 ## Candidate evidence
 
@@ -94,7 +94,7 @@ to request it.
 For each selected candidate:
 
 1. Bind one existing owner and work item or one bounded static audit slice.
-2. Confirm the frozen project root, load `auto-session-coordination.md`, and
+2. Confirm the frozen project root, load `blitz-session-coordination.md`, and
    reserve the candidate and its smallest owned paths before every mutation,
    even when no concurrent conversation is known. Skip fresh overlapping
    claims. Without a Git root and a successful claim, continue only read-only
@@ -146,14 +146,14 @@ audit findings, releases, or security/compliance claims.
 
 ## Pressure scenarios
 
-- `AUTO-CREDIT-PRIMARY`: after eligibility gates, a deep multi-file/security candidate outranks a trivial edit even when the trivial edit is faster.
-- `AUTO-USEFUL-NOT-BURN`: no agent, reasoning level, or output is selected solely because it consumes more credits; task difficulty and useful value own the choice.
-- `AUTO-AGENTS-USEFUL`: independent valuable missions recommend subagents, while one cohesive task remains main-only when delegation would add only overhead.
-- `AUTO-ROOT-FROZEN`: the parent and every subagent keep the launch root; sibling repositories, clones, and worktrees are never candidate sources.
-- `AUTO-FAST-TRUTH`: Fast is used only when runtime evidence says it is active; the agent never claims to self-activate it or edits user configuration.
-- `AUTO-NO-BUSYWORK`: no eligible work produces `no safe actionable work`, not invented features or verbose filler.
-- `AUTO-SKIP-CONTINUE`: one candidate needs runtime proof; preserve it as skipped and continue another independent candidate without asking.
-- `AUTO-NOLOCAL-REDUNDANT`: `shipglows auto #nolocal` and legacy `shipglows auto nolocal` behave exactly as `shipglows auto`; `#local` and legacy `local` are unsupported.
-- `AUTO-CI-DEFERRED`: `shipglows auto #ci` retains nolocal and records existing CI only as a deferred proof destination; it never triggers remote execution.
-- `AUTO-UNVERIFIED`: static edits yield `implemented — unverified` plus deferred verification commands, never a fixed/secure/compliant/closed claim.
-- `AUTO-SELF-GUARD`: an auto run never expands its own authority, no-local policy, agent permissions, or safety guardrails.
+- `BLITZ-CREDIT-PRIMARY`: after eligibility gates, a deep multi-file/security candidate outranks a trivial edit even when the trivial edit is faster.
+- `BLITZ-USEFUL-NOT-BURN`: no agent, reasoning level, or output is selected solely because it consumes more credits; task difficulty and useful value own the choice.
+- `BLITZ-AGENTS-USEFUL`: independent valuable missions recommend subagents, while one cohesive task remains main-only when delegation would add only overhead.
+- `BLITZ-ROOT-FROZEN`: the parent and every subagent keep the launch root; sibling repositories, clones, and worktrees are never candidate sources.
+- `BLITZ-FAST-TRUTH`: Fast is used only when runtime evidence says it is active; the agent never claims to self-activate it or edits user configuration.
+- `BLITZ-NO-BUSYWORK`: no eligible work produces `no safe actionable work`, not invented features or verbose filler.
+- `BLITZ-SKIP-CONTINUE`: one candidate needs runtime proof; preserve it as skipped and continue another independent candidate without asking.
+- `BLITZ-NOLOCAL-REDUNDANT`: `shipglows blitz #nolocal` and legacy `shipglows blitz nolocal` behave exactly as `shipglows blitz`; `#local` and legacy `local` are unsupported.
+- `BLITZ-CI-DEFERRED`: `shipglows blitz #ci` retains nolocal and records existing CI only as a deferred proof destination; it never triggers remote execution.
+- `BLITZ-UNVERIFIED`: static edits yield `implemented — unverified` plus deferred verification commands, never a fixed/secure/compliant/closed claim.
+- `BLITZ-SELF-GUARD`: an blitz run never expands its own authority, no-local policy, agent permissions, or safety guardrails.

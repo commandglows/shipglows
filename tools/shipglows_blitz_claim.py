@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Coordinate ShipGlows auto conversations inside one captured Git root."""
+"""Coordinate ShipGlows blitz conversations inside one captured Git root."""
 
 from __future__ import annotations
 
@@ -69,13 +69,13 @@ def _validate_component_tree(root: Path, storage: Path) -> None:
 
 
 def _claim_dirs(root: Path) -> tuple[Path, Path, Path]:
-    base = root / ".shipglows-auto" / "claims"
+    base = root / ".shipglows-blitz" / "claims"
     ignored = subprocess.run(
-        ["git", "-C", str(root), "check-ignore", "-q", ".shipglows-auto/claims/probe"],
+        ["git", "-C", str(root), "check-ignore", "-q", ".shipglows-blitz/claims/probe"],
         check=False,
     )
     if ignored.returncode != 0:
-        raise ClaimError("claim_storage_not_ignored", ".shipglows-auto must be ignored by this repository")
+        raise ClaimError("claim_storage_not_ignored", ".shipglows-blitz must be ignored by this repository")
     _validate_component_tree(root, base)
     active = base / "active"
     completed = base / "completed"
@@ -223,7 +223,7 @@ def complete_claim(root_value: str | Path, key: str, owner: str) -> dict[str, ob
             raise ClaimError("claim_not_found", f"active claim does not exist: {key}")
         payload = _read_claim(active_path)
         if payload.get("owner") != owner:
-            raise ClaimError("owner_mismatch", "only the owning auto run may complete this claim")
+            raise ClaimError("owner_mismatch", "only the owning blitz run may complete this claim")
         payload["status"] = "completed"
         temporary = active / f".{key}.{os.getpid()}.json"
         flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL

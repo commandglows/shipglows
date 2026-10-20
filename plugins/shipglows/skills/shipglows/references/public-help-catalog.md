@@ -30,7 +30,7 @@ $shipglows resume
 pending proof, blockers, and next safe action. It never counts as approval for
 a pending mutation or installation.
 
-With the complete corpus, `$shipglows auto [scope or horizon]` selects useful
+With the complete corpus, `$shipglows blitz [scope or horizon]` selects useful
 project-grounded work autonomously. It always implies `#nolocal` and never
 invents work merely to consume credits. Execution-posture tags `#local`,
 `#nolocal`, and `#ci` compose with agent commands; `#ci` implies `#nolocal`,

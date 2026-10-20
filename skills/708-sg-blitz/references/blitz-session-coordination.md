@@ -6,42 +6,42 @@ project: ShipGlows
 created: "2026-08-20"
 updated: "2026-08-20"
 status: active
-source_skill: 708-sg-auto
-scope: auto-session-coordination
+source_skill: 708-sg-blitz
+scope: blitz-session-coordination
 owner: Diane
 confidence: high
 risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/708-sg-auto/SKILL.md
-  - skills/708-sg-auto/references/auto-credit-window-playbook.md
+  - skills/708-sg-blitz/SKILL.md
+  - skills/708-sg-blitz/references/blitz-credit-window-playbook.md
   - skills/references/no-local-execution-policy.md
-  - tools/shipglows_auto_claim.py
+  - tools/shipglows_blitz_claim.py
 depends_on: []
 supersedes: []
 evidence:
   - "Operator decision 2026-08-20: parallel auto conversations should avoid duplicate work and overlapping file ownership while remaining inside the root where each was launched."
 next_review: "2026-09-20"
-next_step: "/103-sg-verify shipglows auto session coordination"
+next_step: "/103-sg-verify shipglows blitz session coordination"
 ---
 
-# Auto Session Coordination
+# Blitz Session Coordination
 
 ## Purpose
 
-Coordinate independent `shipglows auto` conversations sharing one project root
+Coordinate independent `shipglows blitz` conversations sharing one project root
 without turning coordination into a workload or a source of artificial model
 activity. Claims prevent duplicate candidates and overlapping writes; they do
 not assign quota, elect a global leader, or authorize broader scope.
 
 ## Root and storage
 
-Use only `<frozen-project-root>/.shipglows-auto/claims/`. The project must ignore
-`.shipglows-auto/`. Never place claims in a home directory, sibling repository,
+Use only `<frozen-project-root>/.shipglows-blitz/claims/`. The project must ignore
+`.shipglows-blitz/`. Never place claims in a home directory, sibling repository,
 global runtime, external service, branch, or additional worktree.
 
-Use `$SHIPGLOWS_ROOT/tools/shipglows_auto_claim.py`; do not recreate claim logic ad hoc. It
+Use `$SHIPGLOWS_ROOT/tools/shipglows_blitz_claim.py`; do not recreate claim logic ad hoc. It
 stores claims in `active` and `completed` directories. Claim metadata is
 minimal and non-sensitive: run identifier, canonical candidate or tracker,
 owned relative paths, `captured_git_root`, and status. Do not copy
@@ -82,21 +82,21 @@ make those batches visible across conversations; they do not create them.
 
 If a canonical Git root is unavailable, or the ignored coordination directory
 or safe lock cannot be created or inspected, do not invent a remote ledger or
-leave the root. No auto mutation may continue, even for an operator-given
+leave the root. No blitz mutation may continue, even for an operator-given
 exclusive scope or apparently non-overlapping candidate. Continue read-only
 analysis, select another safe candidate, or report `coordination unavailable`.
 
 ## Pressure scenarios
 
-- `AUTO-CLAIM-RACE`: two conversations reserve the same key; exactly one keeps
+- `BLITZ-CLAIM-RACE`: two conversations reserve the same key; exactly one keeps
   the active claim and the other selects different work.
-- `AUTO-CLAIM-PATH-OVERLAP`: different candidate names with parent/child file
+- `BLITZ-CLAIM-PATH-OVERLAP`: different candidate names with parent/child file
   ownership still conflict.
-- `AUTO-CLAIM-LOCK-SYMLINK`: a lock symlink is rejected without reading or
+- `BLITZ-CLAIM-LOCK-SYMLINK`: a lock symlink is rejected without reading or
   writing its external target.
-- `AUTO-CLAIM-ROOT`: claims and all owned paths remain below the frozen root.
-- `AUTO-CLAIM-NO-SECRETS`: claim metadata contains identifiers and relative
+- `BLITZ-CLAIM-ROOT`: claims and all owned paths remain below the frozen root.
+- `BLITZ-CLAIM-NO-SECRETS`: claim metadata contains identifiers and relative
   paths only, never findings, prompts, source excerpts, secrets, or diffs.
-- `AUTO-CLAIM-CHILD`: a child consumes its parent's claim and cannot replace or
+- `BLITZ-CLAIM-CHILD`: a child consumes its parent's claim and cannot replace or
   complete it under another owner identity.
-- `AUTO-CLAIM-ABANDONED`: a later run never silently reclaims an active claim.
+- `BLITZ-CLAIM-ABANDONED`: a later run never silently reclaims an active claim.

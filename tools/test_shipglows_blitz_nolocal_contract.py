@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pressure scenarios for the global ShipGlows auto and nolocal modes."""
+"""Pressure scenarios for the global ShipGlows blitz and nolocal modes."""
 
 import json
 from pathlib import Path
@@ -12,10 +12,10 @@ from tools.skill_invocation_check import check
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "skills" / "shipglows" / "SKILL.md"
 ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
-AUTO = ROOT / "skills" / "708-sg-auto" / "SKILL.md"
-AUTO_PLAYBOOK = ROOT / "skills" / "708-sg-auto" / "references" / "auto-credit-window-playbook.md"
-AUTO_COORDINATION = ROOT / "skills" / "708-sg-auto" / "references" / "auto-session-coordination.md"
-AUTO_POLICY = ROOT / "skills" / "708-sg-auto" / "agents" / "openai.yaml"
+AUTO = ROOT / "skills" / "708-sg-blitz" / "SKILL.md"
+AUTO_PLAYBOOK = ROOT / "skills" / "708-sg-blitz" / "references" / "blitz-credit-window-playbook.md"
+AUTO_COORDINATION = ROOT / "skills" / "708-sg-blitz" / "references" / "blitz-session-coordination.md"
+AUTO_POLICY = ROOT / "skills" / "708-sg-blitz" / "agents" / "openai.yaml"
 NOLOCAL = ROOT / "skills" / "references" / "no-local-execution-policy.md"
 APPROVAL = ROOT / "skills" / "references" / "mutation-plan-approval.md"
 DELEGATION = ROOT / "skills" / "references" / "master-delegation-semantics.md"
@@ -35,7 +35,7 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         cls.playbook = AUTO_PLAYBOOK.read_text(encoding="utf-8")
         cls.coordination = AUTO_COORDINATION.read_text(encoding="utf-8")
         cls.nolocal = NOLOCAL.read_text(encoding="utf-8")
-        cls.approval = selected_authority("mutation-auto-authority")
+        cls.approval = selected_authority("mutation-blitz-authority")
         cls.delegation = DELEGATION.read_text(encoding="utf-8")
         cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         cls.index = INDEX.read_text(encoding="utf-8")
@@ -50,21 +50,21 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
 
     def test_public_modes_route_without_colliding_with_local_auto_modes(self) -> None:
         router_entry = self.registry["public_catalog"]["router"]
-        self.assertIn("auto", router_entry["modes"])
+        self.assertIn("blitz", router_entry["modes"])
         self.assertNotIn("nolocal", router_entry["modes"])
         self.assertIn("nolocal", router_entry["legacy_execution_aliases"])
-        self.assertIn("708-sg-auto", router_entry["internal_engines"])
+        self.assertIn("708-sg-blitz", router_entry["internal_engines"])
         self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", self.public_flat)
-        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", self.router_flat)
-        self.assertIn("shipglows auto", self.special_flat)
+        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `blitz`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", self.router_flat)
+        self.assertIn("shipglows blitz", self.special_flat)
         self.assertIn("`shipglows nolocal <objective>`", self.special_flat)
-        self.assertIn("`708-sg-auto`", self.special_flat)
+        self.assertIn("`708-sg-blitz`", self.special_flat)
 
-        auto = check("shipglows auto")
+        auto = check("shipglows blitz")
         self.assertEqual("valid", auto["status"])
-        self.assertEqual("auto", auto["mode"])
-        self.assertEqual("708-sg-auto", auto["selected_internal_engine"])
-        self.assertEqual("708-sg-auto", auto["activation_profile"])
+        self.assertEqual("blitz", auto["mode"])
+        self.assertEqual("708-sg-blitz", auto["selected_internal_engine"])
+        self.assertEqual("708-sg-blitz", auto["activation_profile"])
         nolocal = check("shipglows nolocal improve checkout")
         self.assertEqual("valid", nolocal["status"])
         self.assertEqual("default", nolocal["mode"])
@@ -76,10 +76,10 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertEqual("valid", docs_auto["status"])
         self.assertEqual("auto", docs_auto["mode"])
 
-        auto_local = check("shipglows auto local")
+        auto_local = check("shipglows blitz local")
         self.assertEqual("invalid", auto_local["status"])
         self.assertEqual("unsupported_mode_option", auto_local["error"])
-        auto_tag_local = check("shipglows auto #local")
+        auto_tag_local = check("shipglows blitz #local")
         self.assertEqual("invalid", auto_tag_local["status"])
         self.assertEqual("unsupported_execution_tag", auto_tag_local["error"])
         bare_nolocal = check("shipglows nolocal")
@@ -90,9 +90,9 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         for text in (self.special, self.auto, self.playbook):
             self.assertIn("no-local-execution-policy.md", text)
         self.assertIn("always and implicitly applies", self.auto_flat)
-        self.assertIn("legacy `auto local` are invalid", self.auto_flat)
-        self.assertIn("`auto nolocal`", self.auto_flat)
-        self.assertIn("`auto #nolocal`", self.auto_flat)
+        self.assertIn("legacy `blitz local` are invalid", self.auto_flat)
+        self.assertIn("`blitz nolocal`", self.auto_flat)
+        self.assertIn("`blitz #nolocal`", self.auto_flat)
         self.assertIn("Every delegated mission inherits the frozen root and nolocal", self.playbook_flat)
 
     def test_useful_value_not_credit_burn_owns_priority_and_effort(self) -> None:
@@ -114,13 +114,13 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
 
     def test_subagents_are_authorized_recommended_and_value_gated(self) -> None:
         self.assertIn("same invocation authorizes bounded subagents", self.approval_flat)
-        self.assertIn("`708-sg-auto` is the narrow exception", self.delegation_flat)
+        self.assertIn("`708-sg-blitz` is the narrow exception", self.delegation_flat)
         self.assertIn("authorized and recommended", self.auto_flat)
         self.assertIn("independent useful missions", self.auto_flat)
         self.assertIn("Keep a cohesive task main-only", self.auto_flat)
         self.assertIn("never by itself for mutation", self.delegation_flat)
         self.assertIn("Every write mission requires valid mutation authority", self.delegation_flat)
-        self.assertIn("Auto-session authority", self.delegation_flat)
+        self.assertIn("Blitz-session authority", self.delegation_flat)
 
     def test_parent_and_subagents_are_confined_to_frozen_launch_root(self) -> None:
         self.assertIn("Frozen project root", self.auto)
@@ -140,16 +140,16 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertIn("never inherits the parent's state", self.playbook_flat)
 
     def test_concurrent_sessions_use_atomic_root_local_claims(self) -> None:
-        self.assertIn("tools/shipglows_auto_claim.py", self.coordination_flat)
+        self.assertIn("tools/shipglows_blitz_claim.py", self.coordination_flat)
         self.assertIn("atomic exclusive creation", self.coordination_flat)
         self.assertIn("Never reclaim, expire, delete, or replace", self.coordination_flat)
-        self.assertIn("AUTO-CLAIM-RACE", self.coordination)
-        self.assertIn("AUTO-CLAIM-PATH-OVERLAP", self.coordination)
-        self.assertIn("/.shipglows-auto/", GITIGNORE.read_text(encoding="utf-8"))
+        self.assertIn("BLITZ-CLAIM-RACE", self.coordination)
+        self.assertIn("BLITZ-CLAIM-PATH-OVERLAP", self.coordination)
+        self.assertIn("/.shipglows-blitz/", GITIGNORE.read_text(encoding="utf-8"))
         self.assertIn("before every mutating candidate", self.auto_flat)
         self.assertIn("Every mutation requires an atomic claim", self.auto_flat)
-        self.assertIn("No auto mutation may continue", self.coordination_flat)
-        gates = self.registry["activation_profiles"]["skills"]["708-sg-auto"]["gates"]
+        self.assertIn("No blitz mutation may continue", self.coordination_flat)
+        gates = self.registry["activation_profiles"]["skills"]["708-sg-blitz"]["gates"]
         self.assertIn("multi-session-coordination", gates)
 
     def test_nolocal_forbids_workload_and_external_execution(self) -> None:
@@ -174,8 +174,8 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertIn("read-only Git status and diff inspection", self.nolocal_flat)
 
     def test_auto_authority_is_bounded_and_nolocal_is_not_an_authority_bypass(self) -> None:
-        self.assertIn("Auto-session authority", self.approval_flat)
-        self.assertIn("explicit `shipglows auto` invocation", self.approval_flat)
+        self.assertIn("Blitz-session authority", self.approval_flat)
+        self.assertIn("explicit `shipglows blitz` invocation", self.approval_flat)
         self.assertIn("`#local`, `#nolocal`, and `#ci`", self.approval_flat)
         self.assertIn("grant no mutation authority", self.approval_flat)
         for forbidden in (
@@ -196,10 +196,10 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertIn("deferred verification commands", self.playbook_flat)
 
     def test_auto_engine_is_internal_and_registered_once(self) -> None:
-        self.assertIn("| `708` | `sg-auto` | `708-sg-auto` |", self.index)
-        self.assertEqual(1, self.index.count("| `708` | `sg-auto` | `708-sg-auto` |"))
+        self.assertIn("| `708` | `sg-blitz` | `708-sg-blitz` |", self.index)
+        self.assertEqual(1, self.index.count("| `708` | `sg-blitz` | `708-sg-blitz` |"))
         self.assertEqual("policy:\n  allow_implicit_invocation: false", AUTO_POLICY.read_text(encoding="utf-8").strip())
-        self.assertEqual("708-sg-auto", self.auto.split("name: ", 1)[1].splitlines()[0])
+        self.assertEqual("708-sg-blitz", self.auto.split("name: ", 1)[1].splitlines()[0])
 
 
 if __name__ == "__main__":

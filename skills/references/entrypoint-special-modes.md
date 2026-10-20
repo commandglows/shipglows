@@ -25,7 +25,7 @@ next_step: none
 
 # Entrypoint Special Modes
 
-Load only for update, context, auto, hygiene or execution-posture compatibility.
+Load only for update, context, blitz, hygiene or execution-posture compatibility.
 Apply only the selected mode; this is never an eager bundle.
 
 An explicit request to update ShipGlows resolves the active installation
@@ -53,8 +53,8 @@ or call recorded Python or configured Playwright absent merely because its tool
 is missing from the first visible list. End with a compact `Contexte actif`
 summary.
 
-`shipglows auto [scope or horizon]` is the public autonomous credit-window
-mode. The canonical router hands it to internal `708-sg-auto`, which freezes the
+`shipglows blitz [scope or horizon]` is the public autonomous credit-window
+mode. The canonical router hands it to internal `708-sg-blitz`, which freezes the
 current project root, prioritizes safe evidence-backed work by durable value per
 wall-clock minute, recommends subagents for independent useful missions, and
 always applies the shared no-local-execution policy implicitly. It has no
@@ -72,4 +72,4 @@ another external write. Conflicting tags fail closed. The legacy
 approval.
 
 
-For the selected Auto mode, load `no-local-execution-policy.md` always and implicitly.
+For the selected Blitz mode, load `no-local-execution-policy.md` always and implicitly.

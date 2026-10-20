@@ -9,7 +9,7 @@ def selected_authority(*branches: str) -> str:
     core = (refs / 'mutation-plan-approval.md').read_text(encoding='utf-8')
     selected = [core]
     for branch in branches:
-        if branch not in ('mutation-auto-authority', 'mutation-git-authority',
+        if branch not in ('mutation-blitz-authority', 'mutation-git-authority',
                           'mutation-approval-pressure-scenarios'):
             raise ValueError(f'Unknown authority branch: {branch}')
         if f'`{branch}.md`' not in core:
