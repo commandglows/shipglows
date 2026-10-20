@@ -35,8 +35,10 @@ project directly, without Doppler. Do not create, select or borrow a Doppler
 configuration to execute this project. This overrides the general Doppler
 build/run instruction for this repository. Be concise and preserve unrelated work.
 
-External web research keeps its dedicated environment: use Parallel through
-`doppler run --project dotfiles --config dev -- shipglows-parallel search`.
+External web research keeps its dedicated environment: use
+`doppler run --project dotfiles --config dev -- shipglows-search "..."`, which
+tries Firecrawl then Parallel; on exit 3 use the agent's native web search
+(`skills/references/web-research-fallback.md`).
 That research-only configuration does not apply to project execution.
 
 ### Context routing

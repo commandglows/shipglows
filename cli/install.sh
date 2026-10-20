@@ -2242,6 +2242,7 @@ configure_command_wrappers() {
     local gsc_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-gsc.sh"
     local serp_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-serp.sh"
     local parallel_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-parallel.sh"
+    local search_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-search.sh"
     local readwise_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-readwise.sh"
     local turso_login_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-login.sh"
     local turso_ssh_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-ssh.sh"
@@ -2259,6 +2260,9 @@ configure_command_wrappers() {
     if [ -f "$parallel_target" ]; then
         ln -sf "$parallel_target" "$bin_dir/shipglows-parallel"
     fi
+    if [ -f "$search_target" ]; then
+        ln -sf "$search_target" "$bin_dir/shipglows-search"
+    fi
     if [ -f "$readwise_target" ]; then
         chmod +x "$readwise_target"
         ln -sf "$readwise_target" "$bin_dir/shipglows-readwise"
@@ -2271,7 +2275,7 @@ configure_command_wrappers() {
         ln -sf "$turso_ssh_target" "$bin_dir/shipglows-turso-ssh"
         ln -sf "$turso_ssh_target" "$bin_dir/turso-ssh"
     fi
-    chmod +x "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-serp" "$bin_dir/shipglows-parallel" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
+    chmod +x "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-serp" "$bin_dir/shipglows-parallel" "$bin_dir/shipglows-search" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
 
     if [ -x "$bin_dir/shipglows" ] && [ -x "$bin_dir/sg" ]; then
         echo -e "  ${GREEN}✅ Commandes système disponibles :${NC} /usr/local/bin/shipglows et /usr/local/bin/sg"
@@ -2292,6 +2296,9 @@ configure_command_wrappers() {
     fi
     if [ -x "$bin_dir/shipglows-parallel" ]; then
         echo -e "  ${GREEN}✅ Commande Parallel Web Search disponible :${NC} /usr/local/bin/shipglows-parallel"
+    fi
+    if [ -x "$bin_dir/shipglows-search" ]; then
+        echo -e "  ${GREEN}✅ Commande recherche web (Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-search"
     fi
     if [ -x "$bin_dir/shipglows-readwise" ]; then
         echo -e "  ${GREEN}✅ Commande Readwise / Reader disponible :${NC} shipglows readwise · shipglows-readwise"
