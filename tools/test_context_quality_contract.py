@@ -120,7 +120,7 @@ class ContextQualityContractTests(unittest.TestCase):
         ):
             self.assertIn(marker, skill)
         self.assertIn("then load `$shipglows_root/skills/000-shipglows/skill.md`", text(PUBLIC))
-        self.assertIn('for `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load `$shipglows_root/skills/references/entrypoint-special-modes.md`', router)
+        self.assertIn('for `update`, `context`/`contexte`/`env`/`environment`, `blitz`, or legacy `nolocal`, load `$shipglows_root/skills/references/entrypoint-special-modes.md`', router)
         special = text(ROOT / "skills/references/entrypoint-special-modes.md")
         self.assertIn("registry-backed active development target", special)
         self.assertIn("list available targets separately", special)

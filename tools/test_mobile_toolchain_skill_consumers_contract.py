@@ -60,7 +60,7 @@ class MobileToolchainSkillConsumersContractTests(unittest.TestCase):
         public = " ".join(read("skills/shipglows/SKILL.md").split())
         router = " ".join(read("skills/000-shipglows/SKILL.md").split())
         self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", public)
-        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", router)
+        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `blitz`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", router)
         for relative_path in (
             "skills/references/entrypoint-special-modes.md",
             "skills/301-sg-context/SKILL.md",

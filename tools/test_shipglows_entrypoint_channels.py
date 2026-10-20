@@ -29,7 +29,7 @@ class ShipGlowsEntrypointChannelContract(unittest.TestCase):
         for fragment in (
             "`resume`, `résume`, or `reprends`",
             "never approves a pending plan",
-            "`auto` always implies `#nolocal`",
+            "`blitz` always implies `#nolocal`",
             "`#ci` implies `#nolocal`",
             "never creates busywork merely to consume credits",
         ):
