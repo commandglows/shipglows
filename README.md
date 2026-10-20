@@ -704,7 +704,7 @@ If a root document duplicates a `shipglows_data/` artifact, the `shipglows_data/
 
 ```toml
 tui.status_line = ["model-with-reasoning", "current-dir", "context-remaining", "five-hour-limit", "weekly-limit"]
-tui.terminal_title = ["spinner", "thread", "project"]
+tui.terminal_title = ["activity", "thread-title", "project-name"]
 ```
 
 It also sets `[beta] rmcp = true` in `~/.codex/config.toml`.
