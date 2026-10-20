@@ -45,6 +45,8 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/interactive-3d-experience-contract.md` for 3D, WebGL, product scenes, or immersive experiences.
 - `$SHIPGLOWS_ROOT/skills/references/interactive-animation-runtime-contract.md` when selecting, integrating, migrating, or auditing an animation runtime or export format.
 - `$SHIPGLOWS_ROOT/skills/references/human-centered-interaction-heuristics.md` when an audit uses cognitive laws, usability heuristics, checklists, design principles, or pattern-library examples.
+- `$SHIPGLOWS_ROOT/skills/references/flutter-quality-playbook.md` when designing, implementing, or reviewing Flutter UI (accessibility, adaptive layout, states, motion, design-system structure).
+- `$SHIPGLOWS_ROOT/skills/references/astro-site-playbook.md` when implementing or reviewing an Astro site design (islands, styling, images, i18n).
 - `$SHIPGLOWS_ROOT/skills/references/web-image-performance-contract.md` when creating, selecting, transforming, or auditing raster or SVG delivery assets.
 - `$SHIPGLOWS_ROOT/skills/references/web-typography-contract.md` when selecting, implementing, migrating, or auditing typography and font delivery.
 - `$SHIPGLOWS_ROOT/skills/references/product-iconography-contract.md` when selecting, creating, replacing, or mapping product icons.

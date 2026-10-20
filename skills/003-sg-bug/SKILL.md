@@ -57,6 +57,8 @@ Load at most one local playbook before the first substantive action:
 - Missing evidence, reproduction, proof-path, diagnostics, or development-mode decision -> `$SHIPGLOWS_ROOT/skills/003-sg-bug/references/bug-evidence-routing.md`.
 - `--verify`, `--ship`, `--close`, or closure-risk reporting -> `$SHIPGLOWS_ROOT/skills/003-sg-bug/references/bug-closure-playbook.md`.
 
+For a defect in Flutter code, load `$SHIPGLOWS_ROOT/skills/references/flutter-engineering-playbook.md` before the fix; for an Astro site defect, load `$SHIPGLOWS_ROOT/skills/references/astro-site-playbook.md`.
+
 Load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` only before choosing execution topology. Load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` before interpreting durable bug state. Load `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before fix, retest, verification, or closure claims.
 
 A missing required playbook blocks its mode. Local playbooks map to shared doctrine; they do not replace it or chain to another local playbook.
