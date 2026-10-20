@@ -47,6 +47,23 @@ class GitRestingStateTests(unittest.TestCase):
             self.assertEqual(found[("local-branch", "open-topic")], "merge")
             self.assertEqual(found[("worktree-changes", ".")], "ask")
 
+    def test_squash_merged_branch_counts_as_integrated(self) -> None:
+        with TemporaryDirectory() as temporary:
+            repo = self._repo(Path(temporary))
+            _git(repo, "switch", "-c", "squashed-topic")
+            for name in ("c.txt", "d.txt"):
+                (repo / name).write_text(name, encoding="utf-8")
+                _git(repo, "add", name)
+                _git(repo, "commit", "-m", f"add {name}")
+            _git(repo, "switch", "main")
+            _git(repo, "merge", "--squash", "squashed-topic")
+            _git(repo, "commit", "-m", "squash topic")
+            (repo / "e.txt").write_text("later", encoding="utf-8")
+            _git(repo, "add", "e.txt")
+            _git(repo, "commit", "-m", "later work")
+            found = {item["name"]: item["disposition"] for item in resting_state(repo, pull_requests=False)["items"]}
+            self.assertEqual(found["squashed-topic"], "auto")
+
 
 if __name__ == "__main__":
     unittest.main()

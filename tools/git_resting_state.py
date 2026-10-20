@@ -10,10 +10,14 @@ default) are part of the resting state.
 Each deviation gets a suggested disposition:
 
 - ``auto``: mechanically safe convergence under standing Git authority
-  (prune a missing worktree, delete a branch already integrated, pull or push);
+  (prune a missing worktree, delete a branch already integrated, fast-forward);
 - ``merge``: unintegrated work with a target; reconcile it when merge-ready;
-- ``ask``: dirty, unique, or unknown state; include it in one consolidated
-  operator proposal instead of leaving it silent.
+- ``push``: unpushed commits; pushing follows the operator's push policy;
+- ``ask``: dirty, unique, locked, or unknown state; include it in one
+  consolidated operator proposal instead of leaving it silent.
+
+Integration is proven by ancestry against the local or remote integration
+branch, or by content containment (squash and rebase merges).
 """
 
 from __future__ import annotations
@@ -51,6 +55,8 @@ def _worktrees(repo: Path) -> list[dict[str, object]]:
             current["branch"] = line[7:].removeprefix("refs/heads/")
         elif line.startswith("prunable"):
             current["prunable"] = True
+        elif line == "locked" or line.startswith("locked "):
+            current["locked"] = line[7:].strip()
     return entries
 
 
@@ -66,11 +72,93 @@ def _open_pull_requests(repo: Path) -> list[dict[str, object]] | None:
     return json.loads(result.stdout.decode("utf-8") or "[]")
 
 
+def _patch_ids(repo: Path, patch: bytes) -> set[str]:
+    out = subprocess.run(["git", "-C", str(repo), "patch-id", "--stable"], input=patch, capture_output=True).stdout
+    return {line.split()[0] for line in out.decode("utf-8", "replace").splitlines() if line.strip()}
+
+
+_APPLIED: dict[tuple[str, str, tuple[str, ...]], set[str]] = {}
+MAX_FILES_PER_COMMIT = 500
+
+
+def _applied_patches(repo: Path, base: str, targets: list[str]) -> set[str]:
+    """Patch ids of non-merge commits applied to the targets since ``base``, cached per base."""
+    key = (str(repo), base, tuple(targets))
+    if key not in _APPLIED:
+        # Skip bulk commits (vendored fixtures, generated trees): no squash looks like them,
+        # and their patches would dominate the run time.
+        stats = _git(repo, "log", "--no-merges", "--format=@%H", "--shortstat", *targets, f"^{base}", check=False)
+        keep, sha = [], None
+        for line in stats.splitlines():
+            if line.startswith("@"):
+                sha = line[1:]
+                keep.append(sha)
+            elif "file" in line and sha and int(line.split()[0]) > MAX_FILES_PER_COMMIT:
+                keep.remove(sha)
+        log = subprocess.run(["git", "-C", str(repo), "log", "-p", "--no-walk=unsorted", *keep],
+                             capture_output=True).stdout if keep else b""
+        _APPLIED[key] = _patch_ids(repo, log)
+    return _APPLIED[key]
+
+
+def _patch_contained(repo: Path, rev: str, targets: list[str]) -> bool:
+    """Squash or rebase merge: the branch's combined diff, or each of its commits,
+    matches a patch already applied to an integration target since their merge base."""
+    base = _git(repo, "merge-base", targets[0], rev, check=False)
+    if not base:
+        return False
+    shortstat = _git(repo, "diff", "--shortstat", base, rev, check=False).split()
+    if not shortstat or int(shortstat[0]) > MAX_FILES_PER_COMMIT:
+        return False
+    applied = _applied_patches(repo, base, targets)
+    if not applied:
+        return False
+    run = lambda *args: subprocess.run(["git", "-C", str(repo), *args], capture_output=True).stdout
+    combined = _patch_ids(repo, run("diff", base, rev))
+    if combined and combined <= applied:
+        return True
+    commits = _patch_ids(repo, run("log", "-p", "--no-merges", f"{base}..{rev}"))
+    return bool(commits) and commits <= applied
+
+
+_INTEGRATED: dict[tuple[str, str, tuple[str, ...]], str | None] = {}
+
+
+def _integrated(repo: Path, rev: str, targets: list[str]) -> str | None:
+    key = (str(repo), _git(repo, "rev-parse", rev, check=False) or rev, tuple(targets))
+    if key not in _INTEGRATED:
+        _INTEGRATED[key] = _find_integration(repo, rev, targets)
+    return _INTEGRATED[key]
+
+
+def _find_integration(repo: Path, rev: str, targets: list[str]) -> str | None:
+    """Return the target already containing ``rev``'s work, by ancestry or content.
+
+    Content containment covers squash and rebase merges: merging ``rev`` into the
+    target would not change the target tree.
+    """
+    for target in targets:
+        if not subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", rev, target],
+                              capture_output=True).returncode:
+            return target
+    for target in targets:
+        merged = subprocess.run(["git", "-C", str(repo), "merge-tree", "--write-tree", target, rev], capture_output=True)
+        if merged.returncode == 0:
+            tree = merged.stdout.decode("utf-8", "replace").splitlines()[0].strip() if merged.stdout else ""
+            if tree and tree == _git(repo, "rev-parse", f"{target}^{{tree}}", check=False):
+                return target
+    if _patch_contained(repo, rev, targets):
+        return targets[0]
+    return None
+
+
 def resting_state(repo: Path, integration: str = "main", durable: tuple[str, ...] = ("main", "dev"),
                   remote: str = "origin", pull_requests: bool = True) -> dict[str, object]:
     repo = repo.resolve()
     durable_set = set(durable) | {integration}
-    target = f"{remote}/{integration}" if _git(repo, "rev-parse", "--verify", "-q", f"{remote}/{integration}", check=False) else integration
+    targets = [integration]
+    if _git(repo, "rev-parse", "--verify", "-q", f"{remote}/{integration}", check=False):
+        targets.append(f"{remote}/{integration}")
     items: list[dict[str, str]] = []
 
     def add(kind: str, name: str, state: str, disposition: str) -> None:
@@ -86,18 +174,17 @@ def resting_state(repo: Path, integration: str = "main", durable: tuple[str, ...
     if len(counts) == 2:
         ahead, behind = map(int, counts)
         if ahead:
-            add("upstream", current, f"{ahead} commits not pushed", "auto")
+            # Pushing follows the operator's push policy, which may require an explicit request.
+            add("upstream", current, f"{ahead} commits not pushed", "push")
         if behind:
             add("upstream", current, f"{behind} commits not pulled", "auto")
 
-    merged_local = {line.strip("* +").strip() for line in _lines(_git(repo, "branch", "--merged", target, check=False))}
     for branch in _lines(_git(repo, "for-each-ref", "--format=%(refname:short)", "refs/heads")):
         if branch in durable_set:
             continue
-        if branch in merged_local:
-            add("local-branch", branch, f"integrated into {target}", "auto")
-        else:
-            add("local-branch", branch, f"not integrated into {target}", "merge")
+        found = _integrated(repo, branch, targets)
+        add("local-branch", branch, f"integrated into {found}" if found else f"not integrated into {integration}",
+            "auto" if found else "merge")
 
     main_path = None
     for entry in _worktrees(repo):
@@ -107,31 +194,34 @@ def resting_state(repo: Path, integration: str = "main", durable: tuple[str, ...
         name = f"{entry.get('path')} [{entry.get('branch', 'detached')}]"
         if entry.get("prunable"):
             add("worktree", name, "folder missing", "auto")
+        elif "locked" in entry:
+            reason = entry["locked"] or "no reason given"
+            add("worktree", name, f"locked ({reason}); removal needs an explicit operator decision", "ask")
         else:
-            branch = str(entry.get("branch", ""))
-            integrated = branch in merged_local if branch else not subprocess.run(
-                ["git", "-C", str(repo), "merge-base", "--is-ancestor", str(entry.get("head", "")), target],
-                capture_output=True,
-            ).returncode
-            add("worktree", name, "work integrated" if integrated else "work not integrated",
-                "auto" if integrated else "ask")
+            found = _integrated(repo, str(entry.get("branch") or entry.get("head", "")), targets)
+            add("worktree", name, "work integrated" if found else "work not integrated", "auto" if found else "ask")
 
-    merged_remote = {line.strip() for line in _lines(_git(repo, "branch", "-r", "--merged", target, check=False))}
     for ref in _lines(_git(repo, "for-each-ref", "--format=%(refname:short)", f"refs/remotes/{remote}")):
         branch = ref.removeprefix(f"{remote}/")
         if branch in durable_set or branch == "HEAD" or ref == remote:
             continue
-        add("remote-branch", ref, "integrated" if ref in merged_remote else "not integrated",
-            "auto" if ref in merged_remote else "merge")
+        found = _integrated(repo, ref, targets)
+        add("remote-branch", ref, f"integrated into {found}" if found else "not integrated",
+            "auto" if found else "merge")
 
     prs = _open_pull_requests(repo) if pull_requests else None
     if prs is None and pull_requests:
         add("pull-requests", "-", "open pull requests unknown (gh unavailable)", "ask")
     for pr in prs or []:
-        add("pull-request", f"#{pr['number']} {pr['headRefName']} -> {pr['baseRefName']}",
-            "draft" if pr.get("isDraft") else "open", "ask" if pr.get("isDraft") else "merge")
+        name = f"#{pr['number']} {pr['headRefName']} -> {pr['baseRefName']}"
+        head = f"{remote}/{pr['headRefName']}"
+        found = _integrated(repo, head, targets) if _git(repo, "rev-parse", "--verify", "-q", head, check=False) else None
+        if found:
+            add("pull-request", name, f"content already in {found}; closes once that branch is pushed or merged", "auto")
+        else:
+            add("pull-request", name, "draft" if pr.get("isDraft") else "open", "ask" if pr.get("isDraft") else "merge")
 
-    return {"resting": not items, "integration": integration, "target": target, "current": current, "items": items}
+    return {"resting": not items, "integration": integration, "targets": targets, "current": current, "items": items}
 
 
 def main() -> int:
