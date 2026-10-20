@@ -58,7 +58,7 @@ evidence:
   - "Operator decision 2026-08-14: exact local routine reversible mutations may use fast validation without loading strategic-choice overhead."
   - "Operator decision 2026-08-20: execution posture is expressed by transversal #local, #nolocal, and #ci tags rather than métier modes."
 next_review: "2026-08-17"
-next_step: "/104-sg-end shipglows-skill-execution-fidelity-plugin-pilot"
+next_step: "Review at next_review"
 ---
 
 # Entrypoint Routing

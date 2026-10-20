@@ -40,7 +40,7 @@ evidence:
   - "Operator critique 2026-08-16: ShipGlows should proactively surface cleanup for fully integrated temporary branches and worktrees instead of waiting for the operator to notice them."
   - "Operator decision 2026-08-16: agent-created task branches and worktrees are temporary by default and stay owned until a terminal cleanup disposition."
 next_review: "2026-08-17"
-next_step: "/104-sg-end shipglows-skill-execution-fidelity-plugin-pilot"
+next_step: "Review at next_review"
 ---
 
 # Skill Execution Fidelity
