@@ -103,7 +103,7 @@ is_local_tunnel_ready() {
 if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
     :
 else
-    REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}}"
+    REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
     if [ -z "$REMOTE_HOST" ] && grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
         REMOTE_HOST="hetzner"
     fi
@@ -311,8 +311,8 @@ for port_info in "${PORT_ARRAY[@]}"; do
     # Créer le tunnel avec autossh (maintient la connexion)
     autossh_args=(
         -M 0 -f -N
-        -o "ServerAliveInterval=${SHIPGLOWS_SSH_KEEPALIVE_INTERVAL:-${SHIPGLOWS_SSH_KEEPALIVE_INTERVAL:-30}}"
-        -o "ServerAliveCountMax=${SHIPGLOWS_SSH_KEEPALIVE_MAX:-${SHIPGLOWS_SSH_KEEPALIVE_MAX:-3}}"
+        -o "ServerAliveInterval=${SHIPGLOWS_SSH_KEEPALIVE_INTERVAL:-30}"
+        -o "ServerAliveCountMax=${SHIPGLOWS_SSH_KEEPALIVE_MAX:-3}"
         -o "ExitOnForwardFailure=yes"
         -L "${port}:127.0.0.1:${port}"
     )

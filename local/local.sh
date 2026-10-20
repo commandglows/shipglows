@@ -33,8 +33,8 @@ mkdir -p "$CONFIG_DIR" 2>/dev/null
 load_current_connection() {
     if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
         :
-    elif [ -n "${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}" ]; then
-        REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
+    elif [ -n "${SHIPGLOWS_SSH_REMOTE_HOST:-}" ]; then
+        REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-}"
     elif grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
         REMOTE_HOST="hetzner"
     else
@@ -765,7 +765,7 @@ fetch_server_session_info() {
 
 should_show_session_scan_loader() {
     [ -n "$REMOTE_HOST" ] || return 1
-    [ "${SHIPGLOWS_NO_ANIMATION:-${SHIPGLOWS_NO_ANIMATION:-}}" != "1" ] || return 1
+    [ "${SHIPGLOWS_NO_ANIMATION:-}" != "1" ] || return 1
     [ "${TERM:-}" != "dumb" ] || return 1
     [ -w /dev/tty ] 2>/dev/null || return 1
 }
@@ -1484,7 +1484,7 @@ start_tunnels() {
             fi
         elif ! autossh_output=$(autossh -f "${autossh_args[@]}" "$REMOTE_HOST" 2>&1); then
             echo -e "${RED}  ✗ Connexion impossible pour ${name}${NC}"
-            [ "${SHIPGLOWS_DEBUG:-${SHIPGLOWS_DEBUG:-0}}" = "1" ] && [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail: ${autossh_output//$'\n'/ }${NC}"
+            [ "${SHIPGLOWS_DEBUG:-0}" = "1" ] && [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail: ${autossh_output//$'\n'/ }${NC}"
             return 1
         fi
     done <<< "$PORTS"
@@ -1546,7 +1546,7 @@ stop_tunnels() {
     
     if [ -z "$PIDS" ]; then
         echo -e "${YELLOW}⚠ Aucune session active trouvée${NC}"
-        if [ "${SHIPGLOWS_DEBUG:-${SHIPGLOWS_DEBUG:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_DEBUG:-0}" = "1" ]; then
             echo ""
             echo -e "${BLUE}💡 Processus SSH en cours:${NC}"
             ps aux | grep ssh | grep -v grep | grep -v ssh-agent || true

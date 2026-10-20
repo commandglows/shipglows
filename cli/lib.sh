@@ -33,7 +33,7 @@ source "$SCRIPT_DIR/config.sh" || {
 
 shipglows_cli_migrate_state() {
     local new_dir="${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}"
-    local legacy_dir="${SHIPGLOWS_LEGACY_STATE_DIR:-${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglows}}"
+    local legacy_dir="${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglows}"
 
     mkdir -p "$new_dir" 2>/dev/null || return 1
     chmod 700 "$new_dir" 2>/dev/null || true
@@ -61,7 +61,7 @@ shipglows_cli_migrate_state() {
 shipglows_cli_read_state_file() {
     local rel="$1"
     local primary="${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}/$rel"
-    local legacy="${SHIPGLOWS_LEGACY_STATE_DIR:-${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglows}}/$rel"
+    local legacy="${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglows}/$rel"
     if [ -e "$primary" ]; then
         printf '%s\n' "$primary"
         return 0
@@ -122,7 +122,7 @@ LIGHT_BLUE='\033[38;5;117m'
 NC='\033[0m'
 
 # Config (use centralized config values)
-PROJECTS_DIR="${SHIPGLOWS_PROJECTS_DIR:-$SHIPGLOWS_PROJECTS_DIR}"
+PROJECTS_DIR="${SHIPGLOWS_PROJECTS_DIR}"
 
 # ============================================================================
 # GUM DETECTION & UI WRAPPERS
@@ -269,7 +269,7 @@ _ui_normalize_filter_query() {
 
 SHIPGLOWS_SKIP_NEXT_PAUSE=false
 SHIPGLOWS_RETURN_TO_MAIN_MENU=false
-if [ -z "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ]; then
+if [ -z "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}" ]; then
     SHIPGLOWS_SKIP_NEXT_PAUSE_FILE=$(mktemp "${TMPDIR:-/tmp}/shipglows-skip-pause.XXXXXX" 2>/dev/null || printf '%s/shipglows-skip-pause-%s' "${TMPDIR:-/tmp}" "$$")
     rm -f "$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE" 2>/dev/null || true
     SHIPGLOWS_SKIP_NEXT_PAUSE_FILE="$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE"
@@ -278,8 +278,8 @@ fi
 ui_skip_next_pause() {
     SHIPGLOWS_SKIP_NEXT_PAUSE=true
     SHIPGLOWS_SKIP_NEXT_PAUSE=true
-    if [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ]; then
-        : > "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
+    if [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}" ]; then
+        : > "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
     fi
 }
 
@@ -304,10 +304,10 @@ ui_should_return_to_main_menu() {
 }
 
 ui_should_skip_next_pause() {
-    if [ "${SHIPGLOWS_SKIP_NEXT_PAUSE:-${SHIPGLOWS_SKIP_NEXT_PAUSE:-false}}" = "true" ] || { [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ] && [ -f "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" ]; }; then
+    if [ "${SHIPGLOWS_SKIP_NEXT_PAUSE:-false}" = "true" ] || { [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}" ] && [ -f "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" ]; }; then
         SHIPGLOWS_SKIP_NEXT_PAUSE=false
         SHIPGLOWS_SKIP_NEXT_PAUSE=false
-        [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ] && rm -f "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
+        [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}" ] && rm -f "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
         return 0
     fi
     return 1
@@ -557,7 +557,7 @@ ui_filter_choose() {
         local selected
         selected=$(printf '%s\n' "${items[@]}" | FZF_DEFAULT_OPTS= fzf \
             --prompt "ShipGlows DevServer · $prompt > " \
-            --height "${SHIPGLOWS_FZF_HEIGHT:-${SHIPGLOWS_FZF_HEIGHT:-70%}}" \
+            --height "${SHIPGLOWS_FZF_HEIGHT:-70%}" \
             --layout reverse \
             --border \
             --cycle \
@@ -1101,14 +1101,14 @@ disk_pressure_level() {
     fi
 
     local critical_free
-    critical_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_CRITICAL_GB:-${SHIPGLOWS_DISK_CRITICAL_GB:-3}}")
+    critical_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_CRITICAL_GB:-3}")
     local high_free
-    high_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_HIGH_GB:-${SHIPGLOWS_DISK_HIGH_GB:-5}}")
+    high_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_HIGH_GB:-5}")
     local warn_free
-    warn_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_WARN_GB:-${SHIPGLOWS_DISK_WARN_GB:-8}}")
-    local critical_pct="${SHIPGLOWS_DISK_CRITICAL_PCT:-${SHIPGLOWS_DISK_CRITICAL_PCT:-95}}"
-    local high_pct="${SHIPGLOWS_DISK_HIGH_PCT:-${SHIPGLOWS_DISK_HIGH_PCT:-90}}"
-    local warn_pct="${SHIPGLOWS_DISK_WARN_PCT:-${SHIPGLOWS_DISK_WARN_PCT:-85}}"
+    warn_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_WARN_GB:-8}")
+    local critical_pct="${SHIPGLOWS_DISK_CRITICAL_PCT:-95}"
+    local high_pct="${SHIPGLOWS_DISK_HIGH_PCT:-90}"
+    local warn_pct="${SHIPGLOWS_DISK_WARN_PCT:-85}"
 
     if { [ -n "$used_pct" ] && [ "$used_pct" -ge "$critical_pct" ]; } || \
         { [ -n "$free_bytes" ] && [ "$free_bytes" -lt "$critical_free" ]; }; then
@@ -1461,14 +1461,14 @@ cleanup_agent_history_old() {
     while IFS= read -r -d '' file; do
         [ -f "$file" ] || continue
         count=$((count + 1))
-        if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" = "1" ]; then
             echo "rm -f $file"
         else
             rm -f -- "$file" 2>/dev/null || true
         fi
     done < <(agent_history_old_files "$days")
 
-    if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" != "1" ]; then
+    if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" != "1" ]; then
         agent_history_prune_empty_dirs
     fi
 
@@ -1508,14 +1508,14 @@ cleanup_agent_cache_logs() {
         [ -e "$path" ] || continue
         case "$path" in
             "$HOME/.codex/log/codex-tui.log")
-                if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+                if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" = "1" ]; then
                     echo ": > $path"
                 else
                     : > "$path" 2>/dev/null || true
                 fi
                 ;;
             "$HOME/.codex/"*|"$HOME/.claude/"*)
-                if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+                if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" = "1" ]; then
                     echo "rm -rf $path"
                 else
                     rm -rf -- "$path" 2>/dev/null || true
@@ -1564,7 +1564,7 @@ truncate_file_zero() {
     local file="$1"
     [ -f "$file" ] || return 0
 
-    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" = "1" ]; then
         echo ": > $file"
         return 0
     fi
@@ -1576,7 +1576,7 @@ cleanup_pm2_logs() {
     local pm2_home
     pm2_home=$(pm2_home_dir)
 
-    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" = "1" ]; then
         echo "pm2 flush"
     elif command -v pm2 >/dev/null 2>&1; then
         pm2 flush >/dev/null 2>&1 || true
@@ -1585,7 +1585,7 @@ cleanup_pm2_logs() {
     truncate_file_zero "$pm2_home/pm2.log"
 
     if [ -d "$pm2_home/logs" ]; then
-        if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" = "1" ]; then
             find "$pm2_home/logs" -type f -name '*.log' -print 2>/dev/null | while IFS= read -r file; do
                 echo ": > $file"
             done
@@ -1598,10 +1598,10 @@ cleanup_pm2_logs() {
 }
 
 configure_pm2_logrotate() {
-    local max_size="${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-50M}}"
-    local retain="${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-5}}"
+    local max_size="${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-50M}"
+    local retain="${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-5}"
 
-    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}" = "1" ]; then
         echo "pm2 install pm2-logrotate"
         echo "pm2 set pm2-logrotate:max_size $max_size"
         echo "pm2 set pm2-logrotate:retain $retain"
@@ -1753,7 +1753,7 @@ disk_cleanup_menu() {
         echo -e "${YELLOW}This will truncate PM2 daemon/app log files and configure future rotation:${NC}"
         echo -e "  ${CYAN}•${NC} $(pm2_home_dir)/pm2.log"
         echo -e "  ${CYAN}•${NC} $(pm2_home_dir)/logs/*.log"
-        echo -e "  ${CYAN}•${NC} pm2-logrotate max_size=${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-50M}}, retain=${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-5}}, compress=true"
+        echo -e "  ${CYAN}•${NC} pm2-logrotate max_size=${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-50M}, retain=${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-5}, compress=true"
         echo -e "${GREEN}Protected:${NC} PM2 process list, project directories, app files, auth, config, skills, and memories."
         echo ""
         if ! ui_confirm "Flush PM2 logs and enable log rotation now?"; then
@@ -2477,7 +2477,7 @@ stop_mcp_process_group() {
     fi
 
     echo -e "${YELLOW}Stopping MCP process group:${NC} $label"
-    if [ "${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-0}" = "1" ]; then
         echo "kill -TERM -$pgid"
         return 0
     fi
@@ -2603,7 +2603,7 @@ clean_all_safe_targets() {
     fi
 
     if [ -n "$pm2_pid" ] && ! pm2_has_running_apps; then
-        if [ "${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-0}" = "1" ]; then
             echo "pm2 kill"
         else
             pm2 kill >/dev/null 2>&1 || true
@@ -2619,7 +2619,7 @@ clean_all_safe_targets() {
 }
 
 user_caddy_enabled() {
-    [ "${SHIPGLOWS_USER_CADDY_ENABLED:-${SHIPGLOWS_USER_CADDY_ENABLED:-true}}" = "true" ] && command -v caddy >/dev/null 2>&1
+    [ "${SHIPGLOWS_USER_CADDY_ENABLED:-true}" = "true" ] && command -v caddy >/dev/null 2>&1
 }
 
 ensure_user_caddy_dir() {
@@ -2764,7 +2764,7 @@ stop_user_caddy() {
     fi
 
     echo -e "${YELLOW}Stopping user Caddy:${NC} PID $pid"
-    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}" = "1" ] || [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}" = "1" ]; then
         echo "kill -TERM $pid"
         return 0
     fi
@@ -3008,7 +3008,7 @@ start_user_caddy() {
         return 1
     }
 
-    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}" = "1" ]; then
         echo "caddy run --config $SHIPGLOWS_USER_CADDYFILE --adapter caddyfile"
         return 0
     fi
@@ -3046,7 +3046,7 @@ start_user_caddy() {
 }
 
 refresh_user_caddy_from_pm2() {
-    if [ "${SHIPGLOWS_USER_CADDY_ENABLED:-${SHIPGLOWS_USER_CADDY_ENABLED:-true}}" != "true" ]; then
+    if [ "${SHIPGLOWS_USER_CADDY_ENABLED:-true}" != "true" ]; then
         return 0
     fi
 
@@ -3066,7 +3066,7 @@ refresh_user_caddy_from_pm2() {
         return 0
     fi
 
-    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}" = "1" ]; then
         echo "User Caddy routes:"
         printf '%s\n' "$routes"
         echo "write $SHIPGLOWS_USER_CADDYFILE"
@@ -3120,7 +3120,7 @@ stop_caddy_if_no_pm2_apps() {
     fi
 
     echo -e "${YELLOW}Caddy is running while no PM2 apps are online.${NC}"
-    if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}" = "1" ]; then
         echo "sudo systemctl stop caddy"
         return 0
     fi
@@ -3193,7 +3193,7 @@ stop_process_group_term_then_optional_kill() {
     fi
 
     echo -e "${YELLOW}Stopping:${NC} $label"
-    if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}" = "1" ]; then
         echo "kill -TERM -$pgid"
         return 0
     fi
@@ -3272,7 +3272,7 @@ aggressive_cleanup_menu() {
     fi
 
     if [ -n "$pm2_pid" ] && ! pm2_has_running_apps; then
-        if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}" = "1" ]; then
             echo "pm2 kill"
         else
             pm2 kill >/dev/null 2>&1 || true
@@ -3396,7 +3396,7 @@ system_monitor_menu() {
         if [ -n "$disk_used" ]; then
             echo -e "  Used: ${YELLOW}${disk_used}${NC}  /  Filesystem: ${CYAN}${disk_fs:-/}${NC} mounted on ${CYAN}/${NC}"
         fi
-        print_usage_bar "$disk_pct" 30 "${SHIPGLOWS_DISK_HIGH_PCT:-${SHIPGLOWS_DISK_HIGH_PCT:-90}}" "${SHIPGLOWS_DISK_WARN_PCT:-${SHIPGLOWS_DISK_WARN_PCT:-85}}"
+        print_usage_bar "$disk_pct" 30 "${SHIPGLOWS_DISK_HIGH_PCT:-90}" "${SHIPGLOWS_DISK_WARN_PCT:-85}"
         if [ "$disk_level" = "ok" ]; then
             echo -e "  Status: ${GREEN}OK${NC}"
         else
@@ -3483,8 +3483,8 @@ UPDATE_CACHE_NPM=0
 UPDATE_CACHE_PIP=0
 UPDATE_CACHE_RUSTUP=0
 UPDATE_CACHE_TTL=300
-SHIPGLOWS_MENU_STATUS_CACHE_FILE="${SHIPGLOWS_MENU_STATUS_CACHE_FILE:-${SHIPGLOWS_MENU_STATUS_CACHE_FILE:-${SHIPGLOWS_SECRETS_DIR:-$SHIPGLOWS_SECRETS_DIR}/menu-status.cache}}"
-SHIPGLOWS_MENU_STATUS_LOCK_FILE="${SHIPGLOWS_MENU_STATUS_LOCK_FILE:-${SHIPGLOWS_MENU_STATUS_LOCK_FILE:-${SHIPGLOWS_SECRETS_DIR:-$SHIPGLOWS_SECRETS_DIR}/menu-status.lock}}"
+SHIPGLOWS_MENU_STATUS_CACHE_FILE="${SHIPGLOWS_MENU_STATUS_CACHE_FILE:-${SHIPGLOWS_SECRETS_DIR}/menu-status.cache}"
+SHIPGLOWS_MENU_STATUS_LOCK_FILE="${SHIPGLOWS_MENU_STATUS_LOCK_FILE:-${SHIPGLOWS_SECRETS_DIR}/menu-status.lock}"
 SHIPGLOWS_MENU_STATUS_CACHE_FILE="$SHIPGLOWS_MENU_STATUS_CACHE_FILE"
 SHIPGLOWS_MENU_STATUS_LOCK_FILE="$SHIPGLOWS_MENU_STATUS_LOCK_FILE"
 MENU_STATUS_CACHE_FILE="$SHIPGLOWS_MENU_STATUS_CACHE_FILE"
@@ -3694,7 +3694,7 @@ refresh_menu_status_cache_sync() {
 #   - Uses PID lock to avoid concurrent expensive refreshes
 # -----------------------------------------------------------------------------
 refresh_menu_status_cache_async_if_stale() {
-    local ttl="${SHIPGLOWS_MENU_STATUS_CACHE_TTL:-${SHIPGLOWS_MENU_STATUS_CACHE_TTL:-120}}"
+    local ttl="${SHIPGLOWS_MENU_STATUS_CACHE_TTL:-120}"
     if ! [[ "$ttl" =~ ^[0-9]+$ ]]; then
         ttl=120
     fi
@@ -4036,7 +4036,7 @@ select_stop_target() {
 # ============================================================================
 
 # Secrets file path
-SHIPGLOWS_SECRETS_FILE="${SHIPGLOWS_SECRETS_FILE:-${SHIPGLOWS_SECRETS_FILE:-${SHIPGLOWS_SECRETS_DIR:-$SHIPGLOWS_SECRETS_DIR}/secrets}}"
+SHIPGLOWS_SECRETS_FILE="${SHIPGLOWS_SECRETS_FILE:-${SHIPGLOWS_SECRETS_DIR}/secrets}"
 SHIPGLOWS_SECRETS_FILE="$SHIPGLOWS_SECRETS_FILE"
 
 # -----------------------------------------------------------------------------
@@ -4682,7 +4682,7 @@ warning() {
 # Updated by env_start/env_stop, read by show_dashboard (no subprocesses)
 # ============================================================================
 
-SHIPGLOWS_REGISTRY="${SHIPGLOWS_REGISTRY:-${SHIPGLOWS_REGISTRY:-$SHIPGLOWS_STATE_DIR/envs.reg}}"
+SHIPGLOWS_REGISTRY="${SHIPGLOWS_REGISTRY:-$SHIPGLOWS_STATE_DIR/envs.reg}"
 SHIPGLOWS_REGISTRY="$SHIPGLOWS_REGISTRY"
 SHIPGLOWS_REGISTRY_SYNCED=false
 SHIPGLOWS_REGISTRY_SYNCED=false
@@ -5398,7 +5398,7 @@ invalidate_after_pm2_mutation() {
     # Notify a local tunnel watcher without requiring it to poll aggressively.
     # The append-only signal contains no secrets and is safe to miss because
     # the watcher refreshes the complete port snapshot after receiving it.
-    local tunnel_event_file="${SHIPGLOWS_TUNNEL_EVENT_FILE:-${SHIPGLOWS_TUNNEL_EVENT_FILE:-$SHIPGLOWS_STATE_DIR/tunnel-events.log}}"
+    local tunnel_event_file="${SHIPGLOWS_TUNNEL_EVENT_FILE:-$SHIPGLOWS_STATE_DIR/tunnel-events.log}"
     mkdir -p "$(dirname "$tunnel_event_file")" 2>/dev/null || true
     printf '%s\n' "${EPOCHREALTIME:-$(date +%s)}" >> "$tunnel_event_file" 2>/dev/null || true
 }
@@ -6649,7 +6649,7 @@ action_github_auth() {
         return 0
     fi
 
-    if [ "${SHIPGLOWS_GITHUB_AUTH_DRY_RUN:-${SHIPGLOWS_GITHUB_AUTH_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_GITHUB_AUTH_DRY_RUN:-0}" = "1" ]; then
         echo "gh auth login --hostname github.com --git-protocol ssh --scopes repo,read:org"
         return 0
     fi
@@ -7457,7 +7457,7 @@ escape_single_quotes_for_bash() {
 }
 
 flutter_web_sessions_file() {
-    printf '%s\n' "${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-$SHIPGLOWS_SECRETS_DIR/flutter-web-sessions.tsv}}"
+    printf '%s\n' "${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-$SHIPGLOWS_SECRETS_DIR/flutter-web-sessions.tsv}"
 }
 
 ensure_flutter_web_sessions_file() {
@@ -9990,7 +9990,7 @@ env_restart() {
 
         # pm2 restart only confirms that the process was submitted. Wait long
         # enough to catch a crash loop before advertising a localhost URL.
-        local verify_seconds="${SHIPGLOWS_RESTART_VERIFY_SECS:-${SHIPGLOWS_RESTART_VERIFY_SECS:-12}}"
+        local verify_seconds="${SHIPGLOWS_RESTART_VERIFY_SECS:-12}"
         if ! [[ "$verify_seconds" =~ ^[0-9]+$ ]] || [ "$verify_seconds" -lt 1 ]; then
             verify_seconds=12
         fi
@@ -10963,7 +10963,7 @@ action_reboot_vm() {
     fi
 
     log WARNING "VM reboot requested from ShipGlows menu"
-    if [ "${SHIPGLOWS_REBOOT_DRY_RUN:-${SHIPGLOWS_REBOOT_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_REBOOT_DRY_RUN:-0}" = "1" ]; then
         if [ "$(id -u)" -eq 0 ]; then
             echo "systemctl reboot"
         else
@@ -11442,7 +11442,7 @@ codex_launch_with_mcps() {
     echo -e "  ${BLUE}MCP:${NC} $(codex_mcp_selection_summary "$@")"
     echo ""
 
-    if [ "${SHIPGLOWS_CODEX_DRY_RUN:-${SHIPGLOWS_CODEX_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_CODEX_DRY_RUN:-0}" = "1" ]; then
         printf 'codex'
         printf ' %q' "${args[@]}"
         printf '\n'

@@ -156,7 +156,7 @@ chmod 700 "$HOME/.ssh"
 shipglows_migrate_local_config || true
 LOCAL_CONFIG_DIR="$(shipglows_local_config_dir)"
 mkdir -p "$LOCAL_CONFIG_DIR"
-DEFAULT_REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
+DEFAULT_REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-}"
 if [ -n "$DEFAULT_REMOTE_HOST" ]; then
     printf '%s\n' "$DEFAULT_REMOTE_HOST" > "$LOCAL_CONFIG_DIR/current_connection"
     chmod 600 "$LOCAL_CONFIG_DIR/current_connection"

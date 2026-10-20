@@ -641,7 +641,7 @@ signed repository. A missing, empty, malformed, or unverifiable input stops the
 installer, as does a required `apt` or `dpkg` failure; the component is never
 reported as successfully installed after such a failure.
 
-When the install runs interactively, ShipGlows asks once whether to enable the permissive AI defaults. Non-interactive runs can set `SHIPGLOWS_AUTONOMY_MODE=permissive` or `SHIPGLOWS_AUTONOMY_MODE=standard`; the legacy `SHIPGLOWS_AUTONOMY_MODE` name is still accepted. Root permissive mode still requires `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS=1` or an explicit confirmation at the prompt; the legacy `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS` fallback remains accepted too.
+When the install runs interactively, ShipGlows asks once whether to enable the permissive AI defaults. Non-interactive runs can set `SHIPGLOWS_AUTONOMY_MODE=permissive` or `SHIPGLOWS_AUTONOMY_MODE=standard`. Root permissive mode still requires `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS=1` or an explicit confirmation at the prompt.
 
 The recommended server shape is:
 
@@ -663,7 +663,7 @@ The recommended server shape is:
 - ShipGlows runtime config for Claude/Codex (`~/.claude`, `~/.codex`, MCP registration, skills, aliases)
 - ShipGlows TUI
 
-The current agent installs use `pnpm add -g` at install time, so ShipGlows pulls the then-current npm package release rather than shipping pinned local binaries. For non-interactive runs, `SHIPGLOWS_INSTALL_COMPONENTS` accepts values such as `claude,ai-runtime`, `claude,kilocode,tui`, `codex`, `ai-agents`, `all`, or `none`; the legacy `SHIPGLOWS_INSTALL_COMPONENTS` name is still accepted.
+The current agent installs use `pnpm add -g` at install time, so ShipGlows pulls the then-current npm package release rather than shipping pinned local binaries. For non-interactive runs, `SHIPGLOWS_INSTALL_COMPONENTS` accepts values such as `claude,ai-runtime`, `claude,kilocode,tui`, `codex`, `ai-agents`, `all`, or `none`.
 
 Before the first install on a machine, restore project-local tracking data from your
 existing project repositories or workspace artifacts. Legacy `~/shipglows_data`
