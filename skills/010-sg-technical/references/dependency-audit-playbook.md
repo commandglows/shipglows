@@ -58,7 +58,7 @@ Because this skill has process role `source-de-chantier`, evaluate the standard 
 - Lockfile: !`ls -1 package-lock.json yarn.lock pnpm-lock.yaml requirements.txt Pipfile.lock 2>/dev/null | head -3 || echo "none"`
 - Node/Python version: !`node -v 2>/dev/null; python3 --version 2>/dev/null; cat .nvmrc .python-version .node-version 2>/dev/null || echo "not pinned"`
 - Security config: !`ls -1 .github/dependabot.yml renovate.json .npmrc 2>/dev/null || echo "none"`
-- Project structure: !`find . -maxdepth 2 -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.astro" -o -name "*.vue" -o -name "*.py" -o -name "*.sh" \) 2>/dev/null | grep -v node_modules | grep -v .git | grep -v dist | sort | head -40`
+- Project structure: !`find . -maxdepth 2 -type f \( -name "pubspec.yaml" -o -name "package.json" -o -name "Cargo.toml" -o -name "*.astro" -o -name "*.vue" -o -name "*.dart" \) 2>/dev/null | grep -v node_modules | grep -v .git | grep -v dist | grep -v .dart_tool | sort | head -40`
 
 ## Mode detection
 
@@ -173,7 +173,7 @@ Classify each outdated package:
 Additional checks:
 - [ ] Deprecation timeline — is the package abandoned? (no commits >2 years)
 - [ ] Replacement recommendations for deprecated packages
-- [ ] Framework version alignment (e.g., all React ecosystem on same major)
+- [ ] Framework version alignment (e.g., all `@astrojs/*` integrations on the Astro major, all FlutterFire packages from the same BoM-compatible set)
 - [ ] Product blast radius — which user journeys, jobs, admin actions, or integrations would break if the package upgrade goes wrong?
 
 ---
@@ -215,7 +215,7 @@ List all dependency licenses:
 Skip this phase for Python or Bash projects.
 
 - [ ] Check `@types/*` coverage — for every untyped JS dependency, is there a corresponding `@types/` package?
-- [ ] Version alignment — `@types/react` version should match `react` version range
+- [ ] Version alignment — `@astrojs/*` integrations match the installed `astro` major; Tauri JS `@tauri-apps/*` match the Rust `tauri` crate major
 - [ ] Inline types preferred — packages shipping their own `.d.ts` don't need `@types/`
 - [ ] No `@types/` packages for dependencies that already include types (wasted install)
 
