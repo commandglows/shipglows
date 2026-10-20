@@ -139,7 +139,8 @@ Known helpers: context priming -> `301-sg-context`; cross-project state ->
 ## Handoff And Question Contract
 
 Pass original instruction, arguments, scope, authority, active language and explicit
-report mode to one owner and continue. Preserve onboarding/first-success intent
+report mode to one owner and continue. Lifecycle words ("finish", "check", "ship")
+route to the earliest unresolved gate: open verification precedes closure or ship. Preserve onboarding/first-success intent
 through `sg-development`. Before routing questions load `question-contract.md`;
 ask one numbered question only for material operator-owned truth changing route or
 safety, never discoverable paths. Never stop at a command recommendation for runnable work.
