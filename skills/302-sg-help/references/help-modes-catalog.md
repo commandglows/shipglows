@@ -40,7 +40,7 @@ Return only the lines below for exact `302-sg-help mode`, `302-sg-help modes`, `
 `sg-experience <audit|flow|onboarding|recovery> <scope>` — Improve customer journeys, activation, trust, and recovery.
 `sg-bug [default|reproduce|fix|retest|close] <defect-or-BUG-ID>` — Reproduce, repair, prove, and close product defects.
 `sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity|verify|test|browser> [target]` — Own technical quality and proof; `github [audit|reconcile|clean|branches|dependabot|fix]` selects Git work and `verify` requires a target.
-`sg-maintenance [quick|full|security|deps|docs|audits|global|hygiene] [scope] [no-ship]` — Default is full upkeep; `quick`/`global` inspect only, `hygiene` audits with separately authorized Git convergence, and `no-ship` suppresses delivery (also accepted alone).
+`sg-maintenance [quick|full|security|deps|docs|audits|global|hygiene|tidy] [scope] [no-ship]` — Default is full upkeep; `quick`/`global` inspect only, `hygiene` audits with separately authorized Git convergence, and `no-ship` suppresses delivery (also accepted alone).
 `sg-release [default|preview|prod|verify|ship|deploy] [target]` — Prepare, deploy, and verify releases, with `ship` selecting Git delivery and `deploy` the deployment workflow.
 `sg-content <plan|capture|clean-transcript|repurpose|draft|enrich|audit|editorial|apply|ship|publish|emailing> [source-or-target]` — Prepare and deliver audience content; `tmux`/`capture-full-conversation` alias capture, while `repurpose` requires a source and accepts `verbatim`.
 `sg-marketing <market|gtm|copy|copywriting> <target>` — Define positioning, go-to-market strategy, messaging, and persuasive copy.

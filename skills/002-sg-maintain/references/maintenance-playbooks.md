@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-10-20"
@@ -74,6 +74,18 @@ proven reconciliation or cleanup to `shipglows git` without a validation
 prompt. Never invoke native `git clean`; `shipglows hygiene git` instead routes
 to the safe Git lifecycle, which proves ownership and integration, preserves
 unique or ambiguous state, and records a terminal disposition.
+
+## Tidy Lane
+
+`tidy` (aliases `shipglows tidy`, `ménage`) brings the current project back to a light, at-rest state. It is the operator-facing entrypoint for cleanup that closure, next-outcome selection, and maintenance otherwise trigger by project activity.
+
+1. **Inventory, read-only, together:** `tools/project_docs_tidy_audit.py .` (workflow docs and specs), `tools/git_resting_state.py . --integration <canonical integration branch>` (worktrees, branches, pull requests, upstream drift), `tools/git_storage_check.py .` (worktree prune, gc), and, only when the project is ShipGlows itself, `tools/orphan_reference_audit.py`.
+2. **Triage** each lane with its owner rules: `300-sg-docs` TIDY MODE for workflow docs, the Resting State of `git-temporary-artifact-lifecycle.md` for Git artifacts, the storage check's prescribed commands, and the value triage of `dead-code-obsolescence-audit.md` for orphan skill docs.
+3. **One approval packet** for the whole run, grouped by lane: what converges automatically under standing Git authority, and what needs approval (deletions, merges of work this run does not own, `dormant` decisions). Never split it into several questions.
+4. **Apply** through the owners in this order: Git convergence and storage upkeep, then documentation merges, then deletions in one commit per lane whose message lists every deleted path. Untracked files are never deleted.
+5. **Report** before/after sizes, what converged, what was deleted (with the recovery commit), what remains and why, and end with `Git: at rest on <branch>` or the remaining proposal.
+
+Tidy never archives, rewrites history, force-pushes, or uses expiring-now Git commands.
 
 ## Full Lane Order
 

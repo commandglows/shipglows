@@ -180,6 +180,9 @@
             "hidden_modes": {
               "hygiene": {
                 "runtime_engine": "002-sg-maintain"
+              },
+              "tidy": {
+                "runtime_engine": "002-sg-maintain"
               }
             },
             "internal_engines": [
@@ -604,6 +607,24 @@
           ]
         }
       ]
+    },
+    "tidy": {
+      "public_owner": "sg-maintenance",
+      "owner_mode": "tidy",
+      "runtime_engine": "002-sg-maintain",
+      "resolution": "direct"
+    },
+    "menage": {
+      "public_owner": "sg-maintenance",
+      "owner_mode": "tidy",
+      "runtime_engine": "002-sg-maintain",
+      "resolution": "direct"
+    },
+    "ménage": {
+      "public_owner": "sg-maintenance",
+      "owner_mode": "tidy",
+      "runtime_engine": "002-sg-maintain",
+      "resolution": "direct"
     },
     "capture": {
       "public_owner": "sg-content",

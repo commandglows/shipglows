@@ -129,7 +129,8 @@ never invokes Blitz or selects work.
 
 `git` -> `sg-engineering github` (read-only default); `hygiene` -> current-project
 `sg-maintenance hygiene` read-only audit; `hygiene git` -> `sg-engineering github clean`.
-Reject workspace/multi-project hygiene. `verify` preserves design/accessibility/UI,
+Reject workspace/multi-project hygiene. `tidy` or `ménage` -> current-project
+`sg-maintenance tidy`. `verify` preserves design/accessibility/UI,
 SEO, release/live or bug specialist ownership, otherwise `sg-engineering verify`.
 Generic verification never replaces a specialist audit.
 Known helpers: context priming -> `301-sg-context`; cross-project state ->

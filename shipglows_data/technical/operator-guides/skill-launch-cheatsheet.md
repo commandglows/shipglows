@@ -160,7 +160,7 @@ composable with every command unless that mode declares a conflict.
 | `sg-experience` | `audit`, `flow`, `onboarding`, `recovery` |
 | `sg-bug` | `default`, `reproduce`, `fix`, `retest`, `close` |
 | `sg-engineering` | `audit`, `architecture`, `deps`, `performance`, `migrate`, `github`, `sync`, `access`, `parity` |
-| `sg-maintenance` | `quick`, `full`, `security`, `deps`, `docs`, `audits`, `global`, `no-ship` |
+| `sg-maintenance` | `quick`, `tidy`, `full`, `security`, `deps`, `docs`, `audits`, `global`, `no-ship` |
 | `sg-release` | `default`, `preview`, `prod`, `verify` |
 | `sg-content` | `plan`, `capture`, `repurpose`, `draft`, `enrich`, `audit`, `editorial`, `publish`, `emailing` |
 | `sg-marketing` | `market`, `gtm`, `copy`, `copywriting` |
@@ -185,6 +185,10 @@ diagnostic command.
 
 `sg-content` owns documentation written for an audience. `sg-docs` owns the
 internal corpus that lets projects and agents operate safely.
+
+Use `shipglows tidy` (or `shipglows ménage`) to clean the current project in one
+pass: old specs and workflow docs, leftover branches, worktrees and pull requests,
+and Git storage. You approve one list; deletions stay recoverable through Git.
 
 Use `shipglows hygiene` for a comprehensive, non-mutating audit of the current
 project and one grouped correction proposal. Multi-project hygiene is deferred.

@@ -1,7 +1,7 @@
 ---
 name: 002-sg-maintain
 description: "Orchestrate project maintenance from triage to ship."
-argument-hint: [optional: quick | hygiene | full | security | deps | docs | audits | global | no-ship | report=agent]
+argument-hint: [optional: quick | hygiene | tidy | full | security | deps | docs | audits | global | no-ship | report=agent]
 ---
 
 Primary artifact type: `master-workflow`.
@@ -51,6 +51,7 @@ Parse `$ARGUMENTS` after preflight:
 
 - empty -> full maintenance lifecycle for the current project; `quick` -> read-only triage only.
 - `hygiene` -> comprehensive hygiene audit for the current project; return one grouped correction proposal, allow only standing-authority Git/GitHub convergence, and authorize no application, content, dependency, configuration, or deployment mutation.
+- `tidy` -> current-project cleanup across workflow docs, Git resting state, Git storage, and (ShipGlows core only) orphan skill docs: four read-only inventories, one consolidated approval packet, then owner-routed deletion and convergence. Follow the Tidy Lane of `maintenance-playbooks.md`.
 - `full` -> broad maintenance lifecycle; `security` -> security maintenance through bug, dependency, code-audit, remediation, verification, and ship gates.
 - `deps`, `docs`, or `audits` -> the matching owner lane, then remediation lifecycle when findings cross the implementation threshold.
 - `global` -> read-only workspace dashboard; ask for a project before modifying more than one project.

@@ -53,13 +53,14 @@ from the named public skill mode.
 `shipglows git` -> `sg-engineering github` -> `010-sg-technical`
 `shipglows hygiene` -> `sg-maintenance hygiene` -> `002-sg-maintain`
 `shipglows hygiene git` -> `sg-engineering github clean` -> `010-sg-technical`
+`shipglows tidy` (`ménage`) -> `sg-maintenance tidy` -> `002-sg-maintain`
 `shipglows ship` -> `sg-release ship` -> `005-sg-ship`
 `shipglows deploy` -> `sg-release deploy` -> `004-sg-deploy`
 `shipglows prod` -> `sg-release prod` -> `405-sg-prod`
 
 `000-shipglows` — default
 `001-sg-build` — default | spark | codex | mini | agents | sous-agent | no-agents
-`002-sg-maintain` — quick | full | security | deps | docs | audits | global | no-ship
+`002-sg-maintain` — quick | tidy | full | security | deps | docs | audits | global | no-ship
 `003-sg-bug` — default | reproduce | fix | retest | close
 `004-sg-deploy` — default | preview | prod
 `005-sg-ship` — default | end | skip-check | all-dirty
