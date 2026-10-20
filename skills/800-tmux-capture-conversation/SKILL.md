@@ -1,6 +1,6 @@
 ---
 name: 800-tmux-capture-conversation
-description: "Capture the active Codex, KiloCode, or tmux conversation as project-local Markdown."
+description: "Capture the active Claude Code, Codex, KiloCode, or tmux conversation as project-local Markdown."
 argument-hint: "[optional: --dry-run or Linux tmux tab]"
 ---
 
@@ -21,7 +21,7 @@ This skill captures a local terminal transcript and does not write to chantier s
 
 Default to the current tmux pane when the user does not provide a tab/window number. The bundled script captures tmux scrollback with wrapped-line joining and can prefer the alternate screen when it contains a richer conversation transcript than normal scrollback.
 
-This skill answers which active Codex or KiloCode session, or tmux pane, should be exported to a Markdown transcript and which project owns it.
+This skill answers which active Claude Code, Codex or KiloCode session, or tmux pane, should be exported to a Markdown transcript and which project owns it.
 
 It owns faithful transcript export only: exact active-session selection, project-root resolution, privacy boundaries, and deterministic Markdown capture through the bundled adapters.
 
@@ -36,11 +36,12 @@ Keep the boundary explicit:
 
 Capture the active conversation into `<git-root>/shipglows_data/workflow/conversations/` without asking for a title or destination. Include only visible user and assistant message text. Exclude instructions, tool calls and results, reasoning, and other internal runtime data.
 
+- In Claude Code, require the exact `CLAUDE_CODE_SESSION_ID` and run `scripts/capture_claude_conversation.py`. It resolves the one matching top-level journal `~/.claude/projects/<project>/<session-id>.jsonl` (`CLAUDE_CONFIG_DIR` overrides `~/.claude`) and uses its recorded `cwd` to find the owning Git root. It keeps main-thread user prompts and assistant text only; tool calls/results, thinking, attachments, meta entries, subagent sidechains and harness-injected blocks (`<system-reminder>` etc.) are dropped. The journal format is locally verified, not a public Claude Code API; unknown formats fail closed.
 - On Windows Codex, require the exact `CODEX_THREAD_ID` and run `scripts/capture_codex_conversation.py`. It resolves one matching local journal and uses its session working directory to find the owning Git root. The journal format is locally verified, not a public Codex API; unknown or ambiguous visible-message formats fail closed.
 - In KiloCode, invoke the installed `shipglows_capture_conversation` plugin tool. It passes the active session ID, directory, and worktree to `scripts/capture_kilo_conversation.py`, which validates those values against `kilo export`. Never choose a session by recency or read `kilo.db` directly.
 - In Linux tmux, retain the existing pane, scrollback, tab, title, and destination behavior below.
 
-Codex and KiloCode exports are intentionally unredacted. Keep them local until a separate review authorizes publication.
+Claude Code, Codex and KiloCode exports are intentionally unredacted. Keep them local until a separate review authorizes publication.
 
 Ask for a tab/window number only when the user wants to capture a different tab and has not identified which one.
 
@@ -80,7 +81,7 @@ The confirmation prompt must include the inferred title and full destination. It
 
 ## Workflow
 
-For Codex or KiloCode, use the exact active session supplied by the runtime and write directly to its owning Git repository's canonical conversation directory. Use `--dry-run` only when diagnosis is requested; it must not print message bodies or create files.
+For Claude Code, Codex or KiloCode, use the exact active session supplied by the runtime and write directly to its owning Git repository's canonical conversation directory. Use `--dry-run` only when diagnosis is requested; it must not print message bodies or create files.
 
 For tmux, continue with the existing steps:
 
@@ -102,6 +103,13 @@ Report the final Markdown path, mention the tmux target that was captured, and r
 ## Script
 
 Use `scripts/capture_tmux_conversation.sh` for the deterministic export.
+
+Claude Code session (Windows or any OS):
+
+```bash
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
+python3 "$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/scripts/capture_claude_conversation.py" [--dry-run]
+```
 
 Preview inferred values without writing:
 
