@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-08-03"
+updated: "2026-10-20"
 status: active
 source_skill: 011-sg-pilotage
 scope: pilotage-sessions-mode
@@ -20,7 +20,7 @@ linked_systems:
   - tools/prune_codex_sessions.py
 depends_on:
   - artifact: shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: draft
 supersedes: []
 evidence:
@@ -39,7 +39,7 @@ Project work lives in `shipglows_data/workflow/TASKS.md`. Codex titles live in `
 ## Exact Grammar
 
 - `sessions [project-or-cwd]`: triage unmanaged titles for one exact repository scope.
-- `sessions rename <status>`: rename only the current Codex conversation.
+- `sessions rename <status>`: rename only the current Codex or Claude Code conversation.
 - `sessions prune [cwd]`: preview or explicitly apply safe cleanup of old completed sessions.
 
 Accepted statuses are exactly `todo`, `doing`, `in_progress`, `blocked`, or `done`, persisted as an uppercase prefix in `<STATUS> - <work title>`. The semantic work title contains at most five words.
@@ -63,12 +63,11 @@ Accepted statuses are exactly `todo`, `doing`, `in_progress`, `blocked`, or `don
 
 `CONVERSATION-RENAME-MISSING-STATUS`: when the status is missing or unsupported, ask for exactly one supported status and do not derive a title, inspect sessions, call the helper, or mutate Codex or `TASKS.md`.
 
-With a valid status:
+With a valid status, derive one non-generic semantic work title (at most five words, no status prefix, no control character) from the visible conversation's latest objective or outcome, then rename through the current agent surface:
 
-1. derive one non-generic semantic work title from the visible conversation's latest objective or outcome;
-2. resolve and preflight `$SHIPGLOWS_ROOT/tools/rename_codex_session.py`;
-3. invoke it with the unprefixed title, exact current `cwd`, and `CODEX_THREAD_ID`;
-4. accept its verified persisted result or its explicit recoverable error.
+- Codex (`CODEX_THREAD_ID` present): resolve and preflight `$SHIPGLOWS_ROOT/tools/rename_codex_session.py`, invoke it with the unprefixed title, exact current `cwd`, and `CODEX_THREAD_ID`, and accept its verified persisted result or its explicit recoverable error.
+- Claude Code desktop app (session tool `set_session_title` exposed, possibly deferred): call it once with `session_id: "self"` and the full `<STATUS> - <work title>`. Accept the app's result, including its own approval prompt when the operator had set the title manually; a decline is a non-mutating stop, never a retry.
+- Neither surface available: report that the current agent cannot rename its conversation; do not edit any agent state store directly.
 
 The explicit command authorizes this one rename without a second confirmation. It never inspects other conversations, follows forks, or mutates `TASKS.md`. A missing/invalid thread id, stored-cwd mismatch, generic title, control character, existing status prefix, or title over five words fails without mutation. Repeating the same valid title is an idempotent success.
 
