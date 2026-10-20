@@ -13,6 +13,11 @@ The expert alias `shipglows hygiene` selects its hidden `hygiene` mode: a
 comprehensive read-only audit of the current project followed by a grouped
 correction proposal. Multi-project scope is not supported by this alias.
 
+The `tidy` mode (aliases `shipglows tidy`, `shipglows ménage`) cleans the current
+project in one pass: old specs and workflow docs, leftover branches, worktrees
+and pull requests, Git storage, and orphan skill docs inside ShipGlows itself.
+It returns one approval list and deletes rather than archives.
+
 ## Scope Gate
 
 Resolve the relevant product scope and load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Retain ownership of the upkeep outcome and use internal owner lanes without asking the operator to coordinate them.

@@ -169,6 +169,7 @@
             "runtime_skill": "002-sg-maintain",
             "modes": [
               "quick",
+              "tidy",
               "full",
               "security",
               "deps",
@@ -179,9 +180,6 @@
             ],
             "hidden_modes": {
               "hygiene": {
-                "runtime_engine": "002-sg-maintain"
-              },
-              "tidy": {
                 "runtime_engine": "002-sg-maintain"
               }
             },
