@@ -20,16 +20,12 @@ docs_impact: yes
 content_surfaces:
   - indexed_articles
 linked_systems:
-  - shipglows_data/workflow/specs/linux-cli-resource-pressure-rescue.md
   - shipglows_data/editorial/blog-and-article-surface-policy.md
   - shipglows_data/editorial/claim-register.md
   - site/src/content/articles/en/
   - site/src/content/articles/fr/
   - site/src/content.config.ts
 depends_on:
-  - artifact: "shipglows_data/workflow/specs/linux-cli-resource-pressure-rescue.md"
-    artifact_version: "1.3.0"
-    required_status: reviewed
   - artifact: "shipglows_data/editorial/content-map.md"
     artifact_version: "0.16.2"
     required_status: draft

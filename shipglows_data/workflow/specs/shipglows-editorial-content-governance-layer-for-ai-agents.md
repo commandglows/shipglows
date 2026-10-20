@@ -26,7 +26,6 @@ linked_systems:
   - README.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - GUIDELINES.md
-  - shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md
   - docs/editorial/
   - templates/content_map.md
   - templates/editorial_content_context.md
@@ -209,7 +208,6 @@ Local docs and contracts to inspect before implementation:
 - `README.md`
 - `shipglows_data/workflow/playbooks/spec-driven-workflow.md`
 - `GUIDELINES.md`
-- `shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md`
 - `specs/shipglows-technical-documentation-layer-for-ai-agents.md`
 - `skills/sg-docs/SKILL.md`
 - `skills/sg-repurpose/SKILL.md`

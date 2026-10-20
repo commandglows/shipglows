@@ -24,9 +24,7 @@ depends_on:
   - artifact: "shipglows_data/workflow/specs/three-digit-runtime-skill-names.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-supersedes:
-  - artifact: "shipglows_data/workflow/specs/numeric-skill-code-index.md"
-    artifact_version: "1.0.0"
+supersedes: []
 evidence:
   - "Wave 13 aligned the dependency requirement with the reviewed canonical runtime-name spec."
   - "User decision 2026-06-10: use three digits directly before the skill name for the real runtime-visible skill identity."

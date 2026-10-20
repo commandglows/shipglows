@@ -18,10 +18,7 @@ linked_systems:
   - "skills/references/intent-to-outcome-autonomy.md"
   - "skills/302-sg-help/references/help-modes-catalog.md"
   - "tools/test_metier_first_public_skills_contract.py"
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/metier-first-public-skill-hierarchy-and-autonomous-execution.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
+depends_on: []
 supersedes: []
 evidence:
   - "Scenario-first implementation maps every required MH scenario to deterministic contract tests and a manual language review."

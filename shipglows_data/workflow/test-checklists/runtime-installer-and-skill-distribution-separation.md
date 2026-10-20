@@ -23,10 +23,7 @@ linked_systems:
   - "cli/install.sh"
   - "plugins/shipglows/"
   - ".opencode/skills/shipglows/"
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/runtime-installer-and-skill-distribution-separation.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
+depends_on: []
 supersedes: []
 evidence:
   - "2026-08-05 automated installer regression passes 41/41."

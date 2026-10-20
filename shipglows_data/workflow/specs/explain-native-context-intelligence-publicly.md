@@ -18,16 +18,12 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - shipglows_data/workflow/specs/industrialize-native-context-intelligence.md
   - shipglows_data/editorial/claim-register.md
   - shipglows_data/editorial/content-map.md
   - site/src/content/articles/
   - site/src/pages/docs.astro
   - site/src/pages/fr/docs.astro
 depends_on:
-  - artifact: shipglows_data/workflow/specs/industrialize-native-context-intelligence.md
-    artifact_version: "1.2.0"
-    required_status: reviewed
   - artifact: shipglows_data/editorial/blog-and-article-surface-policy.md
     artifact_version: "1.2.0"
     required_status: reviewed

@@ -25,7 +25,7 @@ depends_on:
 supersedes: []
 evidence:
   - "WinGlowz IME swipe investigation across WinGlowzKeyboardView.kt and KeyboardLongPressSwipePolicy.kt."
-  - "Spec shipglows-code-navigation-and-function-documentation-system.md task 8 pilot."
+  - "Code navigation and function documentation system pilot (task 8)."
 next_review: "2026-08-04"
 next_step: "/300-sg-docs technical audit"
 ---
@@ -82,7 +82,7 @@ This file owns term-based recovery for WinGlowz IME gesture behavior. It exists 
 - Tests:
   - `No dedicated automated test located in this pilot artifact yet; current proof is documentation + source contract coverage.`
 - Specs / bugs:
-  - `/home/claude/shipglows/shipglows_data/workflow/specs/shipglows-code-navigation-and-function-documentation-system.md`
+  - none
 - Decisions:
   - `no durable decision record needed - this pilot documents a local navigation/recovery contract rather than a separate product architecture decision`
 - Failure / drift signals:

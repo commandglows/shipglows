@@ -14,7 +14,6 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - shipglows_data/workflow/specs/shipglows-code-navigation-and-function-documentation-system.md
   - skills/references/code-navigation-and-function-docs.md
   - templates/technical_behavior_index.md
 depends_on:

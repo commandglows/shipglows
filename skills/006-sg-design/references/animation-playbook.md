@@ -28,7 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Provider-neutral animation workflow approved through the sg-design-animation-mode ready spec on 2026-08-04."
+  - "Provider-neutral animation workflow approved by the operator on 2026-08-04."
 next_review: "2026-09-04"
 next_step: "/103-sg-verify sg-design-animation-mode"
 ---

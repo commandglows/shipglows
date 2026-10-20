@@ -27,7 +27,6 @@ depends_on:
 supersedes: []
 evidence:
   - "Wave 13 removed the reverse dependency on technical-docs-corpus; that corpus consumes this focused navigation contract."
-  - "Ready spec shipglows-code-navigation-and-function-documentation-system.md."
   - "WinFlowz IME swipe investigation showed repeated rediscovery cost across code, docs, specs, and bugs."
   - "Operator clarification 2026-07-01: existing context maps must stay and be integrated."
 next_review: "2026-08-04"

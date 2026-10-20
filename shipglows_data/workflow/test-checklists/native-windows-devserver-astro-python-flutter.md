@@ -22,11 +22,7 @@ linked_systems:
   - tests/windows/devserver-project-catalog.ps1
   - tests/windows/mobile-toolchain.ps1
   - tests/windows/agent-instructions.ps1
-  - shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
-depends_on:
-  - artifact: shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
-    artifact_version: "0.6.4"
-    required_status: draft
+depends_on: []
 supersedes: []
 evidence:
   - "Regression-first project catalogue test failed on the missing Get-SgProjectCatalog command before implementation."

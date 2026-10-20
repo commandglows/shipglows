@@ -18,7 +18,6 @@ linked_systems:
   - shipglows_data/workflow/specs/agent-clarity-hardening-phase-4.md
   - shipglows_data/workflow/specs/agent-clarity-hardening-phase-5.md
   - shipglows_data/workflow/specs/agent-clarity-hardening-phase-6.md
-  - shipglows_data/workflow/specs/agent-clarity-hardening-phase-7.md
   - shipglows_data/workflow/reviews/skill-system-hardening-register.md
   - shipglows_data/workflow/test-checklists/agent-clarity-pass-checklist.md
 depends_on:

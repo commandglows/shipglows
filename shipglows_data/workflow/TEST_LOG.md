@@ -48,7 +48,7 @@
 - Status: pass
 - Confidence: high
 - Result summary: Top-level menu startup completed in 0.495s and isolated Gum render in 0.246s; Health blank input stayed on process/options view and explicit `g` was required for Aggressive Cleanup.
-- Bug pointer: BUG-2026-05-08-001 -> shipglows_data/workflow/bugs/BUG-2026-05-08-001.md; BUG-2026-05-08-002 -> shipglows_data/workflow/bugs/BUG-2026-05-08-002.md
+- Bug pointer: BUG-2026-05-08-001; BUG-2026-05-08-002 (closed records removed by tidy 2026-10-20; see Git history)
 - Evidence pointer: `/tmp/sg-test-shipglows-start.out`, `/tmp/sg-test-menu-gum.out`, `/tmp/sg-test-health-blank.out`, `/tmp/sg-test-health-g.out`
 - Follow-up: none; both bugs closed by this retest.
 
@@ -100,7 +100,7 @@
 - Status: pass
 - Confidence: high
 - Result summary: Operator confirmed the ShipGlows local SSH connection now works after the bare identity filename fix.
-- Bug pointer: BUG-2026-05-02-003 -> shipglows_data/workflow/bugs/BUG-2026-05-02-003.md
+- Bug pointer: BUG-2026-05-02-003 (closed record removed by tidy 2026-10-20; see Git history)
 - Evidence pointer: chat confirmation, no raw IP or key material stored
 - Follow-up: none; verified by sg-verify on 2026-05-02
 ## 2026-07-13 - Mail Intelligence structured AI classification

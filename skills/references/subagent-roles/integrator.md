@@ -19,10 +19,7 @@ linked_systems:
   - skills/references/subagent-roles/editorial-reader.md
   - skills/references/subagent-roles/sequential-executor.md
   - skills/references/subagent-roles/wave-executor.md
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md"
-    artifact_version: "1.2.0"
-    required_status: "ready"
+depends_on: []
 supersedes: []
 evidence:
   - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."

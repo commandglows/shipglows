@@ -57,7 +57,6 @@ linked_systems:
   - tools/vivaldi_bookmarks.py
   - tools/audit_shipglows_skills.py
   - specs/001-sg-build-autonomous-master-skill.md
-  - specs/skill-reporting-modes-and-compact-reports.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - templates/
   - docs/technical/

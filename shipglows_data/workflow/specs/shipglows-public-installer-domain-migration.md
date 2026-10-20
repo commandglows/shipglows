@@ -22,10 +22,7 @@ linked_systems:
   - "/home/claude/shipglows_app/site"
   - "/home/claude/commandglows/commandglows_site"
   - "Vercel"
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md"
-    artifact_version: "0.2.20"
-    required_status: draft
+depends_on: []
 supersedes: []
 evidence:
   - "The 2026-08-25 parity repair resynchronized the public PowerShell bootstrap after its extraction manifest drifted behind the canonical Windows runtime payload; site main `942de2f` deployed successfully and the public shell and PowerShell response bytes match the canonical Git blobs."
