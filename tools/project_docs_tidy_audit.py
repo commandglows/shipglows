@@ -15,6 +15,12 @@ Classes:
 - ``retired``: frontmatter status ``superseded`` or ``stale``;
 - ``dormant``: none of the above and untouched for ``--dormant-days``;
 - ``recent``: everything else.
+
+Operational trigger (``--check``): tidy is due when the archivable backlog
+(delivered + retired + dormant) reaches ``--max-candidates`` files, when it
+outweighs live work (open + recent) in bytes, or when trackers hold
+``--max-done-rows`` done rows. Archiving resets these signals by itself, so
+the check needs no stored state and fires on activity rather than elapsed time.
 """
 
 from __future__ import annotations
@@ -156,6 +162,25 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
     }
 
 
+def tidy_pressure(payload: dict[str, object], max_candidates: int = 20, max_done_rows: int = 50) -> dict[str, object]:
+    """Return whether accumulated workflow material makes a tidy due, and why."""
+    totals = payload.get("totals", {})
+    def total(names: tuple[str, ...], key: str) -> int:
+        return sum(totals.get(name, {}).get(key, 0) for name in names)
+    archivable = ("delivered", "retired", "dormant")
+    live = ("open", "recent")
+    files, size = total(archivable, "files"), total(archivable, "bytes")
+    done_rows = sum(stats["done_rows"] for stats in payload.get("trackers", {}).values())
+    reasons = []
+    if files >= max_candidates:
+        reasons.append(f"archivable backlog {files} files >= {max_candidates}")
+    if files >= 5 and size >= total(live, "bytes"):
+        reasons.append("archivable material outweighs live work")
+    if done_rows >= max_done_rows:
+        reasons.append(f"trackers hold {done_rows} done rows >= {max_done_rows}")
+    return {"due": bool(reasons), "reasons": reasons, "archivable_files": files, "archivable_bytes": size, "done_rows": done_rows}
+
+
 def _size(value: int) -> str:
     return f"{value / 1024:.0f} KB" if value < 1024 * 1024 else f"{value / 1024 / 1024:.1f} MB"
 
@@ -164,6 +189,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("project", nargs="?", type=Path, default=Path.cwd())
     parser.add_argument("--dormant-days", type=int, default=90)
+    parser.add_argument("--max-candidates", type=int, default=20)
+    parser.add_argument("--max-done-rows", type=int, default=50)
+    parser.add_argument("--check", action="store_true", help="Print only whether a tidy is operationally due.")
     parser.add_argument("--format", choices=("text", "json", "paths"), default="text")
     parser.add_argument(
         "--class", dest="classes", action="append",
@@ -172,6 +200,11 @@ def main() -> int:
     )
     args = parser.parse_args()
     payload = audit_project(args.project, args.dormant_days)
+    payload["tidy"] = tidy_pressure(payload, args.max_candidates, args.max_done_rows)
+    if args.check:
+        tidy = payload["tidy"]
+        print("tidy: due (" + "; ".join(tidy["reasons"]) + ")" if tidy["due"] else "tidy: not due")
+        return 0
     listed = [item for item in payload["items"] if not args.classes or item["class"] in args.classes]
     if args.format == "json":
         print(json.dumps({**payload, "items": listed}, ensure_ascii=False, indent=2, sort_keys=True))
@@ -187,6 +220,8 @@ def main() -> int:
         total = payload["totals"].get(name)
         if total:
             print(f"  {name:<10} {total['files']:>4} files  {_size(total['bytes'])}")
+    tidy = payload["tidy"]
+    print("  tidy: due (" + "; ".join(tidy["reasons"]) + ")" if tidy["due"] else "  tidy: not due")
     for name, stats in payload["trackers"].items():
         print(f"  tracker {name}: {stats['lines']} lines, open={stats['open_rows']} done={stats['done_rows']}")
     if args.classes:

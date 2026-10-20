@@ -56,7 +56,7 @@ triage and not the mutating `full` lifecycle. Inspect the current project only:
 - Git and temporary worktree residue, using local status, refs, worktree metadata, and already available PR evidence without an implicit fetch
 - dependencies and supply-chain posture
 - security and trust-boundary gaps
-- documentation and governance drift, plus the read-only workflow tidy inventory (`tools/project_docs_tidy_audit.py`) as a proposal when the `workflow-tidy` cadence is due
+- documentation and governance drift, plus the read-only workflow tidy inventory (`tools/project_docs_tidy_audit.py`) as a proposal when its `--check` or the `workflow-tidy` cadence says due
 - checks, audits, and quality debt
 - stale generated, cache, build, or task residue only when ownership and disposability can be classified without deleting it
 
@@ -86,7 +86,7 @@ For broad maintenance, collect independent read-only evidence first, then sequen
 -> 011-sg-pilotage tasks -> 103-sg-verify -> 004-sg-deploy/005-sg-ship
 ```
 
-Run `300-sg-docs tidy` inside the docs lane whenever `tools/audit_cadence_status.py` reports the `workflow-tidy` domain event-triggered, never-run, or overdue; its own approval packet still gates every move, and a declined or deferred packet is reported, not retried in the same run.
+Run `300-sg-docs tidy` inside the docs lane whenever `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/project_docs_tidy_audit.py" . --check` reports `due` (operational trigger, primary) or `tools/audit_cadence_status.py` reports the `workflow-tidy` domain overdue (time backstop); its own approval packet still gates every move, and a declined or deferred packet is reported, not retried in the same run.
 
 Use the shared lifecycle for readiness, validation, documentation reflection, closure, and ship. A finding crosses the implementation threshold when it is not safely resolved as factual read-only reporting and needs a durable work item or write.
 

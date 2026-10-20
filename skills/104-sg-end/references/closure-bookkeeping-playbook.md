@@ -103,5 +103,6 @@ If proof or ship is not complete, never set `closed`.
 - If a clean completed daily chantier is not pushed, route directly to `005-sg-ship`; treat delivery as pending until push succeeds, the operator explicitly chooses local-only work, or a concrete blocker is recorded.
 - If backlog/priority is needed, route to `011-sg-pilotage`.
 - If no unique next owner, keep the result explicit and local.
+- After a `closed` result in a project with `shipglows_data/workflow/`, run `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/project_docs_tidy_audit.py" . --check`. When it reports `due`, name `300-sg-docs tidy` with its reasons in `🧭 SUITE` as the operational follow-up; closure itself never archives or moves workflow artifacts.
 
 This playbook never commits or pushes.

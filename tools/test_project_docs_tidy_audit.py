@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from tools.project_docs_tidy_audit import audit_project
+from tools.project_docs_tidy_audit import audit_project, tidy_pressure
 
 
 def _write(root: Path, relative: str, text: str = "") -> None:
@@ -50,6 +50,16 @@ class ProjectDocsTidyAuditTests(unittest.TestCase):
             })
             self.assertEqual(payload["trackers"]["TASKS.md"]["open_rows"], 1)
             self.assertEqual(payload["trackers"]["TASKS.md"]["done_rows"], 1)
+
+    def test_tidy_pressure_fires_on_activity_not_time(self) -> None:
+        light = {"totals": {"recent": {"files": 30, "bytes": 9000}, "delivered": {"files": 3, "bytes": 900}},
+                 "trackers": {"TASKS.md": {"done_rows": 10}}}
+        self.assertFalse(tidy_pressure(light)["due"])
+        heavy = {"totals": {"recent": {"files": 10, "bytes": 1000}, "delivered": {"files": 8, "bytes": 5000}},
+                 "trackers": {"TASKS.md": {"done_rows": 60}}}
+        pressure = tidy_pressure(heavy)
+        self.assertTrue(pressure["due"])
+        self.assertEqual(len(pressure["reasons"]), 2)
 
     def test_project_without_workflow(self) -> None:
         with TemporaryDirectory() as temporary:
