@@ -113,6 +113,14 @@
       "priority": 14,
       "aliases": ["recovery", "release", "backup", "deployment"],
       "event_triggers": ["hosting change", "release-process change", "backup or restore change", "production migration"]
+    },
+    {
+      "id": "workflow-tidy",
+      "label": "Workflow docs tidy",
+      "max_age_days": 60,
+      "priority": 15,
+      "aliases": ["tidy", "menage", "workflow tidy", "docs tidy", "rangement"],
+      "event_triggers": ["tidy inventory shows delivered, retired, and dormant work outweighing open and recent work", "major release or version closure", "batch closure of several chantiers"]
     }
   ]
 }

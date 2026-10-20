@@ -51,7 +51,7 @@ Keep a project's workflow corpus light enough that agents and the operator read 
 4. **Links.** Before moving, find inbound references to each item (`git grep` on its path and slug) in live docs, specs, trackers, and code; repoint them to the archive or canonical target, including `depends_on` edges.
 5. **Approval packet.** Show per-class counts and sizes, then the item list by verdict (`archive`, `merge then archive`, `keep`, `ask`) with each `dormant` question. Wait for explicit approval; it covers the listed items only.
 6. **Apply** after loading `$SHIPGLOWS_ROOT/skills/references/closure-archive-guard.md`: `git mv` into `shipglows_data/workflow/archives/<YYYY>/<kind>/`, deterministic names, no overwrite, and one row per item in `shipglows_data/workflow/archives/INDEX.md` (`closed or archived date | item | one-line outcome | archive path`). Use one revertable commit per run.
-7. **Proof and report.** Re-run the inventory and the topology preflight, confirm no live reference points to a moved path, then report active size before and after, archived and merged items, and remaining `dormant` decisions.
+7. **Proof and report.** Re-run the inventory and the topology preflight, confirm no live reference points to a moved path, then append one `shipglows_data/workflow/AUDIT_LOG.md` record with `domain: workflow-tidy` and `next_due` so the maintenance cadence resets, and report active size before and after, archived and merged items, and remaining `dormant` decisions. Maintenance invokes this mode when that cadence is due; direct operator invocation is optional.
 
 Removing an archived item entirely is outside tidy and follows the Removal Execution Lane of `skills/references/dead-code-obsolescence-audit.md`.
 

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.1"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-10-19"
+updated: "2026-10-20"
 status: active
 source_skill: 002-sg-maintain
 scope: maintenance-playbooks
@@ -56,7 +56,7 @@ triage and not the mutating `full` lifecycle. Inspect the current project only:
 - Git and temporary worktree residue, using local status, refs, worktree metadata, and already available PR evidence without an implicit fetch
 - dependencies and supply-chain posture
 - security and trust-boundary gaps
-- documentation and governance drift
+- documentation and governance drift, plus the read-only workflow tidy inventory (`tools/project_docs_tidy_audit.py`) as a proposal when the `workflow-tidy` cadence is due
 - checks, audits, and quality debt
 - stale generated, cache, build, or task residue only when ownership and disposability can be classified without deleting it
 
@@ -80,11 +80,13 @@ unique or ambiguous state, and records a terminal disposition.
 For broad maintenance, collect independent read-only evidence first, then sequence dependent owner work:
 
 ```text
-003-sg-bug -> 010-sg-technical deps -> 300-sg-docs update/audit
+003-sg-bug -> 010-sg-technical deps -> 300-sg-docs update/audit [-> 300-sg-docs tidy]
 -> 105-sg-check nofix -> 010-sg-technical audit or 400-sg-audit
 -> 010-sg-technical migrate candidates -> 106-sg-fix/001-sg-build
 -> 011-sg-pilotage tasks -> 103-sg-verify -> 004-sg-deploy/005-sg-ship
 ```
+
+Run `300-sg-docs tidy` inside the docs lane whenever `tools/audit_cadence_status.py` reports the `workflow-tidy` domain event-triggered, never-run, or overdue; its own approval packet still gates every move, and a declined or deferred packet is reported, not retried in the same run.
 
 Use the shared lifecycle for readiness, validation, documentation reflection, closure, and ship. A finding crosses the implementation threshold when it is not safely resolved as factual read-only reporting and needs a durable work item or write.
 
