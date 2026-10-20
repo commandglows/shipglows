@@ -13,7 +13,21 @@ BASH = (str(Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/
         if os.name == "nt" else shutil.which("bash"))
 
 
+def _can_symlink() -> bool:
+    """Windows without Developer Mode or admin rights cannot create symlinks."""
+    with tempfile.TemporaryDirectory() as temporary:
+        try:
+            os.symlink(temporary, os.path.join(temporary, "probe"), target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return False
+    return True
+
+
+CAN_SYMLINK = _can_symlink()
+
+
 @unittest.skipUnless(BASH and Path(BASH).is_file(), "Bash is required")
+@unittest.skipUnless(CAN_SYMLINK, "symlink creation is not permitted on this host")
 class SyncSkillsTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="sg sync ")

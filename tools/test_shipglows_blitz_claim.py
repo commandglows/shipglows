@@ -11,6 +11,19 @@ import unittest
 from tools.shipglows_blitz_claim import ClaimError, acquire_claim, complete_claim
 
 
+def _can_symlink() -> bool:
+    """Windows without Developer Mode or admin rights cannot create symlinks."""
+    with tempfile.TemporaryDirectory() as temporary:
+        try:
+            os.symlink(temporary, os.path.join(temporary, "probe"), target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return False
+    return True
+
+
+CAN_SYMLINK = _can_symlink()
+
+
 class ShipGlowsAutoClaimTests(unittest.TestCase):
     def make_repo(self, parent: str | None = None) -> Path:
         root = Path(tempfile.mkdtemp(dir=parent))
@@ -58,6 +71,7 @@ class ShipGlowsAutoClaimTests(unittest.TestCase):
         claim = acquire_claim(nested, "work.md", "task-1", "run-a", ["src/a.py"])
         self.assertEqual(str(root.resolve()), claim["captured_git_root"])
 
+    @unittest.skipUnless(CAN_SYMLINK, "symlink creation is not permitted on this host")
     def test_symlink_escape_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as parent:
             root = self.make_repo(parent)
@@ -68,6 +82,7 @@ class ShipGlowsAutoClaimTests(unittest.TestCase):
                 acquire_claim(root, "work.md", "task-1", "run-a", ["escape/a.py"])
             self.assertEqual("path_escape", raised.exception.code)
 
+    @unittest.skipUnless(CAN_SYMLINK, "symlink creation is not permitted on this host")
     def test_lock_symlink_escape_is_rejected_without_external_write(self) -> None:
         with tempfile.TemporaryDirectory() as parent:
             root = self.make_repo(parent)
