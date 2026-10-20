@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-09-01"
 updated: "2026-10-20"
@@ -31,6 +31,7 @@ supersedes: []
 evidence:
   - "Operator approval 2026-09-01: technical code audits must systematically assess unused and obsolete code, integrate governed navigation context, and distinguish the application graph from the ShipGlows activation graph."
   - "Operator request 2026-10-20: detect orphan ShipGlows skill documentation automatically and add an approved removal lane after the read-only audit."
+  - "Operator decision 2026-10-20: every removal candidate first passes a value triage (reconnect, then merge, then delete) so useful content is rewired instead of lost."
 next_review: "2027-03-01"
 next_step: none
 ---
@@ -58,7 +59,7 @@ Build or derive a bounded **application reachability graph** for the declared so
 
 This application graph is independent from ShipGlows' `skill-invocation-registry.json` and `resource_dependency_graph.py`, which validate skill ownership and reference activation only. Never use a valid ShipGlows activation graph as evidence that application code is reachable.
 
-For the ShipGlows corpus itself, `tools/orphan_reference_audit.py` derives the documentation reachability graph: every Markdown file under `skills/` except entrypoints, reached from live tracked files (contracts, registries, CLI, tools, root docs) through conservative basename or stem mentions. It classifies `orphan` (no inbound mention), `weak` (only tests, fixtures, logs, changelogs, or archives mention it), and `unreachable` (only other unreached candidates mention it). Its output is discovery evidence for this contract, never deletion proof.
+For the ShipGlows corpus itself, `tools/orphan_reference_audit.py` derives the documentation reachability graph: every Markdown file under `skills/` except entrypoints, reached from live tracked files (contracts, registries, CLI, tools, root docs) through conservative basename or stem mentions. It classifies `orphan` (no inbound mention), `weak` (only tests, fixtures, logs, changelogs, or archives mention it), and `unreachable` (only other unreached candidates mention it). Its output is discovery evidence for this contract, never deletion proof. A document whose triage verdict is `retain` records `orphan_policy: retain` and a one-line `orphan_reason` in its frontmatter so later runs count it as retained instead of re-reporting it.
 
 ## Evidence Lanes
 
@@ -107,11 +108,17 @@ Audit remains read-only. For every proposed removal, record the evidence, user o
 
 ## Removal Execution Lane
 
-Deletion is a separate, operator-approved step that follows a completed audit. It never runs inside the audit and never on `likely unused`, `retained intentionally`, or `unknown` candidates.
+Deletion is a separate, operator-approved step that follows a completed audit. It never runs inside the audit and never on `likely unused`, `retained intentionally`, or `unknown` candidates. Unreachable is not worthless: an orphan or weak candidate is a wiring or value question before it is a deletion.
 
-1. **Approval packet.** Present only `confirmed unused` and `confirmed obsolete` candidates, grouped by dependency, each with its evidence, impact, and the exact paths or symbols to remove. Deleting files or behavior is an irreversible-class action: wait for explicit operator approval of the listed set; approval covers that set only.
+0. **Value triage (mandatory).** Read each candidate in full and decide, in this order, the first outcome that applies:
+   - `reconnect`: the content is current, correct, and useful to an existing owner but its loader or caller is missing. Wire it where it belongs (owner skill loader, registry gate, import, route) instead of deleting it.
+   - `merge`: the content is useful but overlaps a canonical artifact or is too small to stand alone. Absorb its non-redundant value into that target, then retire the source.
+   - `retain`: it serves an external consumer, rollback, migration, or audit-evidence contract. Record the owner and removal criterion.
+   - `delete`: only when it is stale, wrong, superseded, or fully covered elsewhere, with that reason written per candidate.
+   The triage verdict and its one-line reason are part of the approval packet; `reconnect` and `merge` outcomes are applied before any deletion.
+1. **Approval packet.** Present only `confirmed unused` and `confirmed obsolete` candidates whose triage verdict is `delete` or a post-`merge` retirement, grouped by dependency, each with its evidence, impact, and the exact paths or symbols to remove. Deleting files or behavior is an irreversible-class action: wait for explicit operator approval of the listed set; approval covers that set only.
 2. **Preserve before removing.** For documentation, apply the Migration Preservation Rule of `skills/300-sg-docs/references/core-governance.md`: absorb any non-redundant content into its canonical target or record its intentional rejection first.
 3. **Remove the whole trace.** In the same change, remove the target plus everything that only kept it apparently alive: tests and fixtures asserting its existence, registry or activation entries, documentation mappings, `linked_systems`, and `depends_on` edges. A `weak` document is removed together with the tests that are its only consumers.
 4. **Reversible mutation.** Use `git rm` (or source edits) on the current branch in one dedicated commit whose message lists each removed path and its classification, so the removal stays revertable as a unit. Never empty a trash, purge history, or delete untracked operator files.
 5. **Post-removal proof.** Re-run the discovery that produced the candidates (for the ShipGlows corpus, `orphan_reference_audit.py` and `audit_shipglows_skills.py` for dangling loaders) and confirm no new missing reference or unreachable candidate appeared. For code, the build, test, or analyzer runs named in the approval packet are the corroboration; for documentation-only removals, reference integrity is the proof.
-6. **Report** removed paths, preserved content, remaining candidates, and the commit that can revert the removal.
+6. **Report** reconnected and merged items, removed paths, preserved content, remaining candidates, and the commit that can revert the removal.

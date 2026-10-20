@@ -136,7 +136,7 @@ Decision heuristics:
 Deletion rule:
 
 - do not delete a duplicate until the canonical merged destination exists and any non-redundant content has been preserved or intentionally rejected
-- orphan documentation (no live inbound reference) is a removal candidate, not a duplicate: for the ShipGlows corpus detect it with `tools/orphan_reference_audit.py`, then delete only through the approved Removal Execution Lane of `skills/references/dead-code-obsolescence-audit.md`
+- orphan documentation (no live inbound reference) is a removal candidate, not a duplicate: for the ShipGlows corpus detect it with `tools/orphan_reference_audit.py`, triage it (`reconnect`, then `merge`, then `delete`) and delete only through the approved Removal Execution Lane of `skills/references/dead-code-obsolescence-audit.md`
 
 Reporting rule:
 

@@ -51,6 +51,19 @@ class OrphanReferenceAuditTests(unittest.TestCase):
             self.assertEqual(payload["candidates_scanned"], 1)
             self.assertEqual(payload["findings"][0]["classification"], "weak")
 
+    def test_retained_policy_is_kept_out_of_findings(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _write(root, "skills/demo/SKILL.md")
+            _write(
+                root,
+                "skills/demo/references/kept-evidence.md",
+                '---\nstatus: active\norphan_policy: retain\norphan_reason: "evidence"\n---\n',
+            )
+            payload = audit_orphans(root)
+            self.assertEqual(payload["findings"], [])
+            self.assertEqual(payload["retained"], ["skills/demo/references/kept-evidence.md"])
+
     def test_source_kind(self) -> None:
         self.assertEqual(source_kind("tools/fixtures/x/a.md"), "test")
         self.assertEqual(source_kind("tests/cli/a.sh"), "test")

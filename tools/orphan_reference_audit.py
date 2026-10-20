@@ -11,6 +11,10 @@ Classes:
 - ``orphan``: no inbound mention from any other file;
 - ``weak``: mentioned only by tests or history (logs, changelogs, archives);
 - ``unreachable``: mentioned only by other unreachable or orphan candidates.
+
+A candidate whose frontmatter declares ``orphan_policy: retain`` (with an
+``orphan_reason``) passed value triage as intentionally unloaded evidence; it
+is counted as ``retained`` and kept out of findings.
 """
 
 from __future__ import annotations
@@ -35,6 +39,7 @@ SKIPPED_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "build",
 HISTORY_NAMES = {"REFRESH_LOG.md", "CHANGELOG.md"}
 MAX_BYTES = 2_000_000
 TOKEN = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*")
+RETAIN = re.compile(r"^orphan_policy:\s*[\"']?retain[\"']?\s*$", re.MULTILINE)
 
 
 @dataclass
@@ -98,6 +103,15 @@ def is_candidate(relative: str) -> bool:
     return parts[-1] not in HISTORY_NAMES
 
 
+def is_retained(text: str) -> bool:
+    """Return whether frontmatter records a triaged ``retain`` decision."""
+    text = text.replace("\r\n", "\n")
+    if not text.startswith("---\n"):
+        return False
+    end = text.find("\n---\n", 4)
+    return end > 0 and bool(RETAIN.search(text[4:end]))
+
+
 def _stem_key(name: str) -> str | None:
     stem = name[:-3]
     return stem if ("-" in stem or "_" in stem) and len(stem) >= 8 else None
@@ -114,6 +128,7 @@ def audit_orphans(root: Path = ROOT) -> dict[str, object]:
         if stem := _stem_key(name):
             by_key[stem].add(rel)
 
+    retained: set[str] = set()
     inbound: dict[str, set[str]] = defaultdict(set)
     outbound: dict[str, set[str]] = defaultdict(set)
     for rel, path in files.items():
@@ -121,6 +136,8 @@ def audit_orphans(root: Path = ROOT) -> dict[str, object]:
             text = path.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
             continue
+        if rel in by_key.get(rel.rsplit("/", 1)[-1], ()) and is_retained(text):
+            retained.add(rel)
         for token in set(TOKEN.findall(text)) & by_key.keys():
             for target in by_key[token]:
                 if target != rel:
@@ -144,7 +161,7 @@ def audit_orphans(root: Path = ROOT) -> dict[str, object]:
 
     findings: list[Finding] = []
     for rel in candidates:
-        if rel in reachable:
+        if rel in reachable or rel in retained:
             continue
         sources = sorted(inbound.get(rel, ()))
         if not sources:
@@ -159,6 +176,7 @@ def audit_orphans(root: Path = ROOT) -> dict[str, object]:
     return {
         "status": "clean" if not findings else "candidates",
         "candidates_scanned": len(candidates),
+        "retained": sorted(retained - reachable),
         "counts": counts,
         "findings": [f.__dict__ for f in findings],
     }
@@ -186,7 +204,8 @@ def main() -> int:
         counts = payload["counts"]
         print(
             f"Orphan reference audit: {payload['status']} · scanned={payload['candidates_scanned']} "
-            f"orphan={counts['orphan']} weak={counts['weak']} unreachable={counts['unreachable']}"
+            f"orphan={counts['orphan']} weak={counts['weak']} unreachable={counts['unreachable']} "
+            f"retained={len(payload['retained'])}"
         )
         for finding in payload["findings"]:
             via = f" <- {', '.join(finding['inbound'][:3])}" if finding["inbound"] else ""
