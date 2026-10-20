@@ -104,7 +104,7 @@ For `summary-only`, run read-only classification and reporting only; skip steps 
 
 - Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`.
 - Keep proof, documentation, editorial, and changelog evidence each on one line separated by ` · `.
-- Add `⚠️ LIMITES` only when material. Always print a useful `🧭 SUITE`: next outcome, missing delivery/proof, operator decision, or explicit no-action-required completion.
+- Add `⚠️ LIMITES` only when material. Always print a useful `🧭 SUITE` selected through `reporting-contract.md`: continue unfinished work first, otherwise choose the strongest evidence-backed next outcome; never emit a null or no-action completion.
 - Any intentional mutation, including documentation-only work, with no commit, no push, a local-only commit, or a failed push is `delivery pending`; never pair `Aucun commit ni push` or `modifications locales prêtes` with a completed verdict.
 
 ### Rules

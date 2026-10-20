@@ -200,6 +200,7 @@ if "%~3"=="which" if "%~4"=="firebase" (
 )
 set "SELF=%~f0"
 set SELF
+echo CWD=%CD%
 echo SAFE=%MISE_SAFE% HOOKS=%MISE_NO_HOOKS% ENV=%MISE_NO_ENV% AUTO=%MISE_AUTO_INSTALL%
 set MISE_CONFIG_DIR
 set MISE_CEILING_PATHS
@@ -220,6 +221,7 @@ exit /b 23
     Assert-Sg ($wrapperRun.Output -match ('MISE_CEILING_PATHS=' + [regex]::Escape((Split-Path $fakeToolchain -Parent)))) 'Tauri Rust wrapper did not preserve the mise ceiling boundary.'
     $wrapperText = [IO.File]::ReadAllText($cargoWrapper)
     Assert-Sg ($wrapperRun.Output -match '(?m)^ARGS=.*exec rust@1[.]97[.]1 -- cargo') 'Tauri Rust wrapper did not pass the exact pinned mise command argv.'
+    Assert-Sg ($wrapperRun.Output -match ('CWD=' + [regex]::Escape($PWD.Path))) 'Tauri Rust wrapper changed the caller working directory.'
     Assert-Sg ($wrapperText.Contains('exec rust@1.97.1 -- cargo %*')) 'Tauri Rust wrapper must forward child arguments through the exact command boundary.'
     foreach ($requiredWrapperSetting in @('setlocal DisableDelayedExpansion','MISE_EXEC_AUTO_INSTALL=false','MISE_NOT_FOUND_AUTO_INSTALL=false','MISE_RUN_AUTO_INSTALL=false','MISE_OVERRIDE_CONFIG_FILENAMES=mise.toml','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES=none','MISE_SYSTEM_DEPS=ignore','endlocal & exit /b')) {
         Assert-Sg ($wrapperText.Contains($requiredWrapperSetting)) "Tauri Rust wrapper omitted isolation or exit preservation: $requiredWrapperSetting"
@@ -592,12 +594,15 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
     Assert-Sg ($flutterBaselineDefinition.Count -eq 1) 'Flutter baseline must resolve uniquely.'
     Invoke-Expression $flutterBaselineDefinition[0].Extent.Text
     $flutterBaseline = Get-SgFlutterBaseline
-    Assert-Sg ($flutterBaseline.Schema -eq 'shipglows.flutter-baseline/v1' -and $flutterBaseline.ValidatedAt -eq '2026-08-23' -and $flutterBaseline.FlutterVersion -eq '3.47.1' -and $flutterBaseline.DartVersion -eq '3.13.1' -and $flutterBaseline.Commit -eq '6655482ec06e547f90abf8ae7590466f4415978d') 'Flutter baseline must use the exact validated ShipGlows coordinates.'
+    Assert-Sg ($flutterBaseline.Schema -eq 'shipglows.flutter-baseline/v1' -and $flutterBaseline.ValidatedAt -eq '2026-10-18' -and $flutterBaseline.FlutterVersion -eq '3.47.7' -and $flutterBaseline.DartVersion -eq '3.13.5' -and $flutterBaseline.Commit -eq 'abaf9c523780a608bd46686fd5e53740a07077f8') 'Flutter baseline must use the exact validated ShipGlows coordinates.'
     foreach ($value in @($flutterBaseline.FlutterVersion,$flutterBaseline.DartVersion,$flutterBaseline.Commit)) { Assert-Sg ([string]$value -notmatch '(?i)latest|stable|nightly|beta|[x*^~<>]') 'Flutter baseline must not contain a moving version coordinate.' }
     $serviceInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgMachineToolbox' },$true))
     Assert-Sg ($serviceInstaller.Count -eq 1) 'Machine CLI toolbox installer must resolve uniquely.'
     $serviceInstallerSource = $serviceInstaller[0].Extent.Text
     Assert-Sg ($serviceInstallerSource -match 'Get-SgMachineToolboxPlan' -and $serviceInstallerSource -match "@\('install'\)" -and $serviceInstallerSource -match 'Get-SgMachineToolboxWrapperContent') 'Machine CLI toolbox must install one isolated exact mise plan and expose stable wrappers.'
+    $toolboxLockCall = $serviceInstallerSource.IndexOf("@('lock','--platform','windows-x64')",[StringComparison]::Ordinal)
+    $toolboxInstallCall = $serviceInstallerSource.IndexOf("@('install')",[StringComparison]::Ordinal)
+    Assert-Sg ($toolboxLockCall -ge 0 -and $toolboxInstallCall -ge 0 -and $toolboxLockCall -lt $toolboxInstallCall) 'Machine CLI toolbox must refresh a changed lockfile before installing exact tools.'
     $partialToolboxConverges = & {
         $savedLocalAppData = $env:LOCALAPPDATA
         $env:LOCALAPPDATA = Join-Path $fixture 'toolbox-local'
@@ -659,12 +664,12 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
         function Get-SgToolPath([string]$Name,[string[]]$Paths) { if ($Name -eq 'flutter.bat') { return (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat') }; if ($Name -eq 'git.exe') { return 'C:\git.exe' }; return '' }
         function Get-SgFlutterInstallState([string]$FlutterRoot) { [pscustomobject]@{ Status='ready'; Recovery='none'; FlutterPath=(Join-Path $FlutterRoot 'bin\flutter.bat'); DartPath=(Join-Path $FlutterRoot 'bin\dart.bat') } }
         function Add-SgUserPathEntry([string]$Directory) { [void]$capturedPath.Add($Directory) }
-        function Resolve-SgFlutterStableCommit([string]$GitPath) { return '6655482ec06e547f90abf8ae7590466f4415978d' }
+        function Resolve-SgFlutterStableCommit([string]$GitPath) { return 'abaf9c523780a608bd46686fd5e53740a07077f8' }
         function Set-SgManagedFlutterStableRevision([string]$GitPath,[string]$FlutterRoot,[string]$Commit) { [void]$stableConvergence.Add($Commit); return $true }
         function Invoke-SgVisibleBoundedProcess { [pscustomobject]@{ TimedOut=$false; ExitCode=0; Output='' } }
         Invoke-Expression $flutterInstaller[0].Extent.Text
         [void](Install-SgFlutter @((Join-Path $managedFlutterBin 'flutter.bat')) @())
-        return $capturedPath.Contains($managedFlutterBin) -and $stableConvergence.Contains('6655482ec06e547f90abf8ae7590466f4415978d')
+        return $capturedPath.Contains($managedFlutterBin) -and $stableConvergence.Contains('abaf9c523780a608bd46686fd5e53740a07077f8')
     }
     Assert-Sg $existingFlutterAddsPath 'A validated existing managed Flutter SDK must converge PATH and the resolved stable revision.'
     $stableRevisionSetter = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Set-SgManagedFlutterStableRevision' },$true))
@@ -674,7 +679,7 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
         $testLocalAppData = Join-Path $fixture 'stable-rollback-local'
         $managedRoot = Join-Path $testLocalAppData 'ShipGlows\flutter'
         $previousCommit = '1111111111111111111111111111111111111111'
-        $stableCommit = '6655482ec06e547f90abf8ae7590466f4415978d'
+        $stableCommit = 'abaf9c523780a608bd46686fd5e53740a07077f8'
         $visibleArguments = [Collections.Generic.List[string]]::new()
         $warnings = [Collections.Generic.List[string]]::new()
         $stateCounter = @{ Value = 0 }

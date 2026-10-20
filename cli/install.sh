@@ -288,15 +288,37 @@ require_supported_linux_distribution() {
     esac
 }
 
+# Writes a system-wide wrapper for a ShipGlows CLI entrypoint.
+# The installer's checkout stays the default target, but each Unix user can
+# point the wrapper at their own checkout with SHIPGLOWS_ROOT: the default
+# usually lives under the installing user's private home (mode 0750), which
+# every other account cannot execute. The wrapper then fails with an explicit
+# message instead of a bare "Permission denied".
 write_shipglows_command_wrapper() {
     local cli_name="$1"
     local cli_target="$2"
+    local install_root="${3:-}"
     local wrapper_path="$SHIPGLOWS_SYSTEM_BIN_DIR/$cli_name"
-    local wrapper_tmp
+    local wrapper_tmp relative_target
+
+    if [ -z "$install_root" ] || [ "${cli_target#"$install_root"/}" = "$cli_target" ]; then
+        install_root="$(dirname "$(dirname "$cli_target")")"
+    fi
+    relative_target="${cli_target#"$install_root"/}"
 
     install -d -m 0755 "$SHIPGLOWS_SYSTEM_BIN_DIR" || return 1
     wrapper_tmp="$(mktemp "$SHIPGLOWS_SYSTEM_BIN_DIR/.${cli_name}.shipglows.XXXXXX")" || return 1
-    if ! printf '#!/bin/sh\nexec "%s" "$@"\n' "$cli_target" > "$wrapper_tmp"; then
+    if ! {
+        printf '#!/bin/sh\n'
+        printf "default_root='%s'\n" "$install_root"
+        printf 'root="${SHIPGLOWS_ROOT:-$default_root}"\n'
+        printf 'target="$root/%s"\n' "$relative_target"
+        printf 'if [ ! -r "$target" ]; then\n'
+        printf '    echo "%s: $target is not accessible for $(id -un); set SHIPGLOWS_ROOT to a checkout this account can read" >&2\n' "$cli_name"
+        printf '    exit 126\n'
+        printf 'fi\n'
+        printf 'exec "$target" "$@"\n'
+    } > "$wrapper_tmp"; then
         rm -f "$wrapper_tmp"
         return 1
     fi
@@ -2225,8 +2247,8 @@ configure_command_wrappers() {
     local turso_ssh_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-ssh.sh"
     local bin_dir="$SHIPGLOWS_SYSTEM_BIN_DIR"
 
-    write_shipglows_command_wrapper shipglows "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" || return 1
-    write_shipglows_command_wrapper sg "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" || return 1
+    write_shipglows_command_wrapper shipglows "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "$SHIPGLOWS_INSTALL_ROOT" || return 1
+    write_shipglows_command_wrapper sg "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "$SHIPGLOWS_INSTALL_ROOT" || return 1
     if [ -f "$gsc_target" ]; then
         ln -sf "$gsc_target" "$bin_dir/shipglows-gsc"
         ln -sf "$gsc_target" "$bin_dir/gsc"

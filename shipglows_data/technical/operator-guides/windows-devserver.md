@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.30.0"
+artifact_version: "1.31.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-05"
+updated: "2026-10-16"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -379,6 +379,32 @@ dans votre profil personnel. La détection automatique actuelle couvre les
 projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
 
+#### Variables publiques Doppler pour une surface Node
+
+Un fichier optionnel `.shipglows.node.json` (schéma `shipglows.node-recipe.v1`)
+à la racine d'un site, d'une app Vite ou d'une extension déclare le scope Doppler
+et la liste `publicEnvironment` des clés publiques à injecter. `s start` lance
+alors la commande dans `doppler run --project … --config … --only-secrets <clés>
+--no-fallback` : seules ces clés entrent dans le processus, jamais tout
+l'environnement. Sans Doppler, le lancement est refusé ; `"doppler": "NONE"`
+déclare une surface sans Doppler.
+
+```json
+{
+  "schemaVersion": "shipglows.node-recipe.v1",
+  "doppler": { "project": "replayglows", "config": "dev" },
+  "publicEnvironment": ["CONVEX_URL"]
+}
+```
+
+Le scope accepté par défaut est `dev`, `stg` ou `staging` (avec suffixe
+`_…` facultatif). Une config de production (`prd`, `prod`, `production`) n'est
+acceptée qu'avec `"productionPublicOnly": true` dans l'objet `doppler` : à
+utiliser uniquement quand la surface doit parler au backend de production (par
+exemple une extension qui réutilise la session de l'app hébergée) et que les
+clés listées sont publiques. Les clés au nom de secret (`SECRET`, `PASSWORD`,
+`TOKEN`, `PRIVATE_KEY`) restent refusées dans tous les cas.
+
 ### Monorepos, registre et Flutter Web
 
 Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
@@ -491,9 +517,13 @@ uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
 ### Flutter Windows en développement
 
-Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `<Projet> - Dev`, qui démarre la session ou réutilise celle déjà active. Les anciens raccourcis Flutter gérés sous `ShipGlows - <Projet> - Dev` sont renommés au prochain démarrage du projet.
+Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `<dépôt>-<surface> - Dev` (par exemple `dreamglows-windows_app - Dev`), qui démarre la session ou réutilise celle déjà active. La même règle vaut pour les serveurs de dev Tauri, Astro, Vite et Flutter web ; pour le web, le raccourci ajoute `-Open` et ouvre le navigateur une fois le serveur prêt. Un worktree Git ne reçoit jamais de raccourci. Au démarrage, les raccourcis ShipGlows du même projet sous un ancien nom, et ceux qui pointent vers un worktree ou un dossier disparu, sont retirés. Un raccourci non créé par ShipGlows n’est jamais écrasé, et un échec de raccourci n’empêche jamais le démarrage. Seul `shipglows-dev start` crée ces raccourcis : aucun raccourci fait à la main.
 
-Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev.
+Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`.
+
+`s start -ProjectPath <app> -FlutterDevice windows -FlutterMode profile` lance la même session supervisée en mode profile (`flutter run --machine --profile -d windows`), avec le wrapper Doppler et la projection de configuration publique du projet, pour mesurer les performances avec Flutter attaché. `-FlutterMode debug` est la valeur par défaut ; `.shipglows.env` peut déclarer `SHIPGLOWS_FLUTTER_MODE=debug|profile` durablement. Le mode fait partie de l’empreinte de session : passer de debug à profile redémarre la session gérée. Le registre mémorise `flutterMode` et `s status` l’affiche (`Live session | profile`). En profile, Flutter ne sait faire ni hot reload ni hot restart (« Restart is not supported in profile mode ») : la surveillance des sources est désactivée et `s reload` refuse en renvoyant vers `s restart … -FlutterMode profile`, qui reconstruit la session profile ; `s stop` ne change pas. Aucune session gérée n’utilise `--release` : les builds release passent par la publication d’artefacts.
+
+Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev. Une fois le build enregistré testé, la sortie brute du checkout (`build\windows\x64\runner\Release`, `build\app\outputs`) est supprimée : le cache conserve déjà les deux dernières générations validées.
 
 ### Flutter Android en développement
 
@@ -554,6 +584,19 @@ propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dép
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.
+
+Le délai de disponibilité au démarrage vaut 300 s pour un projet web et 90 s
+pour une extension ou un plugin Obsidian. Un projet plus lent au premier
+démarrage (par exemple Astro 7 avec synchronisation du contenu) le déclare dans
+son `.shipglows.env` avec `SHIPGLOWS_READY_TIMEOUT_SECONDS=<30-1800>` ; une
+valeur hors de cette plage est refusée. Les sessions Flutter gardent leur propre
+supervision.
+
+Les journaux de chaque surface vont dans
+`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<nom>-<empreinte>\`, l'empreinte étant
+dérivée du chemin du projet : deux surfaces nommées `site` dans deux dépôts ne
+partagent plus leurs fichiers `stdout.log`, `stderr.log` et `setup.log`. Le
+registre garde le chemin exact (`logPath`, `errorLogPath`) de la dernière session.
 
 Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
 

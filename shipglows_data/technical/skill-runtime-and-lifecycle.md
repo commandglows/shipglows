@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "2.41.2"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-05"
+updated: "2026-10-19"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -138,8 +138,8 @@ evidence:
   - "2026-08-04 added provider-neutral animation modes to 006-sg-design; GSAP remains optional after project-fit and proof gates."
   - "2026-08-04 added the exact 302-sg-help mode catalog with one line per repository skill and registered free-form help invocation validation."
   - "2026-08-12 wave 12 added compact lifecycle/delegation decision cores for the 004 pilot and direct entitlement ledger/ingestion/support-proof leaves for 601."
-  - "Métier-first public hierarchy separates 13 public owners from numeric internal engines and requires progressive clarification followed by autonomous outcome ownership."
-  - "Public skills now have direct runtime folders and matching Codex metadata; numeric prefixes are expert/compatibility identifiers rather than picker names."
+  - "Métier-first public hierarchy separates 14 public owners from numeric internal engines and requires progressive clarification followed by autonomous outcome ownership."
+  - "Public skills now have direct runtime folders, stable invocation IDs, and human-facing Codex display names; numeric prefixes are expert/compatibility identifiers rather than picker names."
   - "Codex expert shortcuts now resolve through public owner modes before internal engines; core remains the sole hard system-context switch."
   - "Two-tier mutation approval adds a cumulative fast path for exact local routine reversible actions while keeping full plans for ineligible and remote mutations."
   - "2026-08-15: bounded technical chantier approval now includes ordinary exact-scope local commits without duplicate approval."
@@ -193,11 +193,12 @@ The normal operator surface is one router plus fourteen public métier owners:
 | Gouverner | `sg-docs` | `300-sg-docs` |
 | Organiser | `sg-planning`, `sg-private`, `sg-help` | `011-sg-pilotage`, `603-sg-private`, `302-sg-help` |
 
-`shipglows` is the public natural-language router. Each public owner has a
-real folder and matching `name:` metadata (`skills/sg-development/`,
-`skills/sg-engineering/`, and so on), so the runtime picker exposes the métier
-name directly. Public owners select and coordinate numeric engines invisibly;
-they do not require operators to learn
+`shipglows` is the public natural-language router and appears as `ShipGlows` in
+the runtime picker. Each public owner has a real folder, a stable `name:` used
+for `$sg-*` invocation, and an `interface.display_name` using the human-facing
+`ShipGlows <métier>` convention (`ShipGlows Private Memory` retains its
+purpose-specific label). Public owners select and coordinate numeric engines
+invisibly; they do not require operators to learn
 the lifecycle, proof, research, context, or packaging helper names.
 
 The resolution hierarchy is `project -> product -> surface -> feature`.
@@ -493,7 +494,7 @@ Operator roles and named profiles do not add new primary artifact types:
 - `008-sg-customer`: one customer-experience owner with `audit`, `flow`, `onboarding`, and `recovery` modes (`first-success path -> setup order -> states/recovery -> docs impact -> proof or 001-sg-build`).
 - `600-sg-local-cloud-sync`: local-to-cloud data sync contract (`data inventory -> account association -> promotion/hydration -> merge/conflict/tombstones -> sync UX/security -> proof or 001-sg-build`).
 - `601-sg-product-entitlements`: product access lifecycle contract (`identity/provider/access separation -> ledger ownership -> backend gates/support -> sync/auth handoff or 001-sg-build`).
-- `006-sg-design`: sole public design entrypoint; `system`, `playground`, explicit `audit ui|tokens|components|a11y`, and `animation <audit|design|implement|tune> [scope]` modes load bounded local playbooks. GSAP is optional after project-fit, current-doc, licensing, lifecycle, reduced-motion, and performance checks.
+- `006-sg-design`: sole public visual-design entrypoint; `identity`, `interface`, `system`, `playground`, explicit `audit ui|tokens|components|a11y`, and `animation <audit|design|implement|tune> [scope]` modes keep brand identity, bounded UI composition, design-system authority, and motion distinct. GSAP is optional after project-fit, current-doc, licensing, lifecycle, reduced-motion, and performance checks.
 - `900-shipglows-core`: sole internal lifecycle owner for the `shipglows` DX system. It classifies skill/doctrine, CLI/DevServer/TUI runtime, cross-surface coherence, and packaging targets before loading one direct playbook. Skill refresh remains conservative and skill-specific; runtime work uses mapped runtime proof. `shipglows_app` remains the separate public-site/SaaS product repository. Core is repo-synced, not a public user plugin surface.
 - `tools/shipglows_sync_skills.sh --check|--repair`: reusable Unix helper for current-user Claude/Codex skill visibility and install-time selected-user linking.
 - `tools/shipglows_sync_skills.ps1 -Mode check|repair`: native Windows developer helper for the same source-tree workflow without symbolic-link privilege requirements.
@@ -670,7 +671,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `007-sg-content` owns content-management orchestration; repurposing, drafting, enrichment, marketing modes, SEO audit, docs, veille, browser proof, verification, and ship still run through their specialist owner skills and gates.
 - Design and content skills use the shared Inspiration Gate only for eligible creative direction; they shortlist from `index.yaml`, require operator selection, record selected reference IDs, and never treat discovery as approval to imitate.
 - Content owner skills (`007-sg-content` including `repurpose`, `200-sg-redact`, `201-sg-enrich`, `009-sg-marketing copy|copywriting|gtm`, `406-sg-seo`) and `103-sg-verify` must use one shared rubric contract from `skills/references/content-quality-rubric.md`; recoverable score states (`needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`) are never valid verification proof.
-- `006-sg-design` owns the public design lifecycle; its system, playground, audit, and `animation <audit|design|implement|tune> [scope]` modes load bounded playbooks, while implementation, browser proof, verification, and shipping remain lifecycle gates. GSAP is optional rather than a public mode or implicit dependency.
+- `006-sg-design` owns the public visual-design lifecycle; its identity, interface, system, playground, audit, and `animation <audit|design|implement|tune> [scope]` modes keep their outcome boundaries while implementation, browser proof, verification, and shipping remain lifecycle gates. GSAP is optional rather than a public mode or implicit dependency.
 - `008-sg-customer` owns customer contracts through four exact modes: `audit`, `flow`, `onboarding`, and `recovery`; implementation, visual design, docs/content, browser proof, manual QA, and auth diagnosis still run through `001-sg-build`, `006-sg-design`, `300-sg-docs`/`007-sg-content`, `108-sg-browser`, `107-sg-test`, and `109-sg-auth-debug` when needed.
 - `900-shipglows-core build` owns internal DX-system maintenance orchestration. It routes skill/doctrine targets to skill maintenance, CLI/DevServer/TUI/installer targets to DX runtime maintenance, and multi-plane targets to system coherence; fuzzy material intent routes through exploration/spec readiness before mutation.
 - A release is not considered verified from push success, provider success, or a bare `200 OK` alone.

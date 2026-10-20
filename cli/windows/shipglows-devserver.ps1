@@ -19,6 +19,8 @@ param(
     [switch]$Screenshot,
     [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
     [string]$FlutterDeviceId = '',
+    [ValidateSet('','debug','profile')][string]$FlutterMode = '',
+    [switch]$Open,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
     [string]$MenuSessionRequestPath = '',
@@ -128,7 +130,8 @@ function Show-SgShortcutHelp {
     Write-Host '  s status                           Show every project surface and state'
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
-    Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>]'
+    Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>] [-FlutterMode debug|profile] [-Open]'
+    Write-Host '    -FlutterMode profile runs flutter run --profile for performance measurement (never --release); profile sessions cannot hot reload or hot restart, use s restart to rebuild.' -ForegroundColor DarkGray
     Write-Host '  s extension-inspect [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Json]'
     Write-Host '  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
@@ -182,7 +185,7 @@ Ensure-SgDirectory $config.LogDirectory
 
 function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible, [switch]$Restart) {
     $results = New-Object 'System.Collections.Generic.List[object]'
-    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -Restart:$Restart | ForEach-Object {
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -Restart:$Restart | ForEach-Object {
         $item = $_
         if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
             [void]$results.Add($item)
@@ -459,7 +462,7 @@ function Show-SgWindowsDashboard {
 function Show-SgProjectStatus([object]$Entry) {
     if (-not $Entry) { throw 'No registered project was selected.' }
     $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
-    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice '' ([string]$Entry.path)
     Write-Host ''
     Write-Host ([string]$Entry.Name) -ForegroundColor Cyan
     Write-Host (Format-SgProjectStatus $Entry)
@@ -1016,17 +1019,16 @@ try {
         }
         'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
-            if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
-            else { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+            # -Open (web Dev shortcuts) starts a visible session and opens it once running.
+            $startPath = if ($ProjectPath) { $ProjectPath } else { $entry = Get-SelectedProject 'start'; if ($entry) { $entry.path } else { $null } }
+            if ($startPath) { $started = Invoke-SgRequiredStart $startPath $Port -Visible:$Open; if ($Open) { Open-SgManagedProject $started } }
         }
         'reload' {
             if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path>' }
-            $path = ConvertTo-SgCanonicalPath $ProjectPath
-            $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
-            if (-not $entry) { throw "Project is not registered: $path" }
-            if ($entry.kind -ne 'flutter-web' -or $entry.status -ne 'running') { throw 'Reload requires a running managed Flutter session.' }
-            [void](Invoke-SgFlutterSupervisorCommand $entry 'reload' 15)
-            Write-SgInfo "$($entry.name) reload succeeded"
+            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath 15
+            if ($reload.Status -eq 'succeeded') { Write-SgInfo "$($reload.Name) reload succeeded" }
+            elseif ($reload.Status -eq 'unavailable') { throw "reload unavailable: $($reload.Reason)" }
+            else { throw "reload failed: $($reload.Reason)" }
         }
         'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } } }
         'restart' {

@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows SEO"
+  short_description: "Audit, improve, and monitor search visibility"
+  default_prompt: "Use $sg-seo to audit and improve this project's search visibility."
 policy:
   allow_implicit_invocation: true

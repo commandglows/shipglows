@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Marketing"
+  short_description: "Shape positioning, campaigns, messaging, and copy"
+  default_prompt: "Use $sg-marketing to shape the positioning and messaging for this offer."
 policy:
   allow_implicit_invocation: true

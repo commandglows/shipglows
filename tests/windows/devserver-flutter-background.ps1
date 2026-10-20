@@ -41,6 +41,10 @@ try {
         $windows = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'windows' '' $launch 'ShipGlowsFlutter-launch-123'
         $windowsArguments = $windows.Arguments -join ' '
         if ($windowsArguments -notmatch '-Device windows' -or $windowsArguments -match '-Port|ProfilePath|web-hostname|web-port') { throw 'Flutter Windows must launch without web port or browser profile arguments.' }
+        if ($windowsArguments -notmatch '-Mode debug') { throw 'Flutter launch must default to the debug mode explicitly.' }
+        $profileSpec = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'windows' '' $launch 'ShipGlowsFlutter-launch-123' 'profile'
+        if (($profileSpec.Arguments -join ' ') -notmatch '-Mode profile') { throw 'Flutter profile launch did not reach the supervisor.' }
+        try { [void](Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'windows' '' $launch 'ShipGlowsFlutter-launch-123' 'release'); throw 'Release mode was accepted as a managed launch.' } catch { if ($_.Exception.Message -eq 'Release mode was accepted as a managed launch.') { throw } }
         $android = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'emulator-5554' '' $launch 'ShipGlowsFlutter-launch-123'
         $androidArguments = $android.Arguments -join ' '
         if ($androidArguments -notmatch '-Device emulator-5554' -or $androidArguments -match '-Port|ProfilePath|web-hostname|web-port') { throw 'Flutter Android must launch by exact device id without web arguments.' }
@@ -75,10 +79,24 @@ try {
             New-Item -ItemType Directory -Path (Join-Path $windowsFixture 'windows'),(Join-Path $windowsFixture 'desktop') -Force | Out-Null
             [IO.File]::WriteAllText((Join-Path $windowsFixture 'shipglows-dev.cmd'),'@exit /b 0')
             if ((Get-SgRuntimeSettings $windowsFixture).FlutterDevice -ne 'windows') { throw 'A Flutter Windows surface did not default to live Windows development.' }
-            $devEntry=[pscustomobject]@{kind='flutter-web';flutterDevice='windows';name='Fixture';path=$windowsFixture}
-            $shortcutPath=Install-SgFlutterDevShortcut $devEntry (Join-Path $windowsFixture 'desktop') (Join-Path $windowsFixture 'shipglows-dev.cmd')
-            $shortcut=(New-Object -ComObject WScript.Shell).CreateShortcut($shortcutPath)
-            if ($shortcut.Arguments -notmatch '^start -ProjectPath ' -or $shortcut.TargetPath -ne (Join-Path $windowsFixture 'shipglows-dev.cmd')) { throw 'Flutter Dev shortcut does not route to the managed live start command.' }
+            $desktop=Join-Path $windowsFixture 'desktop';$launcher=Join-Path $windowsFixture 'shipglows-dev.cmd';$shell=New-Object -ComObject WScript.Shell
+            $repo=Join-Path $windowsFixture 'dreamglows';$surface=Join-Path $repo 'windows_app';$web=Join-Path $repo 'site';$worktree=Join-Path $windowsFixture 'wt-dreamglows\windows_app'
+            New-Item -ItemType Directory -Path (Join-Path $repo '.git\worktrees\wt1'),$surface,$web,$worktree -Force | Out-Null
+            [IO.File]::WriteAllText((Join-Path $windowsFixture 'wt-dreamglows\.git'),"gitdir: $(Join-Path $repo '.git\worktrees\wt1')")
+            $legacy=$shell.CreateShortcut((Join-Path $desktop 'ShipGlows - windows_app - Dev.lnk'));$legacy.TargetPath=$launcher;$legacy.Description="ShipGlows managed Flutter Dev shortcut v1 | $surface";$legacy.Save()
+            $stale=$shell.CreateShortcut((Join-Path $desktop 'ShipGlows - old - Dev.lnk'));$stale.TargetPath=$launcher;$stale.Description="ShipGlows managed Flutter Dev shortcut v1 | $worktree";$stale.Save()
+            $devEntry=[pscustomobject]@{kind='flutter-web';flutterDevice='windows';name='windows_app';path=$surface}
+            $shortcutPath=Install-SgDevShortcut $devEntry $desktop $launcher
+            $shortcut=$shell.CreateShortcut($shortcutPath)
+            if ([IO.Path]::GetFileName($shortcutPath) -ne 'dreamglows-windows_app - Dev.lnk') { throw "Dev shortcut must use the canonical repository-surface name, got $shortcutPath." }
+            if ($shortcut.Arguments -ne "start -ProjectPath `"$surface`"" -or $shortcut.TargetPath -ne $launcher) { throw 'Flutter Dev shortcut does not route to the managed live start command.' }
+            if (@(Get-ChildItem -LiteralPath $desktop -Filter '*.lnk').Count -ne 1) { throw 'Legacy-named and worktree Dev shortcuts were not retired.' }
+            if ($null -ne (Install-SgDevShortcut ([pscustomobject]@{kind='flutter-web';flutterDevice='windows';name='windows_app';path=$worktree}) $desktop $launcher)) { throw 'A linked worktree received a Desktop shortcut.' }
+            $webPath=Install-SgDevShortcut ([pscustomobject]@{kind='vite';name='site';path=$web}) $desktop $launcher
+            if ($shell.CreateShortcut($webPath).Arguments -notmatch ' -Open$') { throw 'A web Dev shortcut must open the running server.' }
+            if ($null -ne (Install-SgDevShortcut ([pscustomobject]@{kind='python';name='api';path=$web}) $desktop $launcher)) { throw 'Only Tauri, web and Flutter dev servers get a Desktop shortcut.' }
+            $foreign=$shell.CreateShortcut($shortcutPath);$foreign.Description='hand-made';$foreign.Save()
+            if ($null -ne (Install-SgDevShortcut $devEntry $desktop $launcher) -or $shell.CreateShortcut($shortcutPath).Description -ne 'hand-made') { throw 'A foreign shortcut was overwritten.' }
         } finally { Remove-Item -LiteralPath $windowsFixture -Recurse -Force -ErrorAction SilentlyContinue }
 
         $script:openCalls = @()
@@ -108,10 +126,30 @@ try {
 
         $ipcRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-ipc-timeout-{0}" -f [guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Path $ipcRoot,(Join-Path $ipcRoot 'commands'),(Join-Path $ipcRoot 'responses') -Force|Out-Null
         try{Protect-SgOwnerOnlyPath $ipcRoot;Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'commands');Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'responses');$tokenPath=Join-Path $ipcRoot 'token';[IO.File]::WriteAllText($tokenPath,('a'*64));Protect-SgOwnerOnlyPath $tokenPath;$ipcEntry=[pscustomobject]@{flutterLaunchDirectory=$ipcRoot;flutterTokenPath=$tokenPath};try{[void](Invoke-SgFlutterSupervisorCommand $ipcEntry reload 0);throw 'IPC timeout was accepted.'}catch{if($_.Exception.Message -eq 'IPC timeout was accepted.'){throw}};if(@(Get-ChildItem (Join-Path $ipcRoot 'commands') -File).Count-ne0){throw 'Timed-out IPC command file was left published.'}}finally{Remove-Item -LiteralPath $ipcRoot -Recurse -Force -ErrorAction SilentlyContinue}
+        $reloadRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-project-reload-{0}" -f [guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Path $reloadRoot -Force|Out-Null
+        try{
+            $reloadPath=Join-Path $reloadRoot 'app';New-Item -ItemType Directory -Path $reloadPath -Force|Out-Null
+            [IO.File]::WriteAllText((Join-Path $reloadRoot 'state.json'),'{"status":"running","ready":true,"appId":"app-live","daemonPid":77}')
+            $script:reloadEntry=[pscustomobject]@{name='app';path=$reloadPath;kind='flutter-web';status='running';pid=7;flutterAppId='app-live';flutterDaemonPid=77;flutterLaunchDirectory=$reloadRoot;flutterTokenPath=(Join-Path $reloadRoot 'token')}
+            function Reconcile-SgRegistry{[pscustomobject]@{projects=@($script:reloadEntry)}}
+            function Test-SgProcessIdentity{$true}
+            $script:reloadCalls=0
+            function Invoke-SgFlutterSupervisorCommand{$script:reloadCalls++;[pscustomobject]@{ok=$true;method='reload'}}
+            $reloadResult=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($reloadResult.Status-ne'succeeded'-or$reloadResult.Name-ne'app'-or$script:reloadCalls-ne1){throw 'Ready managed Flutter reload did not use the existing IPC exactly once.'}
+            $script:reloadEntry.status='starting';$beforeCalls=$script:reloadCalls;$unavailable=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($unavailable.Status-ne'unavailable'-or$script:reloadCalls-ne$beforeCalls){throw 'Reload during startup touched IPC or was not classified unavailable.'}
+            $script:reloadEntry.status='running';$script:reloadEntry.flutterAppId='stale-app';$stale=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($stale.Status-ne'unavailable'-or$script:reloadCalls-ne$beforeCalls){throw 'Stale Flutter appId was allowed to reload.'}
+            $script:reloadEntry.flutterAppId='app-live';$script:reloadEntry.flutterMode='profile';$profile=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($profile.Status-ne'unavailable'-or$profile.Reason-notmatch'profile'-or$script:reloadCalls-ne$beforeCalls){throw 'Profile reload reached IPC or was not refused.'}
+            $script:reloadEntry.flutterMode='debug';function Invoke-SgFlutterSupervisorCommand{throw 'Flutter supervisor reload command timed out.'};$failedReload=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($failedReload.Status-ne'failed'-or$failedReload.Reason-notmatch'timed out'){throw 'Reload IPC timeout was not classified as failed.'}
+        }finally{Remove-Item -LiteralPath $reloadRoot -Recurse -Force -ErrorAction SilentlyContinue}
     }
     $source = Get-Content -LiteralPath $modulePath -Raw
     foreach($expected in @('Invoke-CimMethod -ClassName Win32_Process -MethodName Create','-RedirectStandardOutput','-RedirectStandardError','-PassThru -Wait -WindowStyle Hidden','ShowWindow=[uint16]0')){if(-not$source.Contains($expected)){throw 'Managed detached launches must redirect logs and hide the process window.'}}
     $supervisorSource = Get-Content -LiteralPath (Join-Path (Split-Path $modulePath) 'ShipGlows.FlutterSupervisor.ps1') -Raw
-    foreach ($expected in @("'run','--machine','-d'",'--web-run-headless','--web-hostname','--web-port','--dart-define-from-file=','app.restart')) { if (-not $supervisorSource.Contains($expected)) { throw "Flutter supervisor launch contract is missing: $expected" } }
+    foreach ($expected in @('''run'',''--machine''','''-d'',$Device','if ($Mode -eq ''profile'') { $arguments+=''--profile'' }','--web-run-headless','--web-hostname','--web-port','--dart-define-from-file=','app.restart')) { if (-not $supervisorSource.Contains($expected)) { throw "Flutter supervisor launch contract is missing: $expected" } }
     Write-Host 'Windows DevServer Flutter background launch: OK'
 } finally { Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue }

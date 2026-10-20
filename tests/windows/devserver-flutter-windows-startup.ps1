@@ -16,6 +16,21 @@ try{
         )}
         $owned=@(Get-SgOwnedFlutterNativePids $entry)
         if($owned.Count-ne1-or$owned[0]-ne101){throw 'Flutter Windows ownership was not restricted to the current project Debug runner and launch time.'}
+        $profileEntry=[pscustomobject]@{kind='flutter-web';flutterDeviceId='windows';flutterMode='profile';path=$project;launchPath=$project;pid=10;startTimeUtc='2026-09-04T16:00:00Z'}
+        function Get-CimInstance {@(
+            [pscustomobject]@{ProcessId=201;ExecutablePath=(Join-Path $project 'build\windows\x64\runner\Profile\app.exe');CreationDate=[datetime]'2026-09-04T16:00:10Z'},
+            [pscustomobject]@{ProcessId=202;ExecutablePath=(Join-Path $project 'build\windows\x64\runner\Debug\app.exe');CreationDate=[datetime]'2026-09-04T16:00:10Z'},
+            [pscustomobject]@{ProcessId=203;ExecutablePath=(Join-Path $project 'build\windows\x64\runner\Release\app.exe');CreationDate=[datetime]'2026-09-04T16:00:10Z'}
+        )}
+        $ownedProfile=@(Get-SgOwnedFlutterNativePids $profileEntry)
+        if($ownedProfile.Count-ne1-or$ownedProfile[0]-ne201){throw 'A profile session must own exactly its Profile runner, never the Debug or Release one.'}
+        $debugModeEntry=[pscustomobject]@{kind='flutter-web';flutterDeviceId='windows';flutterMode='debug';path=$project;launchPath=$project;pid=10;startTimeUtc='2026-09-04T16:00:00Z'}
+        $ownedDebug=@(Get-SgOwnedFlutterNativePids $debugModeEntry)
+        if($ownedDebug.Count-ne1-or$ownedDebug[0]-ne202){throw 'A debug session must own exactly its Debug runner.'}
+        function Get-CimInstance {@(
+            [pscustomobject]@{ProcessId=101;ExecutablePath=(Join-Path $project 'build\windows\x64\runner\Debug\app.exe');CreationDate=[datetime]'2026-09-04T16:00:10Z'},
+            [pscustomobject]@{ProcessId=102;ExecutablePath=(Join-Path $project 'build\windows\x64\runner\Release\app.exe');CreationDate=[datetime]'2026-09-04T16:00:10Z'}
+        )}
         $script:killed=@();function Stop-SgProcessTree([int]$RootPid){$script:killed+=$RootPid}
         if(-not(Stop-SgOwnedFlutterNative $entry)-or$script:killed.Count-ne1-or$script:killed[0]-ne101){throw 'Owned Flutter Windows runner was not stopped exactly once.'}
 
@@ -55,6 +70,8 @@ try{
             $idle=Update-SgFlutterBuildStallDeadline $activityAt $activityAt.AddSeconds(-2) $activityAt.AddSeconds(-2) 300 $activityAt.AddMinutes(1)
             if($idle.StallDeadline-ne$activityAt){throw 'Unchanged Flutter build output extended the stall deadline.'}
             if((Get-SgLatestWriteUtc (Join-Path $stateRoot 'missing'))-ne[datetime]::MinValue){throw 'A missing build directory did not report the minimum write time.'}
+            $dartRoot=Join-Path $stateRoot '.dart_tool\flutter_build';New-Item -ItemType Directory -Path $dartRoot -Force|Out-Null;$freshAt=[datetime]::UtcNow.AddSeconds(-5);[IO.File]::WriteAllText((Join-Path $dartRoot 'app.dill'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $dartRoot 'app.dill'),$freshAt)
+            if((Get-SgLatestWriteUtc @($buildRoot,$dartRoot,(Join-Path $stateRoot 'missing')))-ne$freshAt){throw 'Dart kernel output under .dart_tool did not count as Flutter Windows build activity.'}
             function Test-SgProcessIdentity {$false}
             $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
             if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}

@@ -8,7 +8,8 @@ param(
     [string]$LaunchIdentity,
     [switch]$Visible,
     [string]$Device = 'chrome',
-    [string]$DartDefineFile = ''
+    [string]$DartDefineFile = '',
+    [ValidateSet('debug','profile')][string]$Mode = 'debug'
 )
 
 Set-StrictMode -Version Latest
@@ -51,9 +52,12 @@ function New-SgFlutterHostArguments([string]$FlutterRoot,[string]$Snapshot,[obje
     return @("--packages=$packageConfig",$Snapshot)+@($ToolArguments)
 }
 
-function New-SgFlutterRunArguments([string]$Device,[int]$Port,[string]$ProfilePath,[bool]$Visible) {
+function New-SgFlutterRunArguments([string]$Device,[int]$Port,[string]$ProfilePath,[bool]$Visible,[string]$Mode='debug') {
     if ($Device -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'Invalid Flutter device identifier.' }
-    $arguments=@('run','--machine','-d',$Device)
+    if ($Mode -notin @('debug','profile')) { throw 'Unsupported Flutter run mode; only debug or profile sessions are managed.' }
+    $arguments=@('run','--machine')
+    if ($Mode -eq 'profile') { $arguments+='--profile' }
+    $arguments+=@('-d',$Device)
     if ($Device -notin @('chrome','web-server')) { return $arguments }
     if ($Port -lt 1024 -or $Port -gt 65535) { throw 'Invalid Flutter web port.' }
     $arguments+=@('--web-hostname','127.0.0.1','--web-port',[string]$Port)
@@ -229,7 +233,7 @@ function Invoke-SgFlutterSupervisor {
     if (-not (Test-Path -LiteralPath $dart -PathType Leaf) -or -not (Test-Path -LiteralPath $snapshot -PathType Leaf)) { throw 'Validated Flutter Dart host files are missing.' }
     $packageConfig=Join-Path $flutterRoot 'packages\flutter_tools\.dart_tool\package_config.json'
     if (-not (Test-Path -LiteralPath $packageConfig -PathType Leaf)) { throw 'Validated Flutter tool package configuration is missing.' }
-    $args=@(New-SgFlutterHostArguments $flutterRoot $snapshot @(New-SgFlutterRunArguments $Device $Port $ProfilePath ([bool]$Visible)))
+    $args=@(New-SgFlutterHostArguments $flutterRoot $snapshot @(New-SgFlutterRunArguments $Device $Port $ProfilePath ([bool]$Visible) $Mode))
     if ($DartDefineFile) { Assert-SgFlutterSafeValue $DartDefineFile 'Dart define file path'; $args+="--dart-define-from-file=$DartDefineFile" }
     $psi=New-Object Diagnostics.ProcessStartInfo
     $psi.FileName=$dart; $psi.Arguments=(@($args | ForEach-Object { ConvertTo-SgWindowsArgument ([string]$_) }) -join ' '); $psi.WorkingDirectory=$projectRoot
@@ -241,11 +245,12 @@ function Invoke-SgFlutterSupervisor {
     $outQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]'; $errQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]'
     if (-not $process.Start()) { throw 'Flutter host process could not start.' }
     $pump=New-SgFlutterStreamPump $process
-    $state=New-SgFlutterProtocolState; $state | Add-Member SupervisorPid $PID; $state | Add-Member FlutterPid $process.Id; $state | Add-Member BrowserProfilePath $ProfilePath; $state | Add-Member Visible ([bool]$Visible)
+    $state=New-SgFlutterProtocolState; $state | Add-Member SupervisorPid $PID; $state | Add-Member FlutterPid $process.Id; $state | Add-Member BrowserProfilePath $ProfilePath; $state | Add-Member Visible ([bool]$Visible); $state | Add-Member Mode $Mode
     Write-SgFlutterJsonAtomic $statePath $state
     $watcher=$null; $changes=New-SgFlutterDebounceState
     $lib=Join-Path $projectRoot 'lib'
-    if (Test-Path -LiteralPath $lib -PathType Container) { $watcher=New-SgFlutterChangeWatcher $lib }
+    # Profile builds support neither hot reload nor hot restart, so source watching stays off.
+    if ($Mode -ne 'profile' -and (Test-Path -LiteralPath $lib -PathType Container)) { $watcher=New-SgFlutterChangeWatcher $lib }
     $requestId=1000; $stopRequested=$false
     try {
         while (-not $process.HasExited) {
@@ -261,7 +266,7 @@ function Invoke-SgFlutterSupervisor {
                 if(-not $claimedPath){continue}
                 $response=[ordered]@{ok=$false;error='Invalid command.'}
                 try { $claimed=Get-Item -LiteralPath $claimedPath -ErrorAction Stop;if($claimed.Length -gt 65536){throw 'Supervisor command exceeds 64 KiB.'};$command=ConvertFrom-SgFlutterCommandJson ([IO.File]::ReadAllText($claimedPath)) $token;$response=[ordered]@{ok=$true;method=$command.Method}
-                    if($command.Method -eq 'reload'){if(-not $state.Ready){throw 'Flutter application is not ready.'};$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10);Write-SgFlutterJsonAtomic $statePath $state}
+                    if($command.Method -eq 'reload'){if($Mode -eq 'profile'){throw 'Restart is not supported in profile mode.'};if(-not $state.Ready){throw 'Flutter application is not ready.'};$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10);Write-SgFlutterJsonAtomic $statePath $state}
                     elseif($command.Method -in @('stop','open')){if($state.AppId){$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.stop' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)};$stopRequested=$true}
                 } catch {$response=[ordered]@{ok=$false;error=$_.Exception.Message}}
                 try{Write-SgFlutterJsonAtomic (Join-Path $responseDir ($commandFile.BaseName+'.json')) $response}finally{Remove-Item -LiteralPath $claimedPath -Force -ErrorAction SilentlyContinue}

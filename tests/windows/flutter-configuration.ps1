@@ -58,6 +58,14 @@ try {
                 if($target -in @('chrome','web-server')) { Assert-Config ('http://127.0.0.1:3010' -in $script:argsSeen) 'Assigned web origin was lost.' }
             }
             $settings.FlutterDevice='windows'
+            $settings | Add-Member -NotePropertyName FlutterMode -NotePropertyValue 'profile' -Force
+            $profiled=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
+            Assert-Config ($profiled.Fingerprint -cne $first.Fingerprint) 'Profile mode did not invalidate the debug session.'
+            $settings.FlutterMode='debug'
+            Assert-Config ((Get-SgFlutterConfiguration $Fixture $settings 3010 $runner).Fingerprint -ceq $first.Fingerprint) 'Explicit debug mode must match the default fingerprint.'
+            $settings.FlutterMode='release'
+            Expect-Blocked {Get-SgFlutterConfiguration $Fixture $settings 3010 $runner}
+            $settings.FlutterMode='debug'
             $settings.FlutterDevice='android'; $settings.FlutterDeviceId='emulator-5554'
             $deviceA=Get-SgFlutterConfiguration $Fixture $settings 3010 $runner
             $settings.FlutterDeviceId='emulator-5556'

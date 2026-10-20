@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-10-06"
+updated: "2026-10-16"
 status: active
 source_skill: 900-shipglows-core
 scope: entrypoint-special-modes
@@ -44,7 +44,7 @@ architecture, Python availability through `uv`, Playwright/Chromium installation
 and MCP verification evidence, the relevant mobile and Windows toolchain state
 and exact next action, and current-turn callable tools. For Flutter, also report
 the registry-backed active development target, resolved device id when applicable,
-managed session mode, logical `flutter run -d <device>` command, and live state;
+managed session mode, run mode (`debug` or `profile` from the registry `flutterMode`), logical `flutter run [--profile] -d <device>` command, and live state;
 list available targets separately. Distinguish
 installed, configured, discovered, callable, failed, and not-exposed states;
 inspect direct and deferred/searchable tool catalogs before classifying them. Never

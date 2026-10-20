@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Bug Repair"
+  short_description: "Reproduce, fix, and verify product defects"
+  default_prompt: "Use $sg-bug to reproduce, fix, and verify this product defect."
 policy:
   allow_implicit_invocation: true

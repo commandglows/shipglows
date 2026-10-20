@@ -137,7 +137,9 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
         $defines = ConvertTo-SgPublicFlutterMap $legacy $allowed 'defines'
         foreach ($key in $defines.Keys) { if ($key -match '(AUTH_BYPASS|OPEN_ACCESS)' -and $defines[$key] -eq 'true') { throw 'A normal Flutter launch cannot enable an authentication bypass.' } }
     }
-    $identity = [ordered]@{ target=$target; deviceId=[string]$Settings.FlutterDeviceId; origin=$origin; source=$sourceHash; dartDefines=$defines; environment=$publicEnvironment }
+    $mode = if ($Settings.PSObject.Properties['FlutterMode'] -and [string]$Settings.FlutterMode) { [string]$Settings.FlutterMode } else { 'debug' }
+    if ($mode -notin @('debug','profile')) { throw 'Flutter launch mode must be debug or profile.' }
+    $identity = [ordered]@{ target=$target; deviceId=[string]$Settings.FlutterDeviceId; mode=$mode; origin=$origin; source=$sourceHash; dartDefines=$defines; environment=$publicEnvironment }
     $sha = [Security.Cryptography.SHA256]::Create()
     try { $fingerprint = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($identity | ConvertTo-Json -Depth 8 -Compress))))).Replace('-','').ToLowerInvariant() } finally { $sha.Dispose() }
     return [pscustomobject]@{ Fingerprint=$fingerprint; Defines=$defines; Environment=$publicEnvironment; HasRecipe=($null -ne $recipe) }

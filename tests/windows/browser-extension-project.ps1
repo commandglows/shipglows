@@ -83,6 +83,13 @@ try {
     } $extension
     Assert-Sg (-not $invalidManifest.Ready) 'Manifest V2 was accepted by the Manifest V3 readiness contract.'
 
+    [IO.File]::WriteAllText($manifest, '{"name":"Ordinary package metadata","version":"1.0.0"}', [Text.UTF8Encoding]::new($false))
+    $missingManifestVersion = & $module {
+        param($Manifest)
+        Test-SgBrowserExtensionManifest $Manifest ([DateTime]::UtcNow.AddMinutes(-1))
+    } $manifest
+    Assert-Sg (-not $missingManifestVersion) 'An ordinary manifest without manifest_version was not rejected safely.'
+
     [IO.File]::WriteAllText($manifest, '{"name":"ToolGlows","version":"1.0.0","manifest_version":3}', [Text.UTF8Encoding]::new($false))
     (Get-Item -LiteralPath $manifest).LastWriteTimeUtc = [DateTime]::UtcNow.AddMinutes(-10)
     $staleManifest = & $module {
@@ -136,6 +143,91 @@ try {
         $parsed = & $module { param($Path) Read-SgBrowserExtensionManifest $Path } (Join-Path $odd 'manifest.json')
         Assert-Sg ($null -eq $parsed) "A non-object manifest.json was treated as a browser extension: '$content'"
     }
+
+    # A WXT extension is ready once wxt is installed; it never needs the crxjs plugin.
+    $wxt = Join-Path $fixture 'wxt-extension'
+    New-Item -ItemType Directory -Path (Join-Path $wxt 'node_modules') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $wxt 'package.json'), '{"name":"wxt-extension","scripts":{"dev":"wxt"},"devDependencies":{"wxt":"0.21.4"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt 'pnpm-lock.yaml'), "lockfileVersion: '9.0'`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt 'node_modules\.modules.yaml'), "layoutVersion: 5`n", [Text.UTF8Encoding]::new($false))
+    Assert-Sg ((Get-SgProjectKind $wxt) -eq 'browser-extension') 'WXT extension was not classified as a browser extension.'
+    Assert-Sg (-not (& $module { param($Project) Test-SgDependencyArtifacts $Project 'browser-extension' } $wxt)) 'WXT extension without wxt installed passed the dependency check.'
+    New-Item -ItemType Directory -Path (Join-Path $wxt 'node_modules\wxt') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $wxt 'node_modules\wxt\package.json'), '{"name":"wxt","version":"0.21.4"}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg (& $module { param($Project) Test-SgDependencyArtifacts $Project 'browser-extension' } $wxt) 'Installed WXT extension still required @crxjs/vite-plugin.'
+    [void](Write-SgProjectEnvironment $wxt 32146 -Kind 'browser-extension')
+    $wxtEnvironmentText = [IO.File]::ReadAllText((Join-Path $wxt 'ENVIRONMENT.md'))
+    Assert-Sg ($wxtEnvironmentText -match 'Unpacked Chrome directory: `\.output/chrome-mv3-dev`') 'WXT extension environment did not name the WXT dev output.'
+    $wxtExperience = Get-SgProjectExperience 'browser-extension' 32146 '' '' $wxt
+    Assert-Sg ($wxtExperience.Artifact -eq '.output\chrome-mv3-dev' -and $wxtExperience.StartOutcome -match 'chrome-mv3-dev' -and $wxtExperience.OpenNextAction -match 'chrome-mv3-dev') 'WXT extension status still names dist\chrome.'
+    Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145 '' '' $extension).Artifact -eq 'dist\chrome') 'CRXJS extension status lost its dist\chrome directory.'
+    Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145).Artifact -eq 'dist\chrome') 'Extension status without a project path changed its default directory.'
+
+    # Open must launch a browser executable: chrome:// has no Windows handler and blocks on Open With.
+    $wxtOutput = Join-Path $wxt '.output\chrome-mv3-dev'
+    New-Item -ItemType Directory -Path $wxtOutput -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $wxtOutput 'manifest.json'), '{"name":"WXT","version":"1.0.0","manifest_version":3}', [Text.UTF8Encoding]::new($false))
+    $openEntry = [pscustomobject]@{ name='wxt-extension'; path=$wxt; kind='browser-extension'; status='running'; port=32146 }
+    foreach ($case in @(
+        @{ Browser=[pscustomobject]@{ Product='Microsoft Edge'; ExecutablePath='C:\Edge\msedge.exe'; ExtensionsUrl='edge://extensions/' }; Expected=@('C:\Edge\msedge.exe|edge://extensions/', "$wxtOutput|") },
+        @{ Browser=$null; Expected=@("$wxtOutput|") }
+    )) {
+        $launched = & $module {
+            param($Entry, $Browser)
+            $script:sgLaunched = New-Object 'System.Collections.Generic.List[string]'
+            function Get-SgExtensionManagerBrowser { return $Browser }
+            function Start-Process([string]$FilePath, [string[]]$ArgumentList) { $script:sgLaunched.Add("$FilePath|$($ArgumentList -join ' ')") }
+            function Write-SgWarn([string]$Message) { }
+            function Write-SgInfo([string]$Message) { }
+            [void](Open-SgProject $null $Entry)
+            return @($script:sgLaunched)
+        } $openEntry $case.Browser
+        Assert-Sg (($launched -join ';') -eq ($case.Expected -join ';')) "Extension open launched '$($launched -join ';')' instead of '$($case.Expected -join ';')'."
+        Assert-Sg (-not ($launched | Where-Object { $_ -like 'chrome://*' })) 'Extension open still hands a chrome:// URL to ShellExecute.'
+    }
+
+    # A declared .shipglows.node.json runs the dev command through Doppler with only its public keys.
+    $nodeRecipe = Join-Path $extension '.shipglows.node.json'
+    $launchFor = {
+        param($Project, [bool]$WithDoppler = $true)
+        & $module {
+            param($Project, $WithDoppler)
+            function Get-SgCommandPath([string[]]$Names) {
+                if ($Names -contains 'doppler.exe') { if ($WithDoppler) { return 'C:\tools\doppler.exe' } else { return $null } }
+                return 'C:\tools\corepack.cmd'
+            }
+            (Get-SgLaunchSpec $Project 'browser-extension' 32145).Arguments -join ' '
+        } $Project $WithDoppler
+    }
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CONVEX_URL"]}', [Text.UTF8Encoding]::new($false))
+    $dopplerLaunch = & $launchFor $extension
+    Assert-Sg ($dopplerLaunch -match [regex]::Escape('call "C:\tools\doppler.exe" run --project toolglows --config dev --only-secrets CONVEX_URL --no-fallback --no-check-version --silent -- "C:\tools\corepack.cmd" pnpm@10.33.2 run dev:chrome --host 127.0.0.1 --port 32145 & rem ')) "Declared Doppler recipe did not wrap the extension launch: $dopplerLaunch"
+    $missingDoppler = $false
+    try { [void](& $launchFor $extension $false) } catch { $missingDoppler = $_.Exception.Message -match 'requires Doppler' }
+    Assert-Sg $missingDoppler 'A declared Doppler recipe fell back to an unconfigured launch when Doppler is missing.'
+    # A production config needs the explicit public-only opt-in and still injects only the declared keys.
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":true},"publicEnvironment":["CONVEX_URL"]}', [Text.UTF8Encoding]::new($false))
+    $productionLaunch = & $launchFor $extension
+    Assert-Sg ($productionLaunch -match [regex]::Escape('run --project toolglows --config prd --only-secrets CONVEX_URL --no-fallback')) "Opted-in production recipe did not launch with only its public keys: $productionLaunch"
+    foreach ($invalid in @(
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd"},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":false},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":"true"},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev","productionPublicOnly":true},"publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":true},"publicEnvironment":["CLERK_SECRET_KEY"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CLERK_SECRET_KEY"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"publicEnvironment":["CONVEX_URL"],"command":"x"}'
+    )) {
+        [IO.File]::WriteAllText($nodeRecipe, $invalid, [Text.UTF8Encoding]::new($false))
+        $rejected = $false
+        try { [void](& $launchFor $extension) } catch { $rejected = $_.Exception.Message -match 'Node (launch )?recipe' }
+        Assert-Sg $rejected "Invalid Node recipe was accepted: $invalid"
+    }
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":"NONE","publicEnvironment":[]}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg ((& $launchFor $extension) -notmatch 'doppler') 'A Doppler NONE recipe still launched through Doppler.'
+    Remove-Item -LiteralPath $nodeRecipe -Force
+    Assert-Sg ((& $launchFor $extension) -eq $launchText) 'An undeclared Node recipe changed the existing extension launch.'
 
     Write-Host 'Windows browser-extension project support: OK'
 } finally {

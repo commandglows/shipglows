@@ -52,6 +52,7 @@ foreach ($requiredWorkflowContract in @(
     'persist-credentials: false',
     "`$version = '15.2.0'",
     "`$expectedSha256 = '71B2FEF860ABE467217A538FF31DE02F5258807C0129F771846F87BD029AAFC5'",
+    "[IO.File]::WriteAllText(`$pathsFile, '')",
     'bash tests/windows/devserver-contract.sh'
 )) {
     Assert-Sg ($workflowText.Contains($requiredWorkflowContract)) "Required workflow contract is missing: $requiredWorkflowContract"
@@ -62,6 +63,9 @@ try {
     New-Item -ItemType Directory -Path $fixture | Out-Null
     $pathsFile = Join-Path $fixture 'paths.txt'
     $outputFile = Join-Path $fixture 'github-output.txt'
+    [IO.File]::WriteAllText($pathsFile, '')
+    $emptyFileResult = & $resolver -PathsFile $pathsFile
+    Assert-Sg (-not $emptyFileResult.WindowsChanged -and $emptyFileResult.MatchedCount -eq 0) 'An empty changed-path file must remain a valid zero-impact comparison.'
     Set-Content -LiteralPath $pathsFile -Encoding UTF8 -Value @('README.md', 'install-shipglows.ps1')
     $fileResult = & $resolver -PathsFile $pathsFile -GitHubOutput $outputFile
     $outputs = Get-Content -LiteralPath $outputFile -Encoding UTF8

@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-08-24"
-updated: "2026-08-24"
+updated: "2026-10-18"
 status: active
 source_skill: 900-shipglows-core
 scope: ux-reference-connectors
@@ -34,7 +34,8 @@ evidence:
   - "Checklist Design browse index, reviewed 2026-08-24: https://www.checklist.design/browse"
   - "Collect UI public catalog and categories were reachable on 2026-08-24: https://collectui.com/ and https://collectui.com/categories"
   - "Collect UI statistics observed 2026-08-24 reported zero shots published yesterday and during the previous week: https://collectui.com/stats"
-next_review: "2026-09-24"
+  - "Mobbin MCP page and machine-readable pricing (last_updated 2026-09-11), reviewed 2026-10-18: https://mobbin.com/mcp.md and https://mobbin.com/pricing.md"
+next_review: "2026-11-18"
 next_step: "Recheck provider evidence before promoting any unverified or stale source to eligible-by-default."
 ---
 
@@ -63,7 +64,9 @@ the current question is sufficient.
 - Official MCP introduction: `https://docs.mobbin.com/mcp/introduction`
 - Official feature reference: `https://docs.mobbin.com/mcp/features`
 - Remote endpoint documented by Mobbin: `https://api.mobbin.com/mcp`
-- Last reviewed: `2026-08-24`
+- Machine-readable MCP and plan summaries: `https://mobbin.com/mcp.md`,
+  `https://mobbin.com/pricing.md`
+- Last reviewed: `2026-10-18`
 - Freshness verdict: `fresh-docs checked`
 - Eligibility: conditional on current-session callability and task fit.
 
@@ -78,8 +81,18 @@ consumption. The documented tool surface is:
 - `search_sections`: website sections such as pricing pages and footers.
 
 Mobbin documents MCP availability for Pro, Team, and Enterprise plans, with
-OAuth handled by compatible MCP clients. The REST API is a different adapter;
-do not silently substitute it for MCP.
+OAuth handled by compatible MCP clients. The REST API is a different adapter
+available only from the Team plan; do not silently substitute it for MCP.
+
+The published tool set is read-only. Results carry a low-resolution preview
+and a high-resolution `image_url` that expires after 30 days, so a retained
+link is the durable reference, not the image URL. The documented rate limit is
+60 requests per 60 seconds per user. MCP Apps-compatible clients, including
+Claude Desktop and Web, may render results as an interactive gallery.
+
+ShipGlows fit: `search_flows` for Flutter application journeys (onboarding,
+paywall, permission priming, checkout) and `search_sections` for Astro site
+composition (hero, pricing, testimonials, footer).
 
 ### Access And Runtime Boundary
 
@@ -101,6 +114,11 @@ For `not-exposed`, `auth-required` or `paywalled`, `rate-limited`, timeout,
 provider error, or zero relevant results, record the exact state and continue through
 another eligible source, platform guidance, project evidence, or the approved
 private index. Do not request credentials or scrape a browser session.
+
+`mobbin.com` answers automated fetches with HTTP 403. Never route a Mobbin URL
+through web fetch, scraping, or `capture_design_inspiration.py`; the MCP is the
+only agent path. A Mobbin result never enters the private corpus as a captured
+bundle; the Inspiration Gate may cite its link and summarized pattern only.
 
 ## Private ShipGlows Corpus
 

@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Design"
+  short_description: "Create brands, interfaces, and design systems"
+  default_prompt: "Use $sg-design to create or improve this brand and interface experience."
 policy:
   allow_implicit_invocation: true

@@ -55,9 +55,10 @@ node - "$capabilities" <<'NODE' || exit 1
 const fs = require('fs');
 const data = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 if (data.schemaVersion !== 'shipglows.cli-capabilities.v1') process.exit(1);
-if (!/^\d{4}-\d{2}-\d{2}T/.test(data.generatedAt) || data.capabilities.length !== 30) process.exit(1);
+if (!/^\d{4}-\d{2}-\d{2}T/.test(data.generatedAt) || data.capabilities.length !== 31) process.exit(1);
 const byId = new Map(data.capabilities.map(item => [item.id, item]));
 if (byId.get('project.catalog.read')?.state !== 'available') process.exit(1);
+if (byId.get('project.create')?.state !== 'available') process.exit(1);
 if (byId.get('project.runtime.restart')?.reasonCode !== 'approvalRequired') process.exit(1);
 if (byId.get('credentials.manage')?.reasonCode !== 'operatorOnly') process.exit(1);
 if (/command|argument|path|port|secret|credential/i.test(JSON.stringify(data).replace('credentials.manage', ''))) process.exit(1);
@@ -116,5 +117,12 @@ grep -q 'reverse_proxy 127.0.0.1:3005' "$SHIPGLOWS_USER_CADDYFILE" || fail "loop
 grep -Eq '^\s*bind 127\.0\.0\.1$' "$SHIPGLOWS_USER_CADDYFILE" || fail "loopback listener bind"
 if grep -q 'handle /' "$SHIPGLOWS_USER_CADDYFILE"; then fail "no path-prefix routing"; fi
 if grep -Fq "$SHIPGLOWS_PROJECTS_DIR" "$SHIPGLOWS_USER_CADDYFILE"; then fail "no private path in proxy config"; fi
+
+mkdir -p "$SHIPGLOWS_PROJECTS_DIR/registered"
+cat > "$SHIPGLOWS_STATE_DIR/cli-project-registry.v1.json" <<EOF
+{"schemaVersion":"shipglows.cli-project-registry.v1","projects":[{"id":"prj_11111111111111111111111111111111","displayName":"Registered","ownerAccountId":"usr_account_1234","repositoryId":"12345","repositoryFullName":"owner/registered","cwd":"$SHIPGLOWS_PROJECTS_DIR/registered","createdAt":"2026-09-01T00:00:00Z"}]}
+EOF
+refresh_cli_project_catalog || fail "registered project catalog"
+node -e 'const p=require(process.argv[1]).projects.find(item => item.id === "prj_11111111111111111111111111111111"); if (!p || p.tmuxSession !== null || p.status !== "stopped" || p.port !== null) process.exit(1)' "$catalog" || fail "registered project has no fictitious runtime"
 
 printf 'cloud preview catalog tests: ok\n'

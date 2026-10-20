@@ -156,7 +156,7 @@ if ($CommandArguments[0] -ieq 'update') {
     if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
         Stop-SgCommand 'the managed DevServer update command is unavailable; rerun the official ShipGlows installer.'
     }
-    [string[]]$remaining = if ($CommandArguments.Count -gt 1) { @($CommandArguments[1..($CommandArguments.Count - 1)]) } else { @() }
+    [string[]]$remaining = @(if ($CommandArguments.Count -gt 1) { $CommandArguments[1..($CommandArguments.Count - 1)] })
     if ($remaining.Count -eq 1 -and $remaining[0] -ieq 'runtime') { $remaining = @() }
     Invoke-SgManagedDevServer -Arguments (@('update') + $remaining)
     exit $LASTEXITCODE

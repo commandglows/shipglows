@@ -4,7 +4,7 @@
 - Repo à corriger : `C:\Users\Diane\ShipGlows\shipglows`
 - Fichier : `cli/windows/ShipGlows.DevServer.psm1`
 - Test existant : `tests/windows/devserver-flutter-background.ps1` (ligne ~79)
-- Statut : à corriger
+- Statut : corrigé le 2026-10-15 (`Install-SgDevShortcut` : nom canonique, worktrees ignorés, échec non bloquant)
 - Attention : le repo a déjà des modifications non committées dans `ShipGlows.DevServer.psm1` (autre session). Ne pas créer de branche ni de worktree : travailler sur `main` dans ce checkout, en ne touchant que les lignes du correctif et sans écraser ni committer les modifications des autres.
 
 ## Symptôme

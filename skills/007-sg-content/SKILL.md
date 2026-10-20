@@ -20,7 +20,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`; own the 
 
 Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
 
-`007-sg-content` owns substantive content lifecycles and owner coherence, not generic writing or specialist internals. Do not activate it for an explicit atomic string, placeholder, typo, heading-tag, or formatting replacement that needs no content strategy, claim decision, or new surface. Execute that change directly and run the focused surface check.
+`007-sg-content` owns substantive content lifecycles and owner coherence, not generic writing or specialist internals. Do not activate it for an explicit atomic string, placeholder, typo, heading-tag, or formatting replacement that needs no content strategy, claim decision, or new surface. Execute that change directly and check only frontmatter/schema conformity and locale parity; never run a build, type check, lint, or test for a content-only change.
 
 If intent, source, surface, or public promise is too fuzzy, route `700-sg-explore`; use `100-sg-spec` for non-trivial, multi-surface, new-surface, or claim-sensitive work. Never invent an undeclared public surface.
 

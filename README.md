@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.30.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-09-01"
+updated: "2026-10-19"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -75,7 +75,7 @@ evidence:
   - "Added a private rights-aware design/copy inspiration corpus contract, capture tool, and bounded Inspiration Gate."
   - "Added provider-neutral 006-sg-design animation modes with GSAP optional after fit, lifecycle, and proof gates."
   - "Added an exact sg-help mode catalog with one line per skill and canonical modes."
-  - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with direct public skill folders and numeric engines retained for expert compatibility only."
+  - "Adopted the métier-first public hierarchy: 14 public owners in six domains, with human-facing ShipGlows display names, stable `$sg-*` invocation IDs, direct public skill folders, and numeric engines retained for expert compatibility only."
   - "Documented the native Windows full DevServer, optional coding agents, execution-policy-safe wrappers, nested s shortcuts, and collision-safe agent aliases."
   - "Operator confirmed positioning decision SG-BIZ-2026-08-13-01: ShipGlows leads as a business-aware delivery partner; environment operations support execution and proof."
   - "Operator decision 2026-08-20: document #local, #nolocal, and #ci as composable agent execution tags distinct from workflow modes."
@@ -279,8 +279,8 @@ Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
 always reconverges its own `bin` directory into the user and active installer
 `PATH`. Every full rerun converges that managed SDK to the exact
-ShipGlows-validated Flutter baseline (Flutter 3.47.1, Dart 3.13.1, commit
-`6655482ec06e547f90abf8ae7590466f4415978d`) and checks out a local branch named
+ShipGlows-validated Flutter baseline (Flutter 3.47.7, Dart 3.13.5, commit
+`abaf9c523780a608bd46686fd5e53740a07077f8`) and checks out a local branch named
 `stable` tracking the pinned `origin/shipglows-stable` ref. This baseline moves
 only through an intentional ShipGlows maintenance change, so rerunning the
 installer cannot silently change a project's SDK. ShipGlows refuses a
@@ -1468,3 +1468,9 @@ The current Codex plugin alpha is outside the repository at `/home/claude/plugin
 The canonical internal governance corpus lives under `shipglows_data/`. The repository root keeps runtime/bootstrap entrypoints and explicitly documented compatibility files only.
 
 Useful older plans, implementation summaries, and one-off reports live under [`shipglows_data/workflow/archives/`](./shipglows_data/workflow/archives/repository-history/) as inactive history, not current doctrine. Classified duplicate, generated, empty-facade, and unreferenced scratch material is deleted instead of archived indefinitely.
+
+## License
+
+The skills in [`skills/`](./skills/) are open source under the [MIT License](./skills/LICENSE).
+
+Everything else in this repository is not licensed for reuse: all rights reserved. The ShipGlows application, runner, and managed service are proprietary and live outside this repository.

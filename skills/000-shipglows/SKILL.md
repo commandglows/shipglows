@@ -63,6 +63,9 @@ Do not load a domain or lifecycle skill: direct work needs no owner skill.
 An explicitly named skill still activates in its smallest safe mode;
 let that skill reroute explicitly.
 `skill-execution-fidelity.md` is advisory here; apply the gate above and smallest relevant proof.
+Content-only changes (articles, docs, Markdown, frontmatter, copy) prove by schema/frontmatter
+conformity and locale parity only; never run a build, type check, lint, or test for them
+unless code, templates, schema, or config also changed or the operator explicitly asks.
 
 ### Bounded internal reference-register updates
 

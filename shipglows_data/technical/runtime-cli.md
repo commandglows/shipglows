@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.43.0"
+artifact_version: "1.44.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-06"
+updated: "2026-10-19"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -42,6 +42,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows focused-launcher replay 2026-09-04: `shipglows.cmd` enters the managed PowerShell runtime directly or through an explicit secure bootstrap route, and the compatibility form `shipglows update runtime` normalizes to the canonical updater without locking `s.exe`."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
@@ -205,7 +206,7 @@ The managed PowerShell frontend accepts the equivalent form `s env <command> -Pr
 - `status` reads the last complete record and makes stale evidence `drifted` or `unknown`; corrupt or partial JSON is never trusted.
 - `apply` requires an explicit `--plan-digest`; omission or any digest/source/config/lock/backend drift exits with code `3` before mutation. The exact Windows pilot reconstructs only `winget install --id jdx.mise --exact --source winget --disable-interactivity`, `mise --locked install node`, or `mise --locked install pnpm` from adapter semantics. Acquisition is a separate plan and conservatively declares network, download, consent and possible privilege effects. It sets process-local `MISE_SAFE=1`, removes inherited `MISE_*` controls from the child, disables hooks/config environments/all auto-install modes/system-dependency installation, selects only `mise.toml`, fences discovery at the project parent, isolates global/system config, preserves `PATH`, and never executes `pnpm install`, persisted argv, or repository task/hook/template strings. A zero-byte WinGet App Execution Alias is never hashed as executable proof: ShipGlows resolves and binds the registered Desktop App Installer package binary instead. All other capabilities/backends exit `no_active_backend`.
 
-`shipglows.environment.json` is strict JSON using schema ID `shipglows.environment/v1`: duplicate keys, non-finite numbers, unknown fields, unsupported majors, control-character paths, escaping references and symlink escapes fail closed. JSON inputs are capped at 1 MiB, runtime-policy input at 64 KiB, referenced source hashing at 8 MiB and persisted state reads at 4 MiB. `.shipglows.env` remains separate. In addition to `SHIPGLOWS_ENV_PORT` and `SHIPGLOWS_AUTO_REPAIR`, native Windows Flutter accepts the bounded `SHIPGLOWS_FLUTTER_DEVICE=chrome|web-server` and `SHIPGLOWS_DART_DEFINE_FILE=<project-relative-path>` policies.
+`shipglows.environment.json` is strict JSON using schema ID `shipglows.environment/v1`: duplicate keys, non-finite numbers, unknown fields, unsupported majors, control-character paths, escaping references and symlink escapes fail closed. JSON inputs are capped at 1 MiB, runtime-policy input at 64 KiB, referenced source hashing at 8 MiB and persisted state reads at 4 MiB. `.shipglows.env` remains separate. In addition to `SHIPGLOWS_ENV_PORT` and `SHIPGLOWS_AUTO_REPAIR`, native Windows Flutter accepts the bounded `SHIPGLOWS_FLUTTER_DEVICE=windows|android|chrome|web-server`, `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>`, `SHIPGLOWS_FLUTTER_MODE=debug|profile` and `SHIPGLOWS_DART_DEFINE_FILE=<project-relative-path>` policies; `s start -FlutterMode debug|profile` overrides the mode for one launch and never runs `--release`. The native Windows DevServer also accepts `SHIPGLOWS_READY_TIMEOUT_SECONDS=<30-1800>` to extend startup readiness for slow first starts, and writes each surface's logs under `logs\<name>-<path-hash>` so same-named surfaces never share log files.
 
 Without an explicit ShipGlows manifest, Windows also infers Node and pnpm constraints from `package.json#engines.node` and `package.json#packageManager`. A detected `src-tauri/Cargo.toml` or `@tauri-apps/cli` adds Cargo and Tauri requirements; they remain blocked with Rust setup guidance until their toolchain is observable, and no install is started by inspect, plan, verify, or status. A native `.flox/env/manifest.toml` is retained as source evidence but reported incompatible on Windows instead of becoming a capability owner. `verify` and `status` return code `4` for an inferred or explicit project whose observed state is not `ready`; a genuinely unmanaged project remains a valid zero-exit inspection target.
 
@@ -368,6 +369,18 @@ target the environment root, never only the nested application directory.
 
 ## Native Windows DevServer
 
+### Browser Extension Lab
+
+`s extension-inspect` performs bounded, read-only detection of a root `manifest.json`, common built outputs, or the reviewed CRXJS `dev:chrome` contract. A generic project `manifest.json` without the browser-extension field `manifest_version` is ignored instead of being misclassified; a declared but invalid extension manifest still fails closed. Detection does not install dependencies or execute repository scripts, and multiple artifacts fail closed instead of selecting a potentially stale build.
+
+`s extension-lab` accepts one valid Manifest V3 artifact and delegates structured arguments to the pinned ShipGlows Playwright runtime. `-Browser Chromium|Edge|Vivaldi|Firefox` selects a browser-specific artifact and backend while retaining managed Chromium as the default. Chromium-family browsers load through isolated flags plus the capability-checked CDP Extensions fallback; Firefox uses the managed Firefox binary and temporary WebDriver BiDi installation. JSON `browser` evidence includes requested product, engine, exact executable, file version, observed runtime version and `isolatedProfile`. `-ClickSelector` clicks exactly one element, `-VisualSelector` returns bounded DOM, bounds and a fixed computed-style allowlist, and `-Screenshot` retains a `1280 × 800` PNG outside the disposable profile. `-Headless` closes after proof; interactive mode remains open until the isolated browser closes. Personal browser profiles are never targets.
+
+`s obsidian-lab -ProjectPath <plugin>` accepts an already-built specialized Obsidian plugin and never runs repository scripts. It hashes and checks the local BRAT artifact set, creates a disposable profile and vault under the ShipGlows runtime, binds CDP to loopback, launches Obsidian 1.12.7+ with that exact profile, and distinguishes artifact, host-load, interaction, visual, and diagnostic states. `-InteractionCommand <id>` runs one registered command; `-ClickSelector <css>` clicks only one exact match; `-VisualSelector <css>` returns bounded text, geometry, visibility, and computed CSS; `-Screenshot` retains visual evidence outside the disposable run. JSON groups screenshot status/path/viewport and DOM evidence under `visual`. The exact Lab process tree is stopped and the temporary profile/vault are removed. This separates local Obsidian data but does not sandbox hostile plugin code from the Windows account.
+
+The full Windows bootstrap must package `ShipGlows.ExtensionLab.js` and `ShipGlows.ObsidianLab.js` in both `cli/windows` and `runtime/bin` through the managed-file transaction.
+
+See `skills/references/browser-extension-lab.md` for agent semantics and `shipglows_data/technical/operator-guides/browser-extension-lab.md` for the beginner journey.
+
 The Windows `full` bootstrap is a separate runtime backend for machines such
 as Shadow PC where WSL cannot be used. It owns only local development for
 Astro, Vite, browser extensions, Python/FastAPI, and Flutter Web. Repositories are constrained to the
@@ -412,7 +425,7 @@ such as `package.json`, `pubspec.yaml`, `pyproject.toml`, and
 effect on Windows dependencies, variables, launch commands, ports, or project
 identity.
 
-Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A pnpm lockfile keeps pnpm, and an exact `packageManager: pnpm@x.y.z` declaration is executed through Corepack so ShipGlows does not substitute its machine-wide pnpm version. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
+Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A pnpm lockfile keeps pnpm, and an exact `packageManager: pnpm@x.y.z` declaration is executed through Corepack so ShipGlows does not substitute its machine-wide pnpm version. For a nested Node surface, a parent `pnpm-workspace.yaml` with a pnpm lock, or a parent `package.json` `workspaces` list (npm or yarn, with `!` exclusions), is inherited only when it explicitly includes the surface, searching up to five parent levels and stopping at a repository boundary. Its install location, manager and lockfile then govern setup, and a pnpm declaration beside an npm lock without a pnpm lock is refused as a conflict. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
 
 A Node surface is classified as `browser-extension` before generic Vite only
 when it declares `@crxjs/vite-plugin` and an explicit `dev:chrome` script.
@@ -428,7 +441,7 @@ Extension lifecycle diagnostics use the separate source tool
 It collects isolated-world/worker exceptions and the active isolated Chromium
 Errors journal while exercising acknowledged pending synchronization. Personal
 Chrome journal reading remains a separately authorized UI observation. This tool
-does not add `extension-lab` or `extension-inspect` to the installed `s` command.
+is separate from the installed `s extension-inspect`, `s extension-lab` and `s obsidian-lab` commands documented in the Native Windows DevServer section above.
 
 During a full Windows runtime installation, every still-present registered
 project is re-registered through the current detector before its managed
@@ -612,7 +625,11 @@ catalog after success or failure. The Windows path resolves
 an immutable source commit, stages and validates the full
 managed payload, then classifies the target as `install`, `update`, `repair`, or
 `no-op`. Activation is serialized per runtime and transactionally replaces only
-the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`; a child-installer failure
+the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`.
+Payload-backed managed files must exist before mutation; declared action-generated
+managed files, including the native launchers, remain inside the same backup and
+rollback set but are verified after the child installer runs. The managed manifest
+is committed only after that verification succeeds. A child-installer failure
 restores the previous managed files and directory tree byte-for-byte. The
 rollback does not reverse third-party package-manager side effects that completed
 before a later failure. Existing valid external SDKs and tools remain owned by
@@ -747,7 +764,9 @@ marks it running. During an active Flutter Windows build, startup is cut only
 after 300 seconds without any file write under `build/windows` (reported as a
 stalled build) or after a 1800-second hard cap; other devices keep the
 600-second build window. `s reload -ProjectPath <path>` dispatches an authenticated
-hot reload only to a running managed Flutter session. `s open` restarts that managed Flutter session with visible
+hot reload only to a running managed Flutter session whose registered process,
+supervisor state, daemon and app identity still match; it never substitutes stop/start
+or a native rebuild. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin

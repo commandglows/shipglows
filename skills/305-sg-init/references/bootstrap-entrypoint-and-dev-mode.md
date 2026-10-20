@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.3.1"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-09-01"
+updated: "2026-10-19"
 status: active
 source_skill: 305-sg-init
 scope: bootstrap-entrypoint-and-development-mode
@@ -17,6 +17,7 @@ linked_systems: [skills/305-sg-init/SKILL.md]
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-04: bootstrap preserves Hobby portability and records economical Vercel plan/build/spend/protection intent without enabling provider features."
   - "Operator decision 2026-09-01: bootstrap records main integration for non-live projects and canonical dev integration/staging for live projects, then converges Git without validation prompts."
   - "CLAUDE and development-mode extraction."
   - "Operator decision 2026-08-21: bootstrap records delivery posture separately from validation surface and never treats development as local-only."
@@ -27,7 +28,7 @@ next_step: "/103-sg-verify compact monolithic skill references"
 
 Detect framework/runtime/package manager/UI/CSS/content/i18n/auth/backend/storage/hosting/payment from actual project files. Create or update `CLAUDE.md` only after confirmation; it records project overview, commands, architecture, conventions, and development mode. Product delivery posture belongs only in canonical business context. If absent, `SHIPGLOWS.md` may carry the development-mode section.
 
-Choose `local`, `vercel-preview-push`, or `hybrid` from the real validation surface. Record hosting, preview source, production URL, observability, diagnostics/log-copy ownership, review date and explicit unknowns. A runtime project needs Sentry and safe diagnostics unless it documents the strict static-site exception. Do not leave pipe-delimited placeholders.
+Choose `local`, `vercel-preview-push`, or `hybrid` from the real validation surface. Record hosting, preview source, production URL, observability, diagnostics/log-copy ownership, review date and explicit unknowns. For Vercel, load `skills/references/vercel-cost-conscious-operations.md` and record plan, build-machine policy, concurrency policy, spend posture, and preview protection without reading or storing secrets. Default to Hobby portability, Standard builds, and one active build per branch; a Pro declaration may exist solely for private organization repository deployment. Bootstrap records intent and observed evidence but never enables billing, add-ons, builds, firewall rules, protection, or account settings. A runtime project needs Sentry and safe diagnostics unless it documents the strict static-site exception. Do not leave pipe-delimited placeholders.
 
 Load `skills/references/project-delivery-policy.md` and run its read-only resolver. Read `delivery_posture` only from `shipglows_data/business/business.md`; never infer it from pitch, environment/runtime state, local scripts, branch names, repository visibility, or provider signals. A missing or invalid value is an unresolved product decision: present one evidence-backed question and do not derive a branch until it is answered and recorded in that canonical field. Then derive `production_branch: main`; non-live `development` uses `integration_branch: main` with no staging branch, while live `published` and `sensitive-production` use `integration_branch: dev` and `staging_branch: dev`. Keep `development_mode` and observed provider state separate. This resolver chooses targets only; it grants no Git, execution, environment, deployment, or production authority. Follow the applicable `AGENTS.md`, execution-posture, and mutation-approval rules.
 

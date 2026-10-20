@@ -1,0 +1,1 @@
+{"name":"obsidian-visual-proof","scripts":{"build":"fixture-only"},"devDependencies":{"obsidian":"^1.12.0"}}

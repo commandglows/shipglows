@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Engineering"
+  short_description: "Strengthen architecture, quality, and performance"
+  default_prompt: "Use $sg-engineering to improve this system's architecture and technical quality."
 policy:
   allow_implicit_invocation: true

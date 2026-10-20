@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Documentation"
+  short_description: "Maintain internal architecture and governance docs"
+  default_prompt: "Use $sg-docs to maintain this internal architecture or governance documentation."
 policy:
   allow_implicit_invocation: true

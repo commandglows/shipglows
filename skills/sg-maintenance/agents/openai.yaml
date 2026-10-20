@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Maintenance"
+  short_description: "Maintain quality, dependencies, security, and docs"
+  default_prompt: "Use $sg-maintenance to perform the relevant upkeep for this project."
 policy:
   allow_implicit_invocation: true

@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Planning"
+  short_description: "Plan priorities, backlogs, reviews, and delivery"
+  default_prompt: "Use $sg-planning to organize these priorities and the next delivery outcomes."
 policy:
   allow_implicit_invocation: true

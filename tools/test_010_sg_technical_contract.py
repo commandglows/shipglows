@@ -268,6 +268,20 @@ class TechnicalContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, github)
 
+    def test_github_cleanup_is_always_classified_and_proportional(self) -> None:
+        github = self.playbooks["github"]
+        for phrase in (
+            "automatically remove",
+            "one small, exact, clean, proven-integrated task-owned set",
+            "present one exact evidence-backed proposal",
+            "A proposed cleanup may be refused",
+            "`retained-explicit` with a reason and review date",
+            "nothing remains silently pending",
+            "GIT-CLEAN-SIMPLE-AUTOMATIC",
+            "GIT-CLEAN-COMPLEX-PROPOSED",
+        ):
+            self.assertIn(phrase, github)
+
     def test_tech_lazy_02_one_playbook_per_mode(self) -> None:
         expected = {
             "audit": "technical-audit-playbook.md",

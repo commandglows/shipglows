@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-09-05"
+updated: "2026-10-19"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -20,6 +20,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator clarification 2026-09-03: Git closure inspection is universal, while automatic cleanup is reserved for small exact proven-safe state; complex cleanup is proposed or blocked."
   - "2026-09-05: conditional Auto, Git and pressure-scenario sections extracted without changing authority. Historical decisions remain in Git history."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"

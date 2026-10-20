@@ -66,10 +66,10 @@ try {
     if(-not$startFunction-or$errors.Count){throw 'Could not isolate the one-shot start wrapper for behavioral proof.'}
     Invoke-Expression $startFunction.Extent.Text
     $config=[pscustomobject]@{}
-    $FlutterDevice='android';$FlutterDeviceId='fixture-device'
+    $FlutterDevice='android';$FlutterDeviceId='fixture-device';$FlutterMode='profile'
     function Start-SgProject {
-        param($Config,$Path,$RequestedPort,[switch]$FlutterVisible,$FlutterDevice,$FlutterDeviceId)
-        if($FlutterDevice-ne'android'-or$FlutterDeviceId-ne'fixture-device'){throw 'One-shot start lost explicit Flutter target/device selection.'}
+        param($Config,$Path,$RequestedPort,[switch]$FlutterVisible,$FlutterDevice,$FlutterDeviceId,$FlutterMode)
+        if($FlutterDevice-ne'android'-or$FlutterDeviceId-ne'fixture-device'-or$FlutterMode-ne'profile'){throw 'One-shot start lost explicit Flutter target/device/mode selection.'}
         'setup output';'launch output';[pscustomobject]@{status='running';lastError=$null;path='C:\workspace\test'}
     }
     $capturedStart=@(Invoke-SgRequiredStart 'C:\workspace\test' 6>&1)

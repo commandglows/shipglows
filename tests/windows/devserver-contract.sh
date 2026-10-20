@@ -65,6 +65,7 @@ for regression in \
   devserver-user-guidance.ps1 \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
+  devserver-readiness-logs.ps1 \
   devserver-port-reservation.ps1 \
   devserver-cli-performance.ps1 \
   native-cli-launcher.ps1 \
@@ -72,6 +73,7 @@ for regression in \
   devserver-registry-migration.ps1 \
   devserver-flutter-background.ps1 \
   devserver-flutter-supervisor.ps1 \
+  devserver-flutter-mode.ps1 \
   devserver-flutter-stop.ps1 \
   devserver-metadata-sync.ps1 \
   devserver-dependency-setup.ps1 \
@@ -129,8 +131,8 @@ rg -n 'Install-SgFlutter|Install-SgJdk17|Install-SgAndroidCommandLineTools|Insta
 rg -F -n 'refs/remotes/origin/shipglows-stable' "$INSTALLER"
 rg -F -n "@('checkout','-B','stable'" "$INSTALLER"
 rg -F -n "Schema = 'shipglows.flutter-baseline/v1'" "$INSTALLER"
-rg -F -n "FlutterVersion = '3.47.1'" "$INSTALLER"
-rg -F -n "Commit = '6655482ec06e547f90abf8ae7590466f4415978d'" "$INSTALLER"
+rg -F -n "FlutterVersion = '3.47.7'" "$INSTALLER"
+rg -F -n "Commit = 'abaf9c523780a608bd46686fd5e53740a07077f8'" "$INSTALLER"
 rg -F -n 'Flutter stable convergence failed; restored the previous managed revision.' "$INSTALLER"
 rg -F -n "SetEnvironmentVariable('CHROME_EXECUTABLE'" "$INSTALLER"
 rg -F -n 'chromium_headless_shell-$revision\chrome-headless-shell-win64\chrome-headless-shell.exe' "$INSTALLER"
