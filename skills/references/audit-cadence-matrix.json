@@ -120,7 +120,7 @@
       "max_age_days": 60,
       "priority": 15,
       "aliases": ["tidy", "menage", "workflow tidy", "docs tidy", "rangement"],
-      "event_triggers": ["project_docs_tidy_audit.py --check reports due (archivable backlog, archivable material outweighing live work, or accumulated done tracker rows)", "major release or version closure", "batch closure of several chantiers"]
+      "event_triggers": ["project_docs_tidy_audit.py --check reports due (removable backlog, removable material outweighing live work, or accumulated done tracker rows)", "major release or version closure", "batch closure of several chantiers"]
     }
   ]
 }

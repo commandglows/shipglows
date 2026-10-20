@@ -113,7 +113,7 @@ Deletion is a separate, operator-approved step that follows a completed audit. I
 0. **Value triage (mandatory).** Read each candidate in full and decide, in this order, the first outcome that applies:
    - `reconnect`: the content is current, correct, and useful to an existing owner but its loader or caller is missing. Wire it where it belongs (owner skill loader, registry gate, import, route) instead of deleting it.
    - `merge`: the content is useful but overlaps a canonical artifact or is too small to stand alone. Absorb its non-redundant value into that target, then retire the source.
-   - `retain`: it serves an external consumer, rollback, migration, or audit-evidence contract. Record the owner and removal criterion.
+   - `retain`: it serves an external consumer, rollback, migration, or audit-evidence contract. Record the owner and removal criterion. Git history already preserves removed content, so "might be useful someday" or a wish to archive is never a `retain` reason.
    - `delete`: only when it is stale, wrong, superseded, or fully covered elsewhere, with that reason written per candidate.
    The triage verdict and its one-line reason are part of the approval packet; `reconnect` and `merge` outcomes are applied before any deletion.
 1. **Approval packet.** Present only `confirmed unused` and `confirmed obsolete` candidates whose triage verdict is `delete` or a post-`merge` retirement, grouped by dependency, each with its evidence, impact, and the exact paths or symbols to remove. Deleting files or behavior is an irreversible-class action: wait for explicit operator approval of the listed set; approval covers that set only.

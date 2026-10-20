@@ -3,10 +3,11 @@
 
 Read-only. Scans ``shipglows_data/workflow/`` of a project and classifies each
 work artifact (specs, audits, reviews, research, explorations, conversations,
-evidence, bugs, checklist instances) so an operator can approve what to keep,
-reconnect, merge, archive, or remove. Durable assets (templates, playbooks,
-checklists) and existing archives are out of scope. Trackers are reported with
-their open and done row counts.
+evidence, bugs, checklist instances, legacy archive trees) so an operator can
+approve what to keep, reconnect, merge, or delete. Git history is the only
+archive: tidy distills durable content into canonical docs, then deletes.
+Durable assets (templates, playbooks, checklists) are out of scope. Trackers are
+reported with their open and done row counts.
 
 Classes:
 - ``open``: referenced by an open tracker row (todo, in progress, blocked);
@@ -14,12 +15,15 @@ Classes:
   tracker row, or a closed/shipped closure row in its run history);
 - ``retired``: frontmatter status ``superseded`` or ``stale``;
 - ``dormant``: none of the above and untouched for ``--dormant-days``;
-- ``recent``: everything else.
+- ``recent``: everything else;
+- ``archived``: anything under a legacy ``archives/`` tree (git already keeps it);
+- ``untracked``: not in the git index, so deleting it would be unrecoverable;
+  never removable until committed or explicitly discarded by the operator.
 
-Operational trigger (``--check``): tidy is due when the archivable backlog
-(delivered + retired + dormant) reaches ``--max-candidates`` files, when it
+Operational trigger (``--check``): tidy is due when the removable backlog
+(delivered + retired + dormant + archived) reaches ``--max-candidates`` files, when it
 outweighs live work (open + recent) in bytes, or when trackers hold
-``--max-done-rows`` done rows. Archiving resets these signals by itself, so
+``--max-done-rows`` done rows. Deleting resets these signals by itself, so
 the check needs no stored state and fires on activity rather than elapsed time.
 """
 
@@ -38,8 +42,10 @@ WORKFLOW = Path("shipglows_data/workflow")
 WORK_DIRS = (
     "specs", "audits", "reviews", "research", "explorations", "conversations",
     "conversation-audits", "evidence", "bugs", "checklist-instances", "history",
-    "repurpose-packs", "email",
+    "repurpose-packs", "email", "archives",
 )
+REMOVABLE = ("delivered", "retired", "dormant", "archived")
+LIVE = ("open", "recent")
 TRACKERS = (
     "TASKS.md", "BACKLOG.md", "BUGS.md", "TEST_LOG.md", "AUDIT_LOG.md",
     "OPERATIONS_LOG.md", "DEPENDENCY_LOG.md",
@@ -81,6 +87,17 @@ def _last_touch(root: Path, scope: Path) -> dict[str, date]:
     return touched
 
 
+def _tracked(root: Path, scope: Path) -> set[str] | None:
+    try:
+        output = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "-z", "--", str(scope)],
+            capture_output=True, check=True,
+        ).stdout.decode("utf-8", "replace")
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return {item for item in output.split("\0") if item}
+
+
 def _tracker_rows(root: Path) -> tuple[list[str], dict[str, dict[str, int]]]:
     rows: list[str] = []
     stats: dict[str, dict[str, int]] = {}
@@ -116,6 +133,7 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
     if not workflow.is_dir():
         return {"status": "no-workflow", "root": str(root), "items": [], "totals": {}, "trackers": {}}
     touched = _last_touch(root, WORKFLOW)
+    tracked = _tracked(root, WORKFLOW)
     rows, tracker_stats = _tracker_rows(root)
     items = []
     for directory in WORK_DIRS:
@@ -123,7 +141,7 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
         if not base.is_dir():
             continue
         for path in sorted(base.rglob("*")):
-            if not path.is_file() or "archives" in path.relative_to(workflow).parts:
+            if not path.is_file():
                 continue
             rel = path.relative_to(root).as_posix()
             text = path.read_text(encoding="utf-8", errors="replace") if path.suffix == ".md" else ""
@@ -133,7 +151,9 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
             declared = UPDATED.search(_frontmatter(text))
             last = date.fromisoformat(declared.group(1)) if declared else touched.get(rel)
             mentioning = [row for row in rows if any(needle in row for needle in needles)]
-            item_class = classify(
+            item_class = "untracked" if tracked is not None and rel not in tracked else (
+                "archived" if "archives" in path.relative_to(workflow).parts else None
+            ) or classify(
                 text,
                 mentions_open=any(OPEN_MARK.search(row) for row in mentioning),
                 mentions_done=any(DONE_MARK.search(row) for row in mentioning),
@@ -167,18 +187,16 @@ def tidy_pressure(payload: dict[str, object], max_candidates: int = 20, max_done
     totals = payload.get("totals", {})
     def total(names: tuple[str, ...], key: str) -> int:
         return sum(totals.get(name, {}).get(key, 0) for name in names)
-    archivable = ("delivered", "retired", "dormant")
-    live = ("open", "recent")
-    files, size = total(archivable, "files"), total(archivable, "bytes")
+    files, size = total(REMOVABLE, "files"), total(REMOVABLE, "bytes")
     done_rows = sum(stats["done_rows"] for stats in payload.get("trackers", {}).values())
     reasons = []
     if files >= max_candidates:
-        reasons.append(f"archivable backlog {files} files >= {max_candidates}")
-    if files >= 5 and size >= total(live, "bytes"):
-        reasons.append("archivable material outweighs live work")
+        reasons.append(f"removable backlog {files} files >= {max_candidates}")
+    if files >= 5 and size >= total(LIVE, "bytes"):
+        reasons.append("removable material outweighs live work")
     if done_rows >= max_done_rows:
         reasons.append(f"trackers hold {done_rows} done rows >= {max_done_rows}")
-    return {"due": bool(reasons), "reasons": reasons, "archivable_files": files, "archivable_bytes": size, "done_rows": done_rows}
+    return {"due": bool(reasons), "reasons": reasons, "removable_files": files, "removable_bytes": size, "done_rows": done_rows}
 
 
 def _size(value: int) -> str:
@@ -195,7 +213,7 @@ def main() -> int:
     parser.add_argument("--format", choices=("text", "json", "paths"), default="text")
     parser.add_argument(
         "--class", dest="classes", action="append",
-        choices=("open", "delivered", "retired", "dormant", "recent"),
+        choices=("open", "recent", *REMOVABLE, "untracked"),
         help="Restrict listed items to one or more classes (repeatable).",
     )
     args = parser.parse_args()
@@ -216,7 +234,7 @@ def main() -> int:
         print(f"No shipglows_data/workflow in {payload['root']}")
         return 0
     print(f"Project docs tidy inventory: {payload['root']} (dormant > {payload['dormant_days']} days)")
-    for name in ("open", "recent", "delivered", "retired", "dormant"):
+    for name in (*LIVE, *REMOVABLE, "untracked"):
         total = payload["totals"].get(name)
         if total:
             print(f"  {name:<10} {total['files']:>4} files  {_size(total['bytes'])}")
@@ -226,7 +244,7 @@ def main() -> int:
         print(f"  tracker {name}: {stats['lines']} lines, open={stats['open_rows']} done={stats['done_rows']}")
     if args.classes:
         for item in listed:
-            print(f"- [{item['class']}] {item['path']} ({_size(item['bytes'])}, last {item['last_commit'] or 'untracked'})")
+            print(f"- [{item['class']}] {item['path']} ({_size(item['bytes'])}, last {item['last_commit'] or 'unknown'})")
     return 0
 
 

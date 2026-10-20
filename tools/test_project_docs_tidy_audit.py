@@ -47,6 +47,7 @@ class ProjectDocsTidyAuditTests(unittest.TestCase):
                 "replaced-old-spec": "retired",
                 "forgotten-idea-spec": "dormant",
                 "fresh-idea-spec": "recent",
+                "archived-spec": "archived",
             })
             self.assertEqual(payload["trackers"]["TASKS.md"]["open_rows"], 1)
             self.assertEqual(payload["trackers"]["TASKS.md"]["done_rows"], 1)
