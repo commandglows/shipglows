@@ -59,8 +59,9 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
             "`development` (non-live)",
             "`published` (live)",
             "production_branch: main",
-            "integration_branch: main | dev",
-            "staging_branch: not-required | dev",
+            "`integration_branch: main`",
+            "`staging_branch: not-required`",
+            "canonical branch `dev`",
             "gated `dev -> main`",
         ):
             with self.subTest(marker=marker):
@@ -68,10 +69,10 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
 
     def test_declared_policy_is_data_only_and_not_silently_rewritten(self) -> None:
         for marker in (
-            "no secret, token, executable command",
-            "never silently rewrite declared intent",
-            "does not authorize non-Git environment or deployment changes",
-            "Ordinary Git/GitHub configuration convergence",
+            "Never infer missing posture",
+            "detected state reports drift without mutating intent",
+            "does not authorize Git, non-Git environment, or deployment changes",
+            "must not be downgraded silently",
             "PDP-DECLARED-VS-OBSERVED",
         ):
             with self.subTest(marker=marker):
@@ -81,20 +82,20 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
         for mode in ("local", "vercel-preview-push", "hybrid"):
             with self.subTest(mode=mode):
                 self.assertIn(mode, self.development_mode)
-        self.assertIn("Existing projects", self.policy)
-        self.assertIn("preserve their existing mode", self.policy)
+        self.assertIn("Existing `ShipGlows Development Mode` remains separate validation-surface truth", self.policy)
+        self.assertIn("legacy development mode remains valid while posture is unknown", self.policy)
         self.assertIn("PDP-LEGACY-MODE", self.policy)
 
     def test_bootstrap_records_status_driven_integration_branch(self) -> None:
         for marker in (
             "project-delivery-policy.md",
-            "never infer maturity",
+            "never infer it from",
             "production_branch: main",
             "integration_branch: main",
             "integration_branch: dev",
             "staging_branch: dev",
-            "without a validation prompt",
-            "preserve legacy development mode",
+            "grants no Git, execution, environment, deployment, or production authority",
+            "Keep `development_mode` and observed provider state separate",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.bootstrap)
