@@ -194,6 +194,8 @@ A raw visual literal is allowed only when all of these are true:
 
 Unexplained literals are defects. Verification must fail or report partial when a UI change ships by adding hardcoded values outside the source of truth.
 
+There are no temporary exceptions. Urgency, a deadline, a promo, or a quick fix never justifies a hardcoded visual value "for now": add or extend the token in the source of truth first, then use it.
+
 ## Required Scans
 
 For changed UI/design files, run:
