@@ -16,6 +16,14 @@ UNSAFE_PATTERNS = (
     re.compile(r"\b(?:https?://)?(?:localhost|127\.0\.0\.1)(:\d+)?\b", re.IGNORECASE),
     re.compile(r"\bpassword\s*[:=]\s*\S+", re.IGNORECASE),
     re.compile(r"/home/[^\s]+/"),
+    re.compile(r"\b[A-Za-z]:\\Users\\[^\s\\]+\\"),
+)
+
+# Harness-injected blocks inside Claude Code user messages are context, not
+# operator speech.
+CLAUDE_INJECTED_BLOCK_RE = re.compile(
+    r"<(system-reminder|command-message|command-args|local-command-stdout|local-command-caveat)>.*?</\1>",
+    re.DOTALL,
 )
 
 
@@ -127,7 +135,10 @@ class Finding:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("path", help="Markdown transcript path")
+    parser.add_argument(
+        "path",
+        help="Markdown transcript, Claude Code session JSONL, or a ~/.claude/projects/<project> directory (newest session)",
+    )
     parser.add_argument("--fixtures", action="store_true", help="Emit normalized fixtures for deterministic tests")
     parser.add_argument("--raw", action="store_true", help="Classify the raw transcript without terminal-noise filtering")
     parser.add_argument(
@@ -140,6 +151,61 @@ def parse_args() -> argparse.Namespace:
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
+
+
+def resolve_transcript_path(path: Path) -> Path | None:
+    """A directory resolves to its newest top-level Claude Code session JSONL."""
+    if not path.is_dir():
+        return path
+    sessions = sorted(path.glob("*.jsonl"), key=lambda item: item.stat().st_mtime)
+    return sessions[-1] if sessions else None
+
+
+def claude_message_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if not isinstance(content, list):
+        return ""
+    # Only prose blocks count; tool_use, tool_result, thinking and images are
+    # execution detail, not conversation.
+    return "\n".join(
+        block.get("text", "")
+        for block in content
+        if isinstance(block, dict) and block.get("type") == "text"
+    )
+
+
+def claude_jsonl_to_turns(path: Path) -> str:
+    """Render a Claude Code session JSONL as labelled `## Turn` Markdown.
+
+    Keeps operator prompts and assistant prose from the main thread only;
+    sidechains, meta entries, attachments and tool traffic are dropped.
+    """
+    turns: list[tuple[str, list[str]]] = []
+    for line in read_text(path).splitlines():
+        try:
+            item = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(item, dict) or item.get("isSidechain") or item.get("isMeta"):
+            continue
+        role = item.get("type")
+        message = item.get("message")
+        if role not in ("user", "assistant") or not isinstance(message, dict):
+            continue
+        text = CLAUDE_INJECTED_BLOCK_RE.sub("", claude_message_text(message.get("content"))).strip()
+        if not text:
+            continue
+        if role == "user":
+            turns.append((text, []))
+        elif turns:
+            turns[-1][1].append(text)
+    blocks = [
+        f"## Turn {index}\nUser:\n{user}\nAssistant:\n" + "\n\n".join(replies)
+        for index, (user, replies) in enumerate(turns, start=1)
+        if replies
+    ]
+    return "\n\n".join(blocks)
 
 
 def is_unsafe(text: str) -> bool:
@@ -360,12 +426,19 @@ def delegation_trace_analysis(text: str, trace_path: Path | None) -> dict[str, A
 
 def main() -> int:
     args = parse_args()
-    path = Path(args.path)
+    path = Path(args.path).expanduser()
     if not path.exists():
         print(f"missing-path: {path}")
         return 2
+    resolved = resolve_transcript_path(path)
+    if resolved is None:
+        print(f"missing-path: no session JSONL in {path}")
+        return 2
+    path = resolved
 
-    text = read_text(path)
+    # A Claude Code JSONL is already structured: the extracted turns are both
+    # the raw evidence and the safety-gate input (tool output stays out).
+    text = claude_jsonl_to_turns(path) if path.suffix == ".jsonl" else read_text(path)
     classifier_text = text if args.raw else cleaned_classifier_text(text)
     findings = classify(classifier_text)
     unsafe = is_unsafe(text)
