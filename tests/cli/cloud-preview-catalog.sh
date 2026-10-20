@@ -107,6 +107,10 @@ if refresh_cli_project_catalog; then fail "conflicting live upstream rejected"; 
 after_failure=$(sha256sum "$catalog" | cut -d' ' -f1)
 [ "$before_failure" = "$after_failure" ] || fail "failed snapshot preserves previous catalog"
 
+flutter_fixture="renamed|3005|$SHIPGLOWS_PROJECTS_DIR/demo|shipglows-flutter-demo"
+refresh_cli_project_catalog || fail "merged Flutter catalog refresh"
+node -e 'const p=require(process.argv[1]).projects[0]; if (p.source !== "pm2+flutter-web" || p.tmuxSession !== `sg-${p.id}`) process.exit(1)' "$catalog" || fail "Flutter runtime session never replaces the workspace base"
+
 flutter_fixture=""
 routes=""
 user_caddy_routes_load routes || fail "load exact-host routes"

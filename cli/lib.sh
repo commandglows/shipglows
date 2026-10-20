@@ -2861,8 +2861,10 @@ const ingest = (line, source) => {
   const id = prior && /^prj_[a-f0-9]{32}$/.test(prior.id) ? prior.id : `prj_${digest(cwd).slice(0, 32)}`;
   const previewSlug = prior && /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(prior.previewSlug) && !reservedPreviewSlugs.has(prior.previewSlug)
     ? prior.previewSlug : `${slugify(displayName).slice(0, 42)}-${digest(cwd).slice(0, 8)}`;
-  const stableTmuxSession = tmuxSession || (prior && validTmuxSession(prior.tmuxSession) ? prior.tmuxSession : `sg-${id}`);
-  const incoming = {id, displayName, previewSlug, status, source, cwd, port, tmuxSession: stableTmuxSession};
+  // tmuxSession is the runner's workspace base (it creates `<base>-terminal`
+  // and `<base>-nvim`), never the Flutter runtime session. Deriving it from the
+  // stable id keeps one name for PM2 and Flutter projects across renames.
+  const incoming = {id, displayName, previewSlug, status, source, cwd, port, tmuxSession: `sg-${id}`};
   const current = projects.get(cwd);
   if (!current) return projects.set(cwd, incoming);
   const currentLive = /^(online|launching)$/.test(current.status);
@@ -2870,7 +2872,6 @@ const ingest = (line, source) => {
   if (currentLive && incomingLive && current.port !== port) throw new Error('conflicting live project ports');
   const preferred = incomingLive && !currentLive ? incoming : current;
   preferred.source = current.source === source ? source : 'pm2+flutter-web';
-  preferred.tmuxSession = incoming.tmuxSession || current.tmuxSession;
   projects.set(cwd, preferred);
 };
 for (const line of readLines(pm2File)) ingest(line, 'pm2');
