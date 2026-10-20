@@ -18,6 +18,9 @@ TOOL = ROOT / "cli" / "private_data.py"
 class PrivateDataCapabilityTests(unittest.TestCase):
     def run_tool(self, root: Path, *args: str) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
+        # Operator overrides would point the tool at the real private repository.
+        for key in ("SHIPGLOWS_PRIVATE_DATA_DIR", "SHIPGLOWS_PRIVATE_DATA_REPO"):
+            environment.pop(key, None)
         environment.update({
             "SHIPGLOWS_PRIVATE_DIR": str(root / ".shipglows"),
             "SHIPGLOWS_PRIVATE_DATA_CONFIG_FILE": str(root / "config" / "private-data.env"),
