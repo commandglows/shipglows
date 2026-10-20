@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.13.0"
+artifact_version: "2.14.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-09-05"
+updated: "2026-10-20"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -312,7 +312,7 @@ After verification passes, the master skill should continue through its owned cl
 
 For a clean completed daily chantier, the default terminal route is bounded commit and push, and it is mandatory rather than an unpushed handoff. Include ordinary current-branch push in the approval plan so no closing ceremony repeats. If no closure diff remains, the latest owned milestone commit is final; never create an empty commit. Explicit local-only intent or a push blocker leaves delivery pending and forbids standard clean closure.
 
-When the run created a task-scoped branch or worktree, continue through `005-sg-ship` until `git-temporary-artifact-lifecycle.md` records a terminal Git disposition. `pending` forbids a fully clean completion; `retained-explicit` is terminal only with a concrete reason and review date, while `blocked` remains a visible limit.
+Every chantier that ships ends with the Resting State sweep of `git-temporary-artifact-lifecycle.md`, whether or not the run created a branch or worktree: converge what is safe, and propose the rest in one consolidated question so the repository returns to a clean integration branch. When the run created a task-scoped branch or worktree, continue through `005-sg-ship` until that contract records a terminal Git disposition. `pending` forbids a fully clean completion; `retained-explicit` is terminal only with a concrete reason and review date, while `blocked` remains a visible limit.
 
 Typical routes:
 

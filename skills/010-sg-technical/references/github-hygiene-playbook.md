@@ -122,6 +122,8 @@ git -C [path] symbolic-ref refs/remotes/origin/HEAD
 python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/git_storage_check.py" [path]
 ```
 
+Also run `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/git_resting_state.py" [path] --integration <canonical integration branch>`: every mode measures its result against the Resting State of `git-temporary-artifact-lifecycle.md`, and `audit` reports the remaining path to it.
+
 The storage check is read-only and stateless: it reports `due` only when the repository's own state warrants upkeep (worktree entries pointing at missing folders, loose objects, pack count, or garbage), so Git upkeep follows repository activity rather than a calendar.
 
 If GitHub-specific maintenance is needed and the repo has a GitHub remote, also gather:
