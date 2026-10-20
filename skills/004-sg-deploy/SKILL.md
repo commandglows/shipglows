@@ -1,7 +1,7 @@
 ---
 name: 004-sg-deploy
 description: "Orchestrate release checks, ship, deploy, proof, and verify."
-argument-hint: [optional: project, URL, --preview, --prod, skip-check, no-changelog]
+argument-hint: [optional: project, URL, --preview, --prod, skip-check, no-changelog, rollback]
 ---
 
 Primary artifact type: `master-workflow`.
@@ -34,6 +34,7 @@ The accounting profile lives in `skill-invocation-registry.json`; runtime loader
 
 - After scope, target, and risk are known, load `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-confidence-workflow.md`.
 - After `405` confirms deployment truth, load `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-proof-routing.md`.
+- When `405` reports a failed or partial release on a previously healthy surface, or on `rollback`, load `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-rollback-recovery.md`; every recovery mutation needs explicit approval.
 - Only after a multi-stage release route is selected, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle-core.md` and `$SHIPGLOWS_ROOT/skills/references/master-delegation-core.md`.
 - Load detailed `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` or `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` only when the selected core explicitly escalates for unresolved lifecycle/topology detail.
 

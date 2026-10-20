@@ -700,6 +700,9 @@
             "skills/references/preview-proof-routing.md",
             "skills/004-sg-deploy/references/release-proof-routing.md"
           ],
+          "rollback-recovery": [
+            "skills/004-sg-deploy/references/release-rollback-recovery.md"
+          ],
           "multi-stage-lifecycle": [
             "skills/references/master-workflow-lifecycle-core.md",
             "skills/references/master-delegation-core.md"
