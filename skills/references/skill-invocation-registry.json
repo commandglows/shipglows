@@ -335,6 +335,9 @@
               "editorial",
               "duplicata",
               "duplicates",
+              "tidy",
+              "menage",
+              "ménage",
               "add-project"
             ],
             "internal_engines": [
@@ -4076,6 +4079,15 @@
           "min_args": 0
         },
         "duplicates": {
+          "min_args": 0
+        },
+        "tidy": {
+          "min_args": 0
+        },
+        "menage": {
+          "min_args": 0
+        },
+        "ménage": {
           "min_args": 0
         },
         "migrate": {

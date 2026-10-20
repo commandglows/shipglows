@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-10-20"
 status: active
 source_skill: 300-sg-docs
 scope: 300-sg-docs-governance-playbooks
@@ -41,6 +41,20 @@ Use the shared editorial corpus selected by the activation gate. Audit or bootst
 
 Inventory candidates by theme then surface. Classify each set as `merge-to-shared`, `keep-surface-specific`, `split-shared-and-surface-delta`, or `collision-needs-review`. Report artifact set, canonical target, action, and reason. Merge/delete only after unique content and active tracker signals are preserved; unresolved truth collisions stop for review.
 
+## TIDY MODE
+
+Keep a project's workflow corpus light enough that agents and the operator read only live material, without losing a decision. Tidy moves and distills; it never deletes.
+
+1. **Inventory.** Run `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/project_docs_tidy_audit.py" .` It classifies `shipglows_data/workflow/` work artifacts as `open`, `recent`, `delivered`, `retired`, or `dormant` and counts open and done tracker rows. Templates, playbooks, checklists, and existing archives are out of scope.
+2. **Triage each candidate**, reading it before deciding: `open` and `recent` stay. `delivered` and `retired` items are distilled, then archived: durable decisions, behavior rules, or constraints not yet in their canonical surface (technical, product, business, editorial docs) are merged there first under the Migration Preservation Rule; a `retired` item also needs its successor link. `dormant` items are an operator decision per item: resume (stays), supersede (status `superseded`, then archive), or archive as abandoned with a one-line reason. Unresolved ownership or truth stops that item, not the run.
+3. **Trackers.** Move done rows of `TASKS.md` and append-only logs into `shipglows_data/workflow/archives/<YYYY>/<TRACKER>-done.md`; keep headers, legends, open rows, and a one-line pointer to the archive.
+4. **Links.** Before moving, find inbound references to each item (`git grep` on its path and slug) in live docs, specs, trackers, and code; repoint them to the archive or canonical target, including `depends_on` edges.
+5. **Approval packet.** Show per-class counts and sizes, then the item list by verdict (`archive`, `merge then archive`, `keep`, `ask`) with each `dormant` question. Wait for explicit approval; it covers the listed items only.
+6. **Apply** after loading `$SHIPGLOWS_ROOT/skills/references/closure-archive-guard.md`: `git mv` into `shipglows_data/workflow/archives/<YYYY>/<kind>/`, deterministic names, no overwrite, and one row per item in `shipglows_data/workflow/archives/INDEX.md` (`closed or archived date | item | one-line outcome | archive path`). Use one revertable commit per run.
+7. **Proof and report.** Re-run the inventory and the topology preflight, confirm no live reference points to a moved path, then report active size before and after, archived and merged items, and remaining `dormant` decisions.
+
+Removing an archived item entirely is outside tidy and follows the Removal Execution Lane of `skills/references/dead-code-obsolescence-audit.md`.
+
 ## AUDIT MODE
 
 Compare documentation and doc-like surfaces against code and current contracts. Check missing coverage, metadata, bug-model docs, language, dependencies/freshness, and user-risk surfaces such as install, auth, billing, migration, API, and troubleshooting. Audits are read-only unless the request also authorizes update.
@@ -50,6 +64,8 @@ Compare documentation and doc-like surfaces against code and current contracts. 
 Audit silently, then apply bounded remediations. Preserve ownership and tracker separation. Run skill-budget checks only for skill/discovery scope. Persist durable decisions to their canonical surfaces. Before slimming local docs, perform source-to-canonical preservation and update the destination in the same change. Create missing governance only when evidence justifies it; resume the originating outcome after a recoverable governance repair.
 
 Prioritize P0 dangerous drift, P1 conventions, P2 stale docs, then P3 missing coverage.
+
+End an update run with the tidy inventory summary. When `delivered`, `retired`, and `dormant` items together outweigh `open` and `recent` ones, recommend TIDY MODE; never tidy implicitly.
 
 ## LAYOUT MIGRATION MODE
 

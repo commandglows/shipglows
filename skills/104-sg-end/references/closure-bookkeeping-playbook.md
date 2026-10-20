@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-01"
+updated: "2026-10-20"
 status: active
 source_skill: 104-sg-end
 scope: closure-bookkeeping-playbook
@@ -62,6 +62,7 @@ If proof or ship is not complete, never set `closed`.
 ## Step 2: Closure status
 
 - Set `closed` only if evidence, proof, and sync are complete.
+- On `closed` with one owning spec, record `delivery: closed` and `closed_at: "<YYYY-MM-DD>"` in its frontmatter (outside `summary-only`) so later tidy runs recognize delivered work without inference.
 - Use `partial` when residual risk or stale docs remain.
 - Use `blocked` on missing context, missing tests, or unresolved safety gates.
 

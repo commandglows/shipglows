@@ -84,7 +84,7 @@ from the named public skill mode.
 `202-sg-emailing` — write | sequence | template | deliverability | provider | audit
 `203-sg-research` — default
 `205-sg-veille` — triage | help
-`300-sg-docs` — init | file | readme | api | components | auto | audit | update | metadata | migrate | migrate-frontmatter | migrate-layout | technical | editorial | duplicata|duplicates | add-project
+`300-sg-docs` — init | file | readme | api | components | auto | audit | update | metadata | migrate | migrate-frontmatter | migrate-layout | technical | editorial | duplicata|duplicates | tidy|ménage | add-project
 `301-sg-context` — default
 `302-sg-help` — mode | modes | expert | default
 `303-sg-resume` — default | court | ultra-court

@@ -165,7 +165,7 @@ composable with every command unless that mode declares a conflict.
 | `sg-content` | `plan`, `capture`, `repurpose`, `draft`, `enrich`, `audit`, `editorial`, `publish`, `emailing` |
 | `sg-marketing` | `market`, `gtm`, `copy`, `copywriting` |
 | `sg-seo` | `audit`, `launch`, `monitoring`, `fix`, `page`, `project`, `global` |
-| `sg-docs` | `init`, `file`, `readme`, `api`, `components`, `auto`, `audit`, `update`, `metadata`, `migrate`, `migrate-layout`, `technical`, `editorial`, `duplicata`, `duplicates`, `add-project` |
+| `sg-docs` | `init`, `file`, `readme`, `api`, `components`, `auto`, `audit`, `update`, `metadata`, `migrate`, `migrate-layout`, `technical`, `editorial`, `duplicata`, `duplicates`, `tidy`, `add-project` |
 | `sg-planning` | `tasks`, `backlog`, `priorities` (`prio`), `review`, `sessions` |
 | `sg-private` | `memory` |
 | `sg-help` | `default`, `mode`, `expert` |
