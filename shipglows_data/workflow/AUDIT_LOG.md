@@ -13,3 +13,4 @@
 🟠 [ShipGlows] audit: Dependency health for site | date: 2026-06-20 | overall: C | issues: 2 high / 1 moderate / 1 low / 1 major upgrade | scope: site
 🟡 [ShipGlows] audit: Dependency health for tui | date: 2026-06-20 | overall: C | issues: 1 missing lockfile / 1 unpinned toolchain / 1 proof gap | scope: tui
 🟠 [ShipGlows] audit: DevServer startup latency | date: 2026-07-17 | overall: D | issues: 2 high / 2 medium | scope: CLI startup and environment shortcuts | id: perf-devserver-startup-2026-07-17
+🟡 [ShipGlows] audit: Workflow docs tidy, lot D2 delivered | domain: workflow-tidy | date: 2026-10-20 | overall: partial | issues: 67 delivered docs, 101 done TASKS rows and 6 closed BUGS rows removed in b724971e; 41 living pointers repaired; 52 archived and 84 dormant items remain for lots D1/D3 | scope: shipglows_data/workflow | next_due: 2026-12-19
