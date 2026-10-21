@@ -1996,25 +1996,121 @@ function Get-SgNodeDependencyWorkspace([string]$ProjectPath) {
     return Get-SgPnpmWorkspaceRoot $ProjectPath
 }
 
+function ConvertFrom-SgPubYamlScalar([string]$Value) {
+    $text = $Value.Trim()
+    if ($text.Length -ge 2 -and (($text[0] -eq '"' -and $text[-1] -eq '"') -or ($text[0] -eq "'" -and $text[-1] -eq "'"))) { $text = $text.Substring(1, $text.Length - 2) }
+    return $text
+}
+
+# Reads the `path:` entries of one pubspec's dependencies, dev_dependencies and
+# dependency_overrides (block or inline map form), resolved against that pubspec.
+# A git dependency's nested `path:` sits deeper than the package properties and is ignored.
+function Get-SgPubPathDependencyDirectories([string]$PubspecPath) {
+    $directory = Split-Path -Parent $PubspecPath
+    $sections = @('dependencies','dev_dependencies','dependency_overrides')
+    $directories = New-Object Collections.Generic.List[string]
+    $section = $null; $packageIndent = -1; $propertyIndent = -1; $package = $null
+    foreach ($rawLine in [IO.File]::ReadAllLines($PubspecPath)) {
+        $line = ($rawLine -replace '(^|\s)#.*$', '').TrimEnd()
+        if (-not $line.Trim()) { continue }
+        $indent = $line.Length - $line.TrimStart().Length
+        if ($indent -eq 0) {
+            $section = if ($line -match '^([a-z_]+)\s*:\s*$' -and $Matches[1] -in $sections) { $Matches[1] } else { $null }
+            $packageIndent = -1; $package = $null
+            continue
+        }
+        if (-not $section) { continue }
+        $declared = $null
+        if ($packageIndent -lt 0 -or $indent -le $packageIndent) {
+            $packageIndent = $indent; $propertyIndent = -1; $package = $null
+            if ($line -match '^\s*([A-Za-z0-9_]+)\s*:\s*(.*)$') {
+                $package = $Matches[1]
+                if ($Matches[2] -match '^\{(?:.*[,\s])?path\s*:\s*([^,}]+)') { $declared = $Matches[1] }
+            }
+        } elseif ($package) {
+            if ($propertyIndent -lt 0) { $propertyIndent = $indent }
+            if ($indent -eq $propertyIndent -and $line -match '^\s*path\s*:\s*(.+)$') { $declared = $Matches[1] }
+        }
+        if (-not $declared) { continue }
+        # An unparsable path is left for pub get to report.
+        try { $directories.Add([IO.Path]::GetFullPath([IO.Path]::Combine($directory, (ConvertFrom-SgPubYamlScalar $declared))).TrimEnd('\','/')) } catch { continue }
+    }
+    return @($directories)
+}
+
+# Pub resolves path packages from their own pubspec, so a change there (for
+# example a new transitive path package) needs a pub get even when the
+# project's pubspec.yaml and pubspec.lock are untouched.
+function Get-SgPubPathDependencyClosure([string]$ProjectPath) {
+    $root = [IO.Path]::GetFullPath($ProjectPath).TrimEnd('\','/')
+    $seen = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    [void]$seen.Add($root)
+    $pending = New-Object 'Collections.Generic.Queue[string]'
+    $pending.Enqueue($root)
+    $closure = New-Object Collections.Generic.List[string]
+    while ($pending.Count -gt 0) {
+        $current = $pending.Dequeue()
+        # Only the root's pubspec_overrides.yaml is honored by pub.
+        $manifests = @('pubspec.yaml') + $(if ($current -eq $root) { @('pubspec_overrides.yaml') } else { @() })
+        foreach ($manifest in $manifests) {
+            $pubspec = Join-Path $current $manifest
+            # A missing path package cannot be fingerprinted; pub get reports it.
+            if (-not (Test-Path -LiteralPath $pubspec -PathType Leaf)) { continue }
+            foreach ($dependency in @(Get-SgPubPathDependencyDirectories $pubspec)) {
+                if ($seen.Add($dependency)) { $closure.Add($dependency); $pending.Enqueue($dependency) }
+            }
+        }
+    }
+    return @($closure)
+}
+
+function Get-SgDependencyRelativeLabel([string]$BaseDirectory, [string]$Path) {
+    $base = New-Object Uri (($BaseDirectory.TrimEnd('\','/') + '\').ToLowerInvariant())
+    $target = New-Object Uri (($Path.TrimEnd('\','/') + '\').ToLowerInvariant())
+    return [Uri]::UnescapeDataString($base.MakeRelativeUri($target).ToString()).TrimEnd('/')
+}
+
 function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
-    $names = if ($Kind -in @('astro','vite','browser-extension','tauri')) {
+    $node = $Kind -in @('astro','vite','browser-extension','tauri')
+    $names = if ($node) {
         @('package.json','pnpm-lock.yaml','package-lock.json','npm-shrinkwrap.json')
     } elseif ($Kind -eq 'python') {
         @('pyproject.toml','uv.lock','requirements.txt')
     } else {
-        @('pubspec.yaml','pubspec.lock')
+        @('pubspec.yaml','pubspec.lock','pubspec_overrides.yaml')
     }
-    $inputs = @($names | ForEach-Object { Join-Path $ProjectPath $_ } | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
-    if ($Kind -in @('astro','vite','browser-extension','tauri')) {
+    $paths = @($names | ForEach-Object { Join-Path $ProjectPath $_ } | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
+    if ($node) {
         $workspaceRoot = Get-SgNodeDependencyWorkspace $ProjectPath
         if ($workspaceRoot) {
             foreach ($name in @('package.json','pnpm-lock.yaml','pnpm-workspace.yaml','package-lock.json','npm-shrinkwrap.json')) {
                 $path = Join-Path $workspaceRoot $name
-                if (Test-Path -LiteralPath $path -PathType Leaf) { $inputs += $path }
+                if (Test-Path -LiteralPath $path -PathType Leaf) { $paths += $path }
             }
         }
     }
-    return @($inputs)
+    $projectBase = $ProjectPath.TrimEnd('\','/')
+    $inputs = @($paths | ForEach-Object {
+        # Workspace-root inputs live outside the project; label them by their own path so they cannot collide with project files.
+        $label = if ($_.StartsWith("$projectBase\", [StringComparison]::OrdinalIgnoreCase)) { $_.Substring($projectBase.Length).TrimStart('\','/').ToLowerInvariant() } else { 'workspace-root/' + (Split-Path -Leaf $_).ToLowerInvariant() }
+        [pscustomobject]@{Label=$label;Path=$_}
+    })
+    if (-not $node -and $Kind -ne 'python') {
+        foreach ($dependency in @(Get-SgPubPathDependencyClosure $ProjectPath)) {
+            $directoryLabel = 'path-dependency/' + (Get-SgDependencyRelativeLabel $projectBase $dependency)
+            foreach ($name in @('pubspec.yaml','pubspec.lock')) {
+                $path = Join-Path $dependency $name
+                if (Test-Path -LiteralPath $path -PathType Leaf) { $inputs += [pscustomobject]@{Label="$directoryLabel/$name";Path=$path} }
+            }
+        }
+    }
+    return @($inputs | Sort-Object Path)
+}
+
+function Get-SgDependencyInputHashes([string]$ProjectPath, [string]$Kind) {
+    $hashes = [ordered]@{}
+    foreach ($entry in @(Get-SgDependencyInputs $ProjectPath $Kind)) { $hashes[$entry.Label] = (Get-FileHash -LiteralPath $entry.Path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() }
+    return $hashes
 }
 
 function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
@@ -2052,9 +2148,9 @@ function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
     return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]@('pub','get');BootstrapArguments=@();ArtifactStrategy='flutter-package-config';SuppressNpmLock=$false;WorkingDirectory=$ProjectPath}
 }
 
-function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Plan) {
-    $inputs = @(Get-SgDependencyInputs $ProjectPath $Kind)
-    if ($inputs.Count -eq 0) { throw "No dependency manifest found for $Kind." }
+function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Plan, [Collections.IDictionary]$InputHashes = $null) {
+    if ($null -eq $InputHashes) { $InputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind }
+    if ($InputHashes.Count -eq 0) { throw "No dependency manifest found for $Kind." }
     $projectBase = $ProjectPath.TrimEnd('\','/')
     $builder = New-Object Text.StringBuilder
     [void]$builder.AppendLine('schemaVersion=2')
@@ -2065,12 +2161,7 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
     [void]$builder.AppendLine("artifactStrategy=$([string]$Plan.ArtifactStrategy)")
     $workingDirectory = if ($Plan.PSObject.Properties['WorkingDirectory']) { [string]$Plan.WorkingDirectory } else { '' }
     if ($workingDirectory -and $workingDirectory.TrimEnd('\','/') -ne $projectBase) { [void]$builder.AppendLine("workingDirectory=$($workingDirectory.TrimEnd('\','/').ToLowerInvariant())") }
-    foreach ($path in @($inputs | Sort-Object)) {
-        # Workspace-root inputs live outside the project; label them by their own path so they cannot collide with project files.
-        $relative = if ($path.StartsWith("$projectBase\", [StringComparison]::OrdinalIgnoreCase)) { $path.Substring($projectBase.Length).TrimStart('\','/').ToLowerInvariant() } else { 'workspace-root/' + (Split-Path -Leaf $path).ToLowerInvariant() }
-        $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
-        [void]$builder.AppendLine("$relative=$hash")
-    }
+    foreach ($label in @($InputHashes.Keys)) { [void]$builder.AppendLine("$label=$($InputHashes[$label])") }
     $sha = [Security.Cryptography.SHA256]::Create()
     try { return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($builder.ToString())))).Replace('-','').ToLowerInvariant() }
     finally { $sha.Dispose() }
@@ -2115,9 +2206,26 @@ function Test-SgDependencyState([string]$StatePath, [string]$Digest, [string]$Pr
     } catch { return $false }
 }
 
-function Write-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind) {
+# Names the dependency inputs whose hash differs from the last recorded
+# success, so a re-run explains itself. States written before inputs were
+# recorded yield no summary.
+function Get-SgDependencyChangeSummary([string]$StatePath, [Collections.IDictionary]$InputHashes) {
+    if (-not (Test-Path -LiteralPath $StatePath -PathType Leaf)) { return $null }
+    try { $state = Get-Content -LiteralPath $StatePath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop } catch { return $null }
+    if (-not $state.PSObject.Properties['inputs'] -or -not $state.inputs) { return $null }
+    $previous = @{}
+    foreach ($property in $state.inputs.PSObject.Properties) { $previous[$property.Name] = [string]$property.Value }
+    $changed = @(@(@($InputHashes.Keys) + @($previous.Keys)) | Sort-Object -Unique | Where-Object { [string]$InputHashes[$_] -cne [string]$previous[$_] })
+    if ($changed.Count -eq 0) { return $null }
+    $pathDependencies = @($changed | Where-Object { $_ -like 'path-dependency/*' } | ForEach-Object { ($_ -replace '^path-dependency/', '') -replace '/[^/]+$', '' } | Select-Object -Unique)
+    if ($pathDependencies.Count -gt 0) { return "path dependency $($pathDependencies -join ', ') modified" }
+    return "$($changed -join ', ') modified"
+}
+
+function Write-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind, [Collections.IDictionary]$InputHashes = $null) {
     $temp = "$StatePath.$([guid]::NewGuid().ToString('N')).tmp"
     $state = [ordered]@{ schemaVersion=2; projectPath=[IO.Path]::GetFullPath($ProjectPath); kind=$Kind; digest=$Digest; completedAt=[DateTimeOffset]::UtcNow.ToString('o',[Globalization.CultureInfo]::InvariantCulture) }
+    if ($InputHashes) { $state['inputs'] = $InputHashes }
     try {
         [IO.File]::WriteAllText($temp, ($state | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding($false)))
         if (Test-Path -LiteralPath $StatePath -PathType Leaf) {
@@ -2181,8 +2289,11 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             catch [IO.IOException] { if ((Get-Date) -ge $deadline) { throw 'Dependency setup lock timed out.' }; Start-Sleep -Milliseconds 50 }
         } while (-not $lock)
         $plan = New-SgDependencyPlan $ProjectPath $Kind
-        $digest = Get-SgDependencyDigest $ProjectPath $Kind $plan
+        $inputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind
+        $digest = Get-SgDependencyDigest $ProjectPath $Kind $plan $inputHashes
         if (Test-SgDependencyState $statePath $digest $ProjectPath $Kind) { Write-SgInfo "Dependencies unchanged: $ProjectPath"; return $false }
+        $changeSummary = Get-SgDependencyChangeSummary $statePath $inputHashes
+        if ($changeSummary) { Write-SgInfo "Dependencies changed: $changeSummary" }
         # From this point onward the previous success record no longer
         # describes a safely reusable installation. Keep failures fail-closed.
         Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
@@ -2215,9 +2326,10 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
         finally { $env:npm_config_package_lock = $previousNpmPackageLock; $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
         if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Label artifacts." }
         $completedPlan = New-SgDependencyPlan $ProjectPath $Kind
-        $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan
+        $completedInputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind
+        $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan $completedInputHashes
         if ($completedDigest -cne $digest) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
-        Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind
+        Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind $completedInputHashes
         return $true
     } finally { if ($logWriter) { $logWriter.Dispose() }; if ($lock) { $lock.Dispose() } }
 }
