@@ -138,6 +138,7 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `706` | `continue` | `706-continue` | Pilotage/session |
 | `707` | `name` | `707-name` | Helper/Claude statusline |
 | `708` | `sg-blitz` | `708-sg-blitz` | Pilotage/session |
+| `709` | `sg-auto` | `709-sg-auto` | Pilotage/session |
 | `800` | `tmux-capture-conversation` | `800-tmux-capture-conversation` | Conversation/transcript |
 | `801` | `clean-conversation-transcript` | `801-clean-conversation-transcript` | Conversation/transcript |
 | `900` | `shipglows-core` | `900-shipglows-core` | Meta/internal |

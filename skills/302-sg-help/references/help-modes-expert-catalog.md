@@ -107,6 +107,7 @@ from the named public skill mode.
 `706-continue` — default
 `707-name` — default
 `708-sg-blitz` — internal engine for public `shipglows blitz`; effective `#nolocal` is mandatory
+`709-sg-auto` — internal engine for public `shipglows auto`; autonomous whole-business improvement with local proof
 `800-tmux-capture-conversation` — default | --tab
 `801-clean-conversation-transcript` — default
 `900-shipglows-core` — audit | build | refresh | packaging | help

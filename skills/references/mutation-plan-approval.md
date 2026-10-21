@@ -57,6 +57,10 @@ Classification is invariant across reasoning-effort settings. The same request m
 
 An explicit `shipglows blitz` invocation alone selects this authority. Before any Blitz candidate or write, load `mutation-blitz-authority.md` and `no-local-execution-policy.md`. It permits only bounded reversible edits under the frozen current-project root, with deferred proof. It never permits Git or external writes, execution workloads, installation, sensitive-data/security changes, deletion, or changing its own guardrails. Posture tags alone grant no mutation authority.
 
+## Auto-session authority
+
+An explicit `shipglows auto` invocation alone selects this authority. Before any Auto candidate or write, load `mutation-auto-authority.md`. It permits autonomous edits, proportional local proof and exact-scope milestone commits under the frozen current-project root. It never permits push, branches, CI dispatch, deployment, production, external writes, spend, secrets, destructive effects, or changing its own guardrails.
+
 ## Supplied-link register authority
 
 Do not ask for a second confirmation when the operator explicitly asks to append supplied public links to one exact existing internal reference register and every condition is established:

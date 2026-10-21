@@ -67,6 +67,9 @@ One global workflow mode and three transversal execution tags refine that
 default. A mode says what workflow owns the work; a tag says where and how
 executable proof may run.
 
+- `shipglows auto [focus]` works alone to improve the whole business (product,
+  technical, SEO, UX, content, marketing) with local proof and milestone
+  commits, no push; it asks only when truly blocked.
 - `shipglows blitz [scope or horizon]` autonomously selects safe work already
   grounded in roadmap, planning, specs, architecture, security, or compliance
   evidence. After safety and authority eligibility, it prioritizes durable
@@ -131,7 +134,7 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 
 | Domain | Public skill | Owns | Current internal engine(s) |
 | --- | --- | --- | --- |
-| Router | `shipglows` | Natural-language routing, blitz credit windows, nolocal policy, and direct handoff | `000-shipglows`, `708-sg-blitz` |
+| Router | `shipglows` | Natural-language routing, blitz credit windows, nolocal policy, and direct handoff | `000-shipglows`, `708-sg-blitz`, `709-sg-auto` |
 | Créer | `sg-development` | Product, feature, app, code, and site delivery | `001-sg-build` |
 | Créer | `sg-design` | Brand identity, visual system, interface, accessibility, and motion | `006-sg-design` |
 | Créer | `sg-experience` | Journeys, activation, onboarding, trust, and recovery | `008-sg-customer` |
@@ -154,7 +157,7 @@ composable with every command unless that mode declares a conflict.
 
 | Public command | Modes |
 | --- | --- |
-| `shipglows` | default routing, `context`, `blitz` |
+| `shipglows` | default routing, `context`, `blitz`, `auto` |
 | `sg-development` | `default`, `feature`, `app`, `refactor` |
 | `sg-design` | `identity`, `system`, `playground`, `audit`, `animation`, `redesign`, `migration`, `library` |
 | `sg-experience` | `audit`, `flow`, `onboarding`, `recovery` |
@@ -258,7 +261,7 @@ modes. Typical internal lanes include:
   `203-sg-research`, `205-sg-veille`
 - helpers and context: `301-sg-context`, `303-sg-resume`, `304-sg-changelog`,
   `305-sg-init`, `306-sg-scaffold`, `308-sg-status`, `700-sg-explore`,
-  `704-sg-model`, `706-continue`, `707-name`, `708-sg-blitz`
+  `704-sg-model`, `706-continue`, `707-name`, `708-sg-blitz`, `709-sg-auto`
 - ShipGlows maintenance only: `900-shipglows-core`
 
 Numeric codes are still a precise runtime lookup. They are not a second public

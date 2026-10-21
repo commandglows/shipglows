@@ -423,7 +423,8 @@
       "modes": [
         "default",
         "context",
-        "blitz"
+        "blitz",
+        "auto"
       ],
       "mode_routes": {
         "blitz": {
@@ -438,6 +439,10 @@
           "implied_execution_tags": [
             "nolocal"
           ]
+        },
+        "auto": {
+          "runtime_engine": "709-sg-auto",
+          "min_args": 0
         }
       },
       "legacy_execution_aliases": {
@@ -453,7 +458,8 @@
         }
       },
       "internal_engines": [
-        "708-sg-blitz"
+        "708-sg-blitz",
+        "709-sg-auto"
       ]
     }
   },
@@ -1212,6 +1218,31 @@
         "gates": {
           "candidate-loop": [
             "skills/708-sg-blitz/references/blitz-credit-window-playbook.md"
+          ],
+          "multi-session-coordination": [
+            "skills/708-sg-blitz/references/blitz-session-coordination.md"
+          ],
+          "delegation": [
+            "skills/references/master-delegation-semantics.md"
+          ],
+          "report": [
+            "skills/references/reporting-contract.md"
+          ]
+        }
+      },
+      "709-sg-auto": {
+        "body": "skills/709-sg-auto/SKILL.md",
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/references/execution-posture-tags.md",
+          "skills/references/mutation-plan-approval.md"
+        ],
+        "gates": {
+          "improvement-loop": [
+            "skills/709-sg-auto/references/auto-improvement-loop.md"
+          ],
+          "authority": [
+            "skills/references/mutation-auto-authority.md"
           ],
           "multi-session-coordination": [
             "skills/708-sg-blitz/references/blitz-session-coordination.md"
@@ -4142,6 +4173,10 @@
       }
     },
     "708-sg-blitz": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "709-sg-auto": {
       "kind": "freeform",
       "min_args": 0
     },

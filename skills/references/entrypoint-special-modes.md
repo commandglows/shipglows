@@ -25,7 +25,7 @@ next_step: none
 
 # Entrypoint Special Modes
 
-Load only for update, context, blitz, hygiene or execution-posture compatibility.
+Load only for update, context, blitz, auto, hygiene or execution-posture compatibility.
 Apply only the selected mode; this is never an eager bundle.
 
 An explicit request to update ShipGlows resolves the active installation
@@ -60,6 +60,16 @@ wall-clock minute, recommends subagents for independent useful missions, and
 always applies the shared no-local-execution policy implicitly. It has no
 local-execution override, never forces reasoning or agents to consume credits,
 never self-activates Fast, and never promises exact credit exhaustion.
+
+`shipglows auto [focus]` is the public autonomous business-improvement mode.
+The canonical router hands it to internal `709-sg-auto`, which freezes the
+current project root and keeps improving the business across every facet
+(product, technical quality, SEO, UX, content, marketing, performance,
+security, docs) with no time or credit pressure. Its effective posture is
+`#local`: it runs proportional lint, tests and managed dev sessions, commits
+validated milestones on the current branch, and never pushes, deploys, or
+performs external writes. It asks the operator only when nothing else can
+progress. `auto #nolocal` and `auto #ci` narrow it to static work.
 
 `#local`, `#nolocal`, and `#ci` are transversal execution posture tags, not
 métier modes. Load `execution-posture-tags.md` whenever one appears. `#local`
