@@ -12,15 +12,12 @@
 | [BUG-2026-08-19-001](shipglows_data/workflow/bugs/BUG-2026-08-19-001.md) | closed | medium | CLI always reports low RAM on VMs smaller than its absolute threshold | 2026-08-20 | none |
 | [BUG-2026-08-03-002](shipglows_data/workflow/bugs/BUG-2026-08-03-002.md) | closed | high | env_remove leaves manual project devservers running | 2026-08-03 | none |
 | [BUG-2026-08-03-001](shipglows_data/workflow/bugs/BUG-2026-08-03-001.md) | closed | medium | Global contract suite fails after repository and skill-name migrations | 2026-08-03 | none |
-| [BUG-2026-06-26-001](shipglows_data/workflow/bugs/BUG-2026-06-26-001.md) | closed | high | ShipGlows installer configures every eligible user by default | 2026-06-26 | none |
 | [BUG-2026-05-20-001](shipglows_data/workflow/bugs/BUG-2026-05-20-001.md) | fixed-pending-verify | medium | Terminal TUI activity panel shows headings instead of task and audit entries | 2026-05-20 | /sg-test --retest BUG-2026-05-20-001 |
 | [BUG-2026-05-19-001](shipglows_data/workflow/bugs/BUG-2026-05-19-001.md) | fixed-pending-verify | medium | Terminal TUI project filter does not scope specs | 2026-05-19 | /sg-test --retest BUG-2026-05-19-001 |
 | [BUG-2026-05-10-005](shipglows_data/workflow/bugs/BUG-2026-05-10-005.md) | fix-attempted | medium | Menu navigation ignores typed environment/folder name | 2026-05-10 | /sg-test --retest BUG-2026-05-10-005 |
-| [BUG-2026-05-06-001](shipglows_data/workflow/bugs/BUG-2026-05-06-001.md) | closed | high | Stop Environment leaves orphaned PM2 apps and allows crash loops | 2026-05-08 | none |
 | [BUG-2026-05-05-002](shipglows_data/workflow/bugs/BUG-2026-05-05-002.md) | fix-attempted | medium | Local tunnel restart reports no active tunnel when SSH target follows -L | 2026-05-05 | /sg-test --retest BUG-2026-05-05-002 |
 | [BUG-2026-05-05-001](shipglows_data/workflow/bugs/BUG-2026-05-05-001.md) | fix-attempted | medium | ShipGlows tracking init should not create project TASKS.md symlinks | 2026-05-05 | /sg-test --retest BUG-2026-05-05-001 |
 | [BUG-2026-05-04-004](shipglows_data/workflow/bugs/BUG-2026-05-04-004.md) | fixed-pending-verify | medium | Convex-only package.json blocks Flutter dev command detection | 2026-05-05 | /sg-verify BUG-2026-05-04-004 |
 | [BUG-2026-05-04-003](shipglows_data/workflow/bugs/BUG-2026-05-04-003.md) | fix-attempted | medium | Blacksmith remote auth callback fails without SSH tunnel | 2026-05-04 | /sg-test --retest BUG-2026-05-04-003 |
 | [BUG-2026-05-04-001](shipglows_data/workflow/bugs/BUG-2026-05-04-001.md) | closed | high | Disk cleanup under-warns critical root disk pressure | 2026-05-04 | none |
-| [BUG-2026-05-03-001](shipglows_data/workflow/bugs/BUG-2026-05-03-001.md) | closed | medium | New ShipGlows skill is not visible in Codex because runtime symlinks are missing | 2026-05-03 | none |
 | [BUG-2026-05-02-001](shipglows_data/workflow/bugs/BUG-2026-05-02-001.md) | closed | medium | Playwright MCP points to missing Google Chrome on Linux ARM64 | 2026-05-04 | none |

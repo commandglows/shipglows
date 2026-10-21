@@ -61,7 +61,7 @@
 - Status: pass
 - Confidence: high
 - Result summary: `env_stop` stopped a PM2-only/orphan-style app by name; isolated `batch_stop_all` stopped the temporary PM2-only app; generated ecosystem config contains crash-loop limits.
-- Bug pointer: BUG-2026-05-06-001 -> shipglows_data/workflow/bugs/BUG-2026-05-06-001.md
+- Bug pointer: BUG-2026-05-06-001 (closed record removed by tidy 2026-10-21; see Git history)
 - Evidence pointer: local PM2 commands with temporary `shipglows_retest_*` app names; no secrets or private payloads stored
 - Follow-up: completed by `/sg-verify BUG-2026-05-06-001` on 2026-05-08; no further retest required for this bug.
 
@@ -87,7 +87,7 @@
 - Status: pass
 - Confidence: high
 - Result summary: Operator invoked `$sg-skill-build hi` and confirmed the skill was recognized by Codex.
-- Bug pointer: BUG-2026-05-03-001 -> shipglows_data/workflow/bugs/BUG-2026-05-03-001.md
+- Bug pointer: BUG-2026-05-03-001 -> git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md
 - Evidence pointer: chat confirmation; no secrets or private runtime data stored
 - Follow-up: `/sg-verify BUG-2026-05-03-001`
 
