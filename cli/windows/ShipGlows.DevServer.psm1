@@ -3429,6 +3429,12 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         }
     }
     if ($alreadyRunning -and $Restart -and [string]$entry.kind -ne 'flutter-web') { [void](Stop-SgProject $Config $entry.path -PreserveBackend) }
+    # A dead Flutter supervisor can leave its native runner alive (e.g. in the tray), locking the
+    # build output (LNK1168). Reuse the stop cleanup, scoped to this project's own runners.
+    if (-not $alreadyRunning -and [string]$entry.kind -eq 'flutter-web' -and [string]$entry.status -ne 'stopped') {
+        Write-SgInfo "Previous session of $($entry.name) ended as '$($entry.status)'; cleaning its leftover processes."
+        [void](Stop-SgProject $Config $entry.path -PreserveBackend)
+    }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
     $flutterNative = [string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')
