@@ -282,16 +282,6 @@ infer_title_from_raw() {
   local fallback="$2"
   local prompt skill text
 
-  if grep -qi '001-sg-build' "$raw_file" && grep -Eqi 'architecture (de|des|of).{0,40}skills?|skills?.{0,40}architecture' "$raw_file"; then
-    printf '%s\n' "Conversation 001-sg-build - architecture des skills"
-    return 0
-  fi
-
-  if grep -Eqi 'doctrine.{0,40}langue|langue.{0,40}doctrine|language.{0,40}doctrine' "$raw_file"; then
-    printf '%s\n' "Conversation ShipGlows - doctrine de langue"
-    return 0
-  fi
-
   prompt=$(
     awk '
       /^› [/$%]/ {
