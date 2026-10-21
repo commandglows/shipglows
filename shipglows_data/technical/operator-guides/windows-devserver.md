@@ -403,7 +403,26 @@ acceptée qu'avec `"productionPublicOnly": true` dans l'objet `doppler` : à
 utiliser uniquement quand la surface doit parler au backend de production (par
 exemple une extension qui réutilise la session de l'app hébergée) et que les
 clés listées sont publiques. Les clés au nom de secret (`SECRET`, `PASSWORD`,
-`TOKEN`, `PRIVATE_KEY`) restent refusées dans tous les cas.
+`TOKEN`, `PRIVATE_KEY`) restent refusées dans `publicEnvironment`.
+
+Un site SSR qui a besoin de ses clés serveur (Clerk, Convex, Stripe…) déclare
+`"inject": "all"` avec un `publicEnvironment` vide : `s start` lance alors
+`doppler run --project … --config … --no-fallback` sans `--only-secrets`, et
+toute la config entre dans le processus du serveur de dev. Ce mode n'est accepté
+qu'avec une config `dev`, `stg` ou `staging`, jamais en production ni avec
+`"doppler": "NONE"`. Les valeurs restent hors de la commande, du registre et des
+logs ; `--no-fallback` n'écrit aucun cache local. `"inject": "public"` (défaut)
+garde le filtrage par `publicEnvironment`. Une session déjà lancée est réutilisée
+telle quelle : après un changement de recette, utiliser `s restart`.
+
+```json
+{
+  "schemaVersion": "shipglows.node-recipe.v1",
+  "doppler": { "project": "commandglows", "config": "dev" },
+  "inject": "all",
+  "publicEnvironment": []
+}
+```
 
 ### Monorepos, registre et Flutter Web
 

@@ -1857,16 +1857,21 @@ function Sync-SgDiscoveredProjectMetadata([object]$Config, [object]$Candidate) {
 
 function Read-SgNodeRecipe([string]$ProjectPath) {
     # Optional launch recipe for Node surfaces: a Doppler development scope and the
-    # public keys it may inject. Secret values never enter launch artifacts.
+    # keys it may inject (the public allowlist, or the whole development/staging
+    # config with inject: all). Secret values never enter launch artifacts.
     $path = Join-Path $ProjectPath '.shipglows.node.json'
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
     $item = Get-Item -LiteralPath $path -Force
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Node launch recipe cannot be a reparse point.' }
     if ($item.Length -gt 65536) { throw 'Node launch recipe exceeds 64 KiB.' }
     try { $recipe = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Node launch recipe is not valid JSON.' }
-    $keys = @('doppler','publicEnvironment','schemaVersion')
+    $hasInject = $null -ne $recipe -and $recipe -isnot [array] -and @($recipe.PSObject.Properties.Name) -ccontains 'inject'
+    $keys = if ($hasInject) { @('doppler','inject','publicEnvironment','schemaVersion') } else { @('doppler','publicEnvironment','schemaVersion') }
     if ($null -eq $recipe -or $recipe -is [array] -or (@($recipe.PSObject.Properties.Name | Sort-Object) -join ',') -cne ($keys -join ',')) { throw 'Node launch recipe fields are invalid.' }
     if ($recipe.schemaVersion -cne 'shipglows.node-recipe.v1') { throw 'Unsupported Node launch recipe version.' }
+    if ($hasInject -and ($recipe.inject -isnot [string] -or $recipe.inject -cnotin @('public','all'))) { throw 'Node recipe inject must be "public" or "all".' }
+    $injectAll = $hasInject -and $recipe.inject -ceq 'all'
+    $recipe | Add-Member -NotePropertyName injectAll -NotePropertyValue $injectAll -Force
     if ($recipe.publicEnvironment -isnot [array]) { throw 'Node recipe publicEnvironment must be an array.' }
     foreach ($key in $recipe.publicEnvironment) {
         if ($key -isnot [string] -or $key -cnotmatch '^[A-Z][A-Z0-9_]{0,95}$' -or $key -match '(SECRET|PASSWORD|TOKEN|PRIVATE_KEY)') { throw 'Node recipe publicEnvironment contains a non-public or invalid key.' }
@@ -1879,19 +1884,25 @@ function Read-SgNodeRecipe([string]$ProjectPath) {
     $dopplerFields = if ($productionScope) { 'config,productionPublicOnly,project' } else { 'config,project' }
     $configPattern = if ($productionScope) { '^(prd|prod|production)(_[a-zA-Z0-9_-]+)?$' } else { '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$' }
     if (-not $dopplerNone -and ($null -eq $recipe.doppler -or $recipe.doppler -is [string] -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne $dopplerFields -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch $configPattern -or ($productionScope -and ($recipe.doppler.productionPublicOnly -isnot [bool] -or -not $recipe.doppler.productionPublicOnly)))) { throw 'Node recipe must declare Doppler as NONE or provide an exact development/staging project and config (a production config requires productionPublicOnly: true).' }
-    if (-not $dopplerNone -and $recipe.publicEnvironment.Count -eq 0) { throw 'Node recipe with Doppler must list the public keys it injects.' }
+    if ($injectAll) {
+        # Whole-config injection is a development convenience: never production, never with Doppler NONE,
+        # and never next to an allowlist that would look like a filter.
+        if ($dopplerNone -or $productionScope) { throw 'Node recipe inject "all" requires a development/staging Doppler config.' }
+        if ($recipe.publicEnvironment.Count -ne 0) { throw 'Node recipe inject "all" requires an empty publicEnvironment.' }
+    } elseif (-not $dopplerNone -and $recipe.publicEnvironment.Count -eq 0) { throw 'Node recipe with Doppler must list the public keys it injects.' }
     return $recipe
 }
 
 function Add-SgNodeRecipeLauncher([string]$ProjectPath, [string]$Command) {
-    # Wrap the managed `call "<tool>" ...` command so Doppler injects only the declared keys.
+    # Wrap the managed `call "<tool>" ...` command so Doppler injects only the declared keys,
+    # or the whole development/staging config when the recipe opts into inject: all.
     $recipe = Read-SgNodeRecipe $ProjectPath
     if (-not $recipe -or ($recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE')) { return $Command }
     $doppler = Get-SgCommandPath @('doppler.exe')
     if (-not $doppler) { throw 'The declared Node recipe requires Doppler. No unauthenticated fallback is allowed.' }
     if (-not $Command.StartsWith('call "')) { throw 'Node launch command cannot be wrapped by its Doppler recipe.' }
-    $only = @($recipe.publicEnvironment) -join ','
-    return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) --only-secrets $only --no-fallback --no-check-version --silent -- " + $Command.Substring(5)
+    $only = if ($recipe.injectAll) { '' } else { "--only-secrets $(@($recipe.publicEnvironment) -join ',') " }
+    return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) $only--no-fallback --no-check-version --silent -- " + $Command.Substring(5)
 }
 
 function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port) {
