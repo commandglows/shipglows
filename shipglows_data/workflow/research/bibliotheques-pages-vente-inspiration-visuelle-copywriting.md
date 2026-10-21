@@ -15,7 +15,7 @@ security_impact: none
 docs_impact: yes
 source_count: 10
 linked_systems:
-  - shipglows_data/workflow/explorations/2026-07-13-sales-page-reference-library.md
+  - git:649a9c31:shipglows_data/workflow/explorations/2026-07-13-sales-page-reference-library.md
   - shipglows_data/editorial/content-map.md
 depends_on: []
 supersedes: []

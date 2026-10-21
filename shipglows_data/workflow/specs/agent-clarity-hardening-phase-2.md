@@ -40,7 +40,7 @@ depends_on:
     artifact_version: "1.4.0"
     required_status: "active"
 supersedes:
-  - "shipglows_data/workflow/specs/agent-clarity-hardening-phase-1.md"
+  - "git:649a9c31:shipglows_data/workflow/specs/agent-clarity-hardening-phase-1.md"
 evidence:
   - "User direction 2026-06-27: the main objective is more clarity for agents."
   - "Phase 1 clarified lifecycle-adjacent proof owners; the next ambiguity cluster is master-vs-owner routing across build, maintain, bug, deploy, and audit."

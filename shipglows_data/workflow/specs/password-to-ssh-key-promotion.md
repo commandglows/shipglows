@@ -22,7 +22,7 @@ depends_on:
   - artifact: "shipglows_data/technical/local-tunnels-and-mcp-login.md"
     artifact_version: "1.1.1"
     required_status: reviewed
-  - artifact: "shipglows_data/workflow/explorations/2026-07-13-ssh-key-promotion.md"
+  - artifact: "git:649a9c31:shipglows_data/workflow/explorations/2026-07-13-ssh-key-promotion.md"
     artifact_version: "1.0.1"
     required_status: reviewed
 supersedes: []
