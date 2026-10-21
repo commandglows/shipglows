@@ -13,10 +13,7 @@ confidence: high
 risk_level: low
 security_impact: none
 docs_impact: yes
-depends_on:
-  - artifact: "shipglows_data/workflow/research/charge-referencement-web-competences.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
+depends_on: []
 supersedes: []
 evidence:
   - "Archive de migration conservant la checklist SEO transverse originale avant la séparation SEO technique / contenu SEO."

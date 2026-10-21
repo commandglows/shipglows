@@ -39,7 +39,7 @@ ROOT_TO_SHIPGLOWS = {
     "PROJECTS.md": "workflow/PROJECTS.md",
     "README.md": "README.md",
     "TASKS.md": "workflow/TASKS.md",
-    "concurrent.md": "workflow/research/concurrent.md",
+    "concurrent.md": "workflow/concurrent.md",
     "migrations/shipglows_data_metadata_inventory.md": "workflow/archives/central-shipglows-data-retirement/shipglows_data_metadata_inventory.md",
 }
 

@@ -34,7 +34,7 @@ depends_on:
     artifact_version: "1.4.0"
     required_status: active
 supersedes:
-  - "shipglows_data/workflow/conversation-audits/2026-06-11-conversation-shipglows-doctrine-de-langue-safety-hold.md"
+  - "git:c93c292a:shipglows_data/workflow/conversation-audits/2026-06-11-conversation-shipglows-doctrine-de-langue-safety-hold.md"
 next_step: "/103-sg-verify conversation-audit-current-contract-coverage"
 ---
 
