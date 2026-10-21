@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: "ShipGlows"
 created: "2026-07-04"
-updated: "2026-07-04"
+updated: "2026-10-21"
 status: reviewed
 source_skill: "204-sg-market-study"
 scope: "market"
@@ -49,6 +49,8 @@ next_review: "2026-08-04"
 ---
 
 # Market Study: Codesphere vs Railway vs Render vs Fly.io for ShipGlows
+
+> Update 2026-10-21: for sovereign hosting, this study is extended by `shipglows_data/workflow/research/sovereign-hosting-options-for-shipglows.md`, which compares Clever Cloud, Scaleway and Codesphere. The deploy-target matrix now sends sovereign surfaces to Clever Cloud (web, server) or Scaleway (worker), and keeps Codesphere for self-hosted or on-premise cases.
 
 > Generated 2026-07-04 - Focus: deploy substrate fit for ShipGlows-managed projects
 

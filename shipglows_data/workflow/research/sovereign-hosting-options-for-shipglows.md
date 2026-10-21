@@ -1,151 +1,144 @@
 ---
 artifact: research
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "2.0.0"
 project: "ShipGlows"
 created: "2026-07-04"
-updated: "2026-07-04"
+updated: "2026-10-21"
 status: reviewed
 source_skill: 203-sg-research
-scope: "Codesphere fit for ShipGlows workflows"
-owner: "Codex"
+scope: "Sovereign hosting options for ShipGlows-managed projects: Clever Cloud, Scaleway, Codesphere"
+owner: "Diane"
 confidence: medium
 risk_level: medium
 security_impact: yes
 docs_impact: yes
-source_count: 8
+source_count: 16
 evidence:
+  - "https://www.clever.cloud/sovereign-cloud"
+  - "https://www.clever.cloud/key-benefits"
+  - "https://www.clever.cloud/clever-cloud-vs-heroku/"
+  - "https://www.clever.cloud/developers/doc/account-billing/consumption/"
+  - "https://github.com/CleverCloud/clever-cloud-review-app"
+  - "https://www.scaleway.com/en/pricing/serverless/"
+  - "https://www.scaleway.com/en/docs/serverless-containers/faq/"
+  - "https://www.scaleway.com/en/serverless-containers/"
+  - "https://www.scaleway.com/en/managed-postgresql-mysql/"
+  - "https://www.scaleway.com/en/security-and-compliance/secnumcloud/"
   - "https://www.codesphere.com/"
+  - "https://www.codesphere.com/products/developer-platform"
   - "https://docs.codesphere.com/intro"
-  - "https://docs.codesphere.com/core-concepts/landscapes-and-workspaces"
-  - "https://docs.codesphere.com/workspace-toolkit/ci-and-deploy/configuring-a-landscape"
   - "https://docs.codesphere.com/workspace-toolkit/monitor/log-browser"
-  - "https://docs.codesphere.com/category/automations"
-  - "https://docs.codesphere.com/next/apis-and-automations/public-api"
+  - "https://techcrunch.com/2026/02/17/mistral-ai-buys-koyeb-in-first-acquisition-to-back-its-cloud-ambitions"
+  - "https://blog.ovhcloud.com/en/posts/snc-cloud-platform-secnumcloud-qualification/"
 depends_on: []
-supersedes: []
-  - "https://www.codesphere.com/remote-development"
-next_step: "/204-sg-market-study compare Codesphere vs Railway/Render/Fly.io for ShipGlows-target workflows"
+supersedes:
+  - "shipglows_data/workflow/research/codesphere-fit-for-shipglows-workflows.md (renamed and extended)"
+next_step: "Pilot Clever Cloud on one real managed project that has a dedicated server or a web surface, then record the result in skills/references/deploy-target-matrix.md"
 ---
 
-# Research: Codesphere fit for ShipGlows workflows
+# Research: Sovereign hosting options for ShipGlows
 
-> Generated 2026-07-04 - Sources: 8
+> First written 2026-07-04 as a Codesphere fit study; extended 2026-10-21 into a sovereign-hosting comparison after the operator made sovereignty a first-class criterion. Sources re-checked 2026-10-21.
 
 ## Executive Summary
 
-Codesphere looks strong when the goal is to standardize cloud development, preview environments, deployment, managed services, and observability inside one platform. It does **not** replace ShipGlows's core value: context routing, spec-first execution, verification discipline, and agent handoff quality.
+"Sovereign" here means: the provider is under European (mostly French) law, is not exposed to the US Cloud Act or FISA, and keeps the data in Europe.
 
-For ShipGlows, the best reading is: **possible infrastructure target for some app projects, not a foundation replacement for ShipGlows itself**. Recommendation: do not pivot ShipGlows around Codesphere; if the platform is interesting, run a narrow pilot on one multi-service app where preview deployments, managed services, or self-hosted sovereignty matter.
+For ShipGlows-managed projects (solo founder, small team, Vercel web, Cloud Run workers, Convex/remote API backends), the three options split cleanly:
+
+| Need | Best sovereign option | Why |
+| --- | --- | --- |
+| Web app or dedicated server, low ceremony | **Clever Cloud** | French PaaS, `git push` deploy without a Dockerfile, managed PostgreSQL, PR review apps through an official GitHub Action. Closest to the Railway/Heroku experience. |
+| Worker or containerized batch (Cloud Run equivalent) | **Scaleway** | Serverless Containers, Functions and Jobs, pay per use with a monthly free tier. Closest to Cloud Run. |
+| Own servers, on-premise, air-gapped, institutional | **Codesphere** | Software platform installed on any infrastructure. Too heavy for a solo project. |
+
+Recommendation: pilot **Clever Cloud** first on one real project; keep **Scaleway** for a sovereign worker; keep **Codesphere** only for the self-hosted case.
 
 ## Why it matters for ShipGlows
 
-ShipGlows's core promise is reduced ambiguity, better agent handoffs, and stronger execution contracts for solo founders and small technical teams. Codesphere's promise is different: a unified cloud platform for development, deployment, and operations across hosted or self-hosted infrastructure. That means there is overlap on runtime and delivery workflows, but not on the governance layer that makes ShipGlows distinct.
+The current defaults (Vercel, Railway, Render, Fly.io, Google Cloud Run) are all US companies. They host in Europe on request, but they stay subject to the Cloud Act. A sovereign alternative per lane lets ShipGlows advise a project that must, or wants to, keep its data under European jurisdiction without changing the governance layer: ShipGlows stays the workflow governor, the provider stays a deploy substrate.
 
-## Current product shape
+## Clever Cloud
 
-Based on Codesphere's current public site and docs as of **2026-07-04**, the platform presents itself as a "virtual cloud platform" and "self-hostable cloud provider" with a declarative `ci.yml`-driven model called a **Landscape** plus attached **Workspaces** for day-to-day development and operations.
+Current shape (2026-10-21):
 
-Key current capabilities:
+- French company under French law; states it is not subject to the Cloud Act or FISA.
+- Developer PaaS plus managed databases: `git push` triggers a full deployment, no Dockerfile required; runtimes include Node.js, Python, Go, Rust, Java, PHP, Ruby, .NET, Docker and Static.
+- Runs, monitors, restarts and updates the app; metrics and consumption visible in Grafana.
+- Billing per second of running, on prepaid credit; published unit examples: `nano` 1 vCPU / 512 MB at about EUR 6 per month, `XS` 1 vCPU / 1 GB at about EUR 16 per month.
+- PR review apps through the official `CleverCloud/clever-cloud-review-app` GitHub Action (deploy on PR open, redeploy on push, delete on close).
+- Certifications: ISO/IEC 27001:2022, HDS (health data, all 6 activities), ISO 9001. SecNumCloud qualification is in progress on its own infrastructure; a SecNumCloud-qualified zone is available on demand through its Cloud Temple partnership.
 
-- Unified dev/deploy/ops model around `ci.yml` Landscapes and Workspace cockpits.
-- Built-in cloud IDE plus local IDE connectivity over SSH or remote tunnels.
-- Built-in CI/CD stages and preview-deployment automation for GitHub, GitLab, and Bitbucket.
-- Managed services and reproducible environment provisioning from configuration.
-- Built-in monitoring, logs, and request tracing.
-- Public API and CLI surface for automation.
-- Strong self-hosted / private-cloud / sovereignty positioning.
+Fit for ShipGlows:
 
-## Workflow fit against ShipGlows
+- **Good**: sovereign replacement for Railway on a dedicated server (FastAPI, Node API), and for Vercel on a web surface that must stay sovereign (static site or Node SSR runtime).
+- **Weaker**: no edge network, image optimization or framework-native integration comparable to Vercel; preview environments need the GitHub Action, which needs manual CI triggers under the ShipGlows CI-cost rule.
+- **Pilot criteria**: deploy in under one hour from the repo, working review app, logs readable without a support ticket, monthly cost within the Railway range.
 
-## Good fit
+## Scaleway
 
-- **Preview and review environments**: Codesphere documents automated PR preview workspaces, which maps well to app projects needing live review before merge.
-- **Multi-service app environments**: the Landscape model is well suited to projects that need app + database + cache + networking declared together.
-- **Self-service deploy workflows**: developers can modify config, test, deploy, inspect logs, and manage services in one surface.
-- **Teams that want infra abstraction**: Codesphere is explicitly selling standardization across cloud, on-prem, and hybrid installations.
-- **Regulated or sovereignty-sensitive projects**: this is one of their clearest positioning angles.
+Current shape (2026-10-21):
 
-## Weak fit
+- French cloud provider (Iliad group), Paris region and others in Europe.
+- Serverless Containers: stateless, autoscaled, billed on memory and vCPU duration; memory at EUR 0.10 per 100 000 GB-s after a 400 000 GB-s free tier per account and per month. Private ingress endpoints added in October 2026, so a worker can be reachable only from the private network.
+- Serverless Functions and Serverless Jobs (batch) complete the serverless set.
+- Managed PostgreSQL 14 to 17 and MySQL 8, stand-alone or high availability, on a private network.
+- Certifications: ISO/IEC 27001:2022 and HDS. SecNumCloud is in progress, not yet granted.
 
-- **ShipGlows core doctrine**: Codesphere does not cover `AGENT.md`, context routing, spec readiness, verification gates, or skill ownership. That remains ShipGlows territory.
-- **Founder-first local autonomy**: ShipGlows works well from repo + terminal + server workflows. Codesphere pulls execution toward a platform-centric model.
-- **Low-complexity projects**: for small single-service apps, the platform may add more control-plane weight than benefit.
-- **Open-ended agent workflow orchestration**: Codesphere has API/CLI automation, but the public material does not suggest a first-class equivalent to ShipGlows's artifact-governed agent lifecycle.
+Fit for ShipGlows:
 
-## Operational caveats
+- **Good**: sovereign replacement for Google Cloud Run in the worker lane (request-triggered service -> Serverless Containers, bounded batch -> Serverless Jobs).
+- **Weaker**: a cloud provider, not a founder PaaS; more configuration than Clever Cloud for a plain web app.
 
-- **Monitoring is not default-on**: the Log Browser docs say monitoring must first be enabled at both team and landscape level, and only team admins can enable it.
-- **Log retention is short**: current log retention is documented as 14 days, with quota-based overwrite.
-- **Some observability/runtime features are uneven**: the Log Browser page explicitly scopes collection to Reactive services; the Landscape config docs also note some platform integrations still require manual configuration for certain runtime paths.
-- **API auth is user-scoped**: the Public API currently uses API keys that inherit the exact permissions and visibility of the user account, which is weaker than a more granular service-account model.
-- **Docs freshness split exists**: the Public API page opened from the `next` docs stream explicitly says it is a weekly build and points readers back to the latest stable docs.
-- **Managed-service config edits carry infra risk**: the Landscape config docs warn that renaming a service can recreate it and lead to data loss.
+## Codesphere
 
-## What it could replace for us
+Current shape (2026-10-21):
 
-Codesphere could plausibly replace or absorb parts of the following, on a per-project basis:
+- Codesphere SE (Karlsruhe, Munich, Berlin). It "owns no servers": it is a platform installed on any cloud, bare metal or air-gapped network.
+- One declarative `ci.yml` "Landscape" per app: runtimes, managed services, networking, deployment strategy. Built-in cloud IDE, local IDE over SSH, Linux and Windows remote desktops, CI/CD, PR preview deployments, self-hosted Git (Gitea / OpenCode).
+- Targets regulated industries: finance, public administration, critical infrastructure. The public pricing page now returns 404 (checked 2026-10-21): pricing goes through sales.
+- Caveats noted in July 2026 still apply: monitoring is opt-in at team and landscape level with 14-day log retention, API keys inherit the full user permissions, and renaming a managed service in the Landscape config can recreate it and lose data.
 
-- preview/staging environment provisioning
-- app hosting and multi-service runtime composition
-- some CI/CD orchestration
-- some log/trace inspection and operational dashboards
-- some "remote dev environment" setup burden
+Fit for ShipGlows:
 
-It would **not** replace:
+- **Good**: a project that must run on its own servers or inside an institution's infrastructure, with one standardized dev/deploy/ops platform.
+- **Weak**: any solo or small-team project. It pulls execution into a platform model, adds control-plane weight, and does not cover ShipGlows governance (routing, specs, verification, handoffs).
 
-- ShipGlows routing and skill ownership
-- spec/ready/start/verify/end lifecycle
-- documentation governance
-- business/product/GTM context contracts
-- agent handoff discipline
+## Other names to watch
 
-## Practical recommendation
+- **Koyeb** (French serverless platform) was acquired by Mistral AI on 2026-02-17 to power its AI cloud. Watch its direction before recommending it for general web hosting.
+- **OVHcloud** obtained SecNumCloud qualification for its SNC Cloud Platform in October 2026. It is the option when a SecNumCloud-qualified public-cloud environment is mandatory today, at the cost of IaaS-level operation.
 
-Use Codesphere only if we want a **platform target** for specific app projects, not as a strategic replacement for ShipGlows's operating model.
+## Regulated data quick rule
 
-Recommended posture:
+- Health data in France -> HDS required: Clever Cloud and Scaleway both hold it.
+- SecNumCloud required today -> Clever Cloud on its Cloud Temple zone, or OVHcloud SNC; neither Clever Cloud's own infrastructure nor Scaleway is qualified yet.
+- Only "no Cloud Act" required -> Clever Cloud or Scaleway are enough.
 
-1. **Do not adopt Codesphere as the base platform for ShipGlows itself.**
-2. **Consider a bounded pilot** only for a project that has all of these traits:
-   - multi-service or preview-heavy
-   - benefits from managed services
-   - would gain from built-in logs/traces
-   - may benefit from self-hosted or sovereignty posture
-3. **If we pilot it, keep ShipGlows above it**:
-   - ShipGlows remains the workflow governor
-   - Codesphere becomes one deploy/runtime substrate
-4. **Pilot success criteria should be explicit**:
-   - faster preview environment setup
-   - less infra glue code
-   - no loss of local control or debugging clarity
-   - no new ambiguity in deploy ownership
+## Limits of a sovereign choice
 
-## Suggested integration angle
+Hosting the app in Europe does not make the whole stack sovereign. Managed backends and services used by ShipGlows projects (Convex, Clerk, Supabase cloud, Sentry, Doppler, GitHub) are mostly US-hosted or US-owned. A project that needs real sovereignty must classify each of them too, and may need EU alternatives or self-hosted versions. State that gap explicitly instead of calling a project sovereign because its server is.
 
-If we want to explore this seriously, the cleanest route is not "move ShipGlows into Codesphere". The cleaner route is:
+## Recommendation
 
-- keep ShipGlows as the execution and governance layer
-- treat Codesphere as an optional deployment backend for selected apps
-- later evaluate whether `004-sg-deploy` or adjacent deploy/playbook surfaces should gain a Codesphere target mode via CLI or Public API
-
-## Bottom line
-
-Codesphere looks like a credible platform for **standardized app delivery**. ShipGlows is a framework for **governed agent execution and reduced ambiguity**. Those are adjacent, not competing centers of gravity.
-
-So the answer for "pour nos workflows ?" is:
-
-- **yes, maybe**, for app delivery workflows that need preview environments, managed services, and unified ops
-- **no**, as a replacement for ShipGlows's core workflow system
-- **best next step**: compare it against Railway, Render, and Fly.io specifically through the lens of ShipGlows-managed app projects
+1. Treat sovereignty as a first-class option in the deploy-target matrix, not only a Codesphere niche.
+2. Sovereign defaults per lane: web and dedicated server -> Clever Cloud; worker -> Scaleway Serverless Containers or Jobs; self-hosted or on-premise -> Codesphere.
+3. Store, desktop-package and extension lanes are distribution channels and do not change; their backends follow the rules above.
+4. Pilot Clever Cloud on one real managed project before promoting it beyond advice.
 
 ## Sources
 
-- [Codesphere homepage](https://www.codesphere.com/) - current positioning around infrastructure control, faster deployment cycles, and cost reduction.
-- [Codesphere Docs: Introduction](https://docs.codesphere.com/intro) - current product model, monitoring, administration, and self-hosted scope.
-- [Landscapes & Workspaces](https://docs.codesphere.com/core-concepts/landscapes-and-workspaces) - main abstraction model for deployable environments and attached workspaces.
-- [Configuring a Landscape](https://docs.codesphere.com/workspace-toolkit/ci-and-deploy/configuring-a-landscape) - details on runtime types, managed services, `ci.yml`, and data-loss caveat on service renames.
-- [Log Browser](https://docs.codesphere.com/workspace-toolkit/monitor/log-browser) - monitoring enablement, retention window, and scope limits.
-- [Automations](https://docs.codesphere.com/category/automations) - preview deployment integrations across GitHub, GitLab, and Bitbucket.
-- [Public API](https://docs.codesphere.com/next/apis-and-automations/public-api) - current API posture, PAT-style auth, and docs-location pattern.
-- [Remote Development](https://www.codesphere.com/remote-development) - local IDE connectivity, cloud IDE, CI/CD, and monorepo-oriented workflow claims.
+- [Clever Cloud sovereign cloud](https://www.clever.cloud/sovereign-cloud) - certifications, SecNumCloud status, Cloud Temple zone.
+- [Clever Cloud key benefits](https://www.clever.cloud/key-benefits) - French law, Cloud Act/FISA statement, certification list.
+- [Clever Cloud vs Heroku](https://www.clever.cloud/clever-cloud-vs-heroku/) - `git push` workflow and nano/XS unit prices.
+- [Clever Cloud consumption](https://www.clever.cloud/developers/doc/account-billing/consumption/) - per-second billing and Grafana consumption view.
+- [Clever Cloud review app action](https://github.com/CleverCloud/clever-cloud-review-app) - PR review apps.
+- [Scaleway serverless pricing](https://www.scaleway.com/en/pricing/serverless/) and [Serverless Containers FAQ](https://www.scaleway.com/en/docs/serverless-containers/faq/) - billing and free tier.
+- [Scaleway Serverless Containers](https://www.scaleway.com/en/serverless-containers/) - October 2026 private endpoints.
+- [Scaleway managed PostgreSQL and MySQL](https://www.scaleway.com/en/managed-postgresql-mysql/) - managed database versions and options.
+- [Scaleway SecNumCloud](https://www.scaleway.com/en/security-and-compliance/secnumcloud/) - HDS, ISO 27001, SecNumCloud not yet granted.
+- [Codesphere homepage](https://www.codesphere.com/) and [developer platform](https://www.codesphere.com/products/developer-platform) - positioning, self-hosted scope, target industries.
+- [Codesphere docs introduction](https://docs.codesphere.com/intro) and [log browser](https://docs.codesphere.com/workspace-toolkit/monitor/log-browser) - Landscape model, monitoring limits.
+- [TechCrunch on Mistral buying Koyeb](https://techcrunch.com/2026/02/17/mistral-ai-buys-koyeb-in-first-acquisition-to-back-its-cloud-ambitions) - Koyeb acquisition.
+- [OVHcloud SNC Cloud Platform](https://blog.ovhcloud.com/en/posts/snc-cloud-platform-secnumcloud-qualification/) - SecNumCloud qualification.

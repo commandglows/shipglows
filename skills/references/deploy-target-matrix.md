@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-05"
-updated: "2026-10-20"
+updated: "2026-10-21"
 status: active
 source_skill: 102-sg-start
 scope: deploy-target-matrix
@@ -19,7 +19,7 @@ linked_systems:
   - skills/references/entrypoint-routing.md
   - README.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
-  - shipglows_data/workflow/research/codesphere-fit-for-shipglows-workflows.md
+  - shipglows_data/workflow/research/sovereign-hosting-options-for-shipglows.md
   - shipglows_data/workflow/research/codesphere-vs-railway-vs-render-vs-flyio-for-shipglows.md
   - skills/sg-release/SKILL.md
 depends_on:
@@ -41,6 +41,8 @@ evidence:
   - "Operator decision 2026-10-20: add store, desktop-package, long-running worker, and extension/plugin lanes; managed backend services stay outside the server matrix."
   - "Official docs re-checked 2026-10-20: Cloud Run service request timeout max 60 minutes, job task timeout max 168 hours (1 hour with GPUs), worker pools listed in Cloud Run quotas; Google Play requires new personal developer accounts to run a closed test with at least 12 opted-in testers for 14 continuous days before production; Tauri v2 ships MSI/NSIS installers and its Microsoft Store path links an offline, code-signed, self-updating installer."
   - "Managed project evidence 2026-10-20: ContentGlows runs its Remotion worker as a private Cloud Run service with GCS artifacts; managed Flutter surfaces (ContentGlows, ReplayGlows, CommandGlows, ShipGlows app, DreamGlows) target Android, Windows, and web; CommunityGlows ships a Tauri desktop app; DreamGlows ships Chrome and Obsidian extensions; most backends are Convex or a remote HTTP API."
+  - "Operator decision 2026-10-21: sovereignty (European jurisdiction, no Cloud Act exposure) is a first-class option for every hosting lane, not only a Codesphere niche."
+  - "Research verdict 2026-10-21: Clever Cloud is the sovereign web and dedicated-server target, Scaleway Serverless Containers/Jobs the sovereign worker target, and Codesphere the self-hosted/on-premise target; neither Clever Cloud's own infrastructure nor Scaleway holds SecNumCloud yet."
 next_review: "2027-02-20"
 next_step: none
 ---
@@ -90,7 +92,7 @@ For websites and Vercel-compatible web applications, the ShipGlows default is:
 
 1. `Vercel`
 
-This includes ordinary marketing sites, content sites, storefronts, dashboards, and compatible serverless/full-stack web applications. A project-specific incompatibility, explicit operator choice, sovereignty requirement, or dedicated-server need can override the default.
+This includes ordinary marketing sites, content sites, storefronts, dashboards, and compatible serverless/full-stack web applications. A project-specific incompatibility, explicit operator choice, sovereignty requirement (see the Sovereignty Overlay), or dedicated-server need can override the default.
 
 When a project has several surfaces, evaluate each one separately: keep the compatible web surface on Vercel by default, apply the server matrix only to a dedicated backend, and send workers, mobile, desktop, and extension surfaces to their own lanes. A Flutter web build of a mobile app is a web surface.
 
@@ -101,7 +103,8 @@ When a project genuinely requires a dedicated application server:
 1. `Railway`
 2. `Render`
 3. `Fly.io`
-4. `Codesphere`
+
+When the server must stay sovereign, apply the Sovereignty Overlay instead of this ranking.
 
 This server ranking assumes ShipGlows's primary audience:
 
@@ -156,13 +159,30 @@ Within the dedicated-server lane, override the server default when one of these 
 
 - `preview-heavy review workflow` -> prefer `Render`
 - `advanced infra / topology / networking control` -> prefer `Fly.io`
-- `sovereignty / private cloud / institutional hosting posture` -> prefer `Codesphere`
+- `sovereignty` -> apply the Sovereignty Overlay (`Clever Cloud` by default, `Codesphere` for self-hosted or on-premise)
 - `simple dedicated-server deployment with low ceremony` -> keep `Railway`
 
 If two lanes conflict materially, the owner skill should either:
 
 - recommend the lane that best preserves the project outcome, or
 - ask one concise routing question when the answer changes platform choice materially
+
+## Sovereignty Overlay
+
+Apply this overlay when a surface must, or the operator wants it to, stay under European jurisdiction without exposure to the US Cloud Act. It replaces the lane default; the lane classification above stays the same.
+
+- web surface -> `Clever Cloud` (static or Node runtime) instead of Vercel
+- dedicated server -> `Clever Cloud` instead of the Railway-first ranking
+- worker -> `Scaleway` Serverless Containers for request-triggered work, Serverless Jobs for bounded batch, instead of Cloud Run
+- own servers, on-premise, air-gapped, or institutional infrastructure -> `Codesphere`
+- store, desktop-package, and extension lanes -> unchanged; they are distribution channels, and their backends follow the overlay
+
+Regulated data:
+
+- French health data -> HDS required; Clever Cloud and Scaleway both hold it
+- SecNumCloud required today -> Clever Cloud on its Cloud Temple qualified zone, or OVHcloud SNC; neither Clever Cloud's own infrastructure nor Scaleway is qualified yet
+
+A sovereign host does not make the stack sovereign. Managed backends and services (Convex, Clerk, Supabase cloud, Sentry, Doppler, GitHub) are mostly US-hosted or US-owned: classify each one and state the remaining gap instead of calling the project sovereign.
 
 ## Platform Summaries
 
@@ -197,15 +217,34 @@ Recommend first when the project needs:
 
 Avoid recommending Fly.io as the default for casual founder projects; it usually asks for more operator fluency.
 
+### Clever Cloud
+
+Recommend first when a web surface or dedicated server must stay sovereign:
+
+- French PaaS under French law, `git push` deploy without a Dockerfile, managed PostgreSQL
+- PR review apps through the official GitHub Action
+- ISO 27001 and HDS; SecNumCloud in progress, qualified zone through Cloud Temple
+
+Avoid presenting it as a full Vercel equivalent: it has no comparable edge network or framework-native web integration.
+
+### Scaleway
+
+Recommend first when a worker must stay sovereign:
+
+- Serverless Containers and Jobs as the Cloud Run equivalent, pay per use with a monthly free tier
+- managed PostgreSQL and MySQL on a private network
+- ISO 27001 and HDS; SecNumCloud in progress
+
+Avoid it for a plain sovereign web app; Clever Cloud asks for less configuration.
+
 ### Codesphere
 
 Recommend first when the project needs:
 
-- sovereignty or private-cloud posture
-- self-hostable or institutionally constrained infrastructure
+- to run on its own servers, on-premise, air-gapped, or inside an institution's infrastructure
 - a heavier standardized platform model across dev/deploy/ops
 
-Avoid recommending Codesphere only because its platform story sounds stronger. For many smaller projects it is more platform than they need.
+Avoid recommending Codesphere for solo or small-team projects, even sovereign ones: it is enterprise-oriented, priced through sales, and more platform than they need.
 
 ## Advice Boundary
 
@@ -213,7 +252,7 @@ Every owner surface that uses this matrix must preserve these statements:
 
 - Vercel is the default for websites and compatible web applications.
 - Workers, mobile apps, desktop packages, and extensions follow their own lanes and never default to Vercel or the server matrix.
-- Railway, Render, Fly.io, and Codesphere form a dedicated-server matrix, not a replacement web-hosting default.
+- Railway, Render, and Fly.io form a dedicated-server matrix, not a replacement web-hosting default; Clever Cloud, Scaleway, and Codesphere are sovereignty overlay targets.
 - ShipGlows is recommending a substrate, not choosing the project's final architecture.
 - The final target still depends on project-specific context.
 - Recommendation coverage is wider than automation coverage.
@@ -247,9 +286,11 @@ Use these scenarios during verification:
 - `DTM-002` dedicated FastAPI or equivalent server -> `Railway`
 - `DTM-003` dedicated preview-heavy server workflow -> `Render`
 - `DTM-004` dedicated server with advanced topology -> `Fly.io`
-- `DTM-005` dedicated server with sovereignty/private-cloud needs -> `Codesphere`
+- `DTM-005` dedicated server that must stay sovereign -> `Clever Cloud`
 - `DTM-006` Vercel frontend plus dedicated backend -> `Vercel` for the web surface and the server matrix for the backend
 - `DTM-007` heavy rendering worker (Remotion) -> `Cloud Run` service or job, not the web lane
 - `DTM-008` Flutter Android and iOS app -> `Google Play` and `App Store`; its Flutter web build -> `Vercel`
 - `DTM-009` Tauri or Flutter Windows app -> signed installer on `GitHub Releases` with updates; `Microsoft Store` optional
 - `DTM-010` Chrome extension with a Convex backend -> `Chrome Web Store`; Convex stays a managed backend outside the server matrix
+- `DTM-011` sovereign heavy worker -> `Scaleway` Serverless Containers or Jobs, not Cloud Run
+- `DTM-012` app that must run on its own servers or on-premise -> `Codesphere`

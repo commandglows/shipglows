@@ -1054,7 +1054,7 @@ Recommended release entrypoint after implementation:
 
 `004-sg-deploy` is for release confidence, not just pushing code. It keeps technical checks, bounded shipping, deployment truth, post-deploy evidence, final verification, and optional release notes in one visible flow.
 
-For hosting advice, ShipGlows keeps the canonical rule in `skills/references/deploy-target-matrix.md`. Websites and Vercel-compatible web applications default to `Vercel`. Only projects that genuinely require a dedicated server runtime enter the server matrix: `Railway` by default, `Render` for preview-heavy server workflows, `Fly.io` for deeper infra/topology control, and `Codesphere` for sovereignty/private-cloud cases. A split architecture is evaluated per surface: Vercel for the compatible web frontend, and the matrix only for the dedicated backend. This is advice only; final choices remain project-contextual.
+For hosting advice, ShipGlows keeps the canonical rule in `skills/references/deploy-target-matrix.md`. Websites and Vercel-compatible web applications default to `Vercel`. Only projects that genuinely require a dedicated server runtime enter the server matrix: `Railway` by default, `Render` for preview-heavy server workflows, `Fly.io` for deeper infra/topology control. When a surface must stay sovereign (European jurisdiction, no Cloud Act), a sovereignty overlay applies: `Clever Cloud` for web and servers, `Scaleway` for workers, `Codesphere` for self-hosted or on-premise cases. A split architecture is evaluated per surface: Vercel for the compatible web frontend, and the matrix only for the dedicated backend. This is advice only; final choices remain project-contextual.
 
 Recommended maintenance entrypoint for existing projects:
 
