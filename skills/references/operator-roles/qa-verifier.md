@@ -20,7 +20,7 @@ linked_systems:
   - shipglows_data/business/agent-profiles/qa-verifier.md
 depends_on:
   - artifact: "skills/references/profile-activation.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: active
 supersedes: []
 evidence:
