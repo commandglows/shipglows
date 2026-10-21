@@ -205,7 +205,10 @@ The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-
 | Explicitly remember, retrieve, search, archive, or restore a private local path, URL, alias, or Vivaldi bookmark | public `sg-private memory`; internal `603-sg-private memory` |
 | New skill, skill modification, skill runtime visibility, skill public page, skill docs/help coherence | `900-shipglows-core build` |
 | ShipGlows Core execution-fidelity audit or public-plugin packaging readiness for ShipGlows itself | `900-shipglows-core audit <scope>` or `900-shipglows-core packaging <scope>` |
-| One obvious audit domain only | relevant `400-sg-audit-*` or `400-sg-audit` |
+| Translation quality, localized copy review, or locale tone and terminology | public `sg-content`; internal `407-sg-translate audit` |
+| i18n keys, locale files, fallbacks, or missing localized strings | public `sg-engineering`; internal `407-sg-translate sync` |
+| One obvious audit domain only | that métier's audit mode (`sg-design audit`, `sg-content` audit, `sg-marketing` gtm, copy or copywriting, `sg-seo audit`, `sg-engineering audit`, `sg-experience audit`); audit is a mode, never a family |
+| Broad cross-domain audit | internal `400-sg-audit` |
 | One obvious focused lane: checks, docs, browser proof, auth diagnosis, manual QA, dependency posture, migration, final ship | focused owner skill |
 | Ambiguous material route | Ask one concise numbered routing question |
 

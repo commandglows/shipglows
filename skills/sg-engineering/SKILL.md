@@ -23,6 +23,10 @@ skill retains technical-quality ownership. Their `shipglows` aliases are
 convenience routes only. When `verify` names an explicit design, SEO, release,
 or bug scope, the router preserves that specialist public owner instead.
 
+i18n plumbing (locale keys, locale files, fallbacks, missing strings) belongs here;
+use `$SHIPGLOWS_ROOT/skills/407-sg-translate/SKILL.md` `sync` as the internal engine.
+Translation quality belongs to `sg-content`.
+
 The expert alias `shipglows git` selects `github`; its default is a read-only
 PR/branch/worktree dashboard. `shipglows hygiene git` is the same intent in
 conversational form, not a separate workflow or shell command.
