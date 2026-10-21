@@ -19,7 +19,6 @@ linked_systems:
   - skills/109-sg-auth-debug/SKILL.md
   - skills/109-sg-auth-debug/references/playwright-auth.md
   - skills/references/agent-runtime-awareness.md
-  - BUG-2026-05-02-001
 depends_on:
   - artifact: "skills/references/agent-runtime-awareness.md"
     artifact_version: "3.2.0"
@@ -31,7 +30,7 @@ evidence:
   - "108-sg-browser added as the generic non-auth consumer of browser evidence."
   - "The 2026-08-14 Codex runtime exposed Playwright only through a deferred tool catalog, proving that visible-list-only discovery creates false negatives."
 next_review: "2026-06-02"
-next_step: "/107-sg-test --retest BUG-2026-05-02-001"
+next_step: "none"
 ---
 
 # Playwright MCP Runtime
@@ -96,7 +95,7 @@ find "$HOME/.cache/ms-playwright" -maxdepth 4 -type f \
 3. If config is bad, do not launch Playwright MCP as proof. Route to:
 
 ```text
-/106-sg-fix BUG-2026-05-02-001
+/106-sg-fix Playwright MCP config (Linux ARM64 Chrome fallback)
 ```
 
 4. If config is good but MCP still errors with `/opt/google/chrome/chrome`, assume the current Codex/MCP process is stale and still using old args. Ask for a Codex/MCP reload before claiming browser evidence.

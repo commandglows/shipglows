@@ -20,4 +20,3 @@
 | [BUG-2026-05-04-004](shipglows_data/workflow/bugs/BUG-2026-05-04-004.md) | fixed-pending-verify | medium | Convex-only package.json blocks Flutter dev command detection | 2026-05-05 | /sg-verify BUG-2026-05-04-004 |
 | [BUG-2026-05-04-003](shipglows_data/workflow/bugs/BUG-2026-05-04-003.md) | fix-attempted | medium | Blacksmith remote auth callback fails without SSH tunnel | 2026-05-04 | /sg-test --retest BUG-2026-05-04-003 |
 | [BUG-2026-05-04-001](shipglows_data/workflow/bugs/BUG-2026-05-04-001.md) | closed | high | Disk cleanup under-warns critical root disk pressure | 2026-05-04 | none |
-| [BUG-2026-05-02-001](shipglows_data/workflow/bugs/BUG-2026-05-02-001.md) | closed | medium | Playwright MCP points to missing Google Chrome on Linux ARM64 | 2026-05-04 | none |
