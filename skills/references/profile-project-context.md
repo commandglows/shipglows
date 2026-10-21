@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "1.3.1"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-08-13"
+updated: "2026-10-21"
 status: active
 source_skill: 900-shipglows-core
 scope: profile-project-context
@@ -172,7 +172,7 @@ Use this bundle for Neovim/Lua configuration, plugin compatibility, LSP/Treesitt
 
 ### Technology specialist profiles
 
-For `python-specialist`, `bash-specialist`, `astro-specialist`, `typescript-specialist`, `javascript-specialist`, `flutter-specialist`, `dart-specialist`, `firebase-specialist`, `convex-specialist`, `vercel-specialist`, `sentry-specialist`, `cloud-integrations-specialist`, `turso-specialist`, and `crewai-specialist`, load:
+For `python-specialist`, `bash-specialist`, `astro-specialist`, `vue-specialist`, `typescript-specialist`, `javascript-specialist`, `flutter-specialist`, `dart-specialist`, `firebase-specialist`, `convex-specialist`, `vercel-specialist`, `sentry-specialist`, `cloud-integrations-specialist`, `turso-specialist`, and `crewai-specialist`, load:
 
 - the platform note linked by the role contract
 - the target project's `shipglows_data/technical/code-docs-map.md` when present

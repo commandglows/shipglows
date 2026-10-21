@@ -37,6 +37,7 @@ evidence:
   - "Operator decision 2026-06-29: name the traffic-manager profile Tariq."
   - "Operator decision 2026-07-12: register a bounded catalog of invokable technology specialist profiles."
   - "Operator decision 2026-10-21: write down the reference-first rule for technology specialist roles (source: 2026-07-12 specialist-roles repurpose pack)."
+  - "Operator decision 2026-10-21: register the Vue specialist profile for Astro Vue islands."
 next_review: "2026-07-12"
 next_step: "/103-sg-verify profile-activation-contract"
 ---
@@ -113,6 +114,7 @@ Known aliases:
 - `%Python`, `%PythonSpecialist`, and `profile=python-specialist` resolve to `shipglows_data/business/agent-profiles/python-specialist.md`.
 - `%Bash`, `%BashSpecialist`, and `profile=bash-specialist` resolve to `shipglows_data/business/agent-profiles/bash-specialist.md`.
 - `%Astro`, `%AstroSpecialist`, and `profile=astro-specialist` resolve to `shipglows_data/business/agent-profiles/astro-specialist.md`.
+- `%Vue`, `%VueSpecialist`, and `profile=vue-specialist` resolve to `shipglows_data/business/agent-profiles/vue-specialist.md`.
 - `%TypeScript`, `%TypeScriptSpecialist`, and `profile=typescript-specialist` resolve to `shipglows_data/business/agent-profiles/typescript-specialist.md`.
 - `%JavaScript`, `%JavaScriptSpecialist`, and `profile=javascript-specialist` resolve to `shipglows_data/business/agent-profiles/javascript-specialist.md`.
 - `%Flutter`, `%FlutterSpecialist`, and `profile=flutter-specialist` resolve to `shipglows_data/business/agent-profiles/flutter-specialist.md`.
