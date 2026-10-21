@@ -17,11 +17,12 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
   - skills/109-sg-auth-debug/SKILL.md
+  - shipglows_data/workflow/specs/shared-async-feedback-visibility-contract.md
 depends_on: []
 supersedes: []
 evidence:
   - "User direction 2026-07-18: users must see when delayed behavior is active instead of guessing whether it is broken."
-  - "Former shared spec (deleted in tidy D3, see git:649a9c31:shipglows_data/workflow/specs/shared-async-feedback-visibility-contract.md) defined the cross-project pressure scenarios now carried by this contract."
+  - "Shared spec shared-async-feedback-visibility-contract.md defines cross-project pressure scenarios and proof obligations."
 next_review: "2026-10-18"
 next_step: "Adopt per bounded flow using shipglows_data/technical/async-feedback-visibility-adoption-checklist.md"
 ---
