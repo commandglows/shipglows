@@ -245,7 +245,7 @@ rg -n 'Playwright Chromium installed:|Playwright MCP configured:|Playwright MCP 
 rg -n "ShipGlows requires uv to provide a functional default Python runtime" "$INSTALLER"
 rg -n 'deferred/searchable catalog|before declaring a configured tool unavailable' "$INSTALLER"
 legacy_cleanup_line="$(rg -n '^Remove-SgLegacyRuntime\r?$' "$INSTALLER" | tail -1 | cut -d: -f1)"
-wrapper_install_line="$(rg -n '^Install-SgCommandWrappers\r?$' "$INSTALLER" | tail -1 | cut -d: -f1)"
+wrapper_install_line="$(rg -n 'Install-SgCommandWrappers' "$INSTALLER" | tail -1 | cut -d: -f1)"
 test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$legacy_cleanup_line" -lt "$wrapper_install_line"
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
