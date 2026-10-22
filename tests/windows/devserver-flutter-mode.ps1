@@ -99,6 +99,7 @@ Assert-Sg ($supervisorSource -match "\`$Mode -ne 'profile' -and \(Test-Path -Lit
 Assert-Sg ($supervisorSource -match "if\(\`$command\.Method -eq 'reload'\)\{if\(\`$Mode -eq 'profile'\)\{throw 'Restart is not supported in profile mode\.'\}") 'The supervisor must refuse reload in profile mode before touching Flutter.'
 Assert-Sg ($supervisorSource -cnotmatch 'fullRestart=\$true|\$FullRestart') 'No managed command may request a Flutter full restart.'
 Assert-Sg ($supervisorSource -match "\[ValidateSet\('debug','profile'\)\]\[string\]\`$Mode = 'debug'") 'The supervisor must bound -Mode to debug|profile.'
-Assert-Sg ($entrypoint -match 'flutterMode -eq ''profile''\) \{ throw "Flutter profile sessions support neither hot reload nor hot restart') 's reload must refuse a profile session with the s restart alternative before any IPC.'
+$devServerModule = Get-Content -Raw (Join-Path $root 'cli\windows\ShipGlows.DevServer.psm1')
+Assert-Sg ($devServerModule -match "flutterMode.*?eq 'profile'.*?Flutter profile sessions support neither hot reload nor hot restart.*?s restart -ProjectPath") 's reload must refuse a profile session with the s restart alternative before any IPC.'
 
 Write-Host 'Windows DevServer Flutter run mode regression: OK'

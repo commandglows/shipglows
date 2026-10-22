@@ -30,11 +30,11 @@ next_step: "/103-sg-verify universal mutation-plan approval"
 
 ## Universal gate
 
-Every intentional mutation requires authority. Clear bounded-request authority, Git/GitHub stewardship authority, supplied-link register authority, and Auto-session authority below are standing or request-derived authority paths. Every mutation outside those named paths requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
+Every intentional mutation requires authority. Clear bounded-request authority, Git/GitHub stewardship authority, supplied-link register authority, and Blitz-session authority below are standing or request-derived authority paths. Every mutation outside those named paths requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
 
 ## Git/GitHub stewardship authority
 
-Ordinary in-scope Git/GitHub stewardship has standing authority; no duplicate validation is needed. Before Git stewardship, drafting a technical plan that discloses Git persistence, milestone persistence or final Git delivery, load `mutation-git-authority.md`. Before selecting or promising an integration destination (including in a plan), load `project-delivery-policy.md`; before executing an approved milestone or final delivery, load `git-milestone-delivery-contract.md`. It preserves ownership, integration proof, required checks and production gates. Never infer force, history rewrite, non-trivial conflict resolution, unrelated-dirt disposal or deployment authority. Auto/nolocal prohibitions still apply.
+Ordinary in-scope Git/GitHub stewardship has standing authority; no duplicate validation is needed. Before Git stewardship, drafting a technical plan that discloses Git persistence, milestone persistence or final Git delivery, load `mutation-git-authority.md`. Before selecting or promising an integration destination (including in a plan), load `project-delivery-policy.md`; before executing an approved milestone or final delivery, load `git-milestone-delivery-contract.md`. It preserves ownership, integration proof, required checks and production gates. Never infer force, history rewrite, non-trivial conflict resolution, unrelated-dirt disposal or deployment authority. Blitz/nolocal prohibitions still apply.
 
 ## Clear bounded-request authority
 
@@ -53,9 +53,13 @@ An ordinary exact-scope commit records authorized work and never requires a sepa
 
 Classification is invariant across reasoning-effort settings. The same request must receive the same authority classification at `low`, `medium`, `high`, and `xhigh`: use request clarity, enumerable action and target count, and directional discretion, never the selected reasoning effort. A higher effort may deepen internal analysis but cannot manufacture a validation ceremony.
 
+## Blitz-session authority
+
+An explicit `shipglows blitz` invocation alone selects this authority. Before any Blitz candidate or write, load `mutation-blitz-authority.md` and `no-local-execution-policy.md`. It permits only bounded reversible edits under the frozen current-project root, with deferred proof. It never permits Git or external writes, execution workloads, installation, sensitive-data/security changes, deletion, or changing its own guardrails. Posture tags alone grant no mutation authority.
+
 ## Auto-session authority
 
-An explicit `shipglows auto` invocation alone selects this authority. Before any Auto candidate or write, load `mutation-auto-authority.md` and `no-local-execution-policy.md`. It permits only bounded reversible edits under the frozen current-project root, with deferred proof. It never permits Git or external writes, execution workloads, installation, sensitive-data/security changes, deletion, or changing its own guardrails. Posture tags alone grant no mutation authority.
+An explicit `shipglows auto` invocation alone selects this authority. Before any Auto candidate or write, load `mutation-auto-authority.md`. It permits autonomous edits, proportional local proof and exact-scope milestone commits under the frozen current-project root. It never permits push, branches, CI dispatch, deployment, production, external writes, spend, secrets, destructive effects, or changing its own guardrails.
 
 ## Supplied-link register authority
 

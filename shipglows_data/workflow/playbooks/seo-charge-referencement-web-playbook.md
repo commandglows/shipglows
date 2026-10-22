@@ -13,10 +13,7 @@ confidence: high
 risk_level: low
 security_impact: none
 docs_impact: yes
-depends_on:
-  - artifact: "shipglows_data/workflow/research/charge-referencement-web-competences.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
+depends_on: []
 supersedes: []
 evidence:
   - "La fiche metier SEO requiert un noyau commun de diagnostic, technique, contenu, mesure et coordination transverse."

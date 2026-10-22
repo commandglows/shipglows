@@ -28,9 +28,6 @@ linked_systems:
   - "skills/010-sg-technical/SKILL.md"
   - "skills/407-sg-audit-translate/SKILL.md"
 depends_on:
-  - artifact: "shipglows_data/workflow/specs/shipglows-main-plugin-and-pack-portability.md"
-    artifact_version: "1.0.0"
-    required_status: "ready"
   - artifact: "shipglows_data/technical/codex-plugin-packaging.md"
     artifact_version: "1.2.0"
     required_status: "active"

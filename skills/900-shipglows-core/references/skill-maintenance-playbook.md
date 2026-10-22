@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-09-05"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: skill-maintenance-lifecycle
@@ -52,5 +52,5 @@ Use for `900-shipglows-core build <skill, skill path, doctrine, activation, or s
 2. Use `900-shipglows-core refresh <target>` for broad semantic rewrites, public routing/packaging changes, security-sensitive contracts, explicit audits, and release preparation. A bounded daily contract repair may record `refresh deferred` or `refresh not needed` when one focused pressure-scenario proof covers the observed failure. For target `900-shipglows-core`, ordinary self-refresh stays prohibited; high-assurance work uses the spec-backed independent manual review from `skill-refresh-playbook.md`.
 3. Daily validation starts with zero or one focused scenario/contract check. Run metadata lint, `audit_shipglows_skills.py`, budget audit, full suites, or all-skill runtime sync only when the changed surface or an explicit release/health/security/audit goal makes that evidence material. Affected-skill runtime sync remains appropriate when runtime discoverability changed.
 4. Load `skill-context-budget` before changing references, loading triggers, shared normative text, protections, activation bodies or discovery/public metadata; apply its Loading Change Gate even when files shrink. Do not spend daily implementation time on unrelated global health evidence.
-5. Align help, routing, README/workflow/lifecycle docs, and public skill pages when the target's discoverability, promise, or invocation changes. Preserve the target's approved visibility; a brand-new material skill workflow is public by default unless its ready spec explicitly approves an internal-only exception. This policy never publishes internal-only `900`. Report both `Documentation Update Plan` and `Editorial Update Plan` as complete, no impact, or blocked.
+5. Align help, routing, README/workflow/lifecycle docs, and public skill pages (write or reshape a skill `README.md` from `skills/README_TEMPLATE.md`) when the target's discoverability, promise, or invocation changes. Preserve the target's approved visibility; a brand-new material skill workflow is public by default unless its ready spec explicitly approves an internal-only exception. This policy never publishes internal-only `900`. Report both `Documentation Update Plan` and `Editorial Update Plan` as complete, no impact, or blocked.
 6. For a bounded correction, Core completes focused proof and the applicable reporting/reflection gates directly; no nested lifecycle activation is required solely to mark it done. Non-trivial work routes verification to `103-sg-verify` and retains the lifecycle's closure/ship gates; this playbook does not waive them. Keep source, runtime/reload, docs/editorial and delivery claims evidence-backed; never infer deployment authority from completion.

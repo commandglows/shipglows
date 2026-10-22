@@ -13,10 +13,7 @@ confidence: high
 risk_level: low
 security_impact: none
 docs_impact: yes
-depends_on:
-  - artifact: "shipglows_data/workflow/research/charge-referencement-web-competences.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
+depends_on: []
 supersedes: []
 evidence:
   - "Le rapport de recherche met explicitement en avant une liste technique d'execution et des aptitudes de priorisation, synthese et collaboration."

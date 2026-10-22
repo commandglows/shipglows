@@ -30,7 +30,7 @@ $shipglows resume
 pending proof, blockers, and next safe action. It never counts as approval for
 a pending mutation or installation.
 
-With the complete corpus, `$shipglows auto [scope or horizon]` selects useful
+With the complete corpus, `$shipglows blitz [scope or horizon]` selects useful
 project-grounded work autonomously. It always implies `#nolocal` and never
 invents work merely to consume credits. Execution-posture tags `#local`,
 `#nolocal`, and `#ci` compose with agent commands; `#ci` implies `#nolocal`,
@@ -43,7 +43,7 @@ while conflicts with `#local` fail closed.
 | Create | `sg-experience` | Customer journeys, activation, trust, support, and recovery |
 | Quality | `sg-bug` | Reproduce, fix, retest, prove, and close a defect |
 | Quality | `sg-engineering` | Architecture, code quality, performance, dependencies, sync, access, and platform parity |
-| Quality | `sg-maintenance` | Existing-product upkeep and hygiene |
+| Quality | `sg-maintenance` | Existing-product upkeep, hygiene, and cleanup (`tidy`) |
 | Publish | `sg-release` | Release readiness, deployment truth, and post-release proof |
 | Grow audience | `sg-content` | Public docs, guides, README, FAQ, landing pages, editorial content, and email |
 | Grow audience | `sg-marketing` | Market understanding, positioning, GTM, messaging, and persuasion |

@@ -25,7 +25,7 @@ class AuthenticatedExperienceUiContractTests(unittest.TestCase):
         self.assertIn(reference, compact(DESIGN))
         self.assertIn("when authentication state changes global navigation", compact(DESIGN))
         self.assertIn(reference, compact(AUTH))
-        self.assertIn("for visible auth-state, account-navigation", compact(AUTH))
+        self.assertIn("when the reported defect concerns sign-in, sign-out, account UI, private navigation", compact(AUTH))
         self.assertIn("does not authenticate users or authorize data", self.contract)
         self.assertIn("UI is never an access-control boundary", self.contract)
 
@@ -90,6 +90,8 @@ class AuthenticatedExperienceUiContractTests(unittest.TestCase):
             self.assertIn(value, self.contract)
 
     def test_spec_keeps_provider_and_shipping_out_of_scope(self) -> None:
+        if not SPEC.is_file():
+            self.skipTest("spec lives in the private data corpus")
         spec = compact(SPEC)
         self.assertIn("Provider SDK, middleware, token, callback, authorization", spec)
         self.assertIn("no new skill", spec.lower())

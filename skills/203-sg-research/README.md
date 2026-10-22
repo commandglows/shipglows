@@ -37,7 +37,7 @@ For a solo founder, it is a way to build durable decision material instead of re
 ```bash
 /203-sg-research
 /203-sg-research "best auth stack for Astro SaaS"
-/203-sg-research "React Server Components caching patterns"
+/203-sg-research "Astro SSR caching patterns"
 ```
 
 ## Limits

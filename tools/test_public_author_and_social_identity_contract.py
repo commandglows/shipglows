@@ -25,7 +25,15 @@ class PublicAuthorAndSocialIdentityContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.contract = compact(CONTRACT)
-        cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+        # The registry and spec live in the private data corpus; contract-only
+        # assertions still run when they are absent.
+        cls._registry = json.loads(REGISTRY.read_text(encoding="utf-8")) if REGISTRY.is_file() else None
+
+    @property
+    def registry(self) -> dict:
+        if self._registry is None:
+            self.skipTest("public identity registry lives in the private data corpus")
+        return self._registry
 
     def test_diane_is_the_only_seeded_default_author(self) -> None:
         self.assertEqual(self.registry["defaultAuthorId"], "diane")
@@ -104,11 +112,13 @@ class PublicAuthorAndSocialIdentityContractTests(unittest.TestCase):
         for path in (DESIGN, CONTENT, MARKETING, SEO):
             self.assertIn(reference, compact(path))
         self.assertIn("author cards, bylines, contact identity, or official social links", compact(DESIGN))
-        self.assertIn("authorship, public contact identity, or official social profiles", compact(CONTENT))
-        self.assertIn("author, founder, spokesperson, contact, or project social identity", compact(MARKETING))
-        self.assertIn("Person or Organization authorship, sameAs, or project social profiles", compact(SEO))
+        self.assertIn("Public author identity, bylines, social profiles, or structured author data", compact(CONTENT))
+        self.assertIn("when public authorship, project identity, or social profile claims", compact(MARKETING))
+        self.assertIn("author, organization, project, or social-profile structured data", compact(SEO))
 
     def test_spec_defers_product_population_and_project_mutation(self) -> None:
+        if not SPEC.is_file():
+            self.skipTest("spec lives in the private data corpus")
         spec = compact(SPEC)
         self.assertIn("Filling every product record in this run", spec)
         self.assertIn("Editing product articles", spec)

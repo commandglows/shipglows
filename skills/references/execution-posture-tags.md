@@ -15,7 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/000-shipglows/SKILL.md
-  - skills/708-sg-auto/SKILL.md
+  - skills/708-sg-blitz/SKILL.md
   - skills/references/shipglows-terms.md
   - skills/references/no-local-execution-policy.md
   - skills/references/skill-invocation-preflight.md
@@ -68,11 +68,11 @@ invent a CI result.
   not authorize mutation, secrets, destructive work, publication, external
   effects, or lifecycle closure.
 
-## Auto and compatibility
+## Blitz and compatibility
 
-`shipglows auto` always implies `#nolocal`. Explicit `#nolocal` is redundant,
+`shipglows blitz` always implies `#nolocal`. Explicit `#nolocal` is redundant,
 `#ci` is allowed as a deferred proof destination, and `#local` is invalid. The
-same rules apply to every delegated auto mission.
+same rules apply to every delegated blitz mission.
 
 `shipglows nolocal <objective>` remains a legacy compatibility alias. Normalize
 it to `shipglows <objective> #nolocal`, preserve the objective and ordinary
@@ -91,8 +91,8 @@ shell, quote the complete invocation string.
 - `POSTURE-CI-IMPLIES-NOLOCAL`: `sg-engineering verify checkout #ci` defers
   executable proof to CI and performs no local or remote workload itself.
 - `POSTURE-CONFLICT`: `#local #nolocal` and `#local #ci` fail closed.
-- `POSTURE-AUTO`: `shipglows auto` receives effective `#nolocal`, while
-  `shipglows auto #local` is invalid.
+- `POSTURE-BLITZ`: `shipglows blitz` receives effective `#nolocal`, while
+  `shipglows blitz #local` is invalid.
 - `POSTURE-LEGACY`: `shipglows nolocal improve checkout` normalizes to the
   default router objective plus `#nolocal`.
 - `POSTURE-NO-AUTHORITY`: no posture tag authorizes mutation, push, CI dispatch,

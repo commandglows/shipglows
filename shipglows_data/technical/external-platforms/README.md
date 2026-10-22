@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-10-06"
+updated: "2026-10-21"
 status: draft
 source_skill: sg-docs
 scope: external-platforms-corpus
@@ -35,6 +35,7 @@ evidence:
   - "Turso added as a specialist-backed note; PydanticAI, LangGraph, Cloudflare Workers, Hono, Drizzle ORM, and TanStack Start added as reference-only watchlist notes."
   - "Auth0 added with explicit SDK, native operator CLI, Deploy CLI, MCP, tenant, authentication, and secret boundaries."
   - "Doppler added with native CLI, keychain, secret injection, environment scope, service-token, MCP, and agent-safety boundaries."
+  - "Vue added on 2026-10-21 as a specialist-backed note for Astro Vue islands."
   - "Readwise Reader added on 2026-08-26 as the freshness source for the first provider-neutral source-ingestion pilot."
 next_review: "2026-06-24"
 next_step: "/sg-docs technical audit"
@@ -132,6 +133,7 @@ Each provider note should include:
 - `turso.md`
 - `typescript.md`
 - `vercel.md`
+- `vue.md`
 
 ## Maintenance Rule
 

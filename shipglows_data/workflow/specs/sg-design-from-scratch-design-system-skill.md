@@ -28,10 +28,7 @@ linked_systems:
   - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
   - docs/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/consolidate-design-skill-surface-into-modes-and-playbooks.md"
-    artifact_version: "1.1.1"
-    required_status: ready
+depends_on: []
 supersedes: []
 evidence:
   - "Wave 20 records that the historical playground and design-token-audit skills were consolidated into direct modes and playbooks owned by 006-sg-design."

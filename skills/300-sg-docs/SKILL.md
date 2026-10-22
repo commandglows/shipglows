@@ -28,14 +28,14 @@ Select one family and load only its direct playbook:
 | Intent | Mode | Direct family reference |
 | --- | --- | --- |
 | `init`, bootstrap, file path, `readme`, `api`, `components`, empty args | INIT, FILE, README, API, COMPONENTS, AUTO | `references/simple-bootstrap-playbooks.md` |
-| `audit`; `update`; `technical [audit]`; `docs/technical`; `editorial [audit]`; `docs/editorial`; `duplicata`, duplicates, duplicate audit; `migrate`, `migrate-layout`, layout; `metadata`, migrate-frontmatter | AUDIT, UPDATE, TECHNICAL, EDITORIAL, DUPLICATE, LAYOUT MIGRATION, METADATA | `references/governance-playbooks.md` |
+| `audit`; `update`; `technical [audit]`; `docs/technical`; `editorial [audit]`; `docs/editorial`; `duplicata`, duplicates, duplicate audit; `tidy`; `migrate`, `migrate-layout`, layout; `metadata`, migrate-frontmatter | AUDIT, UPDATE, TECHNICAL, EDITORIAL, DUPLICATE, TIDY, LAYOUT MIGRATION, METADATA | `references/governance-playbooks.md` |
 | `add-project`, project import/refresh, import URL | ADD PROJECT, ADD PROJECT UPDATE | `references/private-project-playbooks.md` |
 
 Load exactly one family before the first mode action. `references/mode-playbooks.md` is a compatibility index only; do not load it during normal execution. Do not load one local family reference from another.
 
 ## Conditional Gates
 
-- Load `references/core-governance.md` before governance audit/update, technical/editorial governance, duplicates, layout migration, metadata migration, or any operation that changes canonical ownership, placement, preservation, or public claims. Simple FILE/API/COMPONENTS work does not load it unless one of those gates is reached.
+- Load `references/core-governance.md` before governance audit/update, technical/editorial governance, duplicates, layout migration, metadata migration, or any operation that changes canonical ownership, placement, preservation, or public claims. Simple FILE/API/COMPONENTS work does not load it unless a gate above applies.
 - Load `references/bootstrap-starter-templates.md` only for INIT or empty/near-empty README/AUTO bootstrap.
 - Load `skills/references/question-contract.md` only before a material merge, replace, scope, surface, or bootstrap question.
 - Load `skills/references/documentation-freshness-gate.md` only when current external framework, SDK, provider, runtime, schema, auth, deployment, or API behavior controls truth.
@@ -43,7 +43,7 @@ Load exactly one family before the first mode action. `references/mode-playbooks
 - Load `skills/references/editorial-content-corpus.md` for editorial governance; add `task-registry-routing.md` when operational follow-up is involved.
 - Load `project-governance-rules.md` for project compliance, `documentation-governance-rules.md` for documentation architecture/placement, and the metadata migration guide for METADATA.
 - Load `$SHIPGLOWS_ROOT/skills/references/guided-business-product-discovery.md` when creating or materially repairing business/product/GTM/brand context, and `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when its decision links change.
-- Load `skills/references/skill-context-budget.md` only for skill discovery or instruction-budget work.
+- Load `skills/references/skill-context-budget.md` only for skill discovery or budget work.
 - Load `skills/references/private-data-repo-contract.md` for durable private operator data.
 - For private-project modes, directly load `$SHIPGLOWS_ROOT/shipglows_data/workflow/playbooks/project-import-playbook.md`, its checklist, `source-intake-classification.md`, `private-memory-store.md`, and `private-data-repo-contract.md`.
 

@@ -67,7 +67,10 @@ One global workflow mode and three transversal execution tags refine that
 default. A mode says what workflow owns the work; a tag says where and how
 executable proof may run.
 
-- `shipglows auto [scope or horizon]` autonomously selects safe work already
+- `shipglows auto [focus]` works alone to improve the whole business (product,
+  technical, SEO, UX, content, marketing) with local proof and milestone
+  commits, no push; it asks only when truly blocked.
+- `shipglows blitz [scope or horizon]` autonomously selects safe work already
   grounded in roadmap, planning, specs, architecture, security, or compliance
   evidence. After safety and authority eligibility, it prioritizes durable
   value per wall-clock minute. It freezes the launch root, coordinates claims
@@ -86,10 +89,10 @@ The tags may appear anywhere after or around the agent command. `#local`
 conflicts with `#nolocal` and `#ci`; `#nolocal #ci` is valid. They never grant
 mutation authority. `shipglows nolocal <objective>` remains accepted as a
 legacy alias for `shipglows <objective> #nolocal`, but new prompts should use
-the tag. `auto #local` is invalid; `auto #ci` is valid and still performs no
+the tag. `blitz #local` is invalid; `blitz #ci` is valid and still performs no
 local or remote workload itself.
 
-`auto` cannot guarantee an exact credit balance because the runtime may not
+`blitz` cannot guarantee an exact credit balance because the runtime may not
 expose one. It chooses model effort for task quality, never to burn credits. It
 uses Fast only when the client already proves it active; enable it before
 invocation with `/fast on` when desired.
@@ -131,7 +134,7 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 
 | Domain | Public skill | Owns | Current internal engine(s) |
 | --- | --- | --- | --- |
-| Router | `shipglows` | Natural-language routing, auto credit windows, nolocal policy, and direct handoff | `000-shipglows`, `708-sg-auto` |
+| Router | `shipglows` | Natural-language routing, blitz credit windows, nolocal policy, and direct handoff | `000-shipglows`, `708-sg-blitz`, `709-sg-auto` |
 | Créer | `sg-development` | Product, feature, app, code, and site delivery | `001-sg-build` |
 | Créer | `sg-design` | Brand identity, visual system, interface, accessibility, and motion | `006-sg-design` |
 | Créer | `sg-experience` | Journeys, activation, onboarding, trust, and recovery | `008-sg-customer` |
@@ -154,18 +157,18 @@ composable with every command unless that mode declares a conflict.
 
 | Public command | Modes |
 | --- | --- |
-| `shipglows` | default routing, `context`, `auto` |
+| `shipglows` | default routing, `context`, `blitz`, `auto` |
 | `sg-development` | `default`, `feature`, `app`, `refactor` |
 | `sg-design` | `identity`, `system`, `playground`, `audit`, `animation`, `redesign`, `migration`, `library` |
 | `sg-experience` | `audit`, `flow`, `onboarding`, `recovery` |
 | `sg-bug` | `default`, `reproduce`, `fix`, `retest`, `close` |
 | `sg-engineering` | `audit`, `architecture`, `deps`, `performance`, `migrate`, `github`, `sync`, `access`, `parity` |
-| `sg-maintenance` | `quick`, `full`, `security`, `deps`, `docs`, `audits`, `global`, `no-ship` |
+| `sg-maintenance` | `quick`, `tidy`, `full`, `security`, `deps`, `docs`, `audits`, `global`, `no-ship` |
 | `sg-release` | `default`, `preview`, `prod`, `verify` |
 | `sg-content` | `plan`, `capture`, `repurpose`, `draft`, `enrich`, `audit`, `editorial`, `publish`, `emailing` |
 | `sg-marketing` | `market`, `gtm`, `copy`, `copywriting` |
 | `sg-seo` | `audit`, `launch`, `monitoring`, `fix`, `page`, `project`, `global` |
-| `sg-docs` | `init`, `file`, `readme`, `api`, `components`, `auto`, `audit`, `update`, `metadata`, `migrate`, `migrate-layout`, `technical`, `editorial`, `duplicata`, `duplicates`, `add-project` |
+| `sg-docs` | `init`, `file`, `readme`, `api`, `components`, `auto`, `audit`, `update`, `metadata`, `migrate`, `migrate-layout`, `technical`, `editorial`, `duplicata`, `duplicates`, `tidy`, `add-project` |
 | `sg-planning` | `tasks`, `backlog`, `priorities` (`prio`), `review`, `sessions` |
 | `sg-private` | `memory` |
 | `sg-help` | `default`, `mode`, `expert` |
@@ -176,7 +179,7 @@ Examples of composition:
 sg-development feature checkout #local
 sg-bug fix payment callback #nolocal
 sg-engineering verify checkout #ci
-shipglows auto #ci until=18:00
+shipglows blitz #ci until=18:00
 ```
 
 These are agent-invocation examples, not native shell commands. In Bash, an
@@ -185,6 +188,10 @@ diagnostic command.
 
 `sg-content` owns documentation written for an audience. `sg-docs` owns the
 internal corpus that lets projects and agents operate safely.
+
+Use `shipglows tidy` (or `shipglows ménage`) to clean the current project in one
+pass: old specs and workflow docs, leftover branches, worktrees and pull requests,
+and Git storage. You approve one list; deletions stay recoverable through Git.
 
 Use `shipglows hygiene` for a comprehensive, non-mutating audit of the current
 project and one grouped correction proposal. Multi-project hygiene is deferred.
@@ -254,7 +261,7 @@ modes. Typical internal lanes include:
   `203-sg-research`, `205-sg-veille`
 - helpers and context: `301-sg-context`, `303-sg-resume`, `304-sg-changelog`,
   `305-sg-init`, `306-sg-scaffold`, `308-sg-status`, `700-sg-explore`,
-  `704-sg-model`, `706-continue`, `707-name`, `708-sg-auto`
+  `704-sg-model`, `706-continue`, `707-name`, `708-sg-blitz`, `709-sg-auto`
 - ShipGlows maintenance only: `900-shipglows-core`
 
 Numeric codes are still a precise runtime lookup. They are not a second public
@@ -264,7 +271,7 @@ taxonomy and should not be required for normal operation.
 
 ```text
 shipglows Ajoute une animation accessible sur le site marketing
-shipglows auto until=18:00
+shipglows blitz until=18:00
 shipglows Implémente le prochain chantier prêt sans lancer ses validations #nolocal
 sg-engineering Prépare la synchronisation locale/cloud de ce produit
 sg-engineering verify checkout #ci

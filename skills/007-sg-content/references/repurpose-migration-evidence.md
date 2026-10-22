@@ -6,6 +6,8 @@ project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-17"
 status: active
+orphan_policy: retain
+orphan_reason: "Migration audit evidence: intentionally not loaded by the dispatcher; proves rule transfer and is asserted by its contract test."
 source_skill: 102-sg-start
 scope: repurpose-mode-consolidation-evidence
 owner: Diane

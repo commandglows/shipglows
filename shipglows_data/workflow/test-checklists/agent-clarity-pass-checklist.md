@@ -16,7 +16,6 @@ docs_impact: yes
 linked_systems:
   - shipglows_data/technical/agent-clarity-pass-playbook.md
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
-  - shipglows_data/workflow/specs/agent-clarity-pass-playbook-and-checklist.md
 depends_on:
   - artifact: "shipglows_data/technical/agent-clarity-pass-playbook.md"
     artifact_version: "1.0.0"

@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.1.1"
 project: ShipGlows
 created: "2026-07-12"
-updated: "2026-07-12"
+updated: "2026-10-20"
 status: draft
 source_skill: 900-shipglows-core
 scope: operator-role-technical-reviewer
@@ -20,7 +20,7 @@ linked_systems:
   - shipglows_data/business/agent-profiles/technical-reviewer.md
 depends_on:
   - artifact: "skills/references/profile-activation.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: active
 supersedes: []
 evidence:
@@ -45,7 +45,6 @@ What is technically fragile, incorrect, overcomplicated, or likely to regress?
 
 - `Code Reviewer`
 - `JavaScript Code Refactoring Engineer`
-- `React Software Engineer`
 - `JavaScript Software Engineer`
 - `Fullstack Software Developer`
 

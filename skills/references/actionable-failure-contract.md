@@ -1,11 +1,11 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-05-30"
-updated: "2026-05-30"
-status: draft
+updated: "2026-10-20"
+status: active
 source_skill: 001-sg-build
 scope: actionable_failure_contract
 owner: Diane
@@ -20,8 +20,8 @@ depends_on: []
 supersedes: []
 evidence:
   - "Need for deterministic owner routing and evidence requirements in reusable audit or support workflows."
-next_review: "2026-06-30"
-next_step: "/101-sg-ready Actionable Failure Contract"
+next_review: "2027-04-20"
+next_step: "/103-sg-verify Actionable Failure Contract"
 ---
 
 # Actionable Failure Contract

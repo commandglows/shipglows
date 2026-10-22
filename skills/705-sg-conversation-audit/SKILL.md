@@ -1,7 +1,7 @@
 ---
 name: 705-sg-conversation-audit
 description: "Audit ShipGlows conversations into actionable improvements."
-argument-hint: "[default|latest|path <file-or-dir>|export shipglows|--trace <rollout.jsonl>|report=agent]"
+argument-hint: "[default|latest|claude [<project-dir>|<session.jsonl>]|path <file-or-dir>|export shipglows|--trace <rollout.jsonl>|report=agent]"
 ---
 
 # 705-sg-conversation-audit
@@ -50,6 +50,10 @@ Audit stored ShipGlows conversation transcripts into private governance reports 
 - `default` (implicit): audit most recent file under `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/` with fallback to `latest`.
 - `latest`: audit the most recent transcript in the canonical conversation directory.
 - `path <file-or-dir>`: audit a specific transcript file or all files in a directory; this can read external input but must not move the audit output out of `$SHIPGLOWS_ROOT`.
+- `claude [<project-dir>|<session.jsonl>]`: audit a Claude Code session read in place from `~/.claude/projects/<project>/`. A project directory resolves to its newest top-level session JSONL (default: the current checkout's project directory). The tool keeps only main-thread operator prompts and assistant prose; tool calls/results, thinking, attachments, meta entries, subagent sidechains and harness-injected blocks (`<system-reminder>` etc.) are dropped, and the safety gate runs on that extracted view.
+  ```bash
+  python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_conversation_audit.py" ~/.claude/projects/<project>
+  ```
 - `export shipglows`: run `800-tmux-capture-conversation --preset shipglows` first, then audit the new transcript from `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/`.
 - `--trace <rollout.jsonl>`: use the explicitly supplied rollout trace to verify delegation receipts and explicit delegation requests. Never auto-discover a trace or infer runtime events from prose.
 - `report=agent`: include detailed evidence and route rationale.
@@ -58,6 +62,7 @@ Audit stored ShipGlows conversation transcripts into private governance reports 
 
 1. Resolve target transcript set:
    - explicit `path` argument,
+   - `claude` session JSONL or project directory,
    - `latest`,
    - or default latest-in-folder.
 2. Validate redaction gate before reading raw transcript content.

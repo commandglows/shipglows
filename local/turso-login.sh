@@ -21,11 +21,11 @@ CONFIG_DIR="$(shipglows_local_config_dir)"
 CURRENT_CONNECTION_FILE="$CONFIG_DIR/current_connection"
 CURRENT_IDENTITY_FILE="$CONFIG_DIR/current_identity_file"
 CURRENT_AUTH_METHOD_FILE="$CONFIG_DIR/current_auth_method"
-LOGIN_TIMEOUT_SECONDS="${SHIPGLOWS_TURSO_LOGIN_TIMEOUT_SECONDS:-${SHIPGLOWS_TURSO_LOGIN_TIMEOUT_SECONDS:-600}}"
+LOGIN_TIMEOUT_SECONDS="${SHIPGLOWS_TURSO_LOGIN_TIMEOUT_SECONDS:-600}"
 
 REMOTE_HOST=""
 SSH_IDENTITY_FILE=""
-PROJECT_DIR="${SHIPGLOWS_TURSO_REMOTE_PROJECT_DIR:-${SHIPGLOWS_TURSO_REMOTE_PROJECT_DIR:-}}"
+PROJECT_DIR="${SHIPGLOWS_TURSO_REMOTE_PROJECT_DIR:-}"
 FORCE_HEADLESS=1
 TMP_DIR=""
 LOGIN_OUTPUT_FILE=""
@@ -71,7 +71,7 @@ load_remote_host() {
     if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
         :
     else
-        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}}"
+        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
         if [ -z "$REMOTE_HOST" ] && grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
             REMOTE_HOST="hetzner"
         fi

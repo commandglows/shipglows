@@ -46,13 +46,13 @@ depends_on:
     artifact_version: "1.0.0"
     required_status: "active"
 supersedes: []
-superseded_by: "specs/sg-maintain-master-lifecycle-skill.md"
+superseded_by: "skills/002-sg-maintain/SKILL.md"
 evidence:
   - "User decision 2026-05-03: sg-adopt does not add enough beyond sg-init/sg-docs/sg-migrate/sg-deps."
   - "User requested sg-maintain as a bounded maintenance pass that can review dependencies, documentation, audits, and important security concerns without becoming too large."
   - "Existing security coverage is split between sg-deps for dependency and supply-chain risk and sg-audit-code for auth, permissions, trust boundaries, secrets, reliability, and abuse resistance."
   - "Validation passed on 2026-05-03: metadata lint, skill budget audit, runtime skill sync check, diff check, and Astro site build including /skills/sg-maintain."
-next_step: "Superseded by specs/sg-maintain-master-lifecycle-skill.md"
+next_step: "Superseded by skills/002-sg-maintain/SKILL.md"
 ---
 
 # Spec: sg-maintain Project Maintenance Skill
@@ -65,7 +65,7 @@ sg-maintain Project Maintenance Skill
 
 superseded
 
-This spec is superseded by `specs/sg-maintain-master-lifecycle-skill.md`, which promotes `sg-maintain` from a lightweight router to a lifecycle master skill.
+This spec is superseded by the `002-sg-maintain` lifecycle skill (`skills/002-sg-maintain/SKILL.md`), which promotes `sg-maintain` from a lightweight router to a lifecycle master skill.
 
 ## User Story
 

@@ -26,7 +26,7 @@ class BlogAndCmsExperienceContractTests(unittest.TestCase):
         self.assertIn(reference, compact(DESIGN))
         self.assertIn("when designing, implementing, auditing, or proving blog", compact(DESIGN))
         self.assertIn(reference, compact(CONTENT))
-        self.assertIn("when planning, creating, operating, migrating, or publishing a blog", compact(CONTENT))
+        self.assertIn("Article and CMS architecture, publication lifecycle, localization, or editorial access", compact(CONTENT))
         self.assertIn(reference, compact(SEO))
         self.assertIn("when blog or article SEO depends on canonical content fields", compact(SEO))
         self.assertIn("does not replace project editorial truth", self.contract)
@@ -120,6 +120,8 @@ class BlogAndCmsExperienceContractTests(unittest.TestCase):
             self.assertIn(value, self.contract)
 
     def test_spec_keeps_provider_selection_and_projects_out_of_scope(self) -> None:
+        if not SPEC.is_file():
+            self.skipTest("spec lives in the private data corpus")
         spec = compact(SPEC)
         self.assertIn("Selecting, buying, installing, or configuring a CMS", spec)
         self.assertIn("product repositories", spec)

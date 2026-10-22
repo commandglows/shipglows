@@ -25,7 +25,7 @@ class SkillActivationGraphTests(unittest.TestCase):
         self.assertEqual(15, graph["public_skills"])
         self.assertEqual(53, graph["expert_skills"])
         self.assertEqual(53, graph["owned_experts"])
-        for engine in ("306-sg-scaffold", "407-sg-translate", "707-name", "708-sg-auto", "emailing"):
+        for engine in ("306-sg-scaffold", "407-sg-translate", "707-name", "708-sg-blitz", "emailing"):
             self.assertIn(engine, graph["owners"])
 
     def test_missing_engine_blocks_graph_and_invocation(self) -> None:

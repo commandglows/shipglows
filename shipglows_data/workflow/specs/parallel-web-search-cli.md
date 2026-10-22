@@ -5,8 +5,8 @@ artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-10-01"
 created_at: "2026-10-01 19:15:46 UTC"
-updated: "2026-10-04"
-updated_at: "2026-10-04"
+updated: "2026-10-20"
+updated_at: "2026-10-20"
 status: implemented
 source_skill: 100-sg-spec
 source_model: GPT-6.1 Codex
@@ -57,7 +57,7 @@ Given search terms, explicit public URLs, a research prompt, or a monitoring com
 
 ## Success behavior
 
-- Each invocation issues one provider request; Task status/result checks are explicit separate commands.
+- Each invocation makes one provider call; Search, Extract, and GET calls retry transient failures (network errors, HTTP 429/502/503/504) up to 3 attempts with backoff and `Retry-After`, while Task run creation and Monitor create/cancel stay single-attempt. Task status/result checks are explicit separate commands.
 - Requests use `x-api-key` auth and documented endpoint fields.
 - `fast` is explicit default for multilingual search and currently priced at $1/1,000 calls; mode choices are available to the operator.
 - Output normalizes provider results, preserves excerpt text, and assigns response-order positions. It labels the order as Parallel relevance rather than a Google SERP rank.

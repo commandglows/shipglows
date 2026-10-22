@@ -48,7 +48,7 @@ class ContextHistoryContractTests(unittest.TestCase):
         for consumer in (CLOSURE, SHIP, CHANGELOG):
             with self.subTest(consumer=consumer):
                 self.assertIn("context-history-and-head.md", compact(consumer))
-        self.assertIn("at most one significant delivery event", compact(SHIP))
+        self.assertIn("at most one bounded delivery event", compact(SHIP))
         self.assertIn("at most one significant event per closure", compact(REFERENCE))
         self.assertIn("public-ready", compact(REFERENCE))
         self.assertIn("internal-only", compact(REFERENCE))

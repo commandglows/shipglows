@@ -31,9 +31,6 @@ depends_on:
   - artifact: skills/references/windows-bootstrap-development-workflow.md
     artifact_version: "2.1.0"
     required_status: active
-  - artifact: shipglows_data/workflow/specs/unified-shipglows-update-experience.md
-    artifact_version: "1.0.0"
-    required_status: reviewed
 supersedes: []
 evidence:
   - "Operator approval 2026-08-30: ShipGlows should own controlled Windows updates for its global developer toolchain, separately from ShipGlows self-update and project dependency updates."

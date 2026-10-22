@@ -1,10 +1,10 @@
 ---
 artifact: playbook
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-03"
+updated: "2026-10-20"
 status: draft
 source_skill: 011-sg-pilotage
 scope: conversation-tracker-sync
@@ -152,6 +152,12 @@ conversation from `CODEX_THREAD_ID`, requires its stored cwd to equal the exact
 absolute current cwd, writes only `threads.title`, and verifies the persisted
 value. It rejects generic or already-prefixed work titles. Do not inspect or
 rename other conversations, follow forks, or mutate `TASKS.md` in this mode.
+
+In the Claude Code desktop app, where `CODEX_THREAD_ID` is absent, apply the
+same status and work-title gates, then call the app's `set_session_title` tool
+once with `session_id: "self"` and the full `<STATUS> - <work title>`. Accept
+its result, including its own approval prompt; a decline stops without retry.
+When neither surface is available, report it and edit no agent state directly.
 
 Pressure scenarios:
 

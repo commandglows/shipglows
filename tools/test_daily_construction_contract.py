@@ -26,10 +26,10 @@ class DailyConstructionContractTests(unittest.TestCase):
     def test_clean_daily_completion_defaults_to_push(self) -> None:
         self.assertIn("clean completed daily chantier with durable repository artifacts proceeds to bounded commit and push by default", self.core)
         self.assertIn("default terminal route is bounded commit and push", self.lifecycle)
-        self.assertIn("unpushed commits remain delivery pending", self.end)
+        self.assertIn("unpushed work remains pending", self.end)
 
     def test_daily_validation_is_zero_or_one_focused_check(self) -> None:
-        self.assertIn("zero or one focused check", self.ship)
+        self.assertIn("zero or one sufficient focused check", self.ship)
         self.assertIn("use no automated check for a low-risk localized change", self.ship_execution)
         self.assertIn("otherwise run one focused owner test", self.ship_execution)
         self.assertIn("zero or one focused scenario/contract check", self.core_build)

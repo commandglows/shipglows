@@ -11,7 +11,7 @@ source "$SCRIPT_DIR/remote-helpers.sh"
 shipglows_migrate_local_config || true
 CONFIG_DIR="$(shipglows_local_config_dir)"
 WATCH_LOCK_DIR="$CONFIG_DIR/tunnel-watch.lock"
-INTERVAL="${SHIPGLOWS_TUNNEL_WATCH_INTERVAL:-${SHIPGLOWS_TUNNEL_WATCH_INTERVAL:-60}}"
+INTERVAL="${SHIPGLOWS_TUNNEL_WATCH_INTERVAL:-60}"
 
 if ! [[ "$INTERVAL" =~ ^[1-9][0-9]*$ ]]; then
     INTERVAL=5
@@ -20,7 +20,7 @@ fi
 if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
     :
 else
-    REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
+    REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-}"
 fi
 
 if SSH_IDENTITY_FILE="$(shipglows_read_config_value current_identity_file 2>/dev/null)"; then
@@ -76,7 +76,7 @@ sync_tunnels() {
 }
 
 watch_remote_events() {
-    run_remote_ssh 'tail -n 0 -F "${SHIPGLOWS_TUNNEL_EVENT_FILE:-${SHIPGLOWS_TUNNEL_EVENT_FILE:-$HOME/.shipglows/tunnel-events.log}}"' 2>/dev/null
+    run_remote_ssh 'tail -n 0 -F "${SHIPGLOWS_TUNNEL_EVENT_FILE:-$HOME/.shipglows/tunnel-events.log}"' 2>/dev/null
 }
 
 echo "Synchronisation automatique active pour $REMOTE_HOST (intervalle : ${INTERVAL}s)."

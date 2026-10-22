@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.3"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-02"
+updated: "2026-10-20"
 status: reviewed
 source_skill: sg-start
 scope: local-tunnels-and-mcp-login
@@ -36,6 +36,7 @@ evidence:
   - "Android Termux is an explicit local tunnel surface with pkg-based dependency guidance."
   - "Native Windows PowerShell bootstrap and one-port OpenSSH tunnel proved on a Shadow PC on 2026-08-01."
   - "Password-to-key promotion now writes a managed OpenSSH identity include so direct SSH and Mosh use the verified key."
+  - "Fail-closed public preview checklist kept from the abandoned FRP preview tunnel POC (2026-10-20)."
 next_review: "2026-06-01"
 next_step: "Define the native Windows urls-menu parity contract before implementation."
 ---
@@ -236,6 +237,17 @@ shipglows-turso-ssh
 - Never replace `authorized_keys`, edit `known_hosts`, change `sshd_config`, or disable password authentication as an implicit pairing side effect.
 - Treat saved connection files as local operator state, not public documentation.
 - Provider names must be validated before they are passed to remote commands.
+
+### Fail-closed public preview checklist
+
+Any new path that exposes a local or server app on a public preview URL must
+refuse to expose rather than degrade:
+
+- Refuse exposure when nothing listens on the target localhost port.
+- Refuse a preview name, subdomain, or port already claimed by another app.
+- Never print or log tokens, auth values, or generated secret-bearing configs.
+- Stop or clean up only ShipGlows-managed processes, never foreign ones.
+- Provide one command that removes every tunnel and runtime file it created.
 
 ## Validation
 

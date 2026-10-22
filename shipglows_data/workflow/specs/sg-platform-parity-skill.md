@@ -25,10 +25,7 @@ linked_systems:
   - skills/sg-platform-parity/references/platform-parity-matrix.md
   - skills/sg-platform-parity/agents/openai.yaml
   - site/src/content/skills/sg-platform-parity.md
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/consolidate-skill-maintenance-under-shipglows-core.md"
-    artifact_version: "1.2.4"
-    required_status: ready
+depends_on: []
 supersedes: []
 evidence:
   - "Wave 20 preserves sg-skill-build as historical authorship while binding current maintenance ownership to the documented 900-shipglows-core consolidation and current 602 parity runtime."

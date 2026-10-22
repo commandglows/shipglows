@@ -202,10 +202,10 @@ unattended production shipping.
 - [skills/references/canonical-paths.md](./skills/references/canonical-paths.md) — path resolution rules for ShipGlows-owned tools, references, templates, and project-local artifacts
 - [skills/references/private-data-repo-contract.md](./skills/references/private-data-repo-contract.md) — contract for the separate private data repository used for durable operator-managed data under `~/.shipglows/data/`
 - [skills/references/design-inspiration-library.md](./skills/references/design-inspiration-library.md) — private rights-aware sales-page/design reference corpus, capture bundle, and bounded operator-selection gate
-- Runtime port and PM2 behavior is documented in [shipglows_data/technical/runtime-cli.md](./shipglows_data/technical/runtime-cli.md); the historical root note is preserved under [repository history](./shipglows_data/workflow/archives/repository-history/root-documentation/ECOSYSTEM-AND-PORTS.md).
+- Runtime port and PM2 behavior is documented in [shipglows_data/technical/runtime-cli.md](./shipglows_data/technical/runtime-cli.md); the former root note remains in Git history.
 - [local/README.md](./local/README.md) — local tunnel setup
 - [tools/codebase-mcp/README.md](./tools/codebase-mcp/README.md) — local MCP server for codebase context management
-- [repository-history/README.md](./shipglows_data/workflow/archives/repository-history/README.md) — classified historical docs, migration records, and preservation ledger
+- [repository-history/README.md](./shipglows_data/workflow/archives/repository-history/README.md) — preservation ledger of the former root archive (its files now live only in Git history)
 
 ## Private Data Repo
 
@@ -641,7 +641,7 @@ signed repository. A missing, empty, malformed, or unverifiable input stops the
 installer, as does a required `apt` or `dpkg` failure; the component is never
 reported as successfully installed after such a failure.
 
-When the install runs interactively, ShipGlows asks once whether to enable the permissive AI defaults. Non-interactive runs can set `SHIPGLOWS_AUTONOMY_MODE=permissive` or `SHIPGLOWS_AUTONOMY_MODE=standard`; the legacy `SHIPGLOWS_AUTONOMY_MODE` name is still accepted. Root permissive mode still requires `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS=1` or an explicit confirmation at the prompt; the legacy `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS` fallback remains accepted too.
+When the install runs interactively, ShipGlows asks once whether to enable the permissive AI defaults. Non-interactive runs can set `SHIPGLOWS_AUTONOMY_MODE=permissive` or `SHIPGLOWS_AUTONOMY_MODE=standard`. Root permissive mode still requires `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS=1` or an explicit confirmation at the prompt.
 
 The recommended server shape is:
 
@@ -663,7 +663,7 @@ The recommended server shape is:
 - ShipGlows runtime config for Claude/Codex (`~/.claude`, `~/.codex`, MCP registration, skills, aliases)
 - ShipGlows TUI
 
-The current agent installs use `pnpm add -g` at install time, so ShipGlows pulls the then-current npm package release rather than shipping pinned local binaries. For non-interactive runs, `SHIPGLOWS_INSTALL_COMPONENTS` accepts values such as `claude,ai-runtime`, `claude,kilocode,tui`, `codex`, `ai-agents`, `all`, or `none`; the legacy `SHIPGLOWS_INSTALL_COMPONENTS` name is still accepted.
+The current agent installs use `pnpm add -g` at install time, so ShipGlows pulls the then-current npm package release rather than shipping pinned local binaries. For non-interactive runs, `SHIPGLOWS_INSTALL_COMPONENTS` accepts values such as `claude,ai-runtime`, `claude,kilocode,tui`, `codex`, `ai-agents`, `all`, or `none`.
 
 Before the first install on a machine, restore project-local tracking data from your
 existing project repositories or workspace artifacts. Legacy `~/shipglows_data`
@@ -704,7 +704,7 @@ If a root document duplicates a `shipglows_data/` artifact, the `shipglows_data/
 
 ```toml
 tui.status_line = ["model-with-reasoning", "current-dir", "context-remaining", "five-hour-limit", "weekly-limit"]
-tui.terminal_title = ["spinner", "thread", "project"]
+tui.terminal_title = ["activity", "thread-title", "project-name"]
 ```
 
 It also sets `[beta] rmcp = true` in `~/.codex/config.toml`.
@@ -800,6 +800,7 @@ does not patch project workflows automatically from this menu.
 Notes:
 - `shipglows-gsc` is the ShipGlows-owned, read-only Google Search Console CLI. Its source is `tools/shipglows_gsc.py`; `cli/shipglows-gsc.sh` is the repository launcher. It uses an operator-supplied Google OAuth desktop-client JSON and keeps authorization files in the user's local configuration directory, outside the repository. POSIX mode bits are requested; on Windows verify the effective ACL because `chmod` alone does not secure files. It does not enable a third-party GSC MCP or ChatGPT app, or submit sitemaps. See `shipglows_data/technical/google-search-console-cli.md` for setup, commands, and limits.
 - `shipglows-serp` is a separate one-query Google SERP lookup through SerpApi. It uses `SERPAPI_API_KEY` only from the current process environment, returns localized organic result snapshots, and does not collect GSC impressions or persist credentials. See `shipglows_data/technical/serpapi-google-serp-cli.md` for setup, quota, and limitations.
+- `shipglows-search` is the default web search: it tries Firecrawl (`FIRECRAWL_API_KEY`), then Parallel (`PARALLEL_API_KEY`), and exits 3 when every provider fails so the agent falls back to its native web search. See `skills/references/web-research-fallback.md`.
 - `shipglows-parallel` provides Search with source/date/location filters, Extract for selected page content, asynchronous cited research tasks, and scheduled web monitors. It uses `PARALLEL_API_KEY` from the process environment. Search relevance is not a Google SERP position. See `shipglows_data/technical/parallel-web-search-cli.md` for commands, usage, and limits.
 - `dataforseo` is configured but disabled by default in Codex unless
   `SHIPGLOWS_ENABLE_DATAFORSEO_MCP=1` and credentials are available.
@@ -953,11 +954,11 @@ Execution posture composes with those routes and every public métier command:
 sg-development feature checkout #local
 sg-bug fix payment callback #nolocal
 sg-engineering verify checkout #ci
-shipglows auto #ci until=18:00
+shipglows blitz #ci until=18:00
 ```
 
 `#ci` implies `#nolocal` and only identifies deferred proof; it does not
-authorize push or workflow dispatch. `shipglows auto` always implies
+authorize push or workflow dispatch. `shipglows blitz` always implies
 `#nolocal` and rejects `#local`. The older `shipglows nolocal <objective>` form
 remains accepted as a compatibility alias. These are agent-invocation tags,
 not native shell arguments; an unquoted `#` starts a comment in Bash.
@@ -1053,7 +1054,7 @@ Recommended release entrypoint after implementation:
 
 `004-sg-deploy` is for release confidence, not just pushing code. It keeps technical checks, bounded shipping, deployment truth, post-deploy evidence, final verification, and optional release notes in one visible flow.
 
-For hosting advice, ShipGlows keeps the canonical rule in `skills/references/deploy-target-matrix.md`. Websites and Vercel-compatible web applications default to `Vercel`. Only projects that genuinely require a dedicated server runtime enter the server matrix: `Railway` by default, `Render` for preview-heavy server workflows, `Fly.io` for deeper infra/topology control, and `Codesphere` for sovereignty/private-cloud cases. A split architecture is evaluated per surface: Vercel for the compatible web frontend, and the matrix only for the dedicated backend. This is advice only; final choices remain project-contextual.
+For hosting advice, ShipGlows keeps the canonical rule in `skills/references/deploy-target-matrix.md`. Websites and Vercel-compatible web applications default to `Vercel`. Only projects that genuinely require a dedicated server runtime enter the server matrix: `Railway` by default, `Render` for preview-heavy server workflows, `Fly.io` for deeper infra/topology control. When a surface must stay sovereign (European jurisdiction, no Cloud Act), a sovereignty overlay applies: `Clever Cloud` for web and servers, `Scaleway` for workers, `Codesphere` for self-hosted or on-premise cases. A split architecture is evaluated per surface: Vercel for the compatible web frontend, and the matrix only for the dedicated backend. This is advice only; final choices remain project-contextual.
 
 Recommended maintenance entrypoint for existing projects:
 
@@ -1424,6 +1425,7 @@ shipglows/
 - `cli/install.sh` — installation and machine setup
 - `cli/shipglows-gsc.sh` — installed launcher for the read-only Google Search Console CLI
 - `cli/shipglows-serp.sh` — installed launcher for the one-query SerpApi Google SERP CLI
+- `cli/shipglows-search.sh` — installed launcher for the Firecrawl → Parallel search fallback (`tools/shipglows_search.py`)
 - `cli/shipglows-parallel.sh` — installed launcher for the Parallel Web Search CLI
 - `shipglows readwise` / `shipglows-readwise` — official Readwise/Reader commands with ShipGlows browser OAuth on a dynamic loopback port; [setup, commands and verification limits](shipglows_data/technical/readwise-cli.md)
 - `install-shipglows.sh` — remote/bootstrap install helper
@@ -1467,7 +1469,7 @@ The current Codex plugin alpha is outside the repository at `/home/claude/plugin
 
 The canonical internal governance corpus lives under `shipglows_data/`. The repository root keeps runtime/bootstrap entrypoints and explicitly documented compatibility files only.
 
-Useful older plans, implementation summaries, and one-off reports live under [`shipglows_data/workflow/archives/`](./shipglows_data/workflow/archives/repository-history/) as inactive history, not current doctrine. Classified duplicate, generated, empty-facade, and unreferenced scratch material is deleted instead of archived indefinitely.
+Older plans, implementation summaries, and one-off reports are not kept as files: Git history is the archive. Durable decisions are distilled into canonical docs first; the leftover ledgers under [`shipglows_data/workflow/archives/`](./shipglows_data/workflow/archives/repository-history/) only record what was removed.
 
 ## License
 

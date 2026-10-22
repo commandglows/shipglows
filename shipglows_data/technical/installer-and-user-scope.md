@@ -143,7 +143,7 @@ Turso Cloud is a separate consumer offered only after an initialized non-root Ub
 - `sudo ./cli/install.sh`: server installer.
 - `./local/install.sh`: local tunnel and remote-login installer, including Android Termux.
 - `configure_command_wrappers`: installs real global wrappers for `shipglows` and `sg`, plus helper command symlinks such as `shipglows-turso-login` and `shipglows-turso-ssh`.
-- `setup_user`: per-user configuration for eligible users.
+- `setup_user`: per-user configuration for eligible users. Targets default to the invoking sudo user (or root); additional users are opt-in with `SHIPGLOWS_INSTALL_USERS_MODE=user-list` plus a space-separated `SHIPGLOWS_INSTALL_USERS` list, and unknown or ineligible names are reported as rejected.
 - `resolve_install_components`: interactive or env-driven selector for user-space agents (`claude`, `codex`, `opencode`, `kilocode`), ShipGlows runtime config, and TUI.
 - `configure_*_mcp`: Claude/Codex MCP provider setup. Codex MCP entries are
   registered disabled by default and enabled per session by the ShipGlows

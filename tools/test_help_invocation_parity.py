@@ -37,7 +37,7 @@ class HelpInvocationParityTests(unittest.TestCase):
                         "sg-private data status", "sg-help mode --expert"):
             self.assertEqual(check(command)["status"], "valid", command)
         self.assertEqual(check("sg-design audit nonsense #local")["status"], "invalid")
-        self.assertEqual(check("shipglows auto #local")["status"], "invalid")
+        self.assertEqual(check("shipglows blitz #local")["status"], "invalid")
 
 
 if __name__ == "__main__":

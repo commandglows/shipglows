@@ -13,10 +13,10 @@ NC='\033[0m'
 
 SHIPGLOWS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SHIPGLOWS_DIR="$SHIPGLOWS_DIR"
-SHIPGLOWS_LOG_DIR="${SHIPGLOWS_LOG_DIR:-${SHIPGLOWS_LOG_DIR:-$HOME/install-logs}}"
-SHIPGLOWS_LOG_FILE="${SHIPGLOWS_LOG_FILE:-${SHIPGLOWS_LOG_FILE:-$SHIPGLOWS_LOG_DIR/shipglows-$(date -u +%Y%m%dT%H%M%SZ).log}}"
-SHIPGLOWS_REPORT_DIR="${SHIPGLOWS_REPORT_DIR:-${SHIPGLOWS_REPORT_DIR:-$HOME/install-reports}}"
-SHIPGLOWS_REPORT_FILE="${SHIPGLOWS_REPORT_FILE:-${SHIPGLOWS_REPORT_FILE:-$SHIPGLOWS_REPORT_DIR/shipglows-$(date -u +%Y%m%dT%H%M%SZ).md}}"
+SHIPGLOWS_LOG_DIR="${SHIPGLOWS_LOG_DIR:-$HOME/install-logs}"
+SHIPGLOWS_LOG_FILE="${SHIPGLOWS_LOG_FILE:-$SHIPGLOWS_LOG_DIR/shipglows-$(date -u +%Y%m%dT%H%M%SZ).log}"
+SHIPGLOWS_REPORT_DIR="${SHIPGLOWS_REPORT_DIR:-$HOME/install-reports}"
+SHIPGLOWS_REPORT_FILE="${SHIPGLOWS_REPORT_FILE:-$SHIPGLOWS_REPORT_DIR/shipglows-$(date -u +%Y%m%dT%H%M%SZ).md}"
 SHIPGLOWS_LOG_DIR="$SHIPGLOWS_LOG_DIR"
 SHIPGLOWS_LOG_FILE="$SHIPGLOWS_LOG_FILE"
 SHIPGLOWS_REPORT_DIR="$SHIPGLOWS_REPORT_DIR"
@@ -485,7 +485,7 @@ prompt_yes_no() {
 }
 
 resolve_autonomy_mode() {
-    local requested_mode="${SHIPGLOWS_AUTONOMY_MODE:-${SHIPGLOWS_AUTONOMY_MODE:-ask}}"
+    local requested_mode="${SHIPGLOWS_AUTONOMY_MODE:-ask}"
     case "$requested_mode" in
         permissive|permissive-mode|danger|dangerous|1|true|yes)
             SHIPGLOWS_AUTONOMY_MODE_RESOLVED="permissive"
@@ -513,7 +513,7 @@ resolve_root_autonomy_opt_in() {
         return 0
     fi
 
-    local root_autonomy_opt_in="${SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS:-${SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS:-}}"
+    local root_autonomy_opt_in="${SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS:-}"
     if [ "$root_autonomy_opt_in" = "1" ]; then
         SHIPGLOWS_ROOT_AUTONOMOUS_ALLOWED="1"
         return 0
@@ -532,7 +532,7 @@ resolve_root_autonomy_opt_in() {
 }
 
 resolve_install_components() {
-    local value="${SHIPGLOWS_INSTALL_COMPONENTS:-${SHIPGLOWS_INSTALL_COMPONENTS:-ask}}"
+    local value="${SHIPGLOWS_INSTALL_COMPONENTS:-ask}"
     SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED="${SHIPGLOWS_CODEX_ENTRYPOINT:-linked}"
     case "$SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED" in
         linked|plugin) ;;
@@ -1178,7 +1178,8 @@ fi
 
 # ──────────────────────────────────────────────────────────────
 # Per-user setup: Claude Code, skills, aliases, data
-# Runs for root + ALL regular users in /home/
+# Runs for the invoking sudo user (or root); extra users only via
+# SHIPGLOWS_INSTALL_USERS_MODE=user-list SHIPGLOWS_INSTALL_USERS="alice bob"
 # ──────────────────────────────────────────────────────────────
 
 SHIPGLOWS_INSTALL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
@@ -1296,9 +1297,9 @@ configure_supabase_mcp() {
 configure_dataforseo_mcp() {
     local target_home="$1"
     local settings_file="$target_home/.claude/settings.json"
-    local doppler_project="${SHIPGLOWS_DATAFORSEO_DOPPLER_PROJECT:-${SHIPGLOWS_DATAFORSEO_DOPPLER_PROJECT:-contentflow_app}}"
-    local doppler_config="${SHIPGLOWS_DATAFORSEO_DOPPLER_CONFIG:-${SHIPGLOWS_DATAFORSEO_DOPPLER_CONFIG:-prd}}"
-    local enabled="${SHIPGLOWS_ENABLE_DATAFORSEO_MCP:-${SHIPGLOWS_ENABLE_DATAFORSEO_MCP:-0}}"
+    local doppler_project="${SHIPGLOWS_DATAFORSEO_DOPPLER_PROJECT:-contentflow_app}"
+    local doppler_config="${SHIPGLOWS_DATAFORSEO_DOPPLER_CONFIG:-prd}"
+    local enabled="${SHIPGLOWS_ENABLE_DATAFORSEO_MCP:-0}"
     local enabled_for_jq="false"
     mkdir -p "$target_home/.claude"
     if [ ! -f "$settings_file" ]; then
@@ -1357,8 +1358,8 @@ playwright_mcp_executable_path() {
     local arch
     local candidate=""
 
-    if [ -n "${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-}}" ] && [ -x "${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-}}" ]; then
-        printf '%s' "${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-}}"
+    if [ -n "${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-}" ] && [ -x "${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-}" ]; then
+        printf '%s' "${SHIPGLOWS_PLAYWRIGHT_EXECUTABLE_PATH:-}"
         return 0
     fi
 
@@ -1593,7 +1594,7 @@ configure_codex_tui() {
                             print "status_line = [\"model-with-reasoning\", \"current-dir\", \"context-remaining\", \"five-hour-limit\", \"weekly-limit\"]"
                         }
                         if (add_title == 0) {
-                            print "terminal_title = [\"spinner\", \"thread\", \"project\"]"
+                            print "terminal_title = [\"activity\", \"thread-title\", \"project-name\"]"
                         }
                         print "# <<< shipglows codex tui <<<"
                         inserted = 1
@@ -1612,7 +1613,7 @@ configure_codex_tui() {
                             print "status_line = [\"model-with-reasoning\", \"current-dir\", \"context-remaining\", \"five-hour-limit\", \"weekly-limit\"]"
                         }
                         if (add_title == 0) {
-                            print "terminal_title = [\"spinner\", \"thread\", \"project\"]"
+                            print "terminal_title = [\"activity\", \"thread-title\", \"project-name\"]"
                         }
                         print "# <<< shipglows codex tui <<<"
                     }
@@ -1625,7 +1626,7 @@ configure_codex_tui() {
                     printf 'tui.status_line = ["model-with-reasoning", "current-dir", "context-remaining", "five-hour-limit", "weekly-limit"]\n'
                 fi
                 if [ "$has_terminal_title" -eq 0 ]; then
-                    printf 'tui.terminal_title = ["spinner", "thread", "project"]\n'
+                    printf 'tui.terminal_title = ["activity", "thread-title", "project-name"]\n'
                 fi
                 printf '# <<< shipglows codex tui <<<\n'
                 printf '\n'
@@ -1929,11 +1930,11 @@ configure_codex_dataforseo_mcp() {
     local config_file="$codex_dir/config.toml"
     local tmp_file="$config_file.tmp.$$"
     local enabled="false"
-    local enable_dataforseo="${SHIPGLOWS_ENABLE_DATAFORSEO_MCP:-${SHIPGLOWS_ENABLE_DATAFORSEO_MCP:-0}}"
+    local enable_dataforseo="${SHIPGLOWS_ENABLE_DATAFORSEO_MCP:-0}"
     local command="npx"
     local args='["-y", "dataforseo-mcp-server"]'
-    local doppler_project="${SHIPGLOWS_DATAFORSEO_DOPPLER_PROJECT:-${SHIPGLOWS_DATAFORSEO_DOPPLER_PROJECT:-contentflow_app}}"
-    local doppler_config="${SHIPGLOWS_DATAFORSEO_DOPPLER_CONFIG:-${SHIPGLOWS_DATAFORSEO_DOPPLER_CONFIG:-prd}}"
+    local doppler_project="${SHIPGLOWS_DATAFORSEO_DOPPLER_PROJECT:-contentflow_app}"
+    local doppler_config="${SHIPGLOWS_DATAFORSEO_DOPPLER_CONFIG:-prd}"
 
     mkdir -p "$codex_dir"
     [ -f "$config_file" ] || touch "$config_file"
@@ -2242,6 +2243,7 @@ configure_command_wrappers() {
     local gsc_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-gsc.sh"
     local serp_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-serp.sh"
     local parallel_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-parallel.sh"
+    local search_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-search.sh"
     local readwise_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-readwise.sh"
     local turso_login_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-login.sh"
     local turso_ssh_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-ssh.sh"
@@ -2259,6 +2261,9 @@ configure_command_wrappers() {
     if [ -f "$parallel_target" ]; then
         ln -sf "$parallel_target" "$bin_dir/shipglows-parallel"
     fi
+    if [ -f "$search_target" ]; then
+        ln -sf "$search_target" "$bin_dir/shipglows-search"
+    fi
     if [ -f "$readwise_target" ]; then
         chmod +x "$readwise_target"
         ln -sf "$readwise_target" "$bin_dir/shipglows-readwise"
@@ -2271,7 +2276,7 @@ configure_command_wrappers() {
         ln -sf "$turso_ssh_target" "$bin_dir/shipglows-turso-ssh"
         ln -sf "$turso_ssh_target" "$bin_dir/turso-ssh"
     fi
-    chmod +x "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-serp" "$bin_dir/shipglows-parallel" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
+    chmod +x "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-serp" "$bin_dir/shipglows-parallel" "$bin_dir/shipglows-search" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
 
     if [ -x "$bin_dir/shipglows" ] && [ -x "$bin_dir/sg" ]; then
         echo -e "  ${GREEN}✅ Commandes système disponibles :${NC} /usr/local/bin/shipglows et /usr/local/bin/sg"
@@ -2293,6 +2298,9 @@ configure_command_wrappers() {
     if [ -x "$bin_dir/shipglows-parallel" ]; then
         echo -e "  ${GREEN}✅ Commande Parallel Web Search disponible :${NC} /usr/local/bin/shipglows-parallel"
     fi
+    if [ -x "$bin_dir/shipglows-search" ]; then
+        echo -e "  ${GREEN}✅ Commande recherche web (Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-search"
+    fi
     if [ -x "$bin_dir/shipglows-readwise" ]; then
         echo -e "  ${GREEN}✅ Commande Readwise / Reader disponible :${NC} shipglows readwise · shipglows-readwise"
     fi
@@ -2303,12 +2311,12 @@ install_shipglows_tui_for_user() {
     local username="$2"
     local installer="$SHIPGLOWS_INSTALL_ROOT/tui/scripts/install-shipglows-tui.sh"
 
-    if [ "${SHIPGLOWS_SKIP_TUI_INSTALL:-${SHIPGLOWS_SKIP_TUI_INSTALL:-0}}" = "1" ] || [ "${SHIPGLOWS_INSTALL_TUI:-1}" != "1" ]; then
+    if [ "${SHIPGLOWS_SKIP_TUI_INSTALL:-0}" = "1" ] || [ "${SHIPGLOWS_INSTALL_TUI:-1}" != "1" ]; then
         echo -e "  ${YELLOW}⚠️ ShipGlows TUI ignorée pour :${NC} $username"
         return 0
     fi
 
-    if [ "$username" = "root" ] && [ "${SHIPGLOWS_INSTALL_TUI_FOR_ROOT:-${SHIPGLOWS_INSTALL_TUI_FOR_ROOT:-0}}" != "1" ] && [ "${#TARGET_USERS[@]}" -gt 0 ]; then
+    if [ "$username" = "root" ] && [ "${SHIPGLOWS_INSTALL_TUI_FOR_ROOT:-0}" != "1" ] && [ "${#TARGET_USERS[@]}" -gt 0 ]; then
         echo -e "  ${BLUE}ℹ️ ShipGlows TUI installée côté utilisateur quotidien, pas côté root${NC}"
         return 0
     fi
@@ -2545,8 +2553,8 @@ is_user_eligible() {
 }
 
 collect_target_users() {
-    local mode="${SHIPGLOWS_INSTALL_USERS_MODE:-${SHIPGLOWS_INSTALL_USERS_MODE:-}}"
-    local list="${SHIPGLOWS_INSTALL_USERS:-${SHIPGLOWS_INSTALL_USERS:-}}"
+    local mode="${SHIPGLOWS_INSTALL_USERS_MODE:-}"
+    local list="${SHIPGLOWS_INSTALL_USERS:-}"
     local user
     TARGET_USERS=()
     REJECTED_USERS=()

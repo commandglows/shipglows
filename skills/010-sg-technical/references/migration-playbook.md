@@ -53,7 +53,9 @@ Default to `report=user`: concise, outcome-first, and without modified file name
 - Current directory: !`pwd`
 - Project CLAUDE.md: !`head -80 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
 - Package.json: !`cat package.json 2>/dev/null | head -60 || echo "no package.json"`
-- Current versions: !`cat package.json 2>/dev/null | grep -E '"(astro|next|react|vue|svelte|expo|convex|clerk)"' | head -10 || echo "unknown"`
+- Current versions: !`cat package.json 2>/dev/null | grep -E '"(astro|vue|vite|convex|clerk|@tauri-apps/[a-z-]+)"' | head -10 || echo "no package.json"`
+- Flutter/Dart: !`grep -E '^\s*(sdk|flutter):|^environment:' -A2 pubspec.yaml 2>/dev/null | head -10 || echo "no pubspec.yaml"`
+- Tauri/Rust: !`grep -E '^(tauri|tauri-build)\s*=' src-tauri/Cargo.toml 2>/dev/null || echo "no src-tauri"`
 - Node version: !`node -v 2>/dev/null; cat .nvmrc .node-version 2>/dev/null || echo "not pinned"`
 - Git status: !`git status --short 2>/dev/null | head -5 || echo "no git"`
 - Current branch: !`git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown"`
@@ -219,10 +221,10 @@ Next steps:
 ## Important
 
 - **ALWAYS establish a recoverable rollback path** before any changes. A backup branch is preferred only when it can be created without touching unrelated dirty work.
-- **Never upgrade multiple majors at once.** If React is on v17, go to v18 first, then v19.
+- **Never upgrade multiple majors at once.** If Astro is on v4, go to v5 first, then v6; Flutter follows stable channel releases one at a time.
 - **Stop if build breaks.** Don't push forward with a broken build.
 - Use Context7 or an equivalent documentation index for discovery and corroboration only; official vendor/package guidance and release notes remain primary.
 - After migration, suggest `/304-sg-changelog` to document the upgrade.
 - For monorepos (tubeflow): migrate all workspaces together to maintain version alignment.
 - Check peer dependency compatibility before upgrading.
-- If the official migration guide recommends codemods, run them only during the explicitly approved apply phase and within the approved target (`npx @next/codemod`, etc.).
+- If the official migration guide recommends codemods, run them only during the explicitly approved apply phase and within the approved target (`npx @astrojs/upgrade`, `dart fix --apply`, etc.).

@@ -209,7 +209,18 @@ try {
     [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":true},"publicEnvironment":["CONVEX_URL"]}', [Text.UTF8Encoding]::new($false))
     $productionLaunch = & $launchFor $extension
     Assert-Sg ($productionLaunch -match [regex]::Escape('run --project toolglows --config prd --only-secrets CONVEX_URL --no-fallback')) "Opted-in production recipe did not launch with only its public keys: $productionLaunch"
+    # inject: all hands the whole development config to the process, still without a fallback cache.
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"inject":"all","publicEnvironment":[]}', [Text.UTF8Encoding]::new($false))
+    $allLaunch = & $launchFor $extension
+    Assert-Sg ($allLaunch -match [regex]::Escape('run --project toolglows --config dev --no-fallback --no-check-version --silent -- ')) "Whole-config development recipe did not launch through Doppler: $allLaunch"
+    Assert-Sg ($allLaunch -notmatch 'only-secrets') "Whole-config development recipe still filtered its keys: $allLaunch"
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"inject":"public","publicEnvironment":["CONVEX_URL"]}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg ((& $launchFor $extension) -match [regex]::Escape('--only-secrets CONVEX_URL --no-fallback')) 'An explicit inject "public" recipe stopped filtering its keys.'
     foreach ($invalid in @(
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":true},"inject":"all","publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"inject":"all","publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":"NONE","inject":"all","publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"dev"},"inject":"everything","publicEnvironment":[]}',
         '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd"},"publicEnvironment":["CONVEX_URL"]}',
         '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":false},"publicEnvironment":["CONVEX_URL"]}',
         '{"schemaVersion":"shipglows.node-recipe.v1","doppler":{"project":"toolglows","config":"prd","productionPublicOnly":"true"},"publicEnvironment":["CONVEX_URL"]}',

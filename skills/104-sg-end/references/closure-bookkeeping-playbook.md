@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-01"
+updated: "2026-10-20"
 status: active
 source_skill: 104-sg-end
 scope: closure-bookkeeping-playbook
@@ -62,6 +62,7 @@ If proof or ship is not complete, never set `closed`.
 ## Step 2: Closure status
 
 - Set `closed` only if evidence, proof, and sync are complete.
+- On `closed` with one owning spec, record `delivery: closed` and `closed_at: "<YYYY-MM-DD>"` in its frontmatter (outside `summary-only`) so later tidy runs recognize delivered work without inference.
 - Use `partial` when residual risk or stale docs remain.
 - Use `blocked` on missing context, missing tests, or unresolved safety gates.
 
@@ -102,5 +103,7 @@ If proof or ship is not complete, never set `closed`.
 - If a clean completed daily chantier is not pushed, route directly to `005-sg-ship`; treat delivery as pending until push succeeds, the operator explicitly chooses local-only work, or a concrete blocker is recorded.
 - If backlog/priority is needed, route to `011-sg-pilotage`.
 - If no unique next owner, keep the result explicit and local.
+- After ship, report the Resting State sweep of `git-temporary-artifact-lifecycle.md`: `Git: at rest on <branch>` or its one consolidated merge/delete/keep proposal.
+- After a `closed` result in a project with `shipglows_data/workflow/`, run `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/project_docs_tidy_audit.py" . --check`. When it reports `due`, name `300-sg-docs tidy` with its reasons in `🧭 SUITE` as the operational follow-up; closure itself never deletes workflow artifacts.
 
 This playbook never commits or pushes.

@@ -23,7 +23,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Compaction spec: compact-205-sg-veille-as-source-triage-dispatcher.md"
+  - "Compaction of 205-sg-veille into a source-triage dispatcher (delivered)."
 next_step: "/103-sg-verify Compact 205-sg-veille As Source Triage Dispatcher"
 ---
 

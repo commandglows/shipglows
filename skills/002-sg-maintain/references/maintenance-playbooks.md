@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.1"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-10-19"
+updated: "2026-10-20"
 status: active
 source_skill: 002-sg-maintain
 scope: maintenance-playbooks
@@ -53,10 +53,10 @@ Before triage, inspect only evidence relevant to the selected lanes: current pro
 `hygiene` is a comprehensive read-only audit, not the abbreviated `quick`
 triage and not the mutating `full` lifecycle. Inspect the current project only:
 
-- Git and temporary worktree residue, using local status, refs, worktree metadata, and already available PR evidence without an implicit fetch
+- Git and temporary worktree residue, using local status, refs, worktree metadata, and already available PR evidence without an implicit fetch, plus `tools/git_storage_check.py` for local storage upkeep (`git worktree prune`, `git gc`) routed to `shipglows git` when due
 - dependencies and supply-chain posture
 - security and trust-boundary gaps
-- documentation and governance drift
+- documentation and governance drift, plus the read-only workflow tidy inventory (`tools/project_docs_tidy_audit.py`) as a proposal when its `--check` or the `workflow-tidy` cadence says due
 - checks, audits, and quality debt
 - stale generated, cache, build, or task residue only when ownership and disposability can be classified without deleting it
 
@@ -75,16 +75,30 @@ prompt. Never invoke native `git clean`; `shipglows hygiene git` instead routes
 to the safe Git lifecycle, which proves ownership and integration, preserves
 unique or ambiguous state, and records a terminal disposition.
 
+## Tidy Lane
+
+`tidy` (aliases `shipglows tidy`, `ménage`) brings the current project back to a light, at-rest state. It is the operator-facing entrypoint for cleanup that closure, next-outcome selection, and maintenance otherwise trigger by project activity.
+
+1. **Inventory, read-only, together:** `tools/project_docs_tidy_audit.py .` (workflow docs and specs), `tools/git_resting_state.py . --integration <canonical integration branch>` (worktrees, branches, pull requests, upstream drift), `tools/git_storage_check.py .` (worktree prune, gc), and, only when the project is ShipGlows itself, `tools/orphan_reference_audit.py`.
+2. **Triage** each lane with its owner rules: `300-sg-docs` TIDY MODE for workflow docs, the Resting State of `git-temporary-artifact-lifecycle.md` for Git artifacts, the storage check's prescribed commands, and the value triage of `dead-code-obsolescence-audit.md` for orphan skill docs.
+3. **One approval packet** for the whole run, grouped by lane: what converges automatically under standing Git authority, and what needs approval (deletions, merges of work this run does not own, `dormant` decisions). Never split it into several questions.
+4. **Apply** through the owners in this order: Git convergence and storage upkeep, then documentation merges, then deletions in one commit per lane whose message lists every deleted path. Untracked files are never deleted.
+5. **Report** before/after sizes, what converged, what was deleted (with the recovery commit), what remains and why, and end with `Git: at rest on <branch>` or the remaining proposal.
+
+Tidy never archives, rewrites history, force-pushes, or uses expiring-now Git commands.
+
 ## Full Lane Order
 
 For broad maintenance, collect independent read-only evidence first, then sequence dependent owner work:
 
 ```text
-003-sg-bug -> 010-sg-technical deps -> 300-sg-docs update/audit
+003-sg-bug -> 010-sg-technical deps -> 300-sg-docs update/audit [-> 300-sg-docs tidy]
 -> 105-sg-check nofix -> 010-sg-technical audit or 400-sg-audit
 -> 010-sg-technical migrate candidates -> 106-sg-fix/001-sg-build
 -> 011-sg-pilotage tasks -> 103-sg-verify -> 004-sg-deploy/005-sg-ship
 ```
+
+Run `300-sg-docs tidy` inside the docs lane whenever `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/project_docs_tidy_audit.py" . --check` reports `due` (operational trigger, primary) or `tools/audit_cadence_status.py` reports the `workflow-tidy` domain overdue (time backstop); its own approval packet still gates every move, and a declined or deferred packet is reported, not retried in the same run.
 
 Use the shared lifecycle for readiness, validation, documentation reflection, closure, and ship. A finding crosses the implementation threshold when it is not safely resolved as factual read-only reporting and needs a durable work item or write.
 
@@ -103,6 +117,8 @@ Every delegated mission states the project root, active spec or mini-contract, m
 ## Security Lane
 
 `security` first reviews bug files, then the optional bug index, for open high/critical security, auth, permission, data, webhook, or secret issues. Identify whether the project exposes auth, payments, webhooks, public APIs, multi-tenant data, admin actions, or production secrets. Route dependency and supply-chain posture to `010-sg-technical deps`; route code-level authn/authz, tenant/trust boundaries, secrets, webhooks, destructive actions, validation, secure failure, and abuse resistance to `010-sg-technical audit`.
+
+Agent fast path: when the current agent is Claude Code and its built-in `/security-review` command is callable, run it first on the pending branch changes as a vulnerability-finding pass, then feed its findings into the `010-sg-technical audit` OWASP Security Gate for triage, remediation, and verification. `/security-review` covers the diff only, uses the operator's Claude subscription, and never replaces the full audit or the dependency lane. On any other agent, or when the command is not callable, follow the `010-sg-technical audit` and `deps` route directly; never invoke a hosted or CI security scanner without operator approval.
 
 Create or continue a spec when remediation crosses the chantier threshold; execute only safe remediations through bounded owners. Verify and ship only when the security, dependency, documentation, and check gates pass. Missing `SECURITY.md`, `.env.example`, development mode, or preview-proof policy are gaps, not vulnerabilities by themselves. Recommend a dedicated security audit skill only when repeated security-only work proves that need; do not create it from this lane.
 

@@ -86,7 +86,7 @@ class ProgressiveLoadingPilotTests(unittest.TestCase):
 
     def test_aliases_keep_authority_and_invalid_invocations_fail_closed(self):
         self.assertEqual("900-shipglows-core", check("shipglows core help")["selected_internal_engine"])
-        self.assertEqual("invalid", check("shipglows auto #local")["status"])
+        self.assertEqual("invalid", check("shipglows blitz #local")["status"])
         self.assertEqual("invalid", check("shipglows nolocal")["status"])
         result = check("shipglows nolocal inspect current project")
         self.assertEqual(["#nolocal"], result["effective_execution_tags"])

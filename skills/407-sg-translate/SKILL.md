@@ -29,7 +29,7 @@ Default to `report=user`: concise, findings-first for `audit`, outcome-first for
 
 ## Mission
 
-`407-sg-translate` is the sole public translation and i18n entrypoint. It selects exactly one canonical mode—`audit` or `sync`—and one bounded playbook. `help` is discovery-only; `apply` is an input alias to `sync`, never a third mode or implementation path.
+`407-sg-translate` is the internal translation and i18n engine. Public ownership is split: translation quality belongs to `sg-content` (`audit`), and i18n keys, locale files, fallbacks, and missing strings belong to `sg-engineering` (`sync`). It selects exactly one canonical mode—`audit` or `sync`—and one bounded playbook. `help` is discovery-only; `apply` is an input alias to `sync`, never a third mode or implementation path.
 
 ## Mode Detection
 

@@ -22,8 +22,8 @@ class SharedAuthorityReportingLoadingTests(unittest.TestCase):
     def test_selectors_precede_sensitive_actions(self):
         core = selected_authority()
         for marker in (
-            'Before any Auto candidate or write',
-            'Auto/nolocal prohibitions still apply',
+            'Before any Blitz candidate or write',
+            'Blitz/nolocal prohibitions still apply',
             'drafting a technical plan that discloses Git persistence',
             'Before selecting or promising an integration destination',
             'before executing an approved milestone or final delivery',
@@ -35,14 +35,14 @@ class SharedAuthorityReportingLoadingTests(unittest.TestCase):
             self.assertIn(marker, core)
         self.assertNotIn('MAP-GIT-STANDING-AUTHORITY', core)
         self.assertNotIn('The same invocation authorizes bounded subagents', core)
-        auto = selected_authority('mutation-auto-authority')
+        auto = selected_authority('mutation-blitz-authority')
         self.assertIn('never permits', auto)
         self.assertIn('modify its own authority', auto)
 
     def test_authority_witnesses_fail_if_selected_branch_is_omitted(self):
         registry = json.loads((REFS / 'skill-invocation-registry.json').read_text(encoding='utf-8'))
         for name, leaf in (
-            ('authority-auto-selection', 'mutation-auto-authority'),
+            ('authority-blitz-selection', 'mutation-blitz-authority'),
             ('authority-git-selection', 'mutation-git-authority'),
             ('common-feature-approval', 'mutation-git-authority'),
         ):
@@ -58,7 +58,7 @@ class SharedAuthorityReportingLoadingTests(unittest.TestCase):
         registry = json.loads((REFS / 'skill-invocation-registry.json').read_text(encoding='utf-8'))
         scenario = registry['activation_profiles']['scenarios']['planning-task-capture']
         paths = {r['path'] for r in scenario['reads']}
-        for leaf in ('mutation-auto-authority', 'mutation-git-authority', 'mutation-approval-pressure-scenarios'):
+        for leaf in ('mutation-blitz-authority', 'mutation-git-authority', 'mutation-approval-pressure-scenarios'):
             self.assertNotIn(f'skills/references/{leaf}.md', paths)
         self.assertIn('skills/references/mutation-plan-approval.md', paths)
 

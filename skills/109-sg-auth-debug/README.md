@@ -44,7 +44,7 @@ For public UI, visual, console, network, or non-auth navigation checks, use `108
 
 - `references/clerk-tooling.md` for deciding when to use Clerk MCP, Clerk CLI, or Playwright for auth debugging
 - `references/clerk-testing.md` for Clerk testing strategy with Playwright, Testing Tokens, test emails/phones, and dev-vs-prod caveats
-- `references/clerk.md` for Clerk, Next.js middleware, redirects, sessions, and Google social connection through Clerk
+- `references/clerk.md` for Clerk, Astro and Flutter route protection, redirects, sessions, and Google social connection through Clerk
 - `references/supabase-testing.md` for Supabase testing strategy with the local stack, Mailpit, SSR cookies, and RLS-focused validation
 - `references/supabase-tooling.md` for deciding when to use Supabase MCP, Supabase CLI, or Playwright for auth and platform debugging
 - `references/vercel-tooling.md` for deciding when Vercel MCP or Vercel CLI is the right tool for deploy/runtime issues
@@ -58,7 +58,7 @@ For public UI, visual, console, network, or non-auth navigation checks, use `108
 - `references/python-convex.md` for Python scripts and jobs that call Convex
 - `references/sdk-policy.md` for stable, beta, and unofficial SDK choices in the ShipGlows stack
 - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/flutter-web-clerkjs-auth-pattern.md` as the cross-repo technical guide for implementing this pattern in Flutter web apps
-- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` as the cross-repo guide for YouTube OAuth through Next.js, Clerk, and Convex
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` as the cross-repo guide for YouTube OAuth through Astro routes, Clerk, and Convex
 
 ## Typical Examples
 

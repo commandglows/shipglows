@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-09-05"
+updated: "2026-10-20"
 status: active
 source_skill: 109-sg-auth-debug
 scope: auth0-integration
@@ -58,8 +58,9 @@ ID token as a generic API bearer token.
 Convex's official Auth0 adapter has its own token/audience contract. Match
 auth.config.ts to the actual supported adapter; do not substitute a custom-API
 audience recipe blindly. Use backend getUserIdentity and server-owned authorization;
-in the React adapter, useConvexAuth must confirm backend authentication before
-protected queries. For other clients reproduce that backend-authenticated signal.
+in Convex client code (Astro, JS client), confirm backend authentication before
+protected queries. For Flutter, reproduce that backend-authenticated signal from
+the Convex HTTP API.
 No raw decoded JWT or client claims can replace verification.
 
 Authentication proves identity only. Resolve current entitlement in the canonical

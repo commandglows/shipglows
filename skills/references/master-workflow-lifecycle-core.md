@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-27"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: master-workflow-lifecycle-core
@@ -26,6 +26,7 @@ evidence:
   - "Operator correction 2026-08-17: daily MVP construction defaults to bounded commit and push at clean completion, with zero or one focused check unless a material risk or release/audit mode justifies broader proof."
   - "Operator correction 2026-08-17: the lifecycle exists to ship business value quickly through coherent architecture; gates scale to real consequence rather than procedural completeness."
   - "Operator decision 2026-08-27: the Core lifecycle work item covers the complete shipglows DX system while shipglows_app remains a separate product repository."
+  - "Operator decision 2026-10-20: restore the earliest-unresolved-owner rule so lifecycle wording never skips an open verification gate."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -47,6 +48,8 @@ intake -> work item -> readiness -> topology -> owner creation/execution
 -> proportional evidence -> verification -> documentation reflection
 -> commit/push -> bounded activation/publication/deploy -> closure
 ```
+
+Route to the earliest unresolved gate, never to the stage the wording names: "finish", "check", "ship", or "termine" with verification still open goes to verification, not closure or ship.
 
 Master skills orchestrate; specialist owners retain their internals. Checks, hosted deployment, browser, auth, manual QA, verification, closure, and ship remain with their named owners. Validation is checkpoint-based, not message-based. Intermediate work may defer validation visibly, but completion, closure, and ship claims require proportional evidence.
 

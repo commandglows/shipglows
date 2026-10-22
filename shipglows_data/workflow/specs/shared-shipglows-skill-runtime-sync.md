@@ -30,8 +30,8 @@ linked_systems:
   - "docs/technical/code-docs-map.md"
   - "README.md"
   - "shipglows_data/workflow/BUGS.md"
-  - "shipglows_data/workflow/bugs/BUG-2026-05-03-001.md"
-  - "shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md"
+  - "git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md"
+  - "git:649a9c31:shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md"
 depends_on:
   - artifact: "README.md"
     artifact_version: "0.5.1"
@@ -60,7 +60,7 @@ evidence:
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User request 2026-05-03: symlink management should likely be a shared mechanism because other skills may need it."
   - "User report 2026-05-03: `sg-build` is not visible in Codex."
-  - "Exploration report shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md found `sg-browser` and `sg-build` missing from both current-user Claude and Codex skill directories."
+  - "Exploration report git:649a9c31:shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md found `sg-browser` and `sg-build` missing from both current-user Claude and Codex skill directories."
   - "Local check 2026-05-03: `skills/sg-build/SKILL.md` exists, but `~/.codex/skills/sg-build/SKILL.md` and `~/.claude/skills/sg-build/SKILL.md` do not."
   - "Local check 2026-05-03: `skills/sg-browser/SKILL.md` exists, but both current-user runtime symlink targets are missing."
   - "install.sh already implements install-time skill symlink behavior with `configure_skills`, `ensure_skill_link`, and `verify_skill_link`."
@@ -140,7 +140,7 @@ The initial helper should prioritize current-user repair and install-time reuse.
 - Update `skills/sg-skill-build/SKILL.md` to call the helper instead of embedding its own symlink snippet.
 - Update relevant validation skills or docs so `sg-check`, `sg-verify`, and `sg-ship` can route to the helper when runtime skill visibility matters.
 - Repair the current missing runtime links for `sg-build` and `sg-browser` during implementation validation.
-- Update `shipglows_data/workflow/BUGS.md` and `shipglows_data/workflow/bugs/BUG-2026-05-03-001.md` with fix attempt and retest evidence.
+- Update `shipglows_data/workflow/BUGS.md` and `git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md` with fix attempt and retest evidence.
 - Update technical docs and README where installer/runtime skill visibility is described.
 
 ## Scope Out
@@ -177,8 +177,8 @@ The initial helper should prioritize current-user repair and install-time reuse.
   - `README.md`
 - Local bug and exploration context:
   - `shipglows_data/workflow/BUGS.md`
-  - `shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
-  - `shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md`
+  - `git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
+  - `git:649a9c31:shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md`
 - Fresh external docs verdict: fresh-docs not needed. The behavior is local filesystem/symlink management and existing ShipGlows shell installer integration, not an external framework, SDK, service, API, auth, build, migration, cache, routing, or hosted integration contract.
 
 ## Invariants
@@ -229,7 +229,7 @@ The initial helper should prioritize current-user repair and install-time reuse.
 ## Implementation Tasks
 
 - [x] Task 1: Confirm current drift and protect unrelated work
-  - File: `shipglows_data/workflow/BUGS.md`, `shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`, `shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md`
+  - File: `shipglows_data/workflow/BUGS.md`, `git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`, `git:649a9c31:shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md`
   - Action: Re-read current bug and exploration evidence, run a repo-vs-runtime comparison for current-user Claude/Codex skill symlinks, and note unrelated dirty `install.sh` changes before editing.
   - User story link: Establishes the real runtime visibility gap before building the repair path.
   - Depends on: None
@@ -277,7 +277,7 @@ The initial helper should prioritize current-user repair and install-time reuse.
   - Notes: Keep additions compact to protect skill discovery budget.
 
 - [x] Task 7: Repair current missing runtime links through the helper
-  - File: runtime filesystem only (`~/.claude/skills`, `~/.codex/skills`), plus `shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
+  - File: runtime filesystem only (`~/.claude/skills`, `~/.codex/skills`), plus `git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
   - Action: Use the helper to repair current-user links for at least `sg-build`, `sg-browser`, and `sg-skill-build`, then append fix/retest evidence to the bug dossier.
   - User story link: Confirms the helper solves the actual reported visibility failure.
   - Depends on: Tasks 2-3
@@ -297,7 +297,7 @@ The initial helper should prioritize current-user repair and install-time reuse.
   - Action: Run syntax, helper tests, skill budget, metadata lint, and targeted runtime link checks.
   - User story link: Proves the helper is safe, reusable, and visible to the lifecycle.
   - Depends on: Tasks 2-8
-  - Validate with: `bash -n tools/shipglows_sync_skills.sh install.sh tests/skills/runtime-sync.sh`; `bash tests/skills/runtime-sync.sh`; `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; `python3 tools/shipglows_metadata_lint.py specs/shared-shipglows-skill-runtime-sync.md docs/technical/installer-and-user-scope.md docs/technical/skill-runtime-and-lifecycle.md docs/technical/code-docs-map.md shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`; `tools/shipglows_sync_skills.sh --check --all`
+  - Validate with: `bash -n tools/shipglows_sync_skills.sh install.sh tests/skills/runtime-sync.sh`; `bash tests/skills/runtime-sync.sh`; `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; `python3 tools/shipglows_metadata_lint.py specs/shared-shipglows-skill-runtime-sync.md docs/technical/installer-and-user-scope.md docs/technical/skill-runtime-and-lifecycle.md docs/technical/code-docs-map.md git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`; `tools/shipglows_sync_skills.sh --check --all`
   - Notes: `pnpm --dir shipglows-site build` is not required unless public site content changes.
 
 ## Acceptance Criteria
@@ -329,7 +329,7 @@ The initial helper should prioritize current-user repair and install-time reuse.
 - Skill budget:
   - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - Metadata:
-  - `python3 tools/shipglows_metadata_lint.py specs/shared-shipglows-skill-runtime-sync.md docs/technical/installer-and-user-scope.md docs/technical/skill-runtime-and-lifecycle.md docs/technical/code-docs-map.md shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
+  - `python3 tools/shipglows_metadata_lint.py specs/shared-shipglows-skill-runtime-sync.md docs/technical/installer-and-user-scope.md docs/technical/skill-runtime-and-lifecycle.md docs/technical/code-docs-map.md git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
 - Documentation coherence:
   - `rg -n "shipglows_sync_skills|runtime skill sync|~/.codex/skills|~/.claude/skills" README.md docs/technical skills/sg-skill-build/SKILL.md`
 - Manual/operator note:
@@ -347,8 +347,8 @@ The initial helper should prioritize current-user repair and install-time reuse.
 ## Execution Notes
 
 - Read first:
-  - `shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md`
-  - `shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
+  - `git:649a9c31:shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md`
+  - `git:72740b6d:shipglows_data/workflow/bugs/BUG-2026-05-03-001.md`
   - `install.sh` around `configure_skills`, `ensure_skill_link`, `verify_skill_link`, and `setup_user`
   - `skills/sg-skill-build/SKILL.md`
   - `docs/technical/installer-and-user-scope.md`

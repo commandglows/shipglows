@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-07-13"
-updated: "2026-07-13"
+updated: "2026-10-20"
 status: reviewed
 source_skill: 300-sg-docs
 scope: repository-history-archive
@@ -29,12 +29,9 @@ next_step: "/103-sg-verify shipglows documentation governance cleanup phase 2"
 
 This directory preserves inactive repository history inside the canonical `shipglows_data/` governance corpus. Nothing here is current doctrine or an implementation source of truth.
 
-## Preserved History
+## Removed History
 
-- `migration/`: early Flox, PM2, Dokploy, configuration, and migration records.
-- `notes/`: historical workflow and web-inspector design inputs.
-- `reports/`: historical implementation, priority, UX, and improvement reports.
-- `root-documentation/`: root documents retained for provenance after their active ownership moved elsewhere.
+The former `migration/`, `notes/`, `reports/`, and `root-documentation/` files were deleted on 2026-10-20 (`shipglows tidy` lot D1). Their durable content already lived in canonical docs; the files remain retrievable from Git history only.
 
 Current runtime behavior belongs in `shipglows_data/technical/`. Current workflow contracts belong in `shipglows_data/workflow/`. Raw conversation captures belong in `docs/conversations/` when produced by the conversation-capture workflow.
 
@@ -42,10 +39,10 @@ Current runtime behavior belongs in `shipglows_data/technical/`. Current workflo
 
 | Former surface | Final action | Reason |
 | --- | --- | --- |
-| `archive/MIGRATION_SUMMARY.md`, `archive/new-config.md`, `archive/plan_migration.md` | Preserved under `migration/` | Historical architecture and migration provenance. |
-| `archive/notes/OUTIL.md`, `archive/notes/devworkflow.md` | Preserved under `notes/` | Historical design and workflow inputs. |
-| Historical reports under `archive/reports/` | Preserved under `reports/` | Implementation and UX provenance. |
-| `ECOSYSTEM-AND-PORTS.md`, `FAQ.md`, `INSTALLATION-OWNERSHIP-SPEC.md` | Preserved under `root-documentation/` | Historical root-documentation evidence; current owners live elsewhere. |
+| `archive/MIGRATION_SUMMARY.md`, `archive/new-config.md`, `archive/plan_migration.md` | Preserved under `migration/`, deleted 2026-10-20 | Historical architecture and migration provenance; Git history only. |
+| `archive/notes/OUTIL.md`, `archive/notes/devworkflow.md` | Preserved under `notes/`, deleted 2026-10-20 | Historical design and workflow inputs; Git history only. |
+| Historical reports under `archive/reports/` | Preserved under `reports/`, deleted 2026-10-20 | Implementation and UX provenance; Git history only. |
+| `ECOSYSTEM-AND-PORTS.md`, `FAQ.md`, `INSTALLATION-OWNERSHIP-SPEC.md` | Preserved under `root-documentation/`, deleted 2026-10-20 | Current owners live elsewhere; Git history only. |
 | Two archived conversation captures | Moved to `docs/conversations/` | These are raw conversation records, not archive doctrine. |
 | Empty tracker facades | Deleted | Canonical trackers already exist under `shipglows_data/workflow/`; the facades carried no independent state. |
 | Two archive compatibility symlinks | Deleted | Their canonical install template and run trace already exist under `shipglows_data/workflow/`. |
@@ -56,4 +53,4 @@ Current runtime behavior belongs in `shipglows_data/technical/`. Current workflo
 
 ## Maintenance Rule
 
-Do not recreate a root `archive/` directory. Preserve useful inactive governance history under `shipglows_data/workflow/archives/<bounded-scope>/`; delete generated, duplicate, empty-facade, or unreferenced scratch material after recording the decision.
+Do not recreate a root `archive/` directory or new archive folders. Git history is the only archive: distill durable content into canonical docs, then delete the file.

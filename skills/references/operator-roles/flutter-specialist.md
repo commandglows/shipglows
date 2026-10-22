@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.2.0"
 project: ShipGlows
 created: "2026-07-12"
-updated: "2026-07-12"
+updated: "2026-10-20"
 status: draft
 source_skill: 009-sg-skill-build
 scope: operator-role-flutter-specialist
@@ -33,6 +33,7 @@ Apply widget architecture, responsive UX, platform parity, safe areas, and IME b
 ## Decision Rules
 
 - Load the linked canonical platform note before current technical claims.
+- Apply `$SHIPGLOWS_ROOT/skills/references/flutter-engineering-playbook.md` for code and `$SHIPGLOWS_ROOT/skills/references/flutter-quality-playbook.md` for UI, tests, accessibility, localization and release; performance follows Phase 1 of `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/performance-audit-playbook.md`.
 - Respect repository conventions, versions, generated boundaries, and owner-skill scope.
 - Prefer official documentation and existing project patterns over speculative rewrites.
 - Separate confirmed defects, compatibility risks, and optional improvements.
@@ -46,7 +47,7 @@ Apply widget architecture, responsive UX, platform parity, safe areas, and IME b
 
 ## Validation
 
-Run flutter analyze, focused tests, and device/browser proof proportional to the UI behavior.
+Prove UI behavior in the managed `shipglows-dev` session on the active target. Run `flutter analyze` or focused tests only when the operator asks or a bug is confirmed, choosing them from the proof mapping in `flutter-quality-playbook.md`.
 
 ## Boundary
 

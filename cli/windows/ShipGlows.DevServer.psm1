@@ -1857,16 +1857,21 @@ function Sync-SgDiscoveredProjectMetadata([object]$Config, [object]$Candidate) {
 
 function Read-SgNodeRecipe([string]$ProjectPath) {
     # Optional launch recipe for Node surfaces: a Doppler development scope and the
-    # public keys it may inject. Secret values never enter launch artifacts.
+    # keys it may inject (the public allowlist, or the whole development/staging
+    # config with inject: all). Secret values never enter launch artifacts.
     $path = Join-Path $ProjectPath '.shipglows.node.json'
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
     $item = Get-Item -LiteralPath $path -Force
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Node launch recipe cannot be a reparse point.' }
     if ($item.Length -gt 65536) { throw 'Node launch recipe exceeds 64 KiB.' }
     try { $recipe = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Node launch recipe is not valid JSON.' }
-    $keys = @('doppler','publicEnvironment','schemaVersion')
+    $hasInject = $null -ne $recipe -and $recipe -isnot [array] -and @($recipe.PSObject.Properties.Name) -ccontains 'inject'
+    $keys = if ($hasInject) { @('doppler','inject','publicEnvironment','schemaVersion') } else { @('doppler','publicEnvironment','schemaVersion') }
     if ($null -eq $recipe -or $recipe -is [array] -or (@($recipe.PSObject.Properties.Name | Sort-Object) -join ',') -cne ($keys -join ',')) { throw 'Node launch recipe fields are invalid.' }
     if ($recipe.schemaVersion -cne 'shipglows.node-recipe.v1') { throw 'Unsupported Node launch recipe version.' }
+    if ($hasInject -and ($recipe.inject -isnot [string] -or $recipe.inject -cnotin @('public','all'))) { throw 'Node recipe inject must be "public" or "all".' }
+    $injectAll = $hasInject -and $recipe.inject -ceq 'all'
+    $recipe | Add-Member -NotePropertyName injectAll -NotePropertyValue $injectAll -Force
     if ($recipe.publicEnvironment -isnot [array]) { throw 'Node recipe publicEnvironment must be an array.' }
     foreach ($key in $recipe.publicEnvironment) {
         if ($key -isnot [string] -or $key -cnotmatch '^[A-Z][A-Z0-9_]{0,95}$' -or $key -match '(SECRET|PASSWORD|TOKEN|PRIVATE_KEY)') { throw 'Node recipe publicEnvironment contains a non-public or invalid key.' }
@@ -1879,19 +1884,25 @@ function Read-SgNodeRecipe([string]$ProjectPath) {
     $dopplerFields = if ($productionScope) { 'config,productionPublicOnly,project' } else { 'config,project' }
     $configPattern = if ($productionScope) { '^(prd|prod|production)(_[a-zA-Z0-9_-]+)?$' } else { '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$' }
     if (-not $dopplerNone -and ($null -eq $recipe.doppler -or $recipe.doppler -is [string] -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne $dopplerFields -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch $configPattern -or ($productionScope -and ($recipe.doppler.productionPublicOnly -isnot [bool] -or -not $recipe.doppler.productionPublicOnly)))) { throw 'Node recipe must declare Doppler as NONE or provide an exact development/staging project and config (a production config requires productionPublicOnly: true).' }
-    if (-not $dopplerNone -and $recipe.publicEnvironment.Count -eq 0) { throw 'Node recipe with Doppler must list the public keys it injects.' }
+    if ($injectAll) {
+        # Whole-config injection is a development convenience: never production, never with Doppler NONE,
+        # and never next to an allowlist that would look like a filter.
+        if ($dopplerNone -or $productionScope) { throw 'Node recipe inject "all" requires a development/staging Doppler config.' }
+        if ($recipe.publicEnvironment.Count -ne 0) { throw 'Node recipe inject "all" requires an empty publicEnvironment.' }
+    } elseif (-not $dopplerNone -and $recipe.publicEnvironment.Count -eq 0) { throw 'Node recipe with Doppler must list the public keys it injects.' }
     return $recipe
 }
 
 function Add-SgNodeRecipeLauncher([string]$ProjectPath, [string]$Command) {
-    # Wrap the managed `call "<tool>" ...` command so Doppler injects only the declared keys.
+    # Wrap the managed `call "<tool>" ...` command so Doppler injects only the declared keys,
+    # or the whole development/staging config when the recipe opts into inject: all.
     $recipe = Read-SgNodeRecipe $ProjectPath
     if (-not $recipe -or ($recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE')) { return $Command }
     $doppler = Get-SgCommandPath @('doppler.exe')
     if (-not $doppler) { throw 'The declared Node recipe requires Doppler. No unauthenticated fallback is allowed.' }
     if (-not $Command.StartsWith('call "')) { throw 'Node launch command cannot be wrapped by its Doppler recipe.' }
-    $only = @($recipe.publicEnvironment) -join ','
-    return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) --only-secrets $only --no-fallback --no-check-version --silent -- " + $Command.Substring(5)
+    $only = if ($recipe.injectAll) { '' } else { "--only-secrets $(@($recipe.publicEnvironment) -join ',') " }
+    return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) $only--no-fallback --no-check-version --silent -- " + $Command.Substring(5)
 }
 
 function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port) {
@@ -1996,25 +2007,121 @@ function Get-SgNodeDependencyWorkspace([string]$ProjectPath) {
     return Get-SgPnpmWorkspaceRoot $ProjectPath
 }
 
+function ConvertFrom-SgPubYamlScalar([string]$Value) {
+    $text = $Value.Trim()
+    if ($text.Length -ge 2 -and (($text[0] -eq '"' -and $text[-1] -eq '"') -or ($text[0] -eq "'" -and $text[-1] -eq "'"))) { $text = $text.Substring(1, $text.Length - 2) }
+    return $text
+}
+
+# Reads the `path:` entries of one pubspec's dependencies, dev_dependencies and
+# dependency_overrides (block or inline map form), resolved against that pubspec.
+# A git dependency's nested `path:` sits deeper than the package properties and is ignored.
+function Get-SgPubPathDependencyDirectories([string]$PubspecPath) {
+    $directory = Split-Path -Parent $PubspecPath
+    $sections = @('dependencies','dev_dependencies','dependency_overrides')
+    $directories = New-Object Collections.Generic.List[string]
+    $section = $null; $packageIndent = -1; $propertyIndent = -1; $package = $null
+    foreach ($rawLine in [IO.File]::ReadAllLines($PubspecPath)) {
+        $line = ($rawLine -replace '(^|\s)#.*$', '').TrimEnd()
+        if (-not $line.Trim()) { continue }
+        $indent = $line.Length - $line.TrimStart().Length
+        if ($indent -eq 0) {
+            $section = if ($line -match '^([a-z_]+)\s*:\s*$' -and $Matches[1] -in $sections) { $Matches[1] } else { $null }
+            $packageIndent = -1; $package = $null
+            continue
+        }
+        if (-not $section) { continue }
+        $declared = $null
+        if ($packageIndent -lt 0 -or $indent -le $packageIndent) {
+            $packageIndent = $indent; $propertyIndent = -1; $package = $null
+            if ($line -match '^\s*([A-Za-z0-9_]+)\s*:\s*(.*)$') {
+                $package = $Matches[1]
+                if ($Matches[2] -match '^\{(?:.*[,\s])?path\s*:\s*([^,}]+)') { $declared = $Matches[1] }
+            }
+        } elseif ($package) {
+            if ($propertyIndent -lt 0) { $propertyIndent = $indent }
+            if ($indent -eq $propertyIndent -and $line -match '^\s*path\s*:\s*(.+)$') { $declared = $Matches[1] }
+        }
+        if (-not $declared) { continue }
+        # An unparsable path is left for pub get to report.
+        try { $directories.Add([IO.Path]::GetFullPath([IO.Path]::Combine($directory, (ConvertFrom-SgPubYamlScalar $declared))).TrimEnd('\','/')) } catch { continue }
+    }
+    return @($directories)
+}
+
+# Pub resolves path packages from their own pubspec, so a change there (for
+# example a new transitive path package) needs a pub get even when the
+# project's pubspec.yaml and pubspec.lock are untouched.
+function Get-SgPubPathDependencyClosure([string]$ProjectPath) {
+    $root = [IO.Path]::GetFullPath($ProjectPath).TrimEnd('\','/')
+    $seen = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    [void]$seen.Add($root)
+    $pending = New-Object 'Collections.Generic.Queue[string]'
+    $pending.Enqueue($root)
+    $closure = New-Object Collections.Generic.List[string]
+    while ($pending.Count -gt 0) {
+        $current = $pending.Dequeue()
+        # Only the root's pubspec_overrides.yaml is honored by pub.
+        $manifests = @('pubspec.yaml') + $(if ($current -eq $root) { @('pubspec_overrides.yaml') } else { @() })
+        foreach ($manifest in $manifests) {
+            $pubspec = Join-Path $current $manifest
+            # A missing path package cannot be fingerprinted; pub get reports it.
+            if (-not (Test-Path -LiteralPath $pubspec -PathType Leaf)) { continue }
+            foreach ($dependency in @(Get-SgPubPathDependencyDirectories $pubspec)) {
+                if ($seen.Add($dependency)) { $closure.Add($dependency); $pending.Enqueue($dependency) }
+            }
+        }
+    }
+    return @($closure)
+}
+
+function Get-SgDependencyRelativeLabel([string]$BaseDirectory, [string]$Path) {
+    $base = New-Object Uri (($BaseDirectory.TrimEnd('\','/') + '\').ToLowerInvariant())
+    $target = New-Object Uri (($Path.TrimEnd('\','/') + '\').ToLowerInvariant())
+    return [Uri]::UnescapeDataString($base.MakeRelativeUri($target).ToString()).TrimEnd('/')
+}
+
 function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
-    $names = if ($Kind -in @('astro','vite','browser-extension','tauri')) {
+    $node = $Kind -in @('astro','vite','browser-extension','tauri')
+    $names = if ($node) {
         @('package.json','pnpm-lock.yaml','package-lock.json','npm-shrinkwrap.json')
     } elseif ($Kind -eq 'python') {
         @('pyproject.toml','uv.lock','requirements.txt')
     } else {
-        @('pubspec.yaml','pubspec.lock')
+        @('pubspec.yaml','pubspec.lock','pubspec_overrides.yaml')
     }
-    $inputs = @($names | ForEach-Object { Join-Path $ProjectPath $_ } | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
-    if ($Kind -in @('astro','vite','browser-extension','tauri')) {
+    $paths = @($names | ForEach-Object { Join-Path $ProjectPath $_ } | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
+    if ($node) {
         $workspaceRoot = Get-SgNodeDependencyWorkspace $ProjectPath
         if ($workspaceRoot) {
             foreach ($name in @('package.json','pnpm-lock.yaml','pnpm-workspace.yaml','package-lock.json','npm-shrinkwrap.json')) {
                 $path = Join-Path $workspaceRoot $name
-                if (Test-Path -LiteralPath $path -PathType Leaf) { $inputs += $path }
+                if (Test-Path -LiteralPath $path -PathType Leaf) { $paths += $path }
             }
         }
     }
-    return @($inputs)
+    $projectBase = $ProjectPath.TrimEnd('\','/')
+    $inputs = @($paths | ForEach-Object {
+        # Workspace-root inputs live outside the project; label them by their own path so they cannot collide with project files.
+        $label = if ($_.StartsWith("$projectBase\", [StringComparison]::OrdinalIgnoreCase)) { $_.Substring($projectBase.Length).TrimStart('\','/').ToLowerInvariant() } else { 'workspace-root/' + (Split-Path -Leaf $_).ToLowerInvariant() }
+        [pscustomobject]@{Label=$label;Path=$_}
+    })
+    if (-not $node -and $Kind -ne 'python') {
+        foreach ($dependency in @(Get-SgPubPathDependencyClosure $ProjectPath)) {
+            $directoryLabel = 'path-dependency/' + (Get-SgDependencyRelativeLabel $projectBase $dependency)
+            foreach ($name in @('pubspec.yaml','pubspec.lock')) {
+                $path = Join-Path $dependency $name
+                if (Test-Path -LiteralPath $path -PathType Leaf) { $inputs += [pscustomobject]@{Label="$directoryLabel/$name";Path=$path} }
+            }
+        }
+    }
+    return @($inputs | Sort-Object Path)
+}
+
+function Get-SgDependencyInputHashes([string]$ProjectPath, [string]$Kind) {
+    $hashes = [ordered]@{}
+    foreach ($entry in @(Get-SgDependencyInputs $ProjectPath $Kind)) { $hashes[$entry.Label] = (Get-FileHash -LiteralPath $entry.Path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() }
+    return $hashes
 }
 
 function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
@@ -2052,9 +2159,9 @@ function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
     return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]@('pub','get');BootstrapArguments=@();ArtifactStrategy='flutter-package-config';SuppressNpmLock=$false;WorkingDirectory=$ProjectPath}
 }
 
-function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Plan) {
-    $inputs = @(Get-SgDependencyInputs $ProjectPath $Kind)
-    if ($inputs.Count -eq 0) { throw "No dependency manifest found for $Kind." }
+function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Plan, [Collections.IDictionary]$InputHashes = $null) {
+    if ($null -eq $InputHashes) { $InputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind }
+    if ($InputHashes.Count -eq 0) { throw "No dependency manifest found for $Kind." }
     $projectBase = $ProjectPath.TrimEnd('\','/')
     $builder = New-Object Text.StringBuilder
     [void]$builder.AppendLine('schemaVersion=2')
@@ -2065,12 +2172,7 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
     [void]$builder.AppendLine("artifactStrategy=$([string]$Plan.ArtifactStrategy)")
     $workingDirectory = if ($Plan.PSObject.Properties['WorkingDirectory']) { [string]$Plan.WorkingDirectory } else { '' }
     if ($workingDirectory -and $workingDirectory.TrimEnd('\','/') -ne $projectBase) { [void]$builder.AppendLine("workingDirectory=$($workingDirectory.TrimEnd('\','/').ToLowerInvariant())") }
-    foreach ($path in @($inputs | Sort-Object)) {
-        # Workspace-root inputs live outside the project; label them by their own path so they cannot collide with project files.
-        $relative = if ($path.StartsWith("$projectBase\", [StringComparison]::OrdinalIgnoreCase)) { $path.Substring($projectBase.Length).TrimStart('\','/').ToLowerInvariant() } else { 'workspace-root/' + (Split-Path -Leaf $path).ToLowerInvariant() }
-        $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
-        [void]$builder.AppendLine("$relative=$hash")
-    }
+    foreach ($label in @($InputHashes.Keys)) { [void]$builder.AppendLine("$label=$($InputHashes[$label])") }
     $sha = [Security.Cryptography.SHA256]::Create()
     try { return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($builder.ToString())))).Replace('-','').ToLowerInvariant() }
     finally { $sha.Dispose() }
@@ -2115,9 +2217,26 @@ function Test-SgDependencyState([string]$StatePath, [string]$Digest, [string]$Pr
     } catch { return $false }
 }
 
-function Write-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind) {
+# Names the dependency inputs whose hash differs from the last recorded
+# success, so a re-run explains itself. States written before inputs were
+# recorded yield no summary.
+function Get-SgDependencyChangeSummary([string]$StatePath, [Collections.IDictionary]$InputHashes) {
+    if (-not (Test-Path -LiteralPath $StatePath -PathType Leaf)) { return $null }
+    try { $state = Get-Content -LiteralPath $StatePath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop } catch { return $null }
+    if (-not $state.PSObject.Properties['inputs'] -or -not $state.inputs) { return $null }
+    $previous = @{}
+    foreach ($property in $state.inputs.PSObject.Properties) { $previous[$property.Name] = [string]$property.Value }
+    $changed = @(@(@($InputHashes.Keys) + @($previous.Keys)) | Sort-Object -Unique | Where-Object { [string]$InputHashes[$_] -cne [string]$previous[$_] })
+    if ($changed.Count -eq 0) { return $null }
+    $pathDependencies = @($changed | Where-Object { $_ -like 'path-dependency/*' } | ForEach-Object { ($_ -replace '^path-dependency/', '') -replace '/[^/]+$', '' } | Select-Object -Unique)
+    if ($pathDependencies.Count -gt 0) { return "path dependency $($pathDependencies -join ', ') modified" }
+    return "$($changed -join ', ') modified"
+}
+
+function Write-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind, [Collections.IDictionary]$InputHashes = $null) {
     $temp = "$StatePath.$([guid]::NewGuid().ToString('N')).tmp"
     $state = [ordered]@{ schemaVersion=2; projectPath=[IO.Path]::GetFullPath($ProjectPath); kind=$Kind; digest=$Digest; completedAt=[DateTimeOffset]::UtcNow.ToString('o',[Globalization.CultureInfo]::InvariantCulture) }
+    if ($InputHashes) { $state['inputs'] = $InputHashes }
     try {
         [IO.File]::WriteAllText($temp, ($state | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding($false)))
         if (Test-Path -LiteralPath $StatePath -PathType Leaf) {
@@ -2139,13 +2258,36 @@ function Write-SgDependencyLogRecord([IO.TextWriter]$Writer, [object]$Record) {
 $script:SgPnpmLayoutMismatchCodes = @('ERR_PNPM_VIRTUAL_STORE_DIR_MAX_LENGTH_DIFF','ERR_PNPM_UNEXPECTED_STORE','ERR_PNPM_UNEXPECTED_VIRTUAL_STORE')
 
 function Get-SgDependencyFailureMessage([string]$Kind, [string]$WorkingDirectory, [string]$LogPath, [string[]]$Output) {
+    if (@($Output | Where-Object { $_ -like '*requires symlink support*' }).Count -gt 0) { return "Dependency setup failed for ${Kind}: Flutter plugins need symlink support. $script:SgDeveloperModeRemedy See $LogPath." }
     $code = $script:SgPnpmLayoutMismatchCodes | Where-Object { $mismatch = $_; @($Output | Where-Object { $_ -like "*$mismatch*" }).Count -gt 0 } | Select-Object -First 1
     if (-not $code) { return "Dependency setup failed for $Kind. See $LogPath." }
     $nodeModules = Join-Path $WorkingDirectory 'node_modules'
     return "Dependency setup failed for ${Kind}: $nodeModules was created by a different pnpm version or configuration ($code). Delete that node_modules directory, then retry. See $LogPath."
 }
 
-function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath) {
+$script:SgDeveloperModeRemedy = 'Enable Windows Developer Mode (Settings > System > For developers, or run: start ms-settings:developers), then retry.'
+
+# Flutter links plugin sources under windows\flutter\ephemeral\.plugin_symlinks
+# during pub get whenever the project has a windows\ folder, whatever the target.
+function Test-SgSymlinkCapability {
+    try { if ([int](Get-ItemPropertyValue -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock' -Name AllowDevelopmentWithoutDevLicense -ErrorAction Stop) -eq 1) { return $true } } catch {}
+    return ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Assert-SgFlutterSymlinkSupport([string]$ProjectPath, [string]$Label) {
+    if (-not (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container)) { return }
+    if (Test-SgSymlinkCapability) { return }
+    throw "$Label cannot start: Windows Developer Mode is off, and Flutter needs it to link plugins. $script:SgDeveloperModeRemedy"
+}
+
+function Get-SgDependencyKindLabel([string]$Kind, [string]$FlutterDevice) {
+    if ($Kind -ne 'flutter-web') { return $Kind }
+    if ($FlutterDevice) { return "Flutter ($FlutterDevice)" }
+    return 'Flutter'
+}
+
+function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath, [string]$Label = '') {
+    if (-not $Label) { $Label = $Kind }
     $statePath = Get-SgDependencyStatePath $Config $ProjectPath
     Ensure-SgDirectory (Split-Path -Parent $statePath)
     $lock = $null
@@ -2158,8 +2300,11 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             catch [IO.IOException] { if ((Get-Date) -ge $deadline) { throw 'Dependency setup lock timed out.' }; Start-Sleep -Milliseconds 50 }
         } while (-not $lock)
         $plan = New-SgDependencyPlan $ProjectPath $Kind
-        $digest = Get-SgDependencyDigest $ProjectPath $Kind $plan
+        $inputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind
+        $digest = Get-SgDependencyDigest $ProjectPath $Kind $plan $inputHashes
         if (Test-SgDependencyState $statePath $digest $ProjectPath $Kind) { Write-SgInfo "Dependencies unchanged: $ProjectPath"; return $false }
+        $changeSummary = Get-SgDependencyChangeSummary $statePath $inputHashes
+        if ($changeSummary) { Write-SgInfo "Dependencies changed: $changeSummary" }
         # From this point onward the previous success record no longer
         # describes a safely reusable installation. Keep failures fail-closed.
         Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
@@ -2187,14 +2332,15 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             if ($suppressNpmLock) { $env:npm_config_package_lock = 'false' }
             $setupOutput = New-Object Collections.Generic.List[string]
             & $pm @setupArguments 2>&1 | ForEach-Object { $setupOutput.Add([string]$_); Write-SgDependencyLogRecord $logWriter $_ }
-            if ($LASTEXITCODE -ne 0) { throw (Get-SgDependencyFailureMessage $Kind ([string]$plan.WorkingDirectory) $LogPath $setupOutput) }
+            if ($LASTEXITCODE -ne 0) { throw (Get-SgDependencyFailureMessage $Label ([string]$plan.WorkingDirectory) $LogPath $setupOutput) }
         }
         finally { $env:npm_config_package_lock = $previousNpmPackageLock; $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
-        if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Kind artifacts." }
+        if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Label artifacts." }
         $completedPlan = New-SgDependencyPlan $ProjectPath $Kind
-        $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan
+        $completedInputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind
+        $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan $completedInputHashes
         if ($completedDigest -cne $digest) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
-        Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind
+        Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind $completedInputHashes
         return $true
     } finally { if ($logWriter) { $logWriter.Dispose() }; if ($lock) { $lock.Dispose() } }
 }
@@ -2416,7 +2562,8 @@ function Start-SgDetachedProcess([string]$FilePath,[string[]]$ArgumentList,[stri
     }
     [void]$lines.Add("[string[]]`$launchArguments=@($argumentLiterals)")
     [void]$lines.Add("`$managedProcess=Start-Process -FilePath $(ConvertTo-SgPowerShellLiteral $FilePath) -ArgumentList `$launchArguments -WorkingDirectory $(ConvertTo-SgPowerShellLiteral $WorkingDirectory) -RedirectStandardOutput $(ConvertTo-SgPowerShellLiteral $RedirectStandardOutput) -RedirectStandardError $(ConvertTo-SgPowerShellLiteral $RedirectStandardError) -PassThru -Wait -WindowStyle Hidden")
-    [void]$lines.Add("`$managedExitCode=`$managedProcess.ExitCode;`$managedProcess.Dispose();while([ShipGlowsJobNative]::ActiveProcessCount(`$job)-gt1){Start-Sleep -Milliseconds 200};exit `$managedExitCode")
+    # Start-Process can return no handle when the supervisor is torn down while its stop request times out.
+    [void]$lines.Add("if(`$null-eq`$managedProcess){[IO.File]::AppendAllText($(ConvertTo-SgPowerShellLiteral $RedirectStandardError),('Managed supervisor process handle is unavailable after launch.'+[Environment]::NewLine));`$managedExitCode=1}else{`$managedExitCode=`$managedProcess.ExitCode;`$managedProcess.Dispose()};while([ShipGlowsJobNative]::ActiveProcessCount(`$job)-gt1){Start-Sleep -Milliseconds 200};exit `$managedExitCode")
     [void]$lines.Add("} catch { [IO.File]::AppendAllText($(ConvertTo-SgPowerShellLiteral $RedirectStandardError),(`$_.Exception.Message+[Environment]::NewLine)); exit 1 } finally { if(`$job-ne[IntPtr]::Zero){[void][ShipGlowsJobNative]::CloseHandle(`$job)} }")
     $encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines-join[Environment]::NewLine)))
     $powershell=Resolve-SgPowerShellExecutable
@@ -3242,6 +3389,9 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }
     $resolvedFlutterDevice = [string]$settings.FlutterDevice
     $resolvedFlutterMode = if ([string]$settings.FlutterMode) { [string]$settings.FlutterMode } else { 'debug' }
+    if ([string]$entry.kind -eq 'flutter-web') {
+        Assert-SgFlutterSymlinkSupport $(if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }) (Get-SgDependencyKindLabel 'flutter-web' $resolvedFlutterDevice)
+    }
     if ([string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
         $flutterPath=Get-SgFlutterCommandPath
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
@@ -3279,6 +3429,12 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         }
     }
     if ($alreadyRunning -and $Restart -and [string]$entry.kind -ne 'flutter-web') { [void](Stop-SgProject $Config $entry.path -PreserveBackend) }
+    # A dead Flutter supervisor can leave its native runner alive (e.g. in the tray), locking the
+    # build output (LNK1168). Reuse the stop cleanup, scoped to this project's own runners.
+    if (-not $alreadyRunning -and [string]$entry.kind -eq 'flutter-web' -and [string]$entry.status -ne 'stopped') {
+        Write-SgInfo "Previous session of $($entry.name) ended as '$($entry.status)'; cleaning its leftover processes."
+        [void](Stop-SgProject $Config $entry.path -PreserveBackend)
+    }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
     $flutterNative = [string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')
@@ -3321,7 +3477,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         }
     }
     try {
-        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog | Out-Null
+        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog (Get-SgDependencyKindLabel $kind $resolvedFlutterDevice) | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
         $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode
     } catch {

@@ -130,7 +130,7 @@ try {
         try{
             $reloadPath=Join-Path $reloadRoot 'app';New-Item -ItemType Directory -Path $reloadPath -Force|Out-Null
             [IO.File]::WriteAllText((Join-Path $reloadRoot 'state.json'),'{"status":"running","ready":true,"appId":"app-live","daemonPid":77}')
-            $script:reloadEntry=[pscustomobject]@{name='app';path=$reloadPath;kind='flutter-web';status='running';pid=7;flutterAppId='app-live';flutterDaemonPid=77;flutterLaunchDirectory=$reloadRoot;flutterTokenPath=(Join-Path $reloadRoot 'token')}
+            $script:reloadEntry=[pscustomobject]@{name='app';path=$reloadPath;kind='flutter-web';status='running';pid=7;flutterAppId='app-live';flutterDaemonPid=77;flutterMode='debug';flutterLaunchDirectory=$reloadRoot;flutterTokenPath=(Join-Path $reloadRoot 'token')}
             function Reconcile-SgRegistry{[pscustomobject]@{projects=@($script:reloadEntry)}}
             function Test-SgProcessIdentity{$true}
             $script:reloadCalls=0

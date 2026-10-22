@@ -228,6 +228,8 @@ Use these exact state meanings:
 - `failed`: discovery succeeded but the call failed; retain the exact runtime error;
 - `not exposed`: configuration is known but neither direct nor deferred discovery found a callable surface.
 
+External web search follows `web-research-fallback.md`: a provider that fails or runs out of credits hands over to the next one, ending with the agent's native search.
+
 Absence from the first visible tool list is not proof of `not exposed`. If Chromium is installed and the Playwright MCP is configured but remains undiscovered after all host-supported discovery, report `Playwright configuré, outil non exposé dans ce tour`; never call Python, Chromium, or Playwright absent solely because no matching tool was visible initially.
 
 If a source is missing or contradicts another source, refresh only the selected

@@ -34,6 +34,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before choosing topology; parallelize independent read-only design evidence by default and require ready write batches for concurrent edits.
 - `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before any UI, layout, token, theme, or visual-proof work.
 - `$SHIPGLOWS_ROOT/skills/references/interactive-state-transition-contract.md` before designing or changing a stateful, temporal, session-based, continuously interactive, Rive-driven, or 3D-driven interface.
+- `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` before designing, implementing, or reviewing any noticeable delay: rendering, export, preview, generation, upload, save, or any action that can stay pending.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/brand-identity-playbook.md` for `identity [scope]` after positioning, audience, and existing brand truth are resolved.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/animation-playbook.md` for `animation <audit|design|implement|tune> [scope]` after valid animation selection.
@@ -45,11 +46,17 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/interactive-3d-experience-contract.md` for 3D, WebGL, product scenes, or immersive experiences.
 - `$SHIPGLOWS_ROOT/skills/references/interactive-animation-runtime-contract.md` when selecting, integrating, migrating, or auditing an animation runtime or export format.
 - `$SHIPGLOWS_ROOT/skills/references/human-centered-interaction-heuristics.md` when an audit uses cognitive laws, usability heuristics, checklists, design principles, or pattern-library examples.
+- `$SHIPGLOWS_ROOT/skills/references/flutter-quality-playbook.md` when designing, implementing, or reviewing Flutter UI (accessibility, adaptive layout, states, motion, design-system structure).
+- `$SHIPGLOWS_ROOT/skills/references/astro-site-playbook.md` when implementing or reviewing an Astro site design (islands, styling, images, i18n).
 - `$SHIPGLOWS_ROOT/skills/references/web-image-performance-contract.md` when creating, selecting, transforming, or auditing raster or SVG delivery assets.
 - `$SHIPGLOWS_ROOT/skills/references/web-typography-contract.md` when selecting, implementing, migrating, or auditing typography and font delivery.
 - `$SHIPGLOWS_ROOT/skills/references/product-iconography-contract.md` when selecting, creating, replacing, or mapping product icons.
 - `$SHIPGLOWS_ROOT/skills/references/product-color-system-contract.md` when creating or changing semantic colors, themes, contrast, or platform mappings.
 - `$SHIPGLOWS_ROOT/skills/references/creative-asset-provenance-contract.md` when adopting, creating, transforming, licensing, redistributing, migrating, or retiring creative assets.
+- `$SHIPGLOWS_ROOT/skills/references/authenticated-experience-ui-contract.md` when authentication state changes global navigation, account menus, or signed-in surfaces.
+- `$SHIPGLOWS_ROOT/skills/references/product-access-and-license-ui-contract.md` when UI displays plans, licenses, features, quotas, or activation state.
+- `$SHIPGLOWS_ROOT/skills/references/blog-and-cms-experience-contract.md` when designing, implementing, auditing, or proving blog or CMS publishing experiences.
+- `$SHIPGLOWS_ROOT/skills/references/public-author-and-social-identity-contract.md` for author cards, bylines, contact identity, or official social links.
 - `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` when a material journey, navigation model, common interaction, or visual direction needs cross-source convention evidence; load the shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md` only before selecting or using an external connector.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when defining experience principles, critical moments, desired/avoided emotion, or a design direction that changes product intent.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.

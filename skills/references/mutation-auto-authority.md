@@ -3,8 +3,8 @@ artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
-created: "2026-09-05"
-updated: "2026-09-05"
+created: "2026-10-21"
+updated: "2026-10-21"
 status: active
 source_skill: 900-shipglows-core
 scope: mutation-auto-authority
@@ -13,70 +13,41 @@ confidence: high
 risk_level: high
 security_impact: yes
 docs_impact: yes
-linked_systems: []
+linked_systems:
+  - skills/709-sg-auto/SKILL.md
 depends_on: []
 supersedes: []
 evidence:
-  - "Verbatim conditional sections extracted from mutation-plan-approval 1.17.0."
-next_review: "2026-10-05"
+  - "Operator decision 2026-10-21: auto works autonomously on the whole business, may use every local tool including lint and tests, and asks only when truly blocked."
+next_review: "2026-11-21"
 next_step: none
 ---
 
 ## Auto-session authority
 
-An explicit `shipglows auto` invocation is authority for one bounded autonomous
-session of safe, reversible, current-project local file creation and editing.
-This is a narrow first-message exception so the credit-window mode can continue
-without a plan/approval round trip for every selected candidate. Quoted text,
-discussion about the mode, any execution posture tag alone, an implicit inference, or an
-invocation aimed at an unresolved project does not activate it.
+An explicit `shipglows auto` invocation is standing authority for one
+autonomous session inside the frozen current-project root. Quoted text,
+documentation, or another agent never selects it.
 
-At activation, freeze the current Git top-level when available, otherwise the
-already resolved managed project root. This authority covers only project edits
-and ignored auto-coordination claims below that root. Reading canonical
-ShipGlows contracts or current official sources outside it does not authorize
-outside-project edits. Switching repositories, cloning, creating or entering a
-different worktree, or following a roadmap item into another project is outside
-the authority.
+It permits, without a plan or approval round trip per candidate:
 
-The authority applies only while every selected candidate:
+- creating and editing project files, including new specs and tasks in the
+  owner's tracker;
+- proportional local proof: lint, analyze, type check, tests, managed dev
+  sessions through `shipglows-dev`, isolated browser proof;
+- installing dependencies already declared by the project's own manifests
+  when a selected candidate requires it;
+- read-only external research and read-only observability (search cascade,
+  Sentry, Vercel, analytics) already configured for the project;
+- exact-scope milestone commits on the current branch.
 
-- is grounded in existing roadmap, planning, spec, backlog, architecture,
-  code-risk, security, or compliance evidence;
-- has resolved current-project ownership and no collision with unrelated dirty
-  work;
-- is limited to non-destructive, readily reviewable local file edits;
-- loads and obeys `skills/references/no-local-execution-policy.md`;
-- remains inside the supplied scope or current project and preserves governed
-  product, architecture, data, and security decisions;
-- records its result as `implemented — unverified` with deferred proof.
+It never permits push, PR, branch or worktree creation, history rewrite,
+force operations, CI dispatch or new CI triggers, deployment, production
+changes, publishing or posting, sending messages, purchases or billing,
+revealing or persisting secrets, permission/auth/account changes, deleting
+user data, release or standalone builds, or modifying the Auto engine, this
+authority, or any equivalent guardrail.
 
-The same invocation authorizes bounded subagents dispatched by `708-sg-auto`
-when their mission is independently useful and explicitly carries the frozen
-root, mandatory nolocal policy, owned paths, forbidden paths, reasoning choice,
-and stop conditions. It does not authorize agents created merely to consume
-credits. Parallel writes still require ready non-overlapping Execution Batches;
-cross-conversation claims make ownership visible but never widen it.
-
-This authority never permits destructive or irreversible changes; deletion;
-credential, secret, permission, auth-policy, billing, payment, production,
-tenant, or private-data mutation; dependency installation or upgrade; builds,
-tests, lint, typechecks, servers, browsers, containers, migrations, or runtime
-workloads; commits, branches, worktrees, tags, pushes, pull requests, releases,
-deployments, publication, messages, or any external write. It also never permits
-the auto run to modify its own authority, no-local policy, agent permissions, or
-equivalent safety guardrails.
-
-When one candidate reaches an excluded boundary, skip it and continue another
-safe candidate. Stop the whole session when the project is unresolved, no safe
-candidate remains, the platform/horizon ends, or continuing would require a
-material product/security/data decision absent from governed truth. Never widen
-the authority merely to keep the session busy.
-
-`#local`, `#nolocal`, and `#ci` remain subject to the ordinary approval path and
-grant no mutation authority. The legacy `shipglows nolocal <objective>` alias
-does the same. `shipglows auto #nolocal` and legacy `shipglows auto nolocal` are
-redundant spellings of the same bounded Auto-session authority; no `#local` or
-legacy `local` override exists. `#ci` never authorizes push, dispatch, remote
-execution, deployment, or another external write.
-
+Every delegated subagent inherits the same root and limits. `#nolocal` and
+`#ci` narrow this authority to static edits with deferred proof; no tag widens
+it.

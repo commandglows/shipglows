@@ -12,6 +12,8 @@ Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/referenc
 
 This `SKILL.md` is the activation contract. Load `references/platform-parity-matrix.md` when writing or reviewing a parity matrix, decision log, or platform QA routing. Keep detailed feature findings in project artifacts, not in this skill body.
 
+When parity covers presentation, load the matching shared contract: `$SHIPGLOWS_ROOT/skills/references/product-color-system-contract.md` for themes and semantic colors, `$SHIPGLOWS_ROOT/skills/references/product-iconography-contract.md` for icon systems, and `$SHIPGLOWS_ROOT/skills/references/interactive-animation-runtime-contract.md` for animation runtimes or exported motion.
+
 ## Chantier Tracking
 
 Trace category: `conditionnel`.

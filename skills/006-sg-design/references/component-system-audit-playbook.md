@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.3.1"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-12"
+updated: "2026-10-20"
 status: active
 source_skill: 006-sg-design
 scope: component-system-audit
@@ -103,7 +103,7 @@ Audit naming, boolean/enum semantics, required/optional/default props, TypeScrip
 
 For Flutter, additionally inspect `const` constructors, named `required` parameters, key forwarding, widget duplication, `Semantics`, `Focus`, `Shortcuts`, `Actions`, and inline `EdgeInsets`, `TextStyle`, `BoxDecoration`, `Color`, `Duration`, `Curve`, or `SizedBox` values that bypass shared authority.
 
-For web, account for framework conventions in React, Vue, Svelte, Astro, and other detected stacks. Do not recommend React-specific patterns as universal architecture.
+For web, account for framework conventions in Astro, Vue (Tauri webview), and other detected stacks. Do not recommend framework-specific patterns as universal architecture.
 
 ## File And Global Modes
 

@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-07-12"
+updated: "2026-10-21"
 status: active
 source_skill: 900-shipglows-core
 scope: profile-activation
@@ -36,6 +36,8 @@ evidence:
   - "Operator request 2026-06-29: make the Traffic Manager role invokable through the same named-profile layer."
   - "Operator decision 2026-06-29: name the traffic-manager profile Tariq."
   - "Operator decision 2026-07-12: register a bounded catalog of invokable technology specialist profiles."
+  - "Operator decision 2026-10-21: write down the reference-first rule for technology specialist roles (source: 2026-07-12 specialist-roles repurpose pack)."
+  - "Operator decision 2026-10-21: register the Vue specialist profile for Astro Vue islands."
 next_review: "2026-07-12"
 next_step: "/103-sg-verify profile-activation-contract"
 ---
@@ -112,6 +114,7 @@ Known aliases:
 - `%Python`, `%PythonSpecialist`, and `profile=python-specialist` resolve to `shipglows_data/business/agent-profiles/python-specialist.md`.
 - `%Bash`, `%BashSpecialist`, and `profile=bash-specialist` resolve to `shipglows_data/business/agent-profiles/bash-specialist.md`.
 - `%Astro`, `%AstroSpecialist`, and `profile=astro-specialist` resolve to `shipglows_data/business/agent-profiles/astro-specialist.md`.
+- `%Vue`, `%VueSpecialist`, and `profile=vue-specialist` resolve to `shipglows_data/business/agent-profiles/vue-specialist.md`.
 - `%TypeScript`, `%TypeScriptSpecialist`, and `profile=typescript-specialist` resolve to `shipglows_data/business/agent-profiles/typescript-specialist.md`.
 - `%JavaScript`, `%JavaScriptSpecialist`, and `profile=javascript-specialist` resolve to `shipglows_data/business/agent-profiles/javascript-specialist.md`.
 - `%Flutter`, `%FlutterSpecialist`, and `profile=flutter-specialist` resolve to `shipglows_data/business/agent-profiles/flutter-specialist.md`.
@@ -173,6 +176,17 @@ Use one compact line such as:
 
 Do not claim profile activation silently when the answer shape or route does not reflect it.
 
+## Technology Specialist Roles
+
+A platform note in `shipglows_data/technical/external-platforms/` answers which documentation is authoritative and which technical rules hold. A technology specialist role answers how to analyze a request with that expertise: which mistakes to catch, which workflow, skills, and proofs to choose.
+
+- Default to the platform note alone when the technology is used in a standard way.
+- Add a role and its profile only when the technology is used recurrently across projects, carries recurring architectural decisions, or has strong local rules the note cannot hold (environment splits, repository pitfalls, specific validations).
+- Never create a role only because a platform note exists.
+- A role depends on its platform note and does not restate the note's technical claims.
+- Watchlist or future-stack technologies stay reference-only until a project adoption decision; the note states why.
+- An explicit operator decision may create a role outside these criteria; record it in the role's `evidence`.
+
 ## Non-Goals
 
 - profiles are not separate skills
@@ -184,4 +198,4 @@ Do not claim profile activation silently when the answer shape or route does not
 
 ## Maintenance Rule
 
-Update this contract when profile syntax, precedence, fallback behavior, or reporting visibility changes.
+Update this contract when profile syntax, precedence, fallback behavior, reporting visibility, or specialist-role creation criteria change.

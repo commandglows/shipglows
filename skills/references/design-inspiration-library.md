@@ -36,7 +36,6 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Ready spec sales-page-reference-library.md and its exploration source."
   - "Operator decision: source-derived captures stay outside public repositories and are consumed through a bounded, operator-selected Inspiration Gate."
   - "Operator correction: 006-sg-design exposes direct library add, approve, list, and status modes; approval must synchronize the bounded index."
   - "Operator decision 2026-08-07: a remotely synchronized corpus uses a private Git repository, Git LFS for large visual captures, and repository rotation only for a justified removal or purge."

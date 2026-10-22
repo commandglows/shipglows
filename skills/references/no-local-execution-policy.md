@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-20"
 updated: "2026-08-20"
 status: active
-source_skill: 708-sg-auto
+source_skill: 708-sg-blitz
 scope: no-local-workload-execution
 owner: Diane
 confidence: high
@@ -15,7 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/000-shipglows/SKILL.md
-  - skills/708-sg-auto/SKILL.md
+  - skills/708-sg-blitz/SKILL.md
   - skills/references/mutation-plan-approval.md
   - skills/references/spec-driven-development-discipline.md
   - skills/references/execution-posture-tags.md
@@ -30,7 +30,7 @@ evidence:
   - "Operator decision 2026-08-20: auto always implies nolocal, including for every delegated subagent."
   - "Operator decision 2026-08-20: nolocal is canonically the transversal #nolocal execution tag; #ci implies it and the former shipglows nolocal form remains compatible."
 next_review: "2026-09-20"
-next_step: "/103-sg-verify shipglows auto and nolocal modes"
+next_step: "/103-sg-verify shipglows blitz and nolocal modes"
 ---
 
 # No-Local Execution Policy
@@ -39,7 +39,7 @@ next_step: "/103-sg-verify shipglows auto and nolocal modes"
 
 Apply this policy when the operator adds `#nolocal`, adds `#ci`, uses the legacy
 `shipglows nolocal <objective>` alias, or when another contract including
-`shipglows auto` explicitly composes it. It
+`shipglows blitz` explicitly composes it. It
 restricts workload and external-state execution while preserving the static
 inspection and file editing needed to produce useful work.
 
@@ -62,8 +62,8 @@ the run.
   material and no external write, authentication, or private data is involved;
 - prepare deferred verification commands and a precise handoff without running
   them.
-- when `shipglows auto` composes this policy, execute only the canonical
-  `$SHIPGLOWS_ROOT/tools/shipglows_auto_claim.py` helper to maintain minimal ignored claims
+- when `shipglows blitz` composes this policy, execute only the canonical
+  `$SHIPGLOWS_ROOT/tools/shipglows_blitz_claim.py` helper to maintain minimal ignored claims
   below the frozen project root; this is control-plane bookkeeping, not
   permission to execute project tooling or any arbitrary local script.
 
@@ -110,8 +110,8 @@ scope from no-local evidence alone.
 
 Stop the current slice when safe implementation requires executing a forbidden
 operation, observing runtime behavior, accessing secrets/private data, changing
-authority, or overwriting unrelated work. In `shipglows auto`, return control to
-the auto candidate loop so it can skip that candidate and continue. In ordinary
+authority, or overwriting unrelated work. In `shipglows blitz`, return control to
+the blitz candidate loop so it can skip that candidate and continue. In ordinary
 `#nolocal` work, including its legacy alias, follow the selected owner's normal
 blocked or decision contract.
 

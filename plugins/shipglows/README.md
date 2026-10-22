@@ -52,7 +52,7 @@ shell `SHIPGLOWS_ROOT`. Return to the public plugin channel with
 after either transition. Neither transition requires publishing a plugin
 release.
 
-The plugin understands `$shipglows resume`, the bounded `auto` route, and the
+The plugin understands `$shipglows resume`, the bounded `blitz` route, and the
 `#local`, `#nolocal`, and `#ci` execution-posture tags even when the full corpus
 is not bundled. Work that needs the complete workflow remains explicit about
 that requirement.

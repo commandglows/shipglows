@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-22"
+updated: "2026-10-20"
 status: active
 source_skill: 601-sg-product-entitlements
 scope: product-entitlement-support-and-proof
@@ -31,7 +31,7 @@ next_step: none
 
 ## UI And Support Contract
 
-Distinguish signed out, lookup unavailable, recognized/no entitlement, active, expired/refunded/revoked, and pending-review states. Only verified active access unlocks product behavior. Use product-safe recovery language and expose marketplace/provider branding only when intentionally public.
+Distinguish signed out, lookup unavailable, recognized/no entitlement, active, expired/refunded/revoked, and pending-review states. Only verified active access unlocks product behavior. Use product-safe recovery language and expose marketplace/provider branding only when intentionally public. Customer-facing presentation of these states follows `product-access-and-license-ui-contract.md`.
 
 Support documentation must explain safe user lookup, entitlement inspection, grant/revoke/refund/expire/reissue, duplicate identity handling without silent merge, wrong-account code recovery, provider reconciliation, and retention after access removal. Redact tokens, raw codes, cookies, provider secrets, raw webhook payloads, and unnecessary personal data.
 

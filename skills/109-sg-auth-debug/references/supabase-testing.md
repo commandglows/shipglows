@@ -7,7 +7,6 @@ Sources checked:
 - https://supabase.com/docs/guides/local-development/cli/testing-and-linting
 - https://supabase.com/docs/guides/local-development/testing/overview
 - https://supabase.com/docs/guides/auth/server-side
-- https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=framework&framework=nextjs
 - https://supabase.com/docs/guides/auth/social-login
 
 Last reviewed: 2026-04-26

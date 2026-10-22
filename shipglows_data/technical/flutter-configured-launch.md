@@ -74,7 +74,9 @@ Doppler service credentials are neither serialized nor forwarded by this project
 
 Each managed start resolves the configuration again. The fingerprint includes
 the recipe, resolver source, public configuration, target/device selection and
-Web origin. Matching sessions are reused; changed or pre-contract sessions are
+Web origin. It excludes only the volatile build-time fields `BUILD_TIMESTAMP`,
+`BUILD_AT_UTC`, and `BUILD_AT_PARIS`, so refreshing a timestamp does not restart
+an otherwise identical session. Matching sessions are reused; changed or pre-contract sessions are
 stopped through managed process ownership and restarted after successful preflight.
 The fingerprint is configuration evidence, not a credential or login claim.
 

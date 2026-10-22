@@ -22,7 +22,8 @@ class ProductIconographyContractTests(unittest.TestCase):
         cls.contract = normalized_text(CONTRACT)
 
     def test_build_design_and_parity_load_the_shared_contract(self) -> None:
-        reference = "$SHIPGLOWS_ROOT/skills/references/product-iconography-contract.md"
+        # Owners may name a shared contract by file name inside a shared-contract loader list.
+        reference = "product-iconography-contract.md"
         for owner in (BUILD, DESIGN, PARITY):
             self.assertIn(reference, normalized_text(owner))
 

@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-10-16"
+updated: "2026-10-20"
 status: active
 source_skill: 010-sg-technical
 scope: performance-audit-playbook
@@ -17,6 +17,7 @@ linked_systems:
   - skills/010-sg-technical/SKILL.md
   - skills/references/web-image-performance-contract.md
   - skills/references/web-typography-contract.md
+  - skills/references/preferred-stacks.md
 depends_on:
   - artifact: skills/references/web-image-performance-contract.md
     artifact_version: "1.0.0"
@@ -28,6 +29,7 @@ supersedes: []
 evidence:
   - "Transferred exhaustively from the retired performance skill during the 010-sg-technical consolidation."
   - "Operator-approved 2026-08-22 lesson from the ShipGlows terminal transition: process startup was already fast while transport attachment, partial redraw, and opaque incoming-canvas publication still produced visible latency."
+  - "Operator correction 2026-10-20: the portfolio never uses React; performance audits cover only Flutter, Astro, Tauri and Convex. Flutter rules adapted from the MIT-licensed Flutter Agent Skills (flutter-performance) installed locally, with the ShipGlows managed profile session replacing hand-run profile commands."
 next_step: "/103-sg-verify consolidate technical skills under sg-technical"
 ---
 
@@ -53,32 +55,54 @@ Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chant
 Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
 
 
+## Supported Stacks
+
+ShipGlows audits performance only for the portfolio stacks declared in `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`:
+
+| Surface | Stack | Phase |
+|---|---|---|
+| Application (Web, Android, iOS, Windows, macOS, Linux) | Flutter | Phase 1 |
+| Public/SEO site | Astro on Vercel | Phase 2 |
+| Native desktop exception | Tauri (Rust host + Vite/Vue webview) | Phase 3 |
+| Backend/data | Convex (HTTP API from Flutter, client from Astro/Tauri) | Phase 4 |
+
+Audit only the phases whose stack is detected. Never import checklists from frameworks the portfolio does not use (React, Next.js, React Native/Expo, Svelte, SSR Node servers). A target on any other stack is reported as `hors périmètre` with the detected markers; do not improvise a generic web checklist for it.
+
 ## Context
 
 - Current directory: !`pwd`
 - Project CLAUDE.md: !`head -120 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
-- Package.json: !`cat package.json 2>/dev/null | head -80 || echo "no package.json"`
-- Build config: !`cat astro.config.* next.config.* vite.config.* 2>/dev/null | head -60 || echo "no build config"`
-- Framework detection: !`cat package.json 2>/dev/null | grep -oE '"(astro|next|react|vue|expo|fastapi|flask)"' | head -5 || echo "unknown"`
-- Image/font assets: !`find . -maxdepth 3 \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.webp" -o -name "*.avif" -o -name "*.woff" -o -name "*.woff2" -o -name "*.ttf" \) 2>/dev/null | grep -v node_modules | wc -l`
-- Third-party scripts: !`grep -r "script.*src=" src/ 2>/dev/null | grep -v node_modules | head -10 || echo "none"`
-- Project structure: !`find . -maxdepth 3 -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.astro" -o -name "*.vue" -o -name "*.py" -o -name "*.sh" \) 2>/dev/null | grep -v node_modules | grep -v .git | grep -v dist | sort | head -40`
+- Flutter: !`find . -maxdepth 3 -name pubspec.yaml -not -path "*/.dart_tool/*" -not -path "*/build/*" 2>/dev/null | head -5 || echo "none"`
+- Flutter dependencies: !`for f in $(find . -maxdepth 3 -name pubspec.yaml -not -path "*/.dart_tool/*" -not -path "*/build/*" 2>/dev/null | head -3); do echo "== $f"; sed -n '/^dependencies:/,/^[a-z_]*:$/p' "$f" | head -40; done`
+- Flutter managed config: !`cat .shipglows.flutter.json 2>/dev/null | head -40 || echo "none"`
+- Astro: !`ls astro.config.* */astro.config.* 2>/dev/null | head -5 || echo "none"`
+- Tauri: !`find . -maxdepth 3 -name tauri.conf.json -not -path "*/node_modules/*" -not -path "*/target/*" 2>/dev/null | head -3 || echo "none"`
+- Convex: !`find . -maxdepth 3 -name schema.ts -path "*convex*" -not -path "*/node_modules/*" 2>/dev/null | head -3 || echo "none"`
+- JS dependencies (Astro/Tauri webview): !`cat package.json 2>/dev/null | head -80 || echo "no package.json"`
+- Image/font assets: !`find . -maxdepth 4 \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.webp" -o -name "*.avif" -o -name "*.woff2" -o -name "*.ttf" -o -name "*.otf" \) -not -path "*/node_modules/*" -not -path "*/build/*" -not -path "*/target/*" 2>/dev/null | wc -l`
 
 ## Mode detection
 
 - `010-sg-technical performance` answers one specialist question:
 
 ```text
-What performance risks are limiting this scope across bundle, rendering, loading, fetching, caching, or database behavior?
+What performance risks are limiting this Flutter, Astro, Tauri or Convex scope across startup, rebuild/render, raster/paint, loading weight, data access and memory?
 ```
 
 - **`$ARGUMENTS` is "global"** → GLOBAL MODE: performance audit across ALL projects.
 - **`$ARGUMENTS` is a file path** → FILE MODE: deep performance review of that single file.
-- **`$ARGUMENTS` is empty** → PROJECT MODE: full performance audit.
+- **`$ARGUMENTS` is empty** → PROJECT MODE: full performance audit of the detected stacks.
 
 Keep the boundary explicit: stay in `010-sg-technical performance` when performance is already the dominant audit domain. Route back to `400-sg-audit` only when the operator needs multi-domain audit planning or consolidation beyond performance.
 
-Flutter measurements come from the managed profile session: `s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile` (the registry records `flutterMode: profile`; `s reload` is refused because Flutter supports neither hot reload nor hot restart in profile, `s restart … -FlutterMode profile` rebuilds; `s stop` is unchanged). Profile compiles like release (AOT, no asserts) while keeping the VM service and DevTools attached, so jank, raster, memory and timeline figures are representative. Debug-mode figures are never performance evidence, release has no attached tooling, and a hand-run `flutter run --profile` or `flutter drive --profile` outside the managed surface is not an accepted measurement path.
+## Evidence Levels And Measurement Paths
+
+Label every claim as `static` (code reading), `dev-session` (diagnostic only), `profile` (Flutter managed profile session), `hosted` (Vercel preview/production), or `production`. Never present a static guess as a measured bottleneck; never optimize without a before/after measurement at the same evidence level.
+
+- **Flutter**: measurements come from the managed profile session: `s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile` (the registry records `flutterMode: profile`; `s reload` is refused because Flutter supports neither hot reload nor hot restart in profile, `s restart … -FlutterMode profile` rebuilds; `s stop` is unchanged). Profile compiles like release (AOT, no asserts) while keeping the VM service and DevTools attached, so jank, raster, memory and timeline figures are representative. Debug-mode figures are never performance evidence, release has no attached tooling, and a hand-run `flutter run --profile` or `flutter drive --profile` outside the managed surface is not an accepted measurement path. Prefer a floor device (low-end Android via the provisioned emulator only for relative comparisons; a physical device for absolute frame budgets). Budget: ≤16 ms per frame at 60 Hz, ≤8 ms at 120 Hz, on BOTH the UI and the raster thread. "Track widget rebuilds" runs in debug and is a diagnostic for rebuild counts, not timing evidence.
+- **Flutter Web download size, Astro production output, Tauri release startup/binary size**: each requires a build. Builds run only on explicit operator request; otherwise report these items as `static` readiness with the exact command the operator can approve. Hosted Vercel previews are the preferred real-measurement surface for Flutter Web and Astro (Lighthouse/PageSpeed or Vercel Speed Insights on the hosted URL).
+- **Astro dev server** serves unbundled Vite modules: never use it for CWV, weight or TTFB figures.
+- **Tauri dev session** runs a debug Rust host and the Vite dev server: valid for IPC call counts and interaction diagnostics, never for startup time, CPU cost of Rust code or binary size.
 
 ---
 
@@ -86,21 +110,20 @@ Flutter measurements come from the managed profile session: `s start -ProjectPat
 
 Audit performance across ALL projects in the workspace.
 
-1. Read `discovered project-local corpora (`shipglows_data/` markers)` — check the **Domain Applicability** table. Identify projects with ✓ in the Perf column.
+1. Read `discovered project-local corpora (`shipglows_data/` markers)` — check the **Domain Applicability** table. Identify projects with ✓ in the Perf column, and their stack (Flutter / Astro / Tauri / Convex).
 
 2. Use the runtime's structured question tool when available to let the user choose:
    - Question: "Which projects should I audit for performance?"
    - `multiSelect: true`
-   - One option per applicable project: label = project name, description = stack inferred from project-local markers
+   - One option per applicable project: label = project name, description = detected stacks
 
 3. Use available parallel agent/tooling to launch one bounded worker per **selected** project in a single parallel batch when supported. If unavailable, run the selected projects sequentially.
 
    Agent prompt must include:
    - `cd [path]` then read `CLAUDE.md` for project context
-   - The absolute date, exact project path, and the perf context already surfaced by this skill (build config, framework detection, third-party scripts, assets)
-   - The complete **PROJECT MODE** section from this skill (all 6 phases)
-   - The **Tracking** section from this skill
-   - Rule: before scoring, identify linked systems and performance consequences across bundle, rendering, fetching, caching, and third-party integrations
+   - The absolute date, exact project path, and the stack markers already surfaced by this skill
+   - The **Supported Stacks**, **Evidence Levels And Measurement Paths**, complete **PROJECT MODE** section (only the phases for detected stacks), and **Tracking** sections from this skill
+   - Rule: before scoring, identify linked systems and performance consequences across surfaces (Astro site → Flutter app handoff, Flutter → Convex, Tauri webview → Rust host)
    - Rule: do not ask follow-up questions; if context is missing, state assumptions / confidence limits and continue
    - Required sub-report sections: `Scope understood`, `Context read`, `Linked systems & consequences`, `Findings`, `Confidence / missing context`
 
@@ -110,14 +133,14 @@ Audit performance across ALL projects in the workspace.
    GLOBAL PERFORMANCE AUDIT — [date]
    ═══════════════════════════════════════
    PROJECT SCORES
-     [project]    [A/B/C/D]  —  summary
+     [project] [stacks]   [A/B/C/D]  —  summary
      ...
    CROSS-PROJECT PATTERNS
-     [Shared perf issues: duplicate large deps, common anti-patterns]
+     [Shared issues: same Flutter anti-pattern across apps, shared heavy package, Convex query shape]
    ALL ISSUES BY SEVERITY
-     🔴 [project] file:line — description
-     🟠 [project] file:line — description
-     🟡 [project] file:line — description
+     🔴 [project] file:line — description [evidence level]
+     🟠 [project] file:line — description [evidence level]
+     🟡 [project] file:line — description [evidence level]
    Total: X critical, Y high, Z medium across N projects
    ═══════════════════════════════════════
    ```
@@ -133,39 +156,38 @@ Audit performance across ALL projects in the workspace.
 ### Step 1: Gather context
 
 1. Read the target file (`$ARGUMENTS`).
-2. Read files it imports/depends on (follow the imports, 1 level deep).
-3. Identify the file's role: component, page, API route, utility, layout.
+2. Read files it imports/depends on (1 level deep) and the state/provider or Convex function it reads.
+3. Identify the file's role and apply the matching checklist below; a file type outside them is `hors périmètre`.
 
 ### Step 2: Audit the file
 
-Score each category **A/B/C/D**.
+Score each applicable category **A/B/C/D**.
 
-#### 1. Bundle Impact
-- [ ] No large dependencies imported for a small feature (e.g., lodash for one function)
-- [ ] Imports use tree-shakeable paths (named imports, not full-library imports)
-- [ ] Dynamic imports / lazy loading for heavy components
-- [ ] No barrel file re-exports pulling in unused code
+#### `.dart` (Flutter widget, screen, controller, service)
+- **Rebuild scope**: `const` on every legal constructor; state read through the narrowest subscription (Riverpod `ref.watch(p.select(...))`, `context.select`, `ValueListenableBuilder`); no `setState` high in a large tree; widgets split into small classes, not `_buildX()` helpers.
+- **Build purity**: no `jsonDecode`, sort, regex, date math, I/O or large allocation inside `build()`.
+- **Lists & layout**: `ListView.builder`/`GridView.builder`/slivers for variable content; no `shrinkWrap: true` list inside another scrollable; no `IntrinsicHeight`/`IntrinsicWidth` per row; `itemExtent`/`prototypeItem` when rows are uniform.
+- **Paint & raster**: no `Opacity`, `ClipPath`, `ShaderMask`, `BackdropFilter` or other `saveLayer` source in scrolling or animated paths; `RepaintBoundary` only around independently repainting subtrees; `CustomPainter` allocates nothing in `paint()` and `shouldRepaint` is one value compare.
+- **Animation**: `AnimatedBuilder`/`ValueListenableBuilder` pass the static subtree through `child:`; no ticker-driven `setState` rebuilding a screen.
+- **Images**: `cacheWidth`/`cacheHeight` or `ResizeImage` matching the display slot; above-the-fold images precached.
+- **Isolates & async**: large parsing or CPU work through `compute`/`Isolate.run`; input-driven work debounced.
+- **Memory & cleanup**: every controller, subscription, timer, focus node and recognizer disposed (`dispose` / `ref.onDispose`); screen-scoped providers `autoDispose`.
 
-#### 2. Rendering Performance
-- [ ] No unnecessary re-renders (React: stable callbacks, proper deps arrays, memo where needed)
-- [ ] No expensive computations on every render cycle
-- [ ] CSS-in-JS not generating new class names on every render
-- [ ] Conditional rendering for expensive subtrees
-- [ ] Lists use proper keys (not index for dynamic lists)
+#### `.astro`
+- Zero client JS by default; every `client:*` island justified, with `client:visible`/`client:idle` preferred over `client:load`; no UI framework pulled in for an interaction a small inline `<script>` can do.
+- Images through `astro:assets` `<Image>`/`<Picture>` with explicit dimensions; LCP image eager with `fetchpriority="high"`, everything below the fold lazy.
+- Fonts per `web-typography-contract.md`; no render-blocking third-party script in `<head>`.
+- Data fetched at build time (frontmatter in prerendered pages), not on the client.
 
-#### 3. Data Fetching
-- [ ] No waterfall requests (sequential when could be parallel)
-- [ ] Data fetched at the right level (not too high, not too low)
-- [ ] No over-fetching (requesting fields that aren't used)
-- [ ] Proper loading/error states
-- [ ] Caching or deduplication for repeated queries
+#### `.vue` / `.ts` in a Tauri webview
+- Large reactive data held in `shallowRef`/`markRaw`; computed values instead of watchers recomputing on every change; long lists virtualized; heavy routes/components lazy (`defineAsyncComponent`, route-level dynamic import).
+- IPC: no `invoke` per frame or per list item; payloads batched or streamed; listeners from `listen()` unregistered on unmount.
 
-#### 4. Memory & Cleanup
-- [ ] Event listeners removed on unmount
-- [ ] Intervals/timeouts cleared
-- [ ] Subscriptions unsubscribed
-- [ ] AbortController for fetch requests on unmount
-- [ ] No closures capturing stale state
+#### `.rs` in `src-tauri`
+- Commands doing I/O or CPU work are `async` or use `spawn_blocking`; nothing blocks the main/event-loop thread; no large buffer clones; large binary payloads use `tauri::ipc::Response`/channels rather than JSON arrays.
+
+#### `convex/*.ts`
+- Every filtered read uses `withIndex` on an index declared in `schema.ts`; no `.collect()` on unbounded tables; `.take(n)`/`.paginate()` for lists; no per-item query fan-out; external calls in actions, not queries/mutations.
 
 ### Step 3: Fix
 
@@ -174,12 +196,10 @@ Remain read-only by default. Fix issues rated B or worse only when the operator 
 ### Step 4: Report
 
 ```
-PERFORMANCE REVIEW: [file name]
+PERFORMANCE REVIEW: [file name] — [stack]
 ─────────────────────────────────────
-Bundle Impact       [A/B/C/D] — one-line summary
-Rendering           [A/B/C/D] — one-line summary
-Data Fetching       [A/B/C/D] — one-line summary
-Memory & Cleanup    [A/B/C/D] — one-line summary
+[Category]          [A/B/C/D] — one-line summary [evidence level]
+...
 ─────────────────────────────────────
 OVERALL             [A/B/C/D]
 
@@ -192,74 +212,179 @@ Fixed: X issues | Needs decision: Y
 
 ### Workspace root detection
 
-If the current directory has no project markers (no `package.json`, no `requirements.txt`, no `src/` dir, no `lib.sh`) BUT contains multiple project subdirectories — you are at the **workspace root**, not inside a project.
+If the current directory has no project markers (no `pubspec.yaml`, no `astro.config.*`, no `src-tauri/`, no `convex/`, no `package.json`) BUT contains multiple project subdirectories — you are at the **workspace root**, not inside a project.
 
 Use the runtime's structured question tool when available, or a concise plain-text question:
 - Question: "You're at the workspace root. Which project(s) should I audit for performance?"
 - `multiSelect: true`
 - Options:
   - **All projects** — "Run performance audit across every project" (Recommended)
-  - One option per project from `discovered project-local corpora (`shipglows_data/` markers)`: label = project name, description = stack
+  - One option per project from `discovered project-local corpora (`shipglows_data/` markers)`: label = project name, description = stacks
 
 Then proceed to **GLOBAL MODE** with the selected projects.
 
-### PHASE 1: BUNDLE & LOADING
+### PHASE 1: FLUTTER APPLICATION
 
-Analyze the project's build output and dependency weight.
+When a Flutter task needs the deeper rule set, load the matching installed Flutter skill if the current agent exposes it (`flutter-performance`, `widget-composition`, `state-management-riverpod`, `app-startup-and-bootstrap`, `custom-canvas-and-gestures`, `async-safety`). Those skills never override the ShipGlows measurement path above: their `flutter run --profile` instruction is replaced by the managed profile session.
 
-#### 1.1 Dependency Weight
-- [ ] Identify top 10 largest dependencies by install size
-- [ ] Flag oversized dependencies with lighter alternatives (moment→dayjs, lodash→lodash-es or native)
-- [ ] Detect duplicate packages in the dependency tree (same package, different versions)
-- [ ] Check for barrel exports (`index.ts`) re-exporting entire modules — bundle bloat
+#### 1.1 Rebuild scope (UI thread / build)
+- [ ] `prefer_const_constructors` and `prefer_const_literals_to_create_immutables` enabled in `analysis_options.yaml`; `const` used wherever legal
+- [ ] State consumed through the narrowest subscription (`select`, `Selector`, `ValueListenableBuilder`); a leaf never watches a whole state object for one field
+- [ ] No `setState` at screen/root level for local changes; animation or timer ticks never rebuild heavy siblings
+- [ ] Screens composed of small widget classes, not long `_buildX()` methods
+- [ ] No parsing, sorting, regex, date math, I/O or large allocation in `build()`; derived values computed once in the controller/notifier and held in immutable state with real equality
+- [ ] `InheritedWidget`/`Theme`/`MediaQuery` lookups use the narrow accessors (`MediaQuery.sizeOf`, `paddingOf`) to avoid rebuilding on unrelated changes
 
-#### 1.2 Code Splitting
-- [ ] Route-level code splitting configured
-- [ ] Heavy components lazily loaded (`React.lazy`, `defineAsyncComponent`, dynamic imports)
-- [ ] No single bundle containing rarely-used features
-- [ ] Sentry browser tracing, profiling, replay, and source-map helpers are not bundled more broadly than needed
+#### 1.2 Lists, scrolling and layout
+- [ ] Variable or long content uses `ListView.builder`/`GridView.builder`/`SliverList`/`SliverGrid`; never `ListView(children: list.map(...).toList())` for unbounded data
+- [ ] No `shrinkWrap: true` scrollable nested in another scrollable; slivers (`CustomScrollView`) instead
+- [ ] `itemExtent`, `prototypeItem` or `itemExtentBuilder` for uniform rows
+- [ ] No `IntrinsicHeight`/`IntrinsicWidth` or multi-pass layout inside list rows
+- [ ] Stable `Key`s on reorderable or animated list items
+- [ ] Pagination/infinite scroll loads pages from the data layer, not the whole collection
 
-#### 1.3 Asset Optimization
-- [ ] Images use modern formats (WebP/AVIF with fallbacks)
-- [ ] Images have `srcset` / responsive sizing
-- [ ] SVGs optimized (no unnecessary metadata)
-- [ ] Fonts use WOFF2 format
-- [ ] `font-display: swap` or `optional` configured
-- [ ] Font subsetting applied (only needed character ranges)
+#### 1.3 Paint and raster thread
+- [ ] No `Opacity` widget in animated or scrolling paths (`FadeTransition`, `AnimatedOpacity`, or alpha in colors instead)
+- [ ] `ClipPath`, `ClipRRect` with anti-alias, `ShaderMask`, `BackdropFilter`, `ColorFilter` and other `saveLayer` sources absent from scrolling lists and per-frame animations
+- [ ] Cheapest widget chosen (`ColoredBox`/`DecoratedBox`/`SizedBox` over `Container` in hot paths)
+- [ ] `RepaintBoundary` only around independently repainting subtrees (charts, live indicators, animations), not sprinkled everywhere
+- [ ] `CustomPainter`: no `Paint`/`Path`/`Gradient` allocation in `paint()`; `shouldRepaint` is a single value compare; animation drives `repaint:` rather than `setState`
+- [ ] Raster cost verified in the profile session on the target renderer (Impeller on mobile; note shader-compilation jank on first run of an effect)
 
-#### 1.4 Script Loading
-- [ ] Third-party scripts use `async` or `defer`
-- [ ] Analytics/tracking/Sentry initialization does not block render
-- [ ] No synchronous `<script>` tags in `<head>`
-- [ ] Prefetch/preload for critical resources
-- [ ] Sentry replay, tracing, and profiling sampling rates are proportionate to the environment and privacy/performance budget
+#### 1.4 Images, fonts and assets
+- [ ] Decoded size matches the display slot (`cacheWidth`/`cacheHeight`/`ResizeImage`); no full-resolution decode into thumbnails
+- [ ] Resolution-aware asset variants (`1.0x/2.0x/3.0x`) for raster assets; vector assets used where cheaper
+- [ ] Above-the-fold images precached; network images cached with a bounded cache
+- [ ] `ImageCache` limits reviewed for image-heavy screens
+- [ ] Bundled fonts limited to used families/weights; no runtime font download on startup without fallback
+
+#### 1.5 Startup and first frame
+- [ ] `main()` does only what the first frame needs before `runApp`; other initialization deferred (post-frame callback or lazy providers)
+- [ ] No sequential awaits of independent services before `runApp` (run in parallel or defer)
+- [ ] Auth/session restore does not block a blank screen without a branded first frame
+- [ ] Heavy features loaded lazily; Flutter Web uses `deferred as` imports for rarely used large features
+- [ ] Startup measured in the profile session (time to first frame and to first useful content), cold and warm
+
+#### 1.6 Isolates, async and I/O
+- [ ] Large JSON parsing, crypto, image processing and heavy loops run through `compute`/`Isolate.run`
+- [ ] No synchronous file/`SharedPreferences` reads in hot paths; batched writes
+- [ ] Search/input-driven work debounced; network calls cancellable or ignored after dispose
+- [ ] Independent network requests run in parallel (`Future.wait`), never as accidental waterfalls
+
+#### 1.7 Memory and lifecycle
+- [ ] Every `AnimationController`, `TextEditingController`, `ScrollController`, `FocusNode`, `StreamSubscription`, `Timer` and gesture recognizer disposed
+- [ ] Screen-scoped providers/state use `autoDispose` (or equivalent) and do not outlive navigation
+- [ ] No unbounded in-memory caches or listener lists; DevTools Memory checked for growth across repeated navigation
+- [ ] App lifecycle pauses timers, polling and animations in background
+
+#### 1.8 Flutter Web specifics
+- [ ] Renderer choice explicit and justified (CanvasKit vs `skwasm`/WebAssembly build); fallback understood for browsers without WasmGC
+- [ ] Initial download weight known (`main.dart.js`/`.wasm`, CanvasKit, fonts, assets) — measured on a hosted preview or a build the operator approved
+- [ ] `web/index.html` shows a lightweight loading state before the engine boots; no blank page during engine download
+- [ ] Hashed build assets served with long-lived immutable `Cache-Control` on Vercel; `index.html` and the service worker not cached long
+- [ ] Rarely used large features behind deferred imports; no icon font or `cupertino_icons` shipped unused (`--tree-shake-icons` left on)
+- [ ] Astro → Flutter Web handoff (marketing site to app) does not force a second cold engine download on every navigation
+
+#### 1.9 Desktop and mobile targets
+- [ ] Windows/macOS/Linux: window resize and large-viewport layouts stay within frame budget (no layout recomputing whole trees per resize event)
+- [ ] Android/iOS: frame budget verified at the device refresh rate (60/90/120 Hz); no work scheduled on every frame while idle
+- [ ] Platform channels/plugins called off hot paths; no synchronous native calls per frame
+
+#### 1.10 Observability cost
+- [ ] Sentry Flutter tracing, profiling and replay sample rates proportionate to the environment; instrumentation does not add work to key interactions
+- [ ] Logging is not string-building large payloads in release/profile
 
 ---
 
-### PHASE 2: RENDERING
+### PHASE 2: ASTRO SITE
 
-#### 2.1 Rendering Strategy
-- [ ] Static pages use SSG (not SSR or CSR)
-- [ ] Dynamic pages use appropriate strategy (SSR for SEO, CSR for app-like)
-- [ ] Client-side hydration is minimal (Astro islands, React Server Components)
+Load `web-image-performance-contract.md` and `web-typography-contract.md` when images or fonts are in scope.
 
-#### 2.2 Client Hydration Analysis
-- [ ] Components that could be server-only are not hydrated client-side
-- [ ] `client:load` vs `client:visible` vs `client:idle` used appropriately (Astro)
-- [ ] No full-page client hydration for mostly-static content
+#### 2.1 Zero-JS default and islands
+- [ ] Content pages ship 0 KB of client JS unless an island is justified
+- [ ] Each `client:*` directive is the laziest that works (`client:visible`/`client:idle`/`client:media` before `client:load`); no `client:only` without reason
+- [ ] Islands use the lightest option: inline `<script>` or a small Vue/vanilla component; no UI framework added for a single toggle
+- [ ] No duplicate island frameworks on the same page
 
-#### 2.3 Re-render Issues
-- [ ] No parent re-renders cascading to all children unnecessarily
-- [ ] Context providers scoped (not wrapping entire app for local state)
-- [ ] Expensive renders behind React.memo / computed / memoization
-- [ ] Event handlers are stable references (useCallback where needed)
+#### 2.2 Rendering mode and delivery
+- [ ] Pages prerendered (`output: 'static'` or `export const prerender = true`); on-demand rendering only with a stated reason
+- [ ] On-demand pages on Vercel use caching (ISR/`Cache-Control`) where content allows
+- [ ] Hashed assets immutable-cached; HTML revalidated
+- [ ] `prefetch` configured deliberately (hover/viewport) and not prefetching every link on large pages
+- [ ] View Transitions / `<ClientRouter />` only when the navigation benefit outweighs its client-side cost
 
-#### 2.4 Virtualization
-- [ ] Long lists (>50 items) use virtualization (react-window, @tanstack/virtual)
-- [ ] Tables with many rows are virtualized
-- [ ] Infinite scroll uses proper windowing
+#### 2.3 Images and fonts
+- [ ] All content images through `astro:assets` (`<Image>`/`<Picture>`) with modern formats, `widths`/`sizes`, and explicit dimensions
+- [ ] LCP image `loading="eager"` + `fetchpriority="high"`; all others lazy
+- [ ] Fonts self-hosted WOFF2, subset, `font-display` set, LCP font preloaded, metric-compatible fallback to avoid CLS
+- [ ] SVGs optimized; no raster image where a small SVG suffices
 
-#### 2.5 Perceived Latency And Atomic Transitions
+#### 2.4 Scripts, CSS and third parties
+- [ ] Analytics, consent, Sentry and embeds loaded `async`/`defer` or after interaction; none synchronous in `<head>`
+- [ ] Third-party embeds (video, maps, social) use a facade until interaction
+- [ ] CSS scoped per component; global CSS minimal; unused utility classes purged; no large CSS framework imported whole
+- [ ] Sentry browser tracing/replay not bundled into pages that do not need it
+
+#### 2.5 Core Web Vitals readiness
+- [ ] **LCP**: LCP element present in the initial HTML, not injected by JS; no render-blocking CSS/JS ahead of it
+- [ ] **CLS**: images/video/embeds have dimensions; no content injected above the fold after load; font swap metric-matched
+- [ ] **INP**: island event handlers short (<50 ms tasks); heavy work deferred or chunked; input debounced
+- [ ] **TTFB**: static pages served from the Vercel edge; on-demand pages avoid data waterfalls
+
+#### 2.6 Budgets
+- [ ] Per-page budgets declared (client JS, total transfer, LCP target ≤2.5 s, CLS ≤0.1, INP ≤200 ms on the hosted surface)
+- [ ] Budgets checked on a hosted preview (PageSpeed/Lighthouse or Vercel Speed Insights), mobile profile first
+
+---
+
+### PHASE 3: TAURI DESKTOP
+
+#### 3.1 Startup
+- [ ] Main window created hidden and shown once the webview has painted useful content (no white flash)
+- [ ] `setup` hook does no blocking I/O or network; heavy initialization spawned asynchronously
+- [ ] Plugins limited to those used; plugin initialization not serialized on the startup path
+- [ ] Startup measured on a release build only when the operator approves the build
+
+#### 3.2 IPC between webview and Rust
+- [ ] Commands performing I/O or CPU work are `async` or use `tauri::async_runtime::spawn_blocking`; nothing blocks the event loop
+- [ ] No `invoke` per frame, per keystroke or per list item; calls batched and debounced
+- [ ] Large or binary payloads use `tauri::ipc::Response` or channels, never large JSON arrays
+- [ ] Event emission throttled; frontend `listen()` handles unregistered on unmount
+
+#### 3.3 Rust host
+- [ ] Release profile tuned when size/speed matter (`lto`, `codegen-units = 1`, `opt-level`, `strip`, `panic = "abort"` where acceptable)
+- [ ] No needless clones of large buffers; shared state behind cheap locks held briefly
+- [ ] Unused Cargo features of heavy crates disabled
+
+#### 3.4 Webview frontend (Vite + Vue)
+- [ ] Routes and heavy components lazily loaded
+- [ ] Large datasets in `shallowRef`/`markRaw`; no deep reactivity over big arrays; long lists virtualized
+- [ ] Dependency weight reviewed (no heavy library for a small feature; tree-shakeable imports)
+- [ ] On Windows, WebView2 memory checked across long sessions
+
+---
+
+### PHASE 4: DATA AND CONVEX BACKEND
+
+#### 4.1 Query shape
+- [ ] Every filtered read uses `withIndex` on an index declared in `schema.ts`; no `.filter()` scans on growing tables
+- [ ] No `.collect()` on unbounded tables; `.take(n)` or `.paginate()` everywhere a list can grow
+- [ ] No N+1: a list screen does not issue one query per item (from Flutter or Astro); related data joined in one query/function
+- [ ] Queries return only the fields the client renders
+
+#### 4.2 Client access
+- [ ] Flutter → Convex HTTP: independent calls parallelized, timeouts set, retries bounded with backoff, responses cached where freshness allows
+- [ ] Reactive subscriptions scoped to what is on screen and released when the screen closes
+- [ ] Mutations use optimistic updates where rollback is safe, with visible failure feedback
+- [ ] Astro pages read Convex at build time when content is static
+
+#### 4.3 Work placement
+- [ ] External API calls in actions; heavy or slow work in scheduled functions, not in user-facing mutations
+- [ ] Rate limits of third-party APIs respected; no polling where a subscription or webhook exists
+
+---
+
+### PHASE 5: PERCEIVED LATENCY AND ATOMIC TRANSITIONS
 
 Apply this framework-neutral gate to stateful interfaces, embedded runtimes,
 editors, terminals, media surfaces, canvases, route transitions, and any flow
@@ -300,91 +425,10 @@ output is lost before attachment or painted incrementally, preserve the last
 safe frame, and require atomic replacement plus rendered proof. It must not
 recommend process tuning or a cosmetic fade as the primary fix without evidence.
 
----
-
-### PHASE 3: CORE WEB VITALS READINESS
-
-#### 3.1 LCP (Largest Contentful Paint)
-- [ ] Hero image/video has `fetchpriority="high"` and `loading="eager"`
-- [ ] LCP element is in initial HTML (not injected by JS)
-- [ ] No render-blocking CSS/JS delaying LCP
-- [ ] Fonts preloaded if they affect LCP text
-- [ ] `<Image>` component used with priority prop for above-fold images
-
-#### 3.2 CLS (Cumulative Layout Shift)
-- [ ] Images and videos have explicit `width` and `height` attributes
-- [ ] No FOUT (Flash of Unstyled Text) — `font-display` configured
-- [ ] No content injected above the fold after load (ads, banners, lazy content)
-- [ ] Skeleton screens match actual content dimensions
-- [ ] No layout-shifting animations
-
-#### 3.3 INP (Interaction to Next Paint)
-- [ ] Click/tap handlers respond under 200ms
-- [ ] Heavy computations offloaded to Web Workers
-- [ ] No long tasks blocking the main thread (>50ms)
-- [ ] Input handlers debounced appropriately
-- [ ] Optimistic UI updates for perceived speed
-- [ ] Sentry instrumentation, breadcrumbs, and replay capture do not add avoidable long tasks to key interactions
-
-#### 3.4 TTFB (Time to First Byte)
-- [ ] Static pages served from CDN/edge
-- [ ] SSR pages have efficient data fetching (no waterfalls)
-- [ ] Database queries for page data are indexed
-- [ ] Caching headers configured (Cache-Control, ETag)
-
----
-
-### PHASE 4: DATA FETCHING
-
-#### 4.1 Request Patterns
-- [ ] No waterfall requests (use `Promise.all` or parallel loaders)
-- [ ] No N+1 query patterns (fetching related data in loops)
-- [ ] No over-fetching (GraphQL: use fragments; REST: use sparse fieldsets or dedicated endpoints)
-- [ ] Request deduplication for same data needed in multiple components
-
-#### 4.2 Caching Strategy
-- [ ] API responses cached appropriately (SWR, React Query, Convex reactive queries)
-- [ ] Stale-while-revalidate pattern for non-critical data
-- [ ] Cache invalidation on mutations
-- [ ] Static data pre-fetched at build time where possible
-
-#### 4.3 Optimistic Updates
-- [ ] Write operations update UI immediately (don't wait for server response)
-- [ ] Rollback on failure with user feedback
-- [ ] Convex: use optimistic updates for mutations
-
-#### 4.4 Prefetching
-- [ ] Next page data prefetched on link hover/focus
-- [ ] Critical API calls initiated early (not waiting for component mount)
-- [ ] Route prefetching configured for likely next pages
-
----
-
-### PHASE 5: DATABASE & BACKEND
-
-#### 5.1 Query Optimization
-- [ ] Indexes defined for common query patterns
-- [ ] No full table scans for filtered queries
-- [ ] Compound indexes for multi-field queries
-- [ ] Convex: indexes defined in `schema.ts` for all `withIndex` queries
-
-#### 5.2 Unbounded Queries
-- [ ] All list queries have limits (`.take(n)` / `LIMIT`)
-- [ ] Pagination implemented for large datasets
-- [ ] No `SELECT *` or equivalent fetching all fields
-- [ ] Cursor-based pagination for large datasets (not offset)
-
-#### 5.3 Connection & Resource Management
-- [ ] Connection pooling configured for database
-- [ ] No connection leaks (connections always returned to pool)
-- [ ] Timeouts configured for external API calls
-- [ ] Rate limiting respected for third-party APIs
-
-#### 5.4 Caching Layer
-- [ ] Frequently accessed data cached (in-memory, Redis, or CDN)
-- [ ] Cache invalidation strategy defined
-- [ ] Cache TTL appropriate for data freshness requirements
-- [ ] No stale cache served for critical data (auth, payments)
+Pressure scenario `PERF-FLUTTER-DEBUG-NUMBERS`: an agent reports "the list
+scrolls at 40 fps" from a debug session and proposes `RepaintBoundary` on every
+row. The audit must reject the figure as non-evidence, re-measure in the managed
+profile session, split UI vs raster time, and fix the measured side only.
 
 ---
 
@@ -393,63 +437,54 @@ recommend process tuning or a cosmetic fade as the primary fix without evidence.
 #### Fix Priority
 Remain read-only unless the exact fix scope is authorized by the operator or an active lifecycle contract. For authorized fixes, use this priority:
 
-1. **Critical** — N+1 queries, missing indexes, unbounded queries, memory leaks
-2. **High** — Missing code splitting, no image optimization, waterfall requests
-3. **Medium** — Missing lazy loading, suboptimal caching, minor CWV issues
-4. **Low** — Prefetching, optimistic updates, minor bundle size improvements
+1. **Critical** — UI-isolate blocking work, unbounded Convex reads or N+1, memory leaks, frames consistently over budget in profile
+2. **High** — eager lists over unbounded data, `saveLayer` sources in scrolling/animation, full-resolution image decode, Astro pages shipping avoidable JS, blocking Tauri commands
+3. **Medium** — broad rebuild scope, missing `const`, startup work that can be deferred, weak caching, minor CWV issues
+4. **Low** — prefetching, optimistic updates, minor weight improvements
 
 #### Report
 
+Include only the sections of detected stacks.
+
 ```
-PERFORMANCE AUDIT: [project name] — [stack detected]
+PERFORMANCE AUDIT: [project name] — [stacks detected]
 ═══════════════════════════════════════════════════
 
-BUNDLE & LOADING                     [A/B/C/D]
-  Dependency Weight                  [A/B/C/D]
-  Code Splitting                     [A/B/C/D]
-  Asset Optimization                 [A/B/C/D]
-  Script Loading                     [A/B/C/D]
+FLUTTER APP                          [A/B/C/D]
+  Rebuild scope                      [A/B/C/D]
+  Lists & layout                     [A/B/C/D]
+  Paint & raster                     [A/B/C/D]
+  Images & assets                    [A/B/C/D]
+  Startup                            [A/B/C/D]
+  Isolates & async                   [A/B/C/D]
+  Memory & lifecycle                 [A/B/C/D]
+  Web specifics                      [A/B/C/D]
 
-RENDERING                            [A/B/C/D]
-  Strategy                           [A/B/C/D]
-  Client Hydration                   [A/B/C/D]
-  Re-render Issues                   [A/B/C/D]
+ASTRO SITE                           [A/B/C/D]
+  Zero-JS & islands                  [A/B/C/D]
+  Rendering & delivery               [A/B/C/D]
+  Images & fonts                     [A/B/C/D]
+  Scripts & CSS                      [A/B/C/D]
+  Core Web Vitals readiness          [A/B/C/D]
 
-CORE WEB VITALS                      [A/B/C/D]
-  LCP Readiness                      [A/B/C/D]
-  CLS Readiness                      [A/B/C/D]
-  INP Readiness                      [A/B/C/D]
-  TTFB Readiness                     [A/B/C/D]
+TAURI DESKTOP                        [A/B/C/D]
+  Startup                            [A/B/C/D]
+  IPC                                [A/B/C/D]
+  Rust host                          [A/B/C/D]
+  Webview frontend                   [A/B/C/D]
 
-DATA FETCHING                        [A/B/C/D]
-  Request Patterns                   [A/B/C/D]
-  Caching                            [A/B/C/D]
-  Optimization                       [A/B/C/D]
+CONVEX DATA                          [A/B/C/D]
+  Query shape                        [A/B/C/D]
+  Client access                      [A/B/C/D]
+  Work placement                     [A/B/C/D]
 
-DATABASE & BACKEND                   [A/B/C/D]
-  Query Optimization                 [A/B/C/D]
-  Resource Management                [A/B/C/D]
+PERCEIVED LATENCY                    [A/B/C/D]
 ═══════════════════════════════════════════════════
 OVERALL                              [A/B/C/D]
+Evidence: static | profile | hosted | production (per finding)
 
 Fixed: X issues | Needs decision: Y
 ```
-
----
-
-## Stack-specific notes
-
-Apply the relevant section based on detected framework:
-
-**Astro**: Focus on islands pattern — verify `client:*` directives are minimal. Static pages should have zero JS. Check `astro:assets` Image component usage. View Transitions API perf impact.
-
-**Next.js**: Check RSC (React Server Components) boundaries — `"use client"` only where needed. Streaming SSR for slow data. `next/image` with `priority` for above-fold. `next/font` for zero-layout-shift fonts.
-
-**React Native / Expo**: List virtualization (FlatList vs FlashList). Image caching (expo-image). Bundle size with `npx expo-doctor`. Hermes engine optimizations. Avoid inline styles in render loops.
-
-**Python (FastAPI)**: Async I/O for all external calls. Connection pooling (SQLAlchemy async). Background tasks for heavy operations. Response model filtering (don't return full ORM objects).
-
-**Bash/Shell**: Script execution time. Subshell avoidance where possible. Caching of expensive operations (BuildFlowz 5s TTL pattern). Avoid repeated file reads in loops.
 
 ---
 
@@ -488,6 +523,5 @@ Create either file if missing with a short heading and traffic-first audit recor
 - Label every claim as static readiness, local measurement, browser measurement, hosted/runtime evidence, or production evidence. Never present an unmeasured optimization guess as a proven bottleneck.
 - Audit and performance findings are read-only by default and never imply permission to mutate project state.
 - Be specific about file paths and line numbers for every issue.
-- Detect the stack automatically. Only audit relevant sections (e.g., skip CWV for React Native).
-- For Bash/Shell projects, focus on script efficiency and caching patterns.
+- Detect the stack automatically. Only audit the phases of detected stacks; never apply React, Next.js, Expo or other non-portfolio checklists.
 - Performance issues are never optional — a slow site is a broken site.

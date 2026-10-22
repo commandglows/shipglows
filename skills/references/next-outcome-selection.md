@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-21"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: next-outcome-selection
@@ -45,7 +45,7 @@ Use the first applicable level and stop. Never skip a higher level for a fresher
 2. **Pending proof or delivery** — Finish missing validation, review, PR, preview, commit, push, deployment evidence, documentation, or editorial alignment already required by the current or earlier conversational chantier.
 3. **Active chantier** — Resume the highest-priority active spec, bug, release, or tracked work item whose dependencies are satisfied. Preserve explicit operator pauses and blockers.
 4. **Prioritized tracker** — Read `shipglows_data/workflow/TASKS.md` when present and select actionable work in strict `P0 -> P1 -> P2 -> P3` order. Within a priority, prefer work that protects users or data, removes a blocker, completes already-started value, or has the strongest durable business impact. Do not inflate severity to force a choice.
-5. **Overdue audit** — Compare `shipglows_data/workflow/AUDIT_LOG.md` with `skills/references/audit-cadence-matrix.json`. Select the first event-triggered, never-run, or most overdue applicable domain returned by `tools/audit_cadence_status.py`. A project-specific documented matrix may be stricter than the shared default.
+5. **Overdue audit** — Compare `shipglows_data/workflow/AUDIT_LOG.md` with `skills/references/audit-cadence-matrix.json`. When `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/project_docs_tidy_audit.py" . --check` reports `due`, pass `--trigger workflow-tidy`: accumulated workflow material makes the tidy event-triggered regardless of elapsed time. Select the first event-triggered, never-run, or most overdue applicable domain returned by `tools/audit_cadence_status.py`. A project-specific documented matrix may be stricter than the shared default.
 6. **Grounded business improvement** — Use current product, business, customer, editorial, security, quality, or funnel evidence to name one bounded improvement with a clear stakeholder and outcome. Never invent busywork, unsupported urgency, a public promise, or a speculative platform expansion merely to fill the block.
 
 ## Output And Execution Boundary

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-10-07"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: project-delivery-policy
@@ -99,12 +99,13 @@ Every active ShipGlows-managed GitHub repository follows `managed-project-ci-pol
 
 ## Pressure Scenarios
 
-- `PDP-DEVELOPMENT-NOT-LOCAL-ONLY`: development retains milestone and final remote persistence.
+- `PDP-DEVELOPMENT-NOT-LOCAL-ONLY`: development retains milestone and final remote persistence (`remote_persistence: milestone-and-final`) and pushes coherent validated work to the canonical integration branch at the earliest safe opportunity.
 - `PDP-SEPARATE-AXES`: posture, validation mode, and provider state remain independent.
 - `PDP-PUBLISHED-PREVIEW`: published deployable changes require preview-backed review.
 - `PDP-SENSITIVE-STAGING`: sensitive production requires staging or equivalent isolation.
 - `PDP-NON-LIVE-MAIN`: non-live `development` integrates directly into `main`.
 - `PDP-LIVE-DEV`: live `published` and `sensitive-production` integrate and stage through canonical `dev`, retaining `main` for production.
+- `PDP-GIT-AUTONOMY`: Git/GitHub stewardship at project or chantier start, coherent milestones, and chantier end follows `mutation-git-authority.md` and adds no separate Git approval.
 - `PDP-DECLARED-VS-OBSERVED`: detected state reports drift without mutating intent.
 - `PDP-LEGACY-MODE`: legacy development mode remains valid while posture is unknown.
 - `PDP-MANAGED-CI`: every active managed GitHub project retains an always-on protected gate without path-filter deadlock.

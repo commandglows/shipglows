@@ -172,13 +172,13 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(payload["selected_internal_engine"], "011-sg-pilotage")
 
     def test_global_auto_mode_and_legacy_nolocal_alias_remain_distinct(self) -> None:
-        auto = check("shipglows auto until=18:00")
+        auto = check("shipglows blitz until=18:00")
         self.assertEqual(auto["status"], "valid")
         self.assertEqual(auto["resolved_skill"], "shipglows")
         self.assertEqual(auto["runtime_engine"], "000-shipglows")
-        self.assertEqual(auto["mode"], "auto")
-        self.assertEqual(auto["selected_internal_engine"], "708-sg-auto")
-        self.assertEqual(auto["activation_profile"], "708-sg-auto")
+        self.assertEqual(auto["mode"], "blitz")
+        self.assertEqual(auto["selected_internal_engine"], "708-sg-blitz")
+        self.assertEqual(auto["activation_profile"], "708-sg-blitz")
 
         nolocal = check("shipglows nolocal improve checkout")
         self.assertEqual(nolocal["status"], "valid")
@@ -194,7 +194,7 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(docs_auto["resolved_skill"], "sg-docs")
         self.assertEqual(docs_auto["mode"], "auto")
 
-        auto_local = check("shipglows auto local")
+        auto_local = check("shipglows blitz local")
         self.assertEqual(auto_local["status"], "invalid")
         self.assertEqual(auto_local["error"], "unsupported_mode_option")
 

@@ -36,7 +36,7 @@ for web, Android, Windows, or macOS.
 - Scripts/jobs/tools: Python.
 - Auth: mostly Clerk, often Google sign-in.
 
-When debugging or implementing auth, start from this stack before assuming React/Next.js patterns.
+When debugging or implementing auth, start from this stack. React, Next.js and Expo are not part of the portfolio, so their auth patterns do not apply.
 
 ## Recommended SDK Choices
 

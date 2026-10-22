@@ -20,7 +20,7 @@ linked_systems:
   - skills/references/skill-context-budget.md
   - skills/references/expert-mode-aliases.md
   - skills/000-shipglows/SKILL.md
-  - skills/708-sg-auto/SKILL.md
+  - skills/708-sg-blitz/SKILL.md
   - skills/references/no-local-execution-policy.md
   - skills/references/execution-posture-tags.md
   - skills/references/entrypoint-routing.md
@@ -57,7 +57,6 @@ linked_systems:
   - tools/vivaldi_bookmarks.py
   - tools/audit_shipglows_skills.py
   - specs/001-sg-build-autonomous-master-skill.md
-  - specs/skill-reporting-modes-and-compact-reports.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - templates/
   - docs/technical/
@@ -149,7 +148,7 @@ evidence:
   - "2026-08-18: report cards now have an explicit effort ceiling: one meaningful proof may suffice and no work is created merely to fill a block."
   - "2026-08-15: standalone `v` canonically approves only the immediately preceding pending approval message."
   - "2026-08-16: current-project hygiene is read-only and proposal-first; explicit Git scope specializes to the safe Git cleanup workflow."
-  - "2026-08-20: shipglows auto added as a bounded autonomous credit-window route through internal 708-sg-auto; it always composes the independent nolocal policy, prioritizes useful reasoning/generation after safety eligibility, and leaves all work implemented but unverified."
+  - "2026-08-20: shipglows blitz added as a bounded autonomous credit-window route through internal 708-sg-blitz; it always composes the independent nolocal policy, prioritizes useful reasoning/generation after safety eligibility, and leaves all work implemented but unverified."
   - "2026-08-20: auto was refined to optimize durable value rather than token burn, freeze the launch root, coordinate concurrent claims, recommend useful subagents, and treat Fast as an external pre-existing client state."
   - "2026-08-20: #local, #nolocal, and #ci became position-independent execution posture tags; #ci implies #nolocal, auto implies #nolocal, and shipglows nolocal remains compatibility syntax."
   - "2026-08-21: every explicit coherent validated implementation milestone commits before the next slice, and standard clean chantier closure requires final commit plus ordinary upstream push."
@@ -338,7 +337,7 @@ Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 - `700-sg-explore` frames the problem or option space before commitment.
 - `011-sg-pilotage tasks` maintains the durable execution tracker; editorial/public-content follow-up stays in `shipglows_data/editorial/ROADMAP.md` through content owners.
 - `sg-planning` accepts a supplied implementation-task capture in natural language for a known project. It records dependencies without executing them, preserves duplicate/status safety, and loads the bounded tasks branch. An ambiguous project requires only project clarification; editorial work keeps its content owner and explicit spec attachment retains full tracing. The `planning-task-capture` activation scenario measures the complete declared capture/report path; its estimates are not provider token usage.
-- Shared mutation authority keeps bounded/fast/full-plan selection and pending approvals in its core. It directly selects Auto authority before an Auto candidate, Git authority before stewardship or persistence disclosure, target policy before choosing/promising an integration destination, and milestone policy before executing approved delivery. Pressure scenarios load only for authority maintenance/testing. Reporting retains all closure classifications and truth boundaries; examples do not create extra work. See the shared-authority/reporting audit of 2026-09-05 for before/after costs and proof limits.
+- Shared mutation authority keeps bounded/fast/full-plan selection and pending approvals in its core. It directly selects Blitz authority before an Blitz candidate, Git authority before stewardship or persistence disclosure, target policy before choosing/promising an integration destination, and milestone policy before executing approved delivery. Pressure scenarios load only for authority maintenance/testing. Reporting retains all closure classifications and truth boundaries; examples do not create extra work. See the shared-authority/reporting audit of 2026-09-05 for before/after costs and proof limits.
 - `011-sg-pilotage backlog` captures, defers, cleans, or promotes future work.
 - `011-sg-pilotage priorities` ranks active work for immediate execution order without executing it.
 - `011-sg-pilotage review` reconstructs what happened, what is proven, and what should happen next without replacing verification.
@@ -483,6 +482,7 @@ Operator roles and named profiles do not add new primary artifact types:
 - `300-sg-docs editorial`: editorial governance scaffolding and audit for public-content drift, claim register, page intent, and runtime content schema preservation.
 - `shipglows git` -> `sg-engineering github` -> `010-sg-technical`: PR/branch/worktree dashboard plus autonomous safe reconciliation and proven cleanup. Non-live projects integrate on `main`; explicitly live projects integrate on canonical `dev`, while `dev -> main` remains production-gated without a separate Git validation.
 - `shipglows hygiene` -> `sg-maintenance hygiene` -> `002-sg-maintain`: comprehensive current-project audit across Git residue, dependencies, security, documentation, checks, audits, and quality debt. Non-Git corrections remain proposal-only; standing-authority Git convergence may proceed through `github`, and multi-project scope stays explicit.
+- `shipglows tidy` (`ménage`) -> `sg-maintenance tidy` -> `002-sg-maintain`: one-pass current-project cleanup of workflow docs and specs, Git resting state (worktrees, branches, pull requests), Git storage, and orphan skill docs in ShipGlows core, behind one approval list; deletes rather than archives.
 - `003-sg-bug`: professional bug loop lifecycle executor (`107-sg-test -> bug file -> 106-sg-fix -> 107-sg-test --retest -> 103-sg-verify -> 005-sg-ship`).
 - `002-sg-maintain`: master project maintenance lifecycle for bugs, dependencies, docs, checks, audits, migrations, tasks, security posture, delegated remediation, verification, and ship/deploy routing.
 - `108-sg-browser`: generic non-auth browser verification through Playwright MCP for URLs, page-level assertions, screenshots, console summaries, and network summaries.
@@ -624,14 +624,15 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 ## Invariants
 
 - Lifecycle skills trace into exactly one chantier spec when one is identified.
-- `000-shipglows <instruction>` is a router, not a hidden master runner: it answers pure conversation directly, asks one numbered question when ambiguous, and otherwise hands the main thread to the selected skill. Its global `auto` mode hands off to `708-sg-auto`; registered execution posture tags are applied after owner/mode resolution.
+- `000-shipglows <instruction>` is a router, not a hidden master runner: it answers pure conversation directly, asks one numbered question when ambiguous, and otherwise hands the main thread to the selected skill. Its global `blitz` mode hands off to `708-sg-blitz`; registered execution posture tags are applied after owner/mode resolution.
 - `#local`, `#nolocal`, and `#ci` are transversal execution posture tags, not métier modes or authority grants. `#ci` implies `#nolocal`; `#local` conflicts with both; ordinary focus tags remain routing cues.
-- `708-sg-auto` is the internal owner for public `shipglows auto`. It selects several evidence-backed candidates when useful, ranks durable value per wall-clock minute after safety, authority, readiness, claim, and dirty-ownership gates, and always applies `no-local-execution-policy.md` implicitly.
-- Auto freezes the launch Git/managed root for the parent and every subagent. Concurrent conversations use ignored root-local claims to avoid duplicate candidates and overlapping paths. Subagents are authorized and recommended only when independent useful missions improve time, isolation, or coverage.
-- Auto never raises reasoning effort, creates agents, or generates output merely to consume credits. Fast is used only when the runtime proves it already active; the agent never self-activates it or edits user-level configuration.
+- `709-sg-auto` is the internal owner for public `shipglows auto`: autonomous whole-business improvement across every facet with no time pressure, effective `#local` proof (lint, tests, managed dev sessions), exact-scope milestone commits on the current branch, and no push, branch, CI dispatch, deployment, production, external write, spend or secret access. It asks the operator only when no safe candidate can progress.
+- `708-sg-blitz` is the internal owner for public `shipglows blitz`. It selects several evidence-backed candidates when useful, ranks durable value per wall-clock minute after safety, authority, readiness, claim, and dirty-ownership gates, and always applies `no-local-execution-policy.md` implicitly.
+- Blitz freezes the launch Git/managed root for the parent and every subagent. Concurrent conversations use ignored root-local claims to avoid duplicate candidates and overlapping paths. Subagents are authorized and recommended only when independent useful missions improve time, isolation, or coverage.
+- Blitz never raises reasoning effort, creates agents, or generates output merely to consume credits. Fast is used only when the runtime proves it already active; the agent never self-activates it or edits user-level configuration.
 - `shipglows nolocal <objective>` is a legacy compatibility alias normalized to `shipglows <objective> #nolocal`; it is not an autonomous selector or approval bypass.
-- Auto-session authority covers only safe reversible current-project local edits. It forbids builds, tests, lint, typechecks, installation, servers, browser/device work, containers, migrations, commits, pushes, deployments, destructive/privileged effects, secrets, permission/auth/billing/production changes, and self-expansion of its own guardrails.
-- Work produced under `auto`, `#nolocal`, or `#ci` remains `implemented — unverified` when its executable proof is deferred; commands or CI targets are reported but not executed, and lifecycle closure stays open.
+- Blitz-session authority covers only safe reversible current-project local edits. It forbids builds, tests, lint, typechecks, installation, servers, browser/device work, containers, migrations, commits, pushes, deployments, destructive/privileged effects, secrets, permission/auth/billing/production changes, and self-expansion of its own guardrails.
+- Work produced under `blitz`, `#nolocal`, or `#ci` remains `implemented — unverified` when its executable proof is deferred; commands or CI targets are reported but not executed, and lifecycle closure stays open.
 - `102-sg-start` implements from the ready contract; it should not rediscover product intent while coding.
 - Spec-first is the outer lifecycle contract; proof-first is the implementation discipline. Execution and verification skills choose a proof path (`test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof`) before claiming completion.
 - The Reader diagnoses docs impact; the executor or integrator applies docs updates.
@@ -695,7 +696,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - If a master skill patches in the master conversation merely because a file change is small while subagents are available, treat that as workflow drift. Small scope may use a mini-contract, but the execution mode remains delegated sequential for file work.
 - If `001-sg-build agents` touches files, runs validation, prepares closure, or prepares ship without launching a bounded subagent and without explicitly reporting degraded execution, treat that as workflow drift.
 - If the `000-shipglows <instruction>` router nests `001-sg-build`, `002-sg-maintain`, `003-sg-bug`, `004-sg-deploy`, `007-sg-content`, or `900-shipglows-core build` inside a subagent instead of handing off the main thread, treat that as workflow drift.
-- If `shipglows auto` runs a workload/external effect, leaves its frozen root, duplicates a fresh claimed scope, invents work or reasoning to consume credits, self-activates Fast, claims verification/compliance/closure, or modifies its own authority guardrails, treat that as workflow drift. If `#nolocal` bypasses ordinary mutation approval or selects a portfolio autonomously, if `#ci` triggers remote work, or if conflicting posture tags are resolved by argument order, treat the execution-posture boundary as failed.
+- If `shipglows blitz` runs a workload/external effect, leaves its frozen root, duplicates a fresh claimed scope, invents work or reasoning to consume credits, self-activates Fast, claims verification/compliance/closure, or modifies its own authority guardrails, treat that as workflow drift. If `#nolocal` bypasses ordinary mutation approval or selects a portfolio autonomously, if `#ci` triggers remote work, or if conflicting posture tags are resolved by argument order, treat the execution-posture boundary as failed.
 - If a short natural-language confirmation is treated as consent for parallel writes without ready non-overlapping `Execution Batches`, treat that as workflow drift. Independent read-only parallel fan-out remains the default.
 - If future projects are told to rerun ShipGlows's shipped governance specs instead of using `305-sg-init` and `300-sg-docs`, treat that as workflow drift.
 - If a new skill exists under `skills/<name>/SKILL.md` but is missing from current-user Claude or Codex skill directories, treat the skill lifecycle as incomplete until the runtime symlinks are repaired.

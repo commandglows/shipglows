@@ -34,7 +34,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Wave 13 removed the reverse lifecycle dependency and aligned layering status/version with current runtime truth."
-  - "Spec spec-driven-tdd-evidence-gates.md keeps ShipGlows spec-driven development as the outer lifecycle and adds proof-first implementation discipline."
+  - "Spec-driven TDD evidence gates keep ShipGlows spec-driven development as the outer lifecycle and adds proof-first implementation discipline."
   - "User decision 2026-05-24: proof paths must support high-quality code and durable decisions, not just the quickest passing change."
   - "User decision 2026-05-24: for Flutter mobile work, prove common UI first with widget tests and Flutter Web smoke before asking for APK/device testing."
   - "Conversation audit 2026-06-09: UI and product behavior claims need an explicit proof path or proof gap before being reported as fixed."

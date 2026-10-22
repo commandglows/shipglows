@@ -121,6 +121,29 @@ try {
     try { & $module { param($Project,$Npm) function Get-SgCommandPath { $Npm }; Get-SgNodePackageManager $Project | Out-Null } $npmConflict $fakeNpm } catch { $conflictMessage = $_.Exception.Message }
     if ($conflictMessage -notmatch 'packageManager and lockfile conflict') { throw 'A pnpm packageManager beside an npm lockfile was not refused as a conflict.' }
 
+    $pubRoot = Join-Path $fixture 'pub'
+    $pubApp = Join-Path $pubRoot 'app'
+    $pubMiddle = Join-Path $pubRoot 'packages\middle'
+    $pubLeaf = Join-Path $pubRoot 'packages\leaf'
+    New-Item -ItemType Directory -Path $pubApp,$pubMiddle,$pubLeaf -Force | Out-Null
+    $pubCapture = Join-Path $fixture 'flutter-argv.txt'
+    $fakeFlutter = Join-Path $fixture 'flutter.cmd'
+    [IO.File]::WriteAllText($fakeFlutter, "@echo off`r`n>>`"$pubCapture`" echo %*`r`nif not exist .dart_tool mkdir .dart_tool`r`necho {}>.dart_tool\package_config.json`r`n", [Text.Encoding]::ASCII)
+    [IO.File]::WriteAllText((Join-Path $pubApp 'pubspec.yaml'), "name: app`ndependencies:`n  flutter:`n    sdk: flutter`n  middle:`n    path: ../packages/middle`nflutter:`n  uses-material-design: true`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $pubMiddle 'pubspec.yaml'), "name: middle`ndependencies:`n  leaf: {path: ../leaf}`n  remote:`n    git:`n      url: https://example.invalid/remote.git`n      path: ../../missing`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $pubLeaf 'pubspec.yaml'), "name: leaf`ndev_dependencies:`n  middle:`n    path: '../middle'`n", [Text.UTF8Encoding]::new($false))
+    $invokePub = { & $module { param($Config,$Project,$Log,$Flutter) function Get-SgFlutterCommandPath { $Flutter }; Invoke-SgDependencySetup $Config $Project 'flutter-web' $Log } $config $pubApp (Join-Path $fixture 'pub.log') $fakeFlutter 6>&1 }
+    $pubInputs = @(& $module { param($Project) (Get-SgDependencyInputs $Project 'flutter-web').Label } $pubApp)
+    if ($pubInputs -notcontains 'path-dependency/../packages/middle/pubspec.yaml' -or $pubInputs -notcontains 'path-dependency/../packages/leaf/pubspec.yaml' -or $pubInputs.Count -ne 3) { throw "Transitive path dependencies were not fingerprinted exactly once: $($pubInputs -join ', ')" }
+    $pubInstalled = @(& $invokePub)
+    if ($pubInstalled -notcontains $true -or (Get-Content -Raw $pubCapture).Trim() -ne 'pub get') { throw 'First Flutter dependency setup did not run pub get.' }
+    $pubReused = @(& $invokePub)
+    if ($pubReused -contains $true -or @(Get-Content $pubCapture).Count -ne 1 -or -not ($pubReused -match 'Dependencies unchanged')) { throw 'Unchanged Flutter path dependencies re-ran pub get.' }
+    Add-Content -LiteralPath (Join-Path $pubLeaf 'pubspec.yaml') "dependencies:`n  extra:`n    path: ../extra" -Encoding UTF8
+    $pubChanged = @(& $invokePub)
+    if ($pubChanged -notcontains $true -or @(Get-Content $pubCapture).Count -ne 2) { throw 'A transitive path dependency pubspec change did not re-run pub get.' }
+    if (-not ($pubChanged -match 'Dependencies changed: path dependency \.\./packages/leaf modified')) { throw "The changed path dependency was not named: $($pubChanged -join ' | ')" }
+
     $concurrent = Join-Path $fixture 'concurrent'
     New-Item -ItemType Directory -Path $concurrent -Force | Out-Null
     Set-Content (Join-Path $concurrent 'package.json') '{}' -Encoding UTF8

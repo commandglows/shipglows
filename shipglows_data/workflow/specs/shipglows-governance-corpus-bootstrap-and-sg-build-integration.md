@@ -20,7 +20,6 @@ docs_impact: yes
 linked_systems:
   - skills/sg-init/SKILL.md
   - skills/sg-docs/SKILL.md
-  - specs/sg-build-autonomous-master-skill.md
   - skills/references/technical-docs-corpus.md
   - skills/references/editorial-content-corpus.md
   - docs/technical/
@@ -44,9 +43,6 @@ depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.7.0"
     required_status: draft
-  - artifact: "shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md"
-    artifact_version: "1.1.0"
-    required_status: ready
   - artifact: "shipglows_data/workflow/specs/shipglows-technical-documentation-layer-for-ai-agents.md"
     artifact_version: "1.0.2"
     required_status: ready

@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-04"
+updated: "2026-10-20"
 status: active
 source_skill: 006-sg-design
 scope: animation-playbook
@@ -28,7 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Provider-neutral animation workflow approved through the sg-design-animation-mode ready spec on 2026-08-04."
+  - "Provider-neutral animation workflow approved by the operator on 2026-08-04."
 next_review: "2026-09-04"
 next_step: "/103-sg-verify sg-design-animation-mode"
 ---
@@ -80,6 +80,8 @@ unrelated reveals.
 
 ## Adapter Selection
 
+Runtime and export-format choices (Rive, Lottie/dotLottie, motion libraries) follow `$SHIPGLOWS_ROOT/skills/references/interactive-animation-runtime-contract.md`.
+
 Choose the smallest project-native solution that satisfies the contract. CSS
 transitions, the Web Animations API, and framework-native motion can be better
 fits than a library.
@@ -107,7 +109,7 @@ not approval to add it.
   than copying desktop distances to tablet or mobile.
 - Content remains available if JavaScript, observers, or the animation engine
   fail. Never hide critical content solely until an animation initializes.
-- For React, Vue, Astro islands, or equivalent client boundaries, define scoped
+- For Vue (Tauri webview), Astro islands, Flutter widget boundaries, or equivalent client boundaries, define scoped
   initialization, mount/unmount cleanup, route-transition behavior, and
   duplicate initialization prevention. Dispose timelines, listeners, and
   scroll observers/triggers owned by the component or route.

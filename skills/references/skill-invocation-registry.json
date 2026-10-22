@@ -169,6 +169,7 @@
             "runtime_skill": "002-sg-maintain",
             "modes": [
               "quick",
+              "tidy",
               "full",
               "security",
               "deps",
@@ -335,6 +336,7 @@
               "editorial",
               "duplicata",
               "duplicates",
+              "tidy",
               "add-project"
             ],
             "internal_engines": [
@@ -421,11 +423,12 @@
       "modes": [
         "default",
         "context",
+        "blitz",
         "auto"
       ],
       "mode_routes": {
-        "auto": {
-          "runtime_engine": "708-sg-auto",
+        "blitz": {
+          "runtime_engine": "708-sg-blitz",
           "min_args": 0,
           "forbidden_first_args": [
             "local"
@@ -436,6 +439,10 @@
           "implied_execution_tags": [
             "nolocal"
           ]
+        },
+        "auto": {
+          "runtime_engine": "709-sg-auto",
+          "min_args": 0
         }
       },
       "legacy_execution_aliases": {
@@ -451,7 +458,8 @@
         }
       },
       "internal_engines": [
-        "708-sg-auto"
+        "708-sg-blitz",
+        "709-sg-auto"
       ]
     }
   },
@@ -602,6 +610,24 @@
         }
       ]
     },
+    "tidy": {
+      "public_owner": "sg-maintenance",
+      "owner_mode": "tidy",
+      "runtime_engine": "002-sg-maintain",
+      "resolution": "direct"
+    },
+    "menage": {
+      "public_owner": "sg-maintenance",
+      "owner_mode": "tidy",
+      "runtime_engine": "002-sg-maintain",
+      "resolution": "direct"
+    },
+    "ménage": {
+      "public_owner": "sg-maintenance",
+      "owner_mode": "tidy",
+      "runtime_engine": "002-sg-maintain",
+      "resolution": "direct"
+    },
     "capture": {
       "public_owner": "sg-content",
       "owner_mode": "capture",
@@ -679,6 +705,9 @@
           "hosted-proof": [
             "skills/references/preview-proof-routing.md",
             "skills/004-sg-deploy/references/release-proof-routing.md"
+          ],
+          "rollback-recovery": [
+            "skills/004-sg-deploy/references/release-rollback-recovery.md"
           ],
           "multi-stage-lifecycle": [
             "skills/references/master-workflow-lifecycle-core.md",
@@ -1178,8 +1207,8 @@
           ]
         }
       },
-      "708-sg-auto": {
-        "body": "skills/708-sg-auto/SKILL.md",
+      "708-sg-blitz": {
+        "body": "skills/708-sg-blitz/SKILL.md",
         "baseline": [
           "skills/references/canonical-paths.md",
           "skills/references/execution-posture-tags.md",
@@ -1188,10 +1217,35 @@
         ],
         "gates": {
           "candidate-loop": [
-            "skills/708-sg-auto/references/auto-credit-window-playbook.md"
+            "skills/708-sg-blitz/references/blitz-credit-window-playbook.md"
           ],
           "multi-session-coordination": [
-            "skills/708-sg-auto/references/auto-session-coordination.md"
+            "skills/708-sg-blitz/references/blitz-session-coordination.md"
+          ],
+          "delegation": [
+            "skills/references/master-delegation-semantics.md"
+          ],
+          "report": [
+            "skills/references/reporting-contract.md"
+          ]
+        }
+      },
+      "709-sg-auto": {
+        "body": "skills/709-sg-auto/SKILL.md",
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/references/execution-posture-tags.md",
+          "skills/references/mutation-plan-approval.md"
+        ],
+        "gates": {
+          "improvement-loop": [
+            "skills/709-sg-auto/references/auto-improvement-loop.md"
+          ],
+          "authority": [
+            "skills/references/mutation-auto-authority.md"
+          ],
+          "multi-session-coordination": [
+            "skills/708-sg-blitz/references/blitz-session-coordination.md"
           ],
           "delegation": [
             "skills/references/master-delegation-semantics.md"
@@ -3574,7 +3628,7 @@
           "skills/references/reporting-contract.md"
         ]
       },
-      "authority-auto-selection": {
+      "authority-blitz-selection": {
         "entry": "skills/references/mutation-plan-approval.md",
         "selected_engine": "skills/references/mutation-plan-approval.md",
         "reads": [
@@ -3586,10 +3640,10 @@
             "reason": "Select standing authority without broad activation"
           },
           {
-            "path": "skills/references/mutation-auto-authority.md",
+            "path": "skills/references/mutation-blitz-authority.md",
             "parent": "skills/references/mutation-plan-approval.md",
             "stage": "authority",
-            "trigger": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+            "trigger": "Explicit shipglows blitz in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
             "reason": "Apply selected authority restrictions"
           },
           {
@@ -3620,13 +3674,13 @@
           }
         ],
         "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
-        "prompt": "authority-auto-selection",
+        "prompt": "authority-blitz-selection",
         "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
-        "assumptions": "Explicit shipglows auto in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
+        "assumptions": "Explicit shipglows blitz in a known frozen project; authority checkpoint before candidate selection or any edit. No Git or external action.",
         "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
         "required_reads": [
           "skills/references/mutation-plan-approval.md",
-          "skills/references/mutation-auto-authority.md",
+          "skills/references/mutation-blitz-authority.md",
           "skills/references/no-local-execution-policy.md"
         ]
       },
@@ -3645,7 +3699,7 @@
             "path": "skills/references/mutation-git-authority.md",
             "parent": "skills/references/mutation-plan-approval.md",
             "stage": "authority",
-            "trigger": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+            "trigger": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Blitz, nolocal, milestone or final delivery.",
             "reason": "Apply selected authority restrictions"
           },
           {
@@ -3678,7 +3732,7 @@
         "baseline_state": "Working-tree baseline before shared authority/reporting extraction; includes approved local planning pilot. Estimates are not provider telemetry.",
         "prompt": "authority-git-selection",
         "checkpoint": "Authority and applicable policy loaded before any mutation; not complete task cost",
-        "assumptions": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Auto, nolocal, milestone or final delivery.",
+        "assumptions": "Ordinary in-scope Git stewardship; resolve permitted integration target before any mutation. Not Blitz, nolocal, milestone or final delivery.",
         "scope": "Declared consumer checkpoint, excludes project evidence and later action/reporting",
         "required_reads": [
           "skills/references/mutation-plan-approval.md",
@@ -4078,6 +4132,9 @@
         "duplicates": {
           "min_args": 0
         },
+        "tidy": {
+          "min_args": 0
+        },
         "migrate": {
           "min_args": 0
         },
@@ -4115,7 +4172,11 @@
         }
       }
     },
-    "708-sg-auto": {
+    "708-sg-blitz": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "709-sg-auto": {
       "kind": "freeform",
       "min_args": 0
     },

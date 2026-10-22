@@ -1,0 +1,2 @@
+# Byte-exact fixtures: frozen sha256 provenance must not see CRLF conversion.
+tools/fixtures/conditional_skill_routing/** -text

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-05-24"
+updated: "2026-10-20"
 status: active
 source_skill: 102-sg-start
 scope: editorial-content-corpus
@@ -71,6 +71,7 @@ Use these contracts to bound public copy:
 - `shipglows_data/technical/guidelines.md`: internal language doctrine and documentation rules.
 - `shipglows_data/business/project-competitors-and-inspirations.md`: optional competitors, alternatives, inspiration, and anti-pattern registry.
 - `shipglows_data/business/affiliate-programs.md`: optional affiliate, referral, partner, sponsorship, and disclosure registry.
+- `skills/references/public-author-and-social-identity-contract.md`: authorId, bylines, public contact identity, and official social profiles.
 - Ready specs and verified implementation behavior when the public claim depends on a recent change.
 
 ## Public Surface Sources

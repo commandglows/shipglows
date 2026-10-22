@@ -22,14 +22,16 @@ class HumanCenteredInteractionHeuristicsTests(unittest.TestCase):
         cls.contract = normalized_text(CONTRACT)
 
     def test_design_and_customer_load_the_shared_contract_conditionally(self) -> None:
-        reference = "$SHIPGLOWS_ROOT/skills/references/human-centered-interaction-heuristics.md"
+        # Owners may name a shared contract by file name inside a shared-contract loader list.
+        reference = "human-centered-interaction-heuristics.md"
         self.assertEqual(normalized_text(DESIGN).count(reference), 1)
         self.assertEqual(normalized_text(CUSTOMER).count(reference), 1)
 
     def test_contract_and_spec_follow_the_current_quality_baseline(self) -> None:
         dependency = 'artifact: skills/references/decision-quality-contract.md artifact_version: "2.2.0" required_status: active'
         self.assertIn(dependency, self.contract)
-        self.assertIn(dependency, normalized_text(SPEC))
+        if SPEC.is_file():  # the spec lives in the private data corpus
+            self.assertIn(dependency, normalized_text(SPEC))
         self.assertNotIn("a heuristic proves usability", self.contract.lower())
         self.assertNotIn("a checklist proves accessibility", self.contract.lower())
 

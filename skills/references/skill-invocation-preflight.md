@@ -53,7 +53,7 @@ It removes only the registry-declared execution posture tags `#local`,
 `#nolocal`, and `#ci` before resolving the command, then returns requested and
 effective tags. `#ci` implies `#nolocal`; conflicts are invalid. Other focus
 tags remain part of the instruction. Mode-implied posture is applied after
-routing, so `shipglows auto` always receives effective `#nolocal` and rejects
+routing, so `shipglows blitz` always receives effective `#nolocal` and rejects
 `#local`. The legacy `shipglows nolocal <objective>` form normalizes to the
 default router objective plus `#nolocal`.
 

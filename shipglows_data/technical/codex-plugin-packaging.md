@@ -21,12 +21,8 @@ linked_systems:
   - /home/claude/plugins/shipglows/skills/shipglows/SKILL.md
   - /home/claude/plugins/shipglows/assets/docs-links.json
   - /home/claude/.agents/plugins/marketplace.json
-  - shipglows_data/workflow/specs/shipglows-main-plugin-and-pack-portability.md
   - skills/900-shipglows-core/SKILL.md
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/shipglows-main-plugin-and-pack-portability.md"
-    artifact_version: "1.0.0"
-    required_status: ready
+depends_on: []
 supersedes: []
 evidence:
   - "2026-06-11 shipglows plugin installed as shipglows@personal."

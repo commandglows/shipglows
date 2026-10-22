@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-05"
-updated: "2026-08-16"
+updated: "2026-10-20"
 status: active
 source_skill: 000-shipglows
 scope: codex-expert-mode-aliases
@@ -65,6 +65,7 @@ owner and selected internal engine.
 | `browser` | `sg-engineering` | `browser` | `108-sg-browser` |
 | `git` | `sg-engineering` | `github` | `010-sg-technical` |
 | `hygiene` | `sg-maintenance` by default; `sg-engineering` for explicit Git scope | `hygiene` or `github clean` | `002-sg-maintain` or `010-sg-technical` |
+| `tidy`, `ménage` | `sg-maintenance` | `tidy` | `002-sg-maintain` |
 | `capture` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
 | `tmux` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
 | `ship` | `sg-release` | `ship` | `005-sg-ship` |
@@ -76,6 +77,8 @@ grouped proposal across maintenance families; corrections require a new exact
 approval. `shipglows hygiene git` specializes exactly to the safe
 `shipglows git clean` skill workflow. It never invokes native `git clean`.
 Workspace or multi-project hygiene is rejected rather than silently widened.
+
+`shipglows tidy` (alias `ménage`) is the current-project cleanup: workflow docs and specs, Git resting state, Git storage upkeep, and, inside ShipGlows itself, orphan skill documentation. It returns one consolidated approval packet and deletes rather than archives; Git history is the archive.
 
 `verify` preserves specialist ownership when its scope is explicit: design,
 accessibility, UI, or animation routes to `sg-design`; SEO or search routes to

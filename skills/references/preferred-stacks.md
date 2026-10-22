@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.1"
+artifact_version: "1.5.2"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-10-19"
+updated: "2026-10-20"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -65,6 +65,11 @@ rediscover ShipGlows's habitual stack.
 
 ## Canonical Defaults
 
+### Not used in the portfolio
+
+- React, Next.js, React Native, Expo and Svelte are not used and are rejected for every surface. No ShipGlows project depends on them; do not propose them as options, comparison rows or defaults.
+- Vue 3 is kept only for the Tauri webview (rare desktop exception) and for rich reactive UI inside the browser-extension and Obsidian presets below.
+
 ### Public and SEO-sensitive websites
 
 - Framework: Astro.
@@ -119,7 +124,7 @@ Deployment entrypoints such as Vercel build commands should be expressible from 
 - Derive launch browsers from the accepted product footprint; prepare distinct
   browser outputs without treating shared source as runtime parity.
 - Keep simple UI native. Use Vue 3 only for rich reactive UI; keep background
-  logic framework-free. React is not the default.
+  logic framework-free. React is not used.
 - Use explicit popup, options, background and content-script entrypoints;
   request only the permissions justified by the accepted behavior.
 - Disable WXT's automatic browser startup in the project configuration so host

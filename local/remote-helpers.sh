@@ -6,7 +6,7 @@ shipglows_local_config_dir() {
 }
 
 shipglows_legacy_local_config_dir() {
-    printf '%s\n' "${SHIPGLOWS_LEGACY_LOCAL_CONFIG_DIR:-${SHIPGLOWS_LEGACY_LOCAL_CONFIG_DIR:-$HOME/.shipglows}}"
+    printf '%s\n' "${SHIPGLOWS_LEGACY_LOCAL_CONFIG_DIR:-$HOME/.shipglows}"
 }
 
 shipglows_local_config_file() {
@@ -757,7 +757,7 @@ _load_remote_host_core() {
     if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
         :
     else
-        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}}"
+        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
         if [ -z "$REMOTE_HOST" ] && grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
             REMOTE_HOST="hetzner"
         fi

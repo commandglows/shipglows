@@ -2153,6 +2153,10 @@ if ($codexReady -and ($env:SHIPGLOWS_CODEX_PERMISSION_MODE -or $env:SHIPGLOWS_AU
     $codexPermissionMode = Resolve-SgCodexPermissionMode $codexConfigPath
     if ($codexPermissionMode -ne 'keep') { [void](Set-SgCodexPermissionMode $codexPermissionMode $codexConfigPath) }
 }
+if ($codexReady) {
+    try { if (Set-SgCodexTuiDefaults (Join-Path $env:USERPROFILE '.codex\config.toml')) { Write-Host 'Codex TUI defaults configured.' -ForegroundColor Green } }
+    catch { Write-SgInstallerWarning "Codex TUI defaults were not applied: $($_.Exception.Message)" }
+}
 $dartPath = if ($flutterReady) { Join-Path (Split-Path (Get-SgToolPath 'flutter.bat' $flutterPaths) -Parent) 'dart.bat' } else { '' }
 [void]$androidInfo
 $nativeNpx = Get-SgNativeNpxPath $npxPaths

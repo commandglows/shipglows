@@ -124,7 +124,7 @@ Editorial:
 Execution:
 
 ```text
-🟠 [ShipGlows] task: Add tracker-routing support for editorial roadmap writes across content audit skills | status: todo | area: workflow-editorial-governance | spec: shipglows_data/workflow/specs/workflow-vs-editorial-roadmap-split.md
+🟠 [ShipGlows] task: Add tracker-routing support for editorial roadmap writes across content audit skills | status: todo | area: workflow-editorial-governance
 ```
 
 ## Maintenance Rule

@@ -29,9 +29,6 @@ linked_systems:
   - "skills/309-sg-tasks/SKILL.md"
   - "tui/"
 depends_on:
-  - artifact: "shipglows_data/workflow/specs/shipglows-tdd-and-manual-checklist-artifacts.md"
-    artifact_version: "1.0.0"
-    required_status: ready
   - artifact: "shipglows_data/workflow/playbooks/README.md"
     artifact_version: "1.1.0"
     required_status: draft

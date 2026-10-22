@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "0.1.1"
+artifact_version: "0.1.2"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-10-19"
+updated: "2026-10-21"
 status: active
 source_skill: 900-shipglows-core
 scope: external-platform-vercel
@@ -26,6 +26,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Operator decision 2026-10-21: do not install the official Vercel agent plugin (vercel/vercel-plugin); Vercel MCP plus CLI cover the need."
   - "Operator decision 2026-09-04: use Pro for private organization repository deployment while keeping credit consumption measured, controlled, observed, and planned."
   - "Fresh official Vercel docs checked on 2026-09-04 for Pro plans, spend management, builds, deployment protection, WAF, observability, analytics, and MCP."
   - "Fresh external docs checked on 2026-05-24 against official Vercel deployment, CLI, logs, environment variables, system environment variables, and changelog pages."
@@ -104,6 +105,7 @@ Use `fresh-docs conflict` when current Vercel docs or provider state contradict 
 - `sg-deploy` owns orchestration around release confidence and should route Vercel provider truth to `sg-prod`.
 - `sg-auth-debug` must use hosted proof for auth issues involving OAuth callbacks, cookies, provider dashboards, deployment env, domain, Edge/serverless runtime, or preview/prod differences.
 - Prefer Vercel MCP as the primary source for deployment state when available. Use Vercel CLI as a practical fallback or when the CLI provides more direct evidence for logs/env/deploy commands.
+- Do not install the official Vercel agent plugin (`vercel/vercel-plugin`) on Claude Code or Codex (operator decision 2026-10-21). Vercel MCP already acts on the account and searches current Vercel docs; the CLI covers direct commands. The plugin would add third-party session hooks, default-on telemetry, and skills overlapping ShipGlows routing. Revisit only if Next.js/Vercel coding work becomes frequent; install would then be `vercel setup --plugin` with `VERCEL_PLUGIN_TELEMETRY=off`.
 - A Vercel preview URL alone is not enough proof. Record whether the deployment is ready, which commit/branch it represents, and whether logs/runtime state were checked when relevant.
 - Environment variable work must distinguish Production, Preview, Development, and Custom environments. Do not assume `.env.local` proves deployed environments.
 - For project docs, name expected env var keys and environment categories, but never record secret values.

@@ -1,10 +1,12 @@
-# TubeFlow YouTube OAuth Next.js + Convex Pattern
+# TubeFlow YouTube OAuth Astro + Convex Pattern
 
 ## Purpose
 
-This document describes the working TubeFlow YouTube OAuth flow in the Next.js implementation at `$HOME/tubeflow`.
+This document describes the YouTube OAuth flow validated in the TubeFlow prototype (originally built as a Next.js app, now not in the portfolio). The portfolio stack for new work is Astro (web routes on Vercel), Convex (backend) and Flutter (clients).
 
-Use it as a reference when implementing or debugging YouTube connection in Flutter or other clients. The point is not to copy the Next.js code line-for-line, but to preserve the same security boundaries and token lifecycle.
+Use it as a reference when implementing or debugging YouTube connection in Flutter (native or web) or in an Astro site. The point is not to copy code line-for-line, but to preserve the same security boundaries and token lifecycle.
+
+Status: no project under `C:\Users\Diane\ShipGlows\` implements this flow as of 2026-10-20. The TubeFlow checkout it came from is not on this machine, so the file layout below is a target layout, not a path to copy from.
 
 Last reviewed: 2026-04-26
 
@@ -15,7 +17,7 @@ TubeFlow uses two separate auth layers:
 - Clerk authenticates the TubeFlow user.
 - Google OAuth authorizes access to that user's YouTube account.
 
-The YouTube OAuth tokens are stored server-side in Convex, scoped to the authenticated Clerk user. The frontend never calls YouTube Data API directly with long-lived credentials.
+The YouTube OAuth tokens are stored server-side in Convex, scoped to the authenticated Clerk user. The client (Flutter or Astro page script) never calls YouTube Data API directly with long-lived credentials.
 
 ## Working Flow
 
@@ -24,70 +26,69 @@ Signed-in Clerk user
   -> clicks Connect YouTube
   -> client stores Clerk sessionId in short-lived cookie
   -> browser navigates to /api/auth/youtube
-  -> Next.js route creates OAuth state cookie
+  -> Astro server route creates OAuth state cookie
   -> route redirects to Google OAuth consent screen
   -> Google redirects to /api/auth/youtube/callback
   -> callback validates state cookie
   -> callback reads Clerk sessionId cookie
   -> callback asks Clerk for a Convex JWT for that session
   -> callback exchanges Google code for YouTube tokens
-  -> callback authenticates ConvexHttpClient with Convex JWT
+  -> callback authenticates the Convex HTTP client with Convex JWT
   -> callback calls Convex mutation saveYoutubeTokens
   -> Convex stores YouTube tokens on the current user
   -> browser redirects to /playlists?youtube_connected=true
   -> client queries Convex connection status and fetches playlists
 ```
 
-## Key Files In TubeFlow
+## Target File Layout
 
-- `$HOME/tubeflow/apps/web/src/app/api/auth/youtube/route.ts`
-- `$HOME/tubeflow/apps/web/src/app/api/auth/youtube/callback/route.ts`
-- `$HOME/tubeflow/apps/web/src/hooks/use-youtube.ts`
-- `$HOME/tubeflow/apps/web/src/components/youtube/YouTubeConnectPrompt.tsx`
-- `$HOME/tubeflow/packages/backend/convex/youtube.ts`
-- `$HOME/tubeflow/packages/backend/convex/schema.ts`
-- `$HOME/tubeflow/packages/backend/convex/auth.config.ts`
-- `$HOME/tubeflow/apps/web/src/lib/site.ts`
-- `$HOME/tubeflow/apps/web/.env.example`
-- `$HOME/tubeflow/turbo.json`
+Suggested locations for a new implementation (none exist yet):
+
+- Astro SSR routes (`output: "server"` with an SSR adapter): `src/pages/api/auth/youtube.ts` and `src/pages/api/auth/youtube/callback.ts`
+- Astro page client handoff: a vanilla `<script>` in the `.astro` page that starts the connect action
+- Convex functions (`.ts`): `convex/youtube.ts`, `convex/schema.ts`, `convex/auth.config.ts`
+- Flutter client: a connection-status provider (Riverpod) that reads the Convex status query
+- Env template: `.env.example` at the Astro site root
 
 ## Required Environment
 
-Frontend / Next.js:
+Astro server (SSR routes):
 
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+- `PUBLIC_GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
-- `NEXT_PUBLIC_APP_URL`
-- `NEXT_PUBLIC_CONVEX_URL`
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `PUBLIC_APP_URL`
+- `PUBLIC_CONVEX_URL`
+- `PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `CLERK_SECRET_KEY`
 
 Convex:
 
 - `CLERK_JWT_ISSUER_DOMAIN`
 - Google OAuth credentials if token refresh actions run inside Convex:
-  - `GOOGLE_CLIENT_ID` or `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+  - `GOOGLE_CLIENT_ID`
   - `GOOGLE_CLIENT_SECRET`
+
+Flutter: publishable key, Convex URL and Google client ID injected per environment. Never the Google client secret.
 
 Google Cloud Console:
 
 - OAuth client type: Web application.
 - Authorized redirect URI for local:
-  - `http://localhost:3000/api/auth/youtube/callback`
+  - `http://localhost:<dev-port>/api/auth/youtube/callback` (the Astro dev server port in use)
 - Authorized redirect URI for production:
   - `https://<APP_DOMAIN>/api/auth/youtube/callback`
 
-TubeFlow has a production checklist item for this in `$HOME/tubeflow/SPEC-production-checklist.md`.
+Add the production redirect URI to the production checklist before launch.
 
 ## Initiation Route
 
 Route: `GET /api/auth/youtube`
 
-Implementation: `$HOME/tubeflow/apps/web/src/app/api/auth/youtube/route.ts`
+Implementation: an Astro SSR route (target layout above).
 
 Responsibilities:
 
-- require `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+- require `PUBLIC_GOOGLE_CLIENT_ID`
 - compute `REDIRECT_URI`
 - generate random `state`
 - store `youtube_oauth_state` as an HTTP-only cookie
@@ -109,17 +110,12 @@ Important detail:
 
 ## Client Session Handoff
 
-Before navigating to `/api/auth/youtube`, the React client stores the current Clerk session ID in a short-lived cookie:
+Before navigating to `/api/auth/youtube`, the client stores the current Clerk session ID in a short-lived cookie. On Astro, this is a vanilla script in the page; on Flutter web, the same write runs through a JS interop bridge.
 
-```ts
+```js
 document.cookie = `clerk_session_id=${sessionId}; path=/; max-age=600; SameSite=Lax`;
 window.location.href = "/api/auth/youtube";
 ```
-
-This appears in:
-
-- `useYoutubeConnection()` in `$HOME/tubeflow/apps/web/src/hooks/use-youtube.ts`
-- `YouTubeConnectPrompt` in `$HOME/tubeflow/apps/web/src/components/youtube/YouTubeConnectPrompt.tsx`
 
 Purpose:
 
@@ -133,7 +129,7 @@ The cookie is short-lived and same-site. It is not the Google token and should b
 
 Route: `GET /api/auth/youtube/callback`
 
-Implementation: `$HOME/tubeflow/apps/web/src/app/api/auth/youtube/callback/route.ts`
+Implementation: an Astro SSR route (target layout above).
 
 Responsibilities:
 
@@ -142,9 +138,9 @@ Responsibilities:
 - verify `state` against `youtube_oauth_state` cookie
 - read `clerk_session_id` cookie
 - exchange `code` for Google tokens at `https://oauth2.googleapis.com/token`
-- use `clerkClient().sessions.getToken(sessionId, "convex")`
-- authenticate `ConvexHttpClient` with that Convex JWT
-- call `api.youtube.saveYoutubeTokens`
+- request a Convex JWT from the Clerk backend API with `sessions.getToken(sessionId, "convex")`
+- authenticate the Convex HTTP client with that Convex JWT
+- call the `saveYoutubeTokens` mutation
 - delete `youtube_oauth_state` and `clerk_session_id`
 - redirect to `/playlists?youtube_connected=true`
 
@@ -176,7 +172,7 @@ Fields:
 
 Mutation: `saveYoutubeTokens`
 
-Location: `$HOME/tubeflow/packages/backend/convex/youtube.ts`
+Location: `convex/youtube.ts`
 
 Behavior:
 
@@ -188,7 +184,7 @@ Behavior:
 
 Action: `refreshYoutubeToken`
 
-Location: `$HOME/tubeflow/packages/backend/convex/youtube.ts`
+Location: `convex/youtube.ts`
 
 Behavior:
 
@@ -220,46 +216,42 @@ Example: `fetchYoutubePlaylists`
 - stores playlist data in Convex cache tables
 - logs quota metrics
 
-The frontend reads cached data from Convex queries instead of calling YouTube directly.
+Clients read cached data from Convex queries instead of calling YouTube directly.
 
 ## UI Contract
 
-Connection status hook:
-
-- `useYoutubeConnection()`
-- reads `api.youtube.getYoutubeConnectionStatus`
-- exposes `isConnected`, `isLoading`, `connect`, `disconnect`
+Connection status (Flutter): a Riverpod provider that reads the Convex `getYoutubeConnectionStatus` query and exposes `isConnected`, `isLoading`, `connect`, `disconnect`.
 
 When not connected:
 
-- `YouTubeConnectPrompt` checks Clerk signed-in state.
+- the client checks the Clerk signed-in state.
 - if not signed in to TubeFlow, it shows Clerk sign-in.
 - if signed in, it shows Connect YouTube.
 
 After callback:
 
-- `/playlists?youtube_connected=true` shows success toast.
-- `/playlists?youtube_error=...` shows error toast.
-- router removes the query param after displaying feedback.
+- `/playlists?youtube_connected=true` shows success feedback.
+- `/playlists?youtube_error=...` shows error feedback.
+- the route removes the query param after displaying feedback.
 
 ## What Flutter Can Reuse
 
 Flutter should preserve the same backend-owned token lifecycle:
 
 - user authenticates with Clerk
-- app obtains a server/Convex-authenticated identity
+- app obtains a Convex-authenticated identity
 - YouTube OAuth happens through a web route or browser session
 - backend exchanges the Google code for tokens
 - backend stores refresh token server-side
 - Flutter never stores the YouTube refresh token locally
-- Flutter calls Convex/FastAPI app APIs, not YouTube Data API directly
+- Flutter calls Convex app APIs, not YouTube Data API directly
 
 For Flutter web:
 
 - reuse the browser redirect pattern.
-- start YouTube OAuth by opening a backend/Next-style route.
+- start YouTube OAuth by opening the Astro backend route.
 - return to a same-origin callback route.
-- then refresh app state from Convex/backend.
+- then refresh app state from Convex.
 
 For native Flutter:
 
@@ -270,9 +262,9 @@ For native Flutter:
 
 ## Common Failure Modes
 
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` missing.
+- `PUBLIC_GOOGLE_CLIENT_ID` missing.
 - `GOOGLE_CLIENT_SECRET` missing.
-- `NEXT_PUBLIC_APP_URL` does not match the actual app domain.
+- `PUBLIC_APP_URL` does not match the actual app domain.
 - Google Cloud lacks the exact callback URI.
 - `youtube_oauth_state` cookie missing or mismatched.
 - `clerk_session_id` cookie missing at callback.
@@ -283,6 +275,7 @@ For native Flutter:
 - Token refresh action lacks Google OAuth credentials in Convex environment.
 - YouTube API returns 401/403 because scopes are insufficient or tokens were revoked.
 - Callback returns JSON 500 instead of redirecting, which helps debugging but is not ideal final UX.
+- Astro site built without `output: "server"`, so the SSR callback route does not exist at runtime.
 
 ## Security Notes
 

@@ -112,4 +112,55 @@ function Get-SgCodexPlaywrightPrerequisiteStatus([string]$CodexPath, [string]$No
     return [pscustomobject]@{ Ready=$true; Message=''; CodexPath=[IO.Path]::GetFullPath($CodexPath); NodePath=[IO.Path]::GetFullPath($NodePath); NpxPath=[IO.Path]::GetFullPath($NpxPath) }
 }
 
-Export-ModuleMember -Function Set-SgCodexPlaywrightMcpConfig,Get-SgCodexPlaywrightMcpConfig,Get-SgPlaywrightChromiumExecutable,Get-SgCodexPlaywrightPrerequisiteStatus
+# Codex TUI defaults: only fill status_line/terminal_title when the user has not set them.
+function Set-SgCodexTuiDefaults([string]$ConfigPath) {
+    $statusLine = 'status_line = ["model-with-reasoning", "current-dir", "context-remaining", "five-hour-limit", "weekly-limit"]'
+    $terminalTitle = 'terminal_title = ["activity", "thread-title", "project-name"]'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $ConfigPath) -Force | Out-Null
+    $existing = if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) { [IO.File]::ReadAllText($ConfigPath) } else { '' }
+    $cleaned = [regex]::Replace($existing, '(?ms)^# >>> shipglows codex tui >>>\r?\n.*?^# <<< shipglows codex tui <<<\r?\n?', '')
+    $lines = @($cleaned -split '\r?\n')
+    $hasStatus = $false; $hasTitle = $false; $tuiIndex = -1; $hasDottedTui = $false
+    $table = ''
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $line = $lines[$i]
+        if ($line -match '^\s*\[\s*([^]]+?)\s*\]\s*$') { $table = $Matches[1]; if ($table -eq 'tui') { $tuiIndex = $i }; continue }
+        if ($table -eq '' -and $line -match '^\s*tui\s*\.') { $hasDottedTui = $true }
+        if (($table -eq '' -and $line -match '^\s*tui\s*\.\s*status_line\s*=') -or ($table -eq 'tui' -and $line -match '^\s*status_line\s*=')) { $hasStatus = $true }
+        if (($table -eq '' -and $line -match '^\s*tui\s*\.\s*terminal_title\s*=') -or ($table -eq 'tui' -and $line -match '^\s*terminal_title\s*=')) { $hasTitle = $true }
+    }
+    $missing = @()
+    if (-not $hasStatus) { $missing += $statusLine }
+    if (-not $hasTitle) { $missing += $terminalTitle }
+    $result = New-Object 'System.Collections.Generic.List[string]'
+    if ($missing.Count -eq 0) { $result.AddRange([string[]]$lines) }
+    elseif ($tuiIndex -ge 0) {
+        $block = @('# >>> shipglows codex tui >>>') + $missing + @('# <<< shipglows codex tui <<<')
+        $result.AddRange([string[]]$lines[0..$tuiIndex]); $result.AddRange([string[]]$block)
+        if ($tuiIndex + 1 -lt $lines.Count) { $result.AddRange([string[]]$lines[($tuiIndex + 1)..($lines.Count - 1)]) }
+    }
+    elseif ($hasDottedTui) {
+        $block = @('# >>> shipglows codex tui >>>') + @($missing | ForEach-Object { "tui.$_" }) + @('# <<< shipglows codex tui <<<')
+        $result.AddRange([string[]]$block); $result.AddRange([string[]]$lines)
+    }
+    else {
+        $result.AddRange([string[]]@(($lines -join "`n").TrimEnd([char[]]"`r`n") -split "`n"))
+        if ($result.Count -gt 0 -and $result[$result.Count - 1] -ne '') { $result.Add('') }
+        $result.Add('[tui]'); $result.Add('# >>> shipglows codex tui >>>'); $result.AddRange([string[]]$missing); $result.Add('# <<< shipglows codex tui <<<')
+    }
+    $next = (($result -join "`n").Trim([char[]]"`r`n")) + "`n"
+    if ($next.Replace("`r`n", "`n") -ceq $existing.Replace("`r`n", "`n")) { return $false }
+    $temp = "$ConfigPath.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temp, $next, [Text.UTF8Encoding]::new($false))
+        if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
+            if (-not [ShipGlowsNativeFile]::MoveFileEx($temp,$ConfigPath,9)) { throw "Atomic Codex config replacement failed with Win32 error $([Runtime.InteropServices.Marshal]::GetLastWin32Error())." }
+        }
+        else { Move-Item -LiteralPath $temp -Destination $ConfigPath }
+    } finally {
+        if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force }
+    }
+    return $true
+}
+
+Export-ModuleMember -Function Set-SgCodexTuiDefaults,Set-SgCodexPlaywrightMcpConfig,Get-SgCodexPlaywrightMcpConfig,Get-SgPlaywrightChromiumExecutable,Get-SgCodexPlaywrightPrerequisiteStatus

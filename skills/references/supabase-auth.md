@@ -1,16 +1,13 @@
 # Supabase Auth Reference
 
-Use this reference when a project uses Supabase Auth directly or through `@supabase/supabase-js` and `@supabase/ssr`.
+Use this reference when a project uses Supabase Auth directly or through `@supabase/supabase-js` and `@supabase/ssr` (Astro SSR sites), or through `supabase_flutter` (Flutter apps). Supabase is the documented exception backend; Convex remains the default, see `backend-data-provider-selection.md`.
 
 Sources checked:
 - https://supabase.com/docs/guides/auth
 - https://supabase.com/docs/guides/auth/sessions
 - https://supabase.com/docs/guides/auth/server-side
-- https://supabase.com/docs/guides/auth/server-side/nextjs
-- https://supabase.com/docs/guides/auth/quickstarts/nextjs
 - https://supabase.com/docs/guides/auth/redirect-urls
 - https://supabase.com/docs/reference/javascript/auth-getsession
-- https://supabase.com/docs/guides/troubleshooting/how-do-you-troubleshoot-nextjs---supabase-auth-issues-riMCZV
 
 Last reviewed: 2026-04-26
 
@@ -25,15 +22,15 @@ Last reviewed: 2026-04-26
 ## Stack Signals
 
 - Packages: `@supabase/supabase-js`, `@supabase/ssr`
-- Env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-- Files like `middleware.ts`, `proxy.ts`, `utils/supabase/*`, `/auth/callback`, `/auth/confirm`
+- Env vars (Astro): `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`; Flutter receives the public URL and key through build-time config, never the service role key
+- Files like `src/middleware.ts`, Supabase client factory modules, `/auth/callback`, `/auth/confirm`
 - Calls such as `supabase.auth.signInWithOAuth`, `signInWithPassword`, `verifyOtp`, `exchangeCodeForSession`, `getUser`, `getSession`
 
 ## Core Rules
 
 - Supabase Auth uses a short-lived JWT access token plus a refresh token for the session lifecycle.
 - For SSR apps, use `@supabase/ssr` and separate browser/server clients wired to cookies.
-- In Next.js SSR setups, middleware or proxy is responsible for refreshing expired auth tokens and writing refreshed cookies because Server Components cannot write cookies themselves.
+- In Astro SSR setups (`output: "server"`), the Astro middleware (`src/middleware.ts`) is responsible for refreshing expired auth tokens and writing refreshed cookies; rendered pages should not depend on setting cookies themselves.
 - On the server, trust `supabase.auth.getUser()` for authorization-sensitive decisions. Do not treat `getSession()` from cookie-backed storage as authoritative.
 - `SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it to browser code, public env vars, or client bundles.
 - Supabase Auth integrates with database RLS, so "login succeeded" does not prove the app can read or mutate the intended data.
@@ -49,11 +46,11 @@ Last reviewed: 2026-04-26
 ## Files And Config To Inspect
 
 - Auth client factories for browser/server usage
-- `middleware.ts` or `proxy.ts`
+- `src/middleware.ts` (Astro SSR)
 - Auth callback or confirmation routes
 - Env files and deployment secrets
-- Client components that call Supabase Auth methods
-- Server actions, route handlers, or loaders that derive the current user
+- Client-side scripts or Flutter providers that call Supabase Auth methods
+- Astro endpoints and page frontmatter that derive the current user
 
 ## Browser Evidence To Capture
 
@@ -65,10 +62,10 @@ Last reviewed: 2026-04-26
 
 ## Common Failure Modes
 
-- Missing or stale `NEXT_PUBLIC_SUPABASE_URL` or publishable/anon key.
+- Missing or stale `PUBLIC_SUPABASE_URL` or publishable/anon key.
 - Browser code or public env accidentally uses the service role key.
 - SSR app uses `@supabase/supabase-js` directly where `@supabase/ssr` cookie wiring is required.
-- Middleware/proxy is missing, so expired cookies are never refreshed.
+- Astro middleware is missing, so expired cookies are never refreshed.
 - Server code uses `getSession()` as proof of identity instead of `getUser()`.
 - `SITE_URL` or redirect allow list still points to localhost or the wrong preview/prod domain.
 - OAuth provider callback is configured, but the app callback route does not exchange or consume the code correctly.

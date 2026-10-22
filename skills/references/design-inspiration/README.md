@@ -26,7 +26,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Synthetic-only schemas and sample required by the ready sales-page-reference-library spec."
+  - "Synthetic-only schemas and sample required by the sales-page reference library contract."
   - "2026-08-15 optional motion evidence extends new private records without placing a WebM in this public schema directory."
 next_review: "2026-11-07"
 next_step: "Review motion evidence after its first approved synthetic capture."

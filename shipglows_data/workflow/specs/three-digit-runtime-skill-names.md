@@ -34,9 +34,6 @@ linked_systems:
   - shipglows_data/technical/code-docs-map.md
   - README.md
 depends_on:
-  - artifact: "shipglows_data/workflow/specs/numeric-skill-code-index.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
   - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.18.0"
     required_status: reviewed

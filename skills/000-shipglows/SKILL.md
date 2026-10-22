@@ -119,17 +119,19 @@ Before selection extract `#local`, `#nolocal`, `#ci` wherever present and load
 `execution-posture-tags.md`; reject conflicts. Preserve ordinary focus tags and
 owner authority; `#ci` implies nolocal and deferred proof, never external-write authority.
 
-For `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load
+For `update`, `context`/`contexte`/`env`/`environment`, `blitz`, `auto`, or legacy `nolocal`, load
 `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`. Apply only the selected mode.
-Context is read-only; update resolves channel first. Explicit Auto implies nolocal,
-freezes the current project, rejects local, and never means `300-sg-docs auto`.
+Context is read-only; update resolves channel first. Explicit Blitz implies nolocal,
+freezes the current project and rejects local. Explicit Auto hands off to `709-sg-auto`:
+autonomous whole-business improvement with local proof and milestone commits, no push.
 Legacy nolocal requires an objective, loads `no-local-execution-policy.md`, normalizes
 to `<objective> #nolocal`, and preserves ordinary ownership/approval. Bare nolocal
-never invokes Auto or selects work.
+never invokes Blitz or selects work.
 
 `git` -> `sg-engineering github` (read-only default); `hygiene` -> current-project
 `sg-maintenance hygiene` read-only audit; `hygiene git` -> `sg-engineering github clean`.
-Reject workspace/multi-project hygiene. `verify` preserves design/accessibility/UI,
+Reject workspace/multi-project hygiene. `tidy` or `ménage` -> current-project
+`sg-maintenance tidy`. `verify` preserves design/accessibility/UI,
 SEO, release/live or bug specialist ownership, otherwise `sg-engineering verify`.
 Generic verification never replaces a specialist audit.
 Known helpers: context priming -> `301-sg-context`; cross-project state ->
@@ -138,7 +140,8 @@ Known helpers: context priming -> `301-sg-context`; cross-project state ->
 ## Handoff And Question Contract
 
 Pass original instruction, arguments, scope, authority, active language and explicit
-report mode to one owner and continue. Preserve onboarding/first-success intent
+report mode to one owner and continue. Lifecycle words ("finish", "check", "ship")
+route to the earliest unresolved gate: open verification precedes closure or ship. Preserve onboarding/first-success intent
 through `sg-development`. Before routing questions load `question-contract.md`;
 ask one numbered question only for material operator-owned truth changing route or
 safety, never discoverable paths. Never stop at a command recommendation for runnable work.

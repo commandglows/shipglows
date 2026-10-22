@@ -38,7 +38,7 @@ depends_on:
   - artifact: "skills/references/private-memory-store.md"
     artifact_version: "1.1.0"
     required_status: active
-  - artifact: "shipglows_data/workflow/explorations/2026-06-29-mail-source-intake-automation.md"
+  - artifact: "git:649a9c31:shipglows_data/workflow/explorations/2026-06-29-mail-source-intake-automation.md"
     artifact_version: "1.1.0"
     required_status: draft
   - artifact: "shipglows_data/technical/decisions/provider-agnostic-source-ingestion-with-readwise-reader-pilot.md"
@@ -449,7 +449,7 @@ Required normalized fields:
 
 - Read first:
   - `skills/references/source-intake-classification.md`
-  - `shipglows_data/workflow/explorations/2026-06-29-mail-source-intake-automation.md`
+  - `git:649a9c31:shipglows_data/workflow/explorations/2026-06-29-mail-source-intake-automation.md`
   - `/home/claude/dotfiles/nvim/MyNeovim/lua/shipglows/mail/ai.lua`
   - `/home/claude/dotfiles/nvim/MyNeovim/scripts/mail-intake`
   - `/home/claude/contentglowz/lab/agents/sources/ingest.py`

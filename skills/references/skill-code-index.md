@@ -24,9 +24,7 @@ depends_on:
   - artifact: "shipglows_data/workflow/specs/three-digit-runtime-skill-names.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-supersedes:
-  - artifact: "shipglows_data/workflow/specs/numeric-skill-code-index.md"
-    artifact_version: "1.0.0"
+supersedes: []
 evidence:
   - "Wave 13 aligned the dependency requirement with the reviewed canonical runtime-name spec."
   - "User decision 2026-06-10: use three digits directly before the skill name for the real runtime-visible skill identity."
@@ -38,7 +36,7 @@ evidence:
   - "2026-08-04 technical consolidation assigned GitHub hygiene to the `github` mode under 010-sg-technical and retired 310."
   - "2026-08-03 pilotage consolidation assigned 011 and retired 309 and 701-703; tasks, backlog, priorities, review, and sessions now live as explicit modes under 011-sg-pilotage."
   - "2026-08-04: Codex no longer needs numeric picker labels; numbers remain as expert/compatibility engine identifiers while public skills use direct métier names."
-  - "2026-08-20: 708-sg-auto added as the internal engine for the public shipglows auto credit-window mode; nolocal remains a transversal policy rather than a separate engine."
+  - "2026-08-20: 708-sg-blitz added as the internal engine for the public shipglows blitz credit-window mode; nolocal remains a transversal policy rather than a separate engine."
   - "2026-08-24: 603-sg-private added as the internal engine for the public sg-private memory owner."
 next_review: "2026-08-15"
 next_step: "/103-sg-verify consolidate pilotage skills under sg-pilotage"
@@ -139,7 +137,8 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `705` | `sg-conversation-audit` | `705-sg-conversation-audit` | Pilotage/session |
 | `706` | `continue` | `706-continue` | Pilotage/session |
 | `707` | `name` | `707-name` | Helper/Claude statusline |
-| `708` | `sg-auto` | `708-sg-auto` | Pilotage/session |
+| `708` | `sg-blitz` | `708-sg-blitz` | Pilotage/session |
+| `709` | `sg-auto` | `709-sg-auto` | Pilotage/session |
 | `800` | `tmux-capture-conversation` | `800-tmux-capture-conversation` | Conversation/transcript |
 | `801` | `clean-conversation-transcript` | `801-clean-conversation-transcript` | Conversation/transcript |
 | `900` | `shipglows-core` | `900-shipglows-core` | Meta/internal |

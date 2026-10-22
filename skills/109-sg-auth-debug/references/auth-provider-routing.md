@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-10-20"
 status: active
 source_skill: 109-sg-auth-debug
 scope: auth-provider-routing
@@ -27,7 +27,7 @@ Inspect only provider configuration, login/callback routes, middleware/guards, a
 
 Load only matching direct references:
 
-- Clerk: `clerk-tooling.md`; add `clerk-testing.md` for live testing and `clerk.md` for configuration/Next.js/session behavior.
+- Clerk: `clerk-tooling.md`; add `clerk-testing.md` for live testing and `clerk.md` for configuration/Astro middleware/session behavior.
 - Supabase: `supabase-tooling.md`; add `supabase-testing.md` for live/local-stack testing and shared `supabase-auth.md` for SSR cookies, callbacks, `getUser()`/`getSession()`, and RLS boundary.
 - Google OAuth: `google-oauth.md`.
 - Convex: `convex-tooling.md`; add `convex-clerk.md` for Clerk identity propagation and `python-convex.md` for Python jobs/clients.
