@@ -100,7 +100,10 @@ Assert-Sg ($devServerText.Contains("'cli\windows\install-devserver.ps1'")) 'Deve
 Assert-Sg (-not $devServerText.Contains("Invoke-SgUpdate -DeveloperTools")) 'Developer-tool update must not piggyback on ShipGlows self-update.'
 
 Assert-Sg ($bootstrapText.Contains('[switch]$UpdateDeveloperTools')) 'The bootstrap must accept explicit developer-tool update intent.'
-Assert-Sg ($bootstrapText.Contains("`$actionGeneratedRelativePaths = @('bin/shipglows-dev.exe','bin/sg.exe','bin/s.exe')")) 'The bootstrap must classify native launchers as action-generated managed files.'
+Assert-Sg ($bootstrapText.Contains("`$actionGeneratedRelativePaths = @('bin/shipglows-dev.exe','bin/sg.exe')")) 'The bootstrap must classify only the retained native launchers as action-generated managed files.'
+Assert-Sg (-not $bootstrapText.Contains("'bin/s.exe'")) 'The new runtime manifest must retire the formerly managed s.exe launcher.'
+Assert-Sg ($installerText.Contains("foreach (`$nativeCommand in @('shipglows-dev.exe','sg.exe'))")) 'The installer must preserve the long native and sg launchers without installing s.exe.'
+Assert-Sg (-not $installerText.Contains("Join-Path `$runtimeDir 's.exe'")) 'The interactive s.cmd wrapper must not be shadowed by an installed s.exe.'
 Assert-Sg ($bootstrapText.Contains('-ActionGeneratedRelativePaths $actionGeneratedRelativePaths')) 'Runtime classification and activation must receive the action-generated launcher contract.'
 Assert-Sg ($bootstrapText.Contains("-GeneratedHashStateRelativePath '.shipglows-install.json'")) 'Generated native launchers must be tied to their install-state hash record.'
 Assert-Sg ($bootstrapText.Contains('actionGeneratedHashes')) 'Runtime classification must repair action-generated files whose recorded hashes no longer match.'
