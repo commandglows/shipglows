@@ -3137,6 +3137,7 @@ function Get-SgStartupFailure([string]$ErrorLogPath, [string]$Fallback = 'Proces
 function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '', [object]$TauriAndroid = $null, [string]$TauriDesktopLaunchPath = '') {
     if ($Kind -eq 'flutter-web') { return Wait-SgFlutterReady $LogPath $TimeoutSeconds }
     $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 1800))
+    $androidInstalledAt = $null
     do {
         if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
             return [pscustomobject]@{ Ready=$false; AppId=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
@@ -3152,6 +3153,12 @@ function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$
                 }
                 # The frontend is up long before the Rust/Gradle build installs the app on the phone.
                 if ($TauriAndroid -and -not (Test-SgTauriAndroidAppRunning $TauriAndroid.Adb $TauriAndroid.Serial $TauriAndroid.AppId)) {
+                    # Once the new build is installed, an app that never runs crashed at launch: fail
+                    # quickly instead of waiting for the long build deadline.
+                    if (-not $androidInstalledAt -and (Get-SgAndroidPackageInstallStamp $TauriAndroid.Adb $TauriAndroid.Serial $TauriAndroid.AppId) -ne [string](Get-SgOptionalValue $TauriAndroid 'InstallStamp')) { $androidInstalledAt = Get-Date }
+                    if ($androidInstalledAt -and ((Get-Date) - $androidInstalledAt).TotalSeconds -ge 90) {
+                        return [pscustomobject]@{ Ready=$false; AppId=$null; Error="The app was installed on $($TauriAndroid.Serial) but is not running after 90 s; it may crash at launch (see adb logcat)." }
+                    }
                     if ((Get-Date) -ge $deadline) { break }
                     Start-Sleep -Seconds 3
                     continue
@@ -3765,8 +3772,23 @@ function Get-SgAdbPath {
     return $adb
 }
 
-# Tauri selects its Android target by device name (ro.product.model), so the adb serial is
-# resolved to that name. Physical devices are preferred; emulators are never launched here.
+# The name Tauri matches for a device: the AVD name for an emulator, the Bluetooth name
+# (dumpsys bluetooth_manager) for a physical phone. Empty when it cannot be read.
+function Get-SgAndroidDeviceName([scriptblock]$Runner, [string]$Adb, [string]$Serial) {
+    if ($Serial -match '^emulator-') {
+        $avd = & $Runner $Adb @('-s',$Serial,'emu','avd','name')
+        if ($avd -and [int]$avd.ExitCode -eq 0) {
+            return [string](@(([string]$avd.Output) -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -and $_ -ne 'OK' }) | Select-Object -First 1)
+        }
+        return ''
+    }
+    $bluetooth = & $Runner $Adb @('-s',$Serial,'shell','dumpsys','bluetooth_manager')
+    if ($bluetooth -and [int]$bluetooth.ExitCode -eq 0 -and ([string]$bluetooth.Output) -match '(?m)^\s*name:\s*(.+?)\s*$') { return $Matches[1] }
+    return ''
+}
+
+# Tauri selects its Android target by device name, so the adb serial is resolved to that
+# name. Physical devices are preferred; emulators are never launched here.
 function Resolve-SgTauriAndroidDevice([string]$RequestedSerial = '', [scriptblock]$Runner = $null) {
     if ($RequestedSerial -and $RequestedSerial -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'Invalid requested Tauri Android device serial.' }
     if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 30 } }
@@ -3782,15 +3804,39 @@ function Resolve-SgTauriAndroidDevice([string]$RequestedSerial = '', [scriptbloc
         $serial = if ($physical.Count -gt 0) { $physical[0] } else { @($serials | Sort-Object) | Select-Object -First 1 }
         if (-not $serial) { throw 'No authorized Android device is connected. Enable USB debugging, accept the prompt on the phone, then retry.' }
     }
-    # With a single device Tauri picks it without a name; otherwise it matches the Bluetooth
-    # name for physical phones (dumpsys bluetooth_manager), not the model.
+    # With a single device Tauri picks it without a name; otherwise the name must be readable
+    # and unique, or Tauri could build for another device than the one adb reverse targets.
     $name = ''
     if ($serials.Count -gt 1) {
-        $bluetooth = & $Runner $adb @('-s',$serial,'shell','dumpsys','bluetooth_manager')
-        if ($bluetooth -and [int]$bluetooth.ExitCode -eq 0 -and ([string]$bluetooth.Output) -match '(?m)^\s*name:\s*(.+?)\s*$') { $name = $Matches[1] }
+        $name = Get-SgAndroidDeviceName $Runner $adb $serial
         if (-not $name) { throw "Several Android devices are connected and the name Tauri needs for $serial could not be read; disconnect the others and retry." }
+        foreach ($other in @($serials | Where-Object { $_ -cne $serial })) {
+            if ((Get-SgAndroidDeviceName $Runner $adb $other) -eq $name) { throw "Android devices $serial and $other share the name '$name'; disconnect one and retry." }
+        }
     }
     return [pscustomobject]@{ Serial=$serial; Name=$name; Adb=$adb }
+}
+
+# Phone-side lastUpdateTime of the app package; it changes when the dev build is installed.
+function Get-SgAndroidPackageInstallStamp([string]$Adb, [string]$Serial, [string]$AppId) {
+    try {
+        $result = Invoke-SgFlutterAndroidTool $Adb @('-s',$Serial,'shell','dumpsys','package',$AppId) 15
+        if ($result -and [int]$result.ExitCode -eq 0 -and ([string]$result.Output) -match '(?m)^\s*lastUpdateTime=(.+?)\s*$') { return $Matches[1] }
+    } catch { }
+    return ''
+}
+
+# s stop: the phone keeps neither the USB link to the stopped dev server nor the app using it.
+function Stop-SgTauriAndroidLink([object]$Entry, [int]$Port) {
+    $serial = [string](Get-SgOptionalValue $Entry 'tauriDeviceId')
+    if (-not $serial) { return }
+    try {
+        $adb = Get-SgAdbPath
+        if ($Port -gt 0) { [void](Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'reverse','--remove',"tcp:$Port") 15) }
+        $appPath = if (Get-SgOptionalValue $Entry 'launchPath') { [string]$Entry.launchPath } else { [string]$Entry.path }
+        $appId = [string]((Get-Content -LiteralPath (Join-Path $appPath 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json).identifier)
+        if ($appId) { [void](Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'shell','am','force-stop',$appId) 15) }
+    } catch { Write-SgWarn "Android cleanup skipped on ${serial}: $($_.Exception.Message)" }
 }
 
 function Test-SgTauriAndroidAppRunning([string]$Adb, [string]$Serial, [string]$AppId) {
@@ -4150,6 +4196,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' }) $(if ($kind -eq 'tauri') { [string]$frontendMode } else { '' }) $logDir
         # A previous copy left running on the phone would satisfy readiness before the new build lands.
         if ($tauriAndroid) {
+            $tauriAndroid | Add-Member -NotePropertyName InstallStamp -NotePropertyValue (Get-SgAndroidPackageInstallStamp $tauriAndroid.Adb $tauriAndroid.Serial $tauriAndroid.AppId) -Force
             [void](Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'shell','am','force-stop',$tauriAndroid.AppId) 15)
             $reverse = Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'reverse',"tcp:$port","tcp:$port") 15
             if (-not $reverse -or [int]$reverse.ExitCode -ne 0) { throw "adb reverse tcp:$port failed on $($tauriAndroid.Serial)." }
@@ -4369,6 +4416,7 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
         Write-SgWarn "Stale or unverified process for $label; no process was terminated."
     }
     if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
+    if ($entry.kind -eq 'tauri' -and $target -eq 'android' -and -not $alreadyStopped) { Stop-SgTauriAndroidLink $entry $entryPort }
     Invoke-SgRegistryMutation $Config {
         param($data)
         $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
