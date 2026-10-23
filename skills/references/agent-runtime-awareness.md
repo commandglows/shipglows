@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.13.0"
+artifact_version: "3.14.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-10-16"
+updated: "2026-10-23"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -66,8 +66,10 @@ Before work depends on a local server or runtime-specific tool on Windows:
 
 1. Read `%USERPROFILE%\.shipglows\environment.md` for the global development environment.
 2. Resolve the registered project and selected managed surface from the current directory and requested target. Read that entry's `launchPath\ENVIRONMENT.md` when present, otherwise its `rootPath\ENVIRONMENT.md`; for legacy entries use the registered `path`. A missing root-level summary does not prove the selected surface lacks one. If multiple entries match and the requested target does not distinguish them, retain the ambiguity rather than using another surface's URL.
-3. Read the matching entry in `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json` for live `running`, `starting`, `stopped`, or `error` status.
-4. Use the assigned URL only while that registry entry is `running` or `starting`.
+3. Read the matching entry in `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json` for live `running`, `starting`, `stopped`, or `error` status. An entry lists one record per run target in `sessions` (Tauri `windows`/`android`, Flutter `windows`/`android`/`chrome`/`web-server`, `web`, `chrome` or `obsidian` otherwise), each with its own `status`, `port`, `portRole`, `startedAtUtc`, logs and `lastEvent`; the entry's top-level fields mirror its primary session only. `s status -ProjectPath <path> [-Json]` shows the same per-target view.
+4. Use the assigned URL only while the session of the requested target is `running` or `starting`.
+
+Starting a target never replaces another one: Flutter and single-target surfaces run their targets side by side, and a second Tauri target refuses to start until the operator chooses `-Frontend shared` (attach to the running frontend), `-Frontend own` (its own port) or `-Replace`. Pass the target (`-TauriDevice`, `-FlutterDevice`) to `stop`, `restart`, `reload`, `logs` and `open`; without it they act on every target. A replaced or cascaded target keeps the reason in its `lastEvent`.
 
 The matching entry's current `status` is the live-state authority. Retained
 PIDs, daemon IDs, `flutterStartupState`, timestamps and earlier observations
@@ -78,12 +80,12 @@ the registry must not start the CLI or an application.
 
 Do not derive the URL from `package.json`, framework defaults such as Astro/Vite `4321`, a remembered port, or another project. `.shipglows.env` remains the optional committed runtime-policy file; it is not the environment summary or live-state authority.
 
-For startup diagnostics, read the matching entry's `logPath` and `errorLogPath`
-(plus `setup.log` in the same folder). Each surface writes under
-`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<name>-<path-hash>\`, so two
-surfaces with the same display name (for example `site`) never share logs; a
-folder named after the bare display name belongs to an older session and may
-mix projects. A web readiness timeout is configured through `.shipglows.env`
+For startup diagnostics, read the target session's `logPath` and `errorLogPath`
+(plus `setupLogPath`). Each launch writes under
+`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<name>-<path-hash>\<target>\<yyyyMMdd-HHmmss>-<id>\`
+(the five latest launches per target are kept), so two targets or two launches
+never overwrite each other's logs; files directly under `<name>-<path-hash>\`
+or a folder named after the bare display name belong to older sessions. A web readiness timeout is configured through `.shipglows.env`
 (`SHIPGLOWS_READY_TIMEOUT_SECONDS`, see `project-runtime-policy.md`).
 
 Report runtime capabilities from the global file before attempting tool discovery:

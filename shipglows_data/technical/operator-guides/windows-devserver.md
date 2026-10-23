@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.31.0"
+artifact_version: "1.32.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-16"
+updated: "2026-10-23"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-10-23 sur CommunityGlows, un `tauri android dev` lancé par une autre session a remplacé sans message la session Tauri Windows et écrasé son stderr.log ; chaque cible a depuis sa propre session, ses logs par lancement, et un second Tauri exige un choix explicite."
   - "Le replay du 2026-09-04 confirme que `shipglows update status` s'exécute dans le PowerShell géré et que `shipglows update runtime` reste accepté comme forme de compatibilité sans verrouiller `s.exe`."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
@@ -544,6 +545,38 @@ Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `and
 
 Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev. Une fois le build enregistré testé, la sortie brute du checkout (`build\windows\x64\runner\Release`, `build\app\outputs`) est supprimée : le cache conserve déjà les deux dernières générations validées.
 
+### Plusieurs cibles d'un même projet
+
+Chaque cible d'une surface est une session distincte du registre : Tauri
+`windows` et `android`, Flutter `windows`, `android`, `chrome` et `web-server`,
+et une cible unique (`web`, `chrome`, `obsidian`) pour Astro, Vite, Python, les
+extensions et les plugins Obsidian. Démarrer une cible ne remplace jamais une
+autre cible : `s start -ProjectPath <app> -FlutterDevice chrome` démarre à côté
+d'une session `windows` déjà active, avec son propre port si le port de la
+surface est déjà pris. Sans cible explicite, `s start` et le raccourci Dev
+réutilisent la cible déjà active au lieu d'en lancer une autre.
+
+Deux cibles Tauri se disputent le port `devUrl` du frontend. La seconde refuse
+donc de démarrer tant que l'opératrice n'a pas choisi :
+
+- `-Frontend shared` : la cible se branche sur le serveur Vite déjà lancé par
+  l'autre (Tauri reçoit une configuration de session sans `beforeDevCommand`) ;
+  les deux apps rechargent à chaud. Arrêter la cible qui sert le frontend arrête
+  aussi celles qui y sont branchées, avec un message et un `lastEvent`.
+- `-Frontend own` : la cible lance son propre frontend sur un port libre
+  (`devUrl` surchargé, variable `PORT`) ; le frontend du projet doit lire `PORT`.
+  Ce port secondaire n'écrase jamais l'URL durable d'`ENVIRONMENT.md`.
+- `-Replace` : l'autre cible est arrêtée explicitement, et la raison reste
+  visible dans son `lastEvent`.
+
+`s status -ProjectPath <app>` liste chaque cible avec son état, son port (propre
+ou partagé), son heure de démarrage, son PID, son appareil et son dossier de
+logs ; `-Json` donne la même vue aux agents. `stop`, `restart`, `reload`, `logs`
+et `open` acceptent `-TauriDevice` ou `-FlutterDevice` pour viser une cible, et
+agissent sur toutes les cibles sinon. Les cibles d'une surface partagent son
+backend, arrêté avec la dernière cible active, et leur installation de
+dépendances, qui s'exécute une seule fois à la fois.
+
 ### Flutter Android en développement
 
 `SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
@@ -611,11 +644,13 @@ son `.shipglows.env` avec `SHIPGLOWS_READY_TIMEOUT_SECONDS=<30-1800>` ; une
 valeur hors de cette plage est refusée. Les sessions Flutter gardent leur propre
 supervision.
 
-Les journaux de chaque surface vont dans
-`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<nom>-<empreinte>\`, l'empreinte étant
-dérivée du chemin du projet : deux surfaces nommées `site` dans deux dépôts ne
-partagent plus leurs fichiers `stdout.log`, `stderr.log` et `setup.log`. Le
-registre garde le chemin exact (`logPath`, `errorLogPath`) de la dernière session.
+Les journaux de chaque lancement vont dans
+`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<nom>-<empreinte>\<cible>\<date-heure>-<id>\`,
+l'empreinte étant dérivée du chemin du projet : deux surfaces nommées `site`,
+deux cibles d'une même surface ou deux lancements successifs ne partagent plus
+leurs fichiers `stdout.log`, `stderr.log` et `setup.log`. Les cinq derniers
+lancements de chaque cible sont conservés. Chaque session du registre garde le
+chemin exact de ses journaux (`logPath`, `errorLogPath`, `setupLogPath`).
 
 Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
 

@@ -113,15 +113,16 @@ function Test-SgBackendListenerOwned($Process, [int]$Port) {
     return $true
 }
 
-function Stop-SgProject([object]$Config, [string]$ProjectPath, [switch]$PreserveBackend) {
+function Get-SgProjectBackendMutexName([object]$Config, [string]$ProjectPath) {
+    return 'Local\ShipGlowsBackend-' + (Get-SgBackendDigest ($Config.RegistryPath + $ProjectPath.ToLowerInvariant()))
+}
+
+# A stop never queues behind a long start: it is idempotent and identity-checked, and a start that loses its
+# process reports it. Only the backend transition is ordered by the short project lock.
+function Stop-SgProject([object]$Config, [string]$ProjectPath, [switch]$PreserveBackend, [string]$Target = '', [string]$Reason = '') {
     $path=ConvertTo-SgCanonicalPath $ProjectPath
-    $mutex=New-Object Threading.Mutex($false,('Local\ShipGlowsBackend-' + (Get-SgBackendDigest ($Config.RegistryPath + $path.ToLowerInvariant()))))
-    $locked=$false
-    try {
-        try { $locked=$mutex.WaitOne(30000) } catch [Threading.AbandonedMutexException] { $locked=$true }
-        if (-not $locked) { throw 'Project launch or stop is already in progress.' }
-        return Stop-SgProjectCore $Config $path -PreserveBackend:$PreserveBackend
-    } finally { if ($locked) { $mutex.ReleaseMutex() }; $mutex.Dispose() }
+    if ($PreserveBackend) { return Stop-SgProjectCore $Config $path -PreserveBackend -Target $Target -Reason $Reason }
+    return Invoke-SgNamedMutex (Get-SgProjectBackendMutexName $Config $path) 'Project launch or stop is already in progress.' { Stop-SgProjectCore $Config $path -Target $Target -Reason $Reason }
 }
 
 function Initialize-SgBackend($Config, $Plan, $Existing) {
@@ -163,7 +164,7 @@ function Initialize-SgBackend($Config, $Plan, $Existing) {
     } catch { if ($created) { Stop-SgBackend $state }; throw }
 }
 
-function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort=0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice='', [string]$FlutterDeviceId='', [ValidateSet('','debug','profile')][string]$FlutterMode='', [ValidateSet('','windows','android')][string]$TauriDevice='', [string]$TauriDeviceId='', [switch]$Restart) {
+function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort=0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice='', [string]$FlutterDeviceId='', [ValidateSet('','debug','profile')][string]$FlutterMode='', [ValidateSet('','windows','android')][string]$TauriDevice='', [string]$TauriDeviceId='', [switch]$Restart, [ValidateSet('','own','shared')][string]$Frontend='', [switch]$Replace) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     if (-not (Test-SgProjectPath $path $Config.Workspace)) { throw 'Project must be inside the ShipGlows workspace before backend launch.' }
     $existing = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
@@ -174,7 +175,8 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if (-not $selected) { throw 'Multiple runnable surfaces were detected. Choose one surface instead of the monorepo root.' }
         $path=$selected.LaunchPath
     }
-    $mutex = New-Object Threading.Mutex($false,('Local\ShipGlowsBackend-' + (Get-SgBackendDigest ($Config.RegistryPath + $path.ToLowerInvariant()))))
+    $target = Resolve-SgStartTarget $Config $path $FlutterDevice $TauriDevice
+    $mutex = New-Object Threading.Mutex($false,(Get-SgProjectBackendMutexName $Config $path))
     $locked = $false; $backend = $null; $oldBackend = $null; $completed = $false
     try {
         try { $locked=$mutex.WaitOne(30000) } catch [Threading.AbandonedMutexException] { $locked=$true }
@@ -184,12 +186,22 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if ($existing -and $existing.PSObject.Properties['backend']) { $oldBackend=$existing.backend }
         $plan = Read-SgBackendManifest $path
         $backend = Initialize-SgBackend $Config $plan $oldBackend
-        if ($existing -and (Test-SgProcessIdentity $existing) -and (-not $oldBackend -or $oldBackend.fingerprint -ne $backend.fingerprint)) {
+        # The targets of one surface share its backend: a changed backend restarts the requested target only
+        # when no other target still runs on the previous one.
+        $liveTargets = @(if ($existing) { Get-SgLiveSessions $existing | ForEach-Object { [string]$_.target } })
+        if ($liveTargets.Count -gt 0 -and (-not $oldBackend -or $oldBackend.fingerprint -ne $backend.fingerprint)) {
+            $others = @($liveTargets | Where-Object { $_ -ne $target })
+            if ($others.Count -gt 0) { throw "The backend configuration changed while the $($others -join ', ') target(s) run on the previous backend. Run s stop -ProjectPath `"$path`", then start again." }
             $Restart=$true
         }
-        $result = Start-SgProjectCore $Config $path $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup:$RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Restart:$Restart
+        # A local backend's supervisor watches the application state, so its launch stays ordered with that
+        # supervisor under the project lock. Other backends release it and let targets start side by side.
+        if ($backend.mode -ne 'local') { $mutex.ReleaseMutex(); $locked = $false }
+        $result = Invoke-SgNamedMutex (Get-SgSessionMutexName $Config $path $target) "A start of the $target target of this project is already in progress." {
+            Start-SgProjectCore $Config $path $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup:$RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Frontend $Frontend -Replace:$Replace
+        } 30000
         if ($result.status -eq 'running') {
-            if (($backend.process -and -not (Test-SgProcessIdentity $backend.process)) -or ($backend.mode -ne 'none' -and -not (Test-SgBackendReady $plan.Manifest.readiness))) { [void](Stop-SgProject $Config $path); throw 'Backend lost readiness during application startup.' }
+            if (($backend.process -and -not (Test-SgProcessIdentity $backend.process)) -or ($backend.mode -ne 'none' -and -not (Test-SgBackendReady $plan.Manifest.readiness))) { [void](Stop-SgProject $Config $path -Target ([string]$result.target)); throw 'Backend lost readiness during application startup.' }
             $result | Add-Member -NotePropertyName backend -NotePropertyValue $backend -Force
             Invoke-SgRegistryMutation $Config { param($data) $item=@($data.projects | Where-Object { $_.path -eq $path })[0]; $item | Add-Member -NotePropertyName backend -NotePropertyValue $backend -Force } | Out-Null
             if ($oldBackend -and $oldBackend.instanceId -ne $backend.instanceId) { Stop-SgBackend $oldBackend }

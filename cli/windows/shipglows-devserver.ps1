@@ -22,6 +22,8 @@ param(
     [ValidateSet('','debug','profile')][string]$FlutterMode = '',
     [ValidateSet('','windows','android')][string]$TauriDevice = '',
     [string]$TauriDeviceId = '',
+    [ValidateSet('','own','shared')][string]$Frontend = '',
+    [switch]$Replace,
     [switch]$Open,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
@@ -130,18 +132,21 @@ function Show-SgShortcutHelp {
     Write-Host '  s d      Dashboard'
     Write-Host '  s e      Start a project'
     Write-Host '  s status                           Show every project surface and state'
-    Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
+    Write-Host '  s status -ProjectPath <path> [-Json]  Show one project, each active target with its port and start time, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
     Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>] [-FlutterMode debug|profile] [-Open]'
     Write-Host '    -FlutterMode profile runs flutter run --profile for performance measurement (never --release); profile sessions cannot hot reload or hot restart, use s restart to rebuild.' -ForegroundColor DarkGray
     Write-Host '    [-TauriDevice windows|android] [-TauriDeviceId <adb serial>]'
     Write-Host '    -TauriDevice android runs tauri android dev on a connected phone (adb reverse keeps the local dev port; never a release build).' -ForegroundColor DarkGray
+    Write-Host '    Each target (Tauri windows/android, Flutter windows/android/chrome/web-server) is its own session: starting one never replaces another.' -ForegroundColor DarkGray
+    Write-Host '    [-Frontend shared|own] [-Replace]  A second Tauri target shares the running frontend, gets its own port, or explicitly replaces the other target.' -ForegroundColor DarkGray
     Write-Host '  s extension-inspect [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Json]'
     Write-Host '  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
-    Write-Host '  s reload -ProjectPath <path>      Hot reload an attached managed Flutter session'
+    Write-Host '  s reload -ProjectPath <path>      Hot reload the managed Flutter targets (or one with -FlutterDevice)'
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
-    Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
+    Write-Host '  s stop -ProjectPath <path>        Stop every target of the project, or one with -TauriDevice/-FlutterDevice'
+    Write-Host '  s restart|logs|open -ProjectPath <path> [-TauriDevice|-FlutterDevice <target>]  Act on every target or on one'
     Write-Host '  s m r    Restart a project'
     Write-Host '  s m t    Stop a project'
     Write-Host '  s m w    Unregister a stopped project (files are preserved)'
@@ -187,9 +192,17 @@ $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
 
-function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible, [switch]$Restart) {
+function Get-SgRequestedTarget {
+    if ($TauriDevice) { return $TauriDevice }
+    if ($FlutterDevice) { return $FlutterDevice }
+    return ''
+}
+
+function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible, [switch]$Restart, [hashtable]$Overrides = @{}) {
     $results = New-Object 'System.Collections.Generic.List[object]'
-    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Restart:$Restart | ForEach-Object {
+    # Restarting every target of a project passes each target's own selection; a one-shot start uses the command line.
+    foreach ($name in @($Overrides.Keys)) { Set-Variable -Name $name -Value $Overrides[$name] -Scope Local }
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Frontend $Frontend -Replace:$Replace | ForEach-Object {
         $item = $_
         if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
             [void]$results.Add($item)
@@ -205,6 +218,45 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
     }
     if ($result.status -ne 'running') { throw "Application startup returned unexpected status: $($result.status)" }
     return $result
+}
+
+# Restart one requested target, or every live target of the project: targets on a shared frontend
+# re-attach after the target that serves it.
+function Invoke-SgRestart([string]$Path) {
+    $canonical = ConvertTo-SgCanonicalPath $Path
+    $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $canonical }) | Select-Object -First 1
+    $live = @(if ($entry -and -not (Get-SgRequestedTarget)) { Get-SgLiveSessions $entry })
+    if ($live.Count -le 1) { Invoke-SgRequiredStart $Path $Port -Restart | Out-Null; return }
+    $kind = [string]$entry.kind
+    foreach ($session in @($live | Sort-Object -Property @{Expression={ if ($_.PSObject.Properties['frontendOwner'] -and $_.frontendOwner) { 1 } else { 0 } }})) {
+        $target = [string]$session.target
+        $shared = $session.PSObject.Properties['frontendMode'] -and [string]$session.frontendMode -eq 'shared'
+        $secondary = $session.PSObject.Properties['portRole'] -and [string]$session.portRole -eq 'secondary'
+        $overrides = @{ Restart = -not $shared; Replace = $false; Frontend = $(if ($shared) { 'shared' } elseif ($secondary -and $kind -eq 'tauri') { 'own' } else { '' }) }
+        if ($kind -eq 'tauri') {
+            $overrides.TauriDevice = $target
+            $overrides.TauriDeviceId = $(if ($target -eq 'android' -and $session.PSObject.Properties['tauriDeviceId'] -and $session.tauriDeviceId) { [string]$session.tauriDeviceId } else { '' })
+        } elseif ($kind -eq 'flutter-web') {
+            $overrides.FlutterDevice = $target
+            $overrides.FlutterDeviceId = $(if ($target -eq 'android' -and $session.PSObject.Properties['flutterDeviceId'] -and $session.flutterDeviceId) { [string]$session.flutterDeviceId } else { '' })
+            if (-not $FlutterMode -and $session.PSObject.Properties['flutterMode'] -and $session.flutterMode) { $overrides.FlutterMode = [string]$session.flutterMode }
+        }
+        Write-SgInfo "Restarting the $target target of $($entry.name)."
+        Invoke-SgRequiredStart $Path 0 -Overrides $overrides | Out-Null
+    }
+}
+
+# The session a command addresses: the requested target, else the primary (most relevant) one.
+function Resolve-SgTargetView([object]$Entry) {
+    $target = Get-SgRequestedTarget
+    if ($target) {
+        $session = Get-SgEntrySession $Entry $target
+        if (-not $session) { throw "$($Entry.name) has no $target session. Start it with s start -ProjectPath `"$($Entry.path)`" and that target." }
+        return Get-SgSessionView $Entry $session
+    }
+    $session = Select-SgPrimarySession @(Get-SgEntrySessions $Entry)
+    if ($session) { return Get-SgSessionView $Entry $session }
+    return $Entry
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
@@ -465,11 +517,16 @@ function Show-SgWindowsDashboard {
 
 function Show-SgProjectStatus([object]$Entry) {
     if (-not $Entry) { throw 'No registered project was selected.' }
-    $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+    $flutterDevice = Get-SgEntryDevice $Entry
     $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice '' ([string]$Entry.path)
     Write-Host ''
     Write-Host ([string]$Entry.Name) -ForegroundColor Cyan
     Write-Host (Format-SgProjectStatus $Entry)
+    $targetLines = @(Format-SgSessionStatusLines $Entry)
+    if ($targetLines.Count -gt 0) {
+        Write-Host 'Targets:'
+        foreach ($line in $targetLines) { Write-Host "  $line" }
+    }
     Write-Host "Open: $($experience.OpenAction)"
     if ($Entry.status -in @('starting','running')) {
         Write-Host "Next: $($experience.OpenNextAction)"
@@ -602,10 +659,20 @@ function Invoke-Clone {
     }
 }
 
+# Each target keeps its own launch logs; without a requested target every target's latest launch is shown.
 function Invoke-Logs($entry) {
-    if (-not $entry.logPath) { Write-SgWarn 'No log file is registered for this project.'; return }
-    if (Test-Path -LiteralPath $entry.logPath) { Get-Content -LiteralPath $entry.logPath -Tail 80 }
-    if ($entry.errorLogPath -and (Test-Path -LiteralPath $entry.errorLogPath)) { Write-Host '--- stderr ---' -ForegroundColor Yellow; Get-Content -LiteralPath $entry.errorLogPath -Tail 80 }
+    $target = Get-SgRequestedTarget
+    $sessions = @(Get-SgEntrySessions $entry | Where-Object { (-not $target -or [string]$_.target -eq $target) -and $_.PSObject.Properties['logPath'] -and $_.logPath })
+    if ($sessions.Count -eq 0) {
+        if ($target -or -not $entry.logPath) { Write-SgWarn "No log file is registered for this project$(if ($target) { " and the $target target" })."; return }
+        $sessions = @($entry)
+    }
+    $tail = if ($sessions.Count -gt 1) { 40 } else { 80 }
+    foreach ($session in @($sessions | Sort-Object -Property @{Expression={ if ($_.PSObject.Properties['target']) { [string]$_.target } else { '' } }})) {
+        if ($session.PSObject.Properties['target'] -and $session.target) { Write-Host "=== $($session.target) | $($session.status) | $(Split-Path -Parent ([string]$session.logPath)) ===" -ForegroundColor Cyan }
+        if (Test-Path -LiteralPath $session.logPath) { Get-Content -LiteralPath $session.logPath -Tail $tail }
+        if ($session.errorLogPath -and (Test-Path -LiteralPath $session.errorLogPath)) { Write-Host '--- stderr ---' -ForegroundColor Yellow; Get-Content -LiteralPath $session.errorLogPath -Tail $tail }
+    }
 }
 
 function Open-SgManagedProject([object]$Entry) {
@@ -986,7 +1053,7 @@ function Invoke-Menu {
                 '4' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
                 '5' { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port -Restart | Out-Null } }
                 '6' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
-                '7' { $entry = Get-SelectedProject 'open'; if ($entry) { Open-SgManagedProject $entry } }
+                '7' { $entry = Get-SelectedProject 'open'; if ($entry) { Open-SgManagedProject (Resolve-SgTargetView $entry) } }
                 '8' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
                 '9' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
                 'n' { Invoke-Navigate }
@@ -1012,7 +1079,9 @@ try {
                 $path = ConvertTo-SgCanonicalPath $ProjectPath
                 $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
                 if (-not $entry) { throw "Project is not registered: $path" }
-                Show-SgProjectStatus $entry
+                if ($Json) {
+                    [pscustomobject]@{ name=[string]$entry.name; path=[string]$entry.path; kind=[string]$entry.kind; status=[string]$entry.status; port=[int]$entry.port; targets=@(Get-SgEntrySessions $entry) } | ConvertTo-Json -Depth 6
+                } else { Show-SgProjectStatus $entry }
             } else { Show-SgWindowsDashboard }
         }
         'refresh' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null; Show-SgWindowsDashboard }
@@ -1029,18 +1098,18 @@ try {
         }
         'reload' {
             if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path>' }
-            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath 15
+            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath 15 (Get-SgRequestedTarget)
             if ($reload.Status -eq 'succeeded') { Write-SgInfo "$($reload.Name) reload succeeded" }
             elseif ($reload.Status -eq 'unavailable') { throw "reload unavailable: $($reload.Reason)" }
             else { throw "reload failed: $($reload.Reason)" }
         }
-        'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } } }
+        'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath -Target (Get-SgRequestedTarget)) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path -Target (Get-SgRequestedTarget)) } } }
         'restart' {
-            if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port -Restart | Out-Null }
-            else { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port -Restart | Out-Null } }
+            if ($ProjectPath) { Invoke-SgRestart $ProjectPath }
+            else { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRestart $entry.path } }
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
-        'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject $entry } }
+        'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject (Resolve-SgTargetView $entry) } }
         'extension-inspect' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
             $descriptor = Get-SgBrowserExtensionDescriptor $path $Browser
@@ -1060,7 +1129,7 @@ try {
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         'select-stop' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
         'select-unregister' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
-        'select-restart' { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port -Restart | Out-Null } }
+        'select-restart' { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRestart $entry.path } }
         'select-logs' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }

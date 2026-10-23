@@ -16,6 +16,12 @@ $script:ProjectEnvironmentBegin = '<!-- >>> ShipGlows development environment >>
 $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< -->'
 $script:CliCapabilitySchema = 'shipglows.cli-capabilities.v1'
 $script:CliCapabilityMaxBytes = 65536
+# Runtime fields owned by one target session. The surface's top-level copies mirror its primary session.
+$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent')
+$script:SgSessionLogRetention = 5
+$script:SgSessionFieldSet = [Collections.Generic.HashSet[string]]::new([string[]]$script:SgSessionFields, [StringComparer]::OrdinalIgnoreCase)
+# The fields reconciliation can change on a session.
+$script:SgLiveStateFields = @('status','pid','startTimeUtc','lastError','reservationToken','reservationTimeUtc','flutterStartupState','flutterAppId','flutterDaemonPid','stoppedAtUtc')
 
 function Write-SgInfo([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Cyan }
 function Write-SgWarn([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Yellow }
@@ -73,26 +79,35 @@ function Get-SgRegistryDefault {
 function Read-SgRegistry([object]$Config) {
     Ensure-SgDirectory $Config.RuntimeDirectory
     if (-not (Test-Path -LiteralPath $Config.RegistryPath -PathType Leaf)) { return Get-SgRegistryDefault }
+    # A concurrent writer replaces the file atomically; a sharing violation during that swap is retried,
+    # never mistaken for a corrupt registry.
+    $raw = $null
+    for ($attempt = 1; $null -eq $raw; $attempt++) {
+        try { $raw = [IO.File]::ReadAllText($Config.RegistryPath) }
+        catch [IO.FileNotFoundException] { return Get-SgRegistryDefault }
+        catch [IO.IOException] { if ($attempt -ge 40) { throw }; Start-Sleep -Milliseconds 25 }
+    }
     try {
-        $raw = Get-Content -LiteralPath $Config.RegistryPath -Raw -ErrorAction Stop
         # Keep round-trip timestamps intact on PowerShell 7.5+, as on Windows PowerShell.
         $jsonOptions = @{}
         if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) { $jsonOptions.DateKind='String' }
         $data = $raw | ConvertFrom-Json @jsonOptions -ErrorAction Stop
         if ($data.schemaVersion -ne $script:RegistryVersion -or $null -eq $data.projects) { throw 'Unsupported registry schema.' }
-        return $data
     } catch {
         $backup = "$($Config.RegistryPath).invalid"
         try { Copy-Item -LiteralPath $Config.RegistryPath -Destination $backup -Force } catch { }
-        Write-SgWarn "Registry invalid; using an empty recoverable view. Backup: $backup"
+        Write-SgWarn "Registry invalid ($($_.Exception.Message)); using an empty recoverable view. Backup: $backup"
         return Get-SgRegistryDefault
     }
+    # Reconciliation adopts surface-level writes of older CLIs; a plain read only migrates.
+    foreach ($project in @($data.projects)) { ConvertTo-SgSessionEntry $project -NoAdoption }
+    return $data
 }
 
-function Write-SgRegistry([object]$Config, [object]$Registry) {
+function Write-SgRegistry([object]$Config, [object]$Registry, [string]$Json = '') {
     Ensure-SgDirectory $Config.RuntimeDirectory
     $temp = "$($Config.RegistryPath).$([guid]::NewGuid().ToString('N')).tmp"
-    $json = $Registry | ConvertTo-Json -Depth 10
+    $json = if ($Json) { $Json } else { $Registry | ConvertTo-Json -Depth 10 }
     try {
         Set-Content -LiteralPath $temp -Value $json -Encoding UTF8 -ErrorAction Stop
         $parsed = (Get-Content -LiteralPath $temp -Raw) | ConvertFrom-Json -ErrorAction Stop
@@ -109,7 +124,7 @@ function Write-SgRegistry([object]$Config, [object]$Registry) {
     }
 }
 
-function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation) {
+function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation, [switch]$SkipProjection) {
     Ensure-SgDirectory $Config.RuntimeDirectory
     $lock = $null
     try {
@@ -124,7 +139,13 @@ function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation) {
         } while (-not $lock)
         $registry = Read-SgRegistry $Config
         & $Mutation $registry
-        Write-SgRegistry $Config $registry
+        # Reconciliation projects each surface itself as it goes.
+        if (-not $SkipProjection) { foreach ($project in @($registry.projects)) { Update-SgSurfaceProjection $project } }
+        # A status read that changes nothing leaves the file untouched instead of rewriting it.
+        $json = $registry | ConvertTo-Json -Depth 10
+        $current = $null
+        try { if ([IO.File]::Exists($Config.RegistryPath)) { $current = [IO.File]::ReadAllText($Config.RegistryPath) } } catch { $current = $null }
+        if ($null -eq $current -or $current.TrimEnd() -cne $json.TrimEnd()) { Write-SgRegistry $Config $registry $json }
         return $registry
     } finally {
         if ($lock) { $lock.Dispose() }
@@ -853,8 +874,308 @@ function Get-SgEntryDevice([object]$Entry) {
     return ''
 }
 
+# One surface runs one session per target: Tauri windows/android, Flutter chrome/web-server/windows/android,
+# a single target for the other kinds. Starting a target never replaces another one implicitly.
+function Get-SgDefaultSessionTarget([string]$Kind, [object]$Settings) {
+    if ($Kind -eq 'tauri') { return $(if ($Settings -and $Settings.TauriDevice) { [string]$Settings.TauriDevice } else { 'windows' }) }
+    if ($Kind -eq 'flutter-web') { return $(if ($Settings -and $Settings.FlutterDevice) { [string]$Settings.FlutterDevice } else { 'chrome' }) }
+    if ($Kind -eq 'browser-extension') { return 'chrome' }
+    if ($Kind -eq 'obsidian-plugin') { return 'obsidian' }
+    return 'web'
+}
+
+function Get-SgSessionTargetFromState([string]$Kind, [object]$State) {
+    if ($State -and $State.PSObject.Properties['target'] -and $State.target) { return [string]$State.target }
+    if ($Kind -eq 'tauri' -and $State -and $State.PSObject.Properties['tauriDevice'] -and $State.tauriDevice) { return [string]$State.tauriDevice }
+    if ($Kind -eq 'flutter-web' -and $State -and $State.PSObject.Properties['flutterDevice'] -and $State.flutterDevice) { return [string]$State.flutterDevice }
+    if ($Kind -eq 'flutter-web' -and $State -and $State.PSObject.Properties['flutterDeviceId'] -and $State.flutterDeviceId) {
+        # An Android device id is a serial; the other targets record their own name.
+        return $(if ([string]$State.flutterDeviceId -in @('windows','chrome','web-server')) { [string]$State.flutterDeviceId } else { 'android' })
+    }
+    return Get-SgDefaultSessionTarget $Kind $null
+}
+
+function New-SgSessionRecord([string]$Target) {
+    [pscustomobject]@{ target=$Target; status='stopped'; port=0; portRole='none'; pid=0; startTimeUtc=$null; executablePath=$null; commandSignature=$null; jobName=$null; logPath=$null; errorLogPath=$null; lastError=$null; reservationToken=$null; reservationTimeUtc=$null; startedAtUtc=$null; stoppedAtUtc=$null; lastEvent=$null }
+}
+
+# Registries written before targets existed keep their runtime state at the surface level; it becomes the
+# session of the target it describes. Entries that never ran get no session.
+# The session a surface-level runtime state describes, or nothing when the surface never ran.
+function Test-SgSurfaceHasRun([object]$Entry) {
+    $properties = $Entry.PSObject.Properties
+    $pidProperty = $properties['pid']; $statusProperty = $properties['status']; $logProperty = $properties['logPath']; $launchProperty = $properties['flutterLaunchDirectory']
+    return ($pidProperty -and [int]$pidProperty.Value -gt 0) -or ($statusProperty -and [string]$statusProperty.Value -notin @('','stopped','discovered')) -or ($logProperty -and $logProperty.Value) -or ($launchProperty -and $launchProperty.Value)
+}
+
+function New-SgLegacySession([object]$Entry, [switch]$Force) {
+    if (-not $Force -and -not (Test-SgSurfaceHasRun $Entry)) { return $null }
+    $values = [ordered]@{ target=(Get-SgSessionTargetFromState ([string]$Entry.kind) $Entry); status='stopped'; port=0; portRole='none'; pid=0; startTimeUtc=$null; executablePath=$null; commandSignature=$null; jobName=$null; logPath=$null; errorLogPath=$null; lastError=$null; reservationToken=$null; reservationTimeUtc=$null; startedAtUtc=$null; stoppedAtUtc=$null; lastEvent=$null }
+    foreach ($property in $Entry.PSObject.Properties) {
+        $name = $property.Name
+        if ($name -ne 'target' -and $name -ne 'portRole' -and $script:SgSessionFieldSet.Contains($name)) { $values[$name] = $property.Value }
+    }
+    $values['portRole'] = if ([int]$values['port'] -gt 0) { 'primary' } else { 'none' }
+    return [pscustomobject]$values
+}
+
+function ConvertTo-SgSessionEntry([object]$Entry, [switch]$NoAdoption) {
+    if (-not $Entry) { return }
+    $sessionsProperty = $Entry.PSObject.Properties['sessions']
+    if (-not $sessionsProperty) {
+        $session = New-SgLegacySession $Entry
+        $Entry.PSObject.Properties.Add([psnoteproperty]::new('sessions', $(if ($session) { ,@($session) } else { ,@() })))
+        return
+    }
+    $sessions = @(foreach ($item in @($sessionsProperty.Value)) { if ($null -ne $item -and $item.PSObject.Properties['target'] -and $item.target) { $item } })
+    $sessionsProperty.Value = $sessions
+    # Every write leaves the surface-level fields equal to the primary session. A surface copy that differs
+    # was written by a pre-target writer (an older CLI still running during an update); it is adopted into
+    # its target's session instead of being lost. Inside a mutation the copy lags on purpose: no adoption.
+    if ($NoAdoption) { return }
+    $primary = if ($sessions.Count -eq 1) { $sessions[0] } elseif ($sessions.Count -gt 1) { Select-SgPrimarySession $sessions } else { $null }
+    $diverged = -not $primary -and (Test-SgSurfaceHasRun $Entry)
+    if ($primary) {
+        $primaryProperties = $primary.PSObject.Properties
+        foreach ($field in @('status','pid','startTimeUtc','lastError','reservationToken')) {
+            $surface = $Entry.PSObject.Properties[$field]
+            $own = $primaryProperties[$field]
+            if ($surface -and [string]$surface.Value -cne [string]$(if ($own) { $own.Value } else { $null })) { $diverged = $true; break }
+        }
+    }
+    if (-not $diverged) { return }
+    $target = Get-SgSessionTargetFromState ([string]$Entry.kind) $Entry
+    $session = Get-SgEntrySession $Entry $target
+    if (-not $session) { $session = New-SgLegacySession $Entry -Force; Set-SgEntrySession $Entry $session; return }
+    foreach ($field in $script:SgSessionFields) {
+        if ($field -in @('target','port','portRole')) { continue }
+        $property = $Entry.PSObject.Properties[$field]
+        if ($property) { Set-SgNoteProperty $session $field $property.Value }
+    }
+}
+
+function Get-SgOptionalValue([object]$Object, [string]$Name) {
+    if ($Object -and $Object.PSObject.Properties[$Name]) { return $Object.$Name }
+    return $null
+}
+
+# Reconciliation reads every session on each status call; these helpers avoid pipelines and Add-Member.
+function Set-SgNoteProperty([object]$Object, [string]$Name, [object]$Value) {
+    $property = $Object.PSObject.Properties[$Name]
+    if ($property) { $property.Value = $Value } else { $Object.PSObject.Properties.Add([psnoteproperty]::new($Name, $Value)) }
+}
+
+function Get-SgEntrySessions([object]$Entry) {
+    if (-not $Entry) { return @() }
+    $property = $Entry.PSObject.Properties['sessions']
+    # An entry that never went through the registry reader is read as its surface-level session, unchanged.
+    if (-not $property) { $legacy = New-SgLegacySession $Entry; return $(if ($legacy) { @($legacy) } else { @() }) }
+    if ($null -eq $property.Value) { return @() }
+    return @(foreach ($session in @($property.Value)) { if ($null -ne $session) { $session } })
+}
+
+function Get-SgEntrySession([object]$Entry, [string]$Target) {
+    foreach ($session in @(Get-SgEntrySessions $Entry)) { if ([string]$session.target -eq $Target) { return $session } }
+    return $null
+}
+
+function Set-SgEntrySession([object]$Entry, [object]$Session) {
+    $target = [string]$Session.target
+    $others = @(foreach ($existing in @(Get-SgEntrySessions $Entry)) { if ([string]$existing.target -ne $target) { $existing } })
+    Set-SgNoteProperty $Entry 'sessions' (@($others) + @($Session))
+}
+
+function Copy-SgSessionFields([object]$Source, [object]$Session) {
+    $targetProperties = $Session.PSObject.Properties
+    foreach ($property in $Source.PSObject.Properties) {
+        if (-not $script:SgSessionFieldSet.Contains($property.Name)) { continue }
+        $existing = $targetProperties[$property.Name]
+        if ($existing) { $existing.Value = $property.Value } else { $targetProperties.Add([psnoteproperty]::new($property.Name, $property.Value)) }
+    }
+}
+
+# A session view is the surface with one session overlaid: the shape every process, readiness and stop
+# helper already reads. A missing session yields a stopped view, never another target's process.
+function Get-SgSessionView([object]$Entry, [object]$Session, [string]$Target = '') {
+    if (-not $Session) { $Session = New-SgSessionRecord $(if ($Target) { $Target } else { Get-SgSessionTargetFromState ([string]$Entry.kind) $null }) }
+    $view = $Session.PSObject.Copy()
+    $viewProperties = $view.PSObject.Properties
+    foreach ($property in $Entry.PSObject.Properties) {
+        $name = $property.Name
+        if ($name -eq 'sessions' -or $viewProperties[$name]) { continue }
+        # A surface-level runtime field the session lacks belongs to another target: it is blanked.
+        $value = if (-not $script:SgSessionFieldSet.Contains($name) -or $name -eq 'port') { $property.Value } elseif ($name -eq 'pid' -or $name -eq 'flutterDaemonPid') { 0 } else { $null }
+        $viewProperties.Add([psnoteproperty]::new($name, $value))
+    }
+    return $view
+}
+
+function ConvertTo-SgSessionTicks([object]$Value) {
+    if ($null -eq $Value -or [string]::IsNullOrWhiteSpace([string]$Value)) { return [long]0 }
+    try { return [long](ConvertTo-SgUtcStartTicks $Value) } catch { return [long]0 }
+}
+
+function Get-SgSessionRecency([object]$Session) {
+    $ticks = [long]0
+    foreach ($field in @('startedAtUtc','stoppedAtUtc','reservationTimeUtc','startTimeUtc')) {
+        $property = $Session.PSObject.Properties[$field]
+        if ($property -and $property.Value) { $ticks = [Math]::Max($ticks, (ConvertTo-SgSessionTicks $property.Value)) }
+    }
+    return $ticks
+}
+
+function Get-SgSessionStatusRank([object]$Session) {
+    switch ([string]$Session.status) { 'running' { 0 } 'starting' { 1 } 'reserved' { 1 } 'error' { 2 } default { 3 } }
+}
+
+function Select-SgPrimarySession([object[]]$Sessions) {
+    $candidates = @(foreach ($session in @($Sessions)) { if ($null -ne $session) { $session } })
+    if ($candidates.Count -le 1) { return $(if ($candidates.Count -eq 1) { $candidates[0] } else { $null }) }
+    $best = $null; $bestRank = [int]::MaxValue; $bestRecency = [long]-1
+    foreach ($session in $candidates) {
+        if ($null -eq $session) { continue }
+        $rank = Get-SgSessionStatusRank $session
+        $recency = Get-SgSessionRecency $session
+        if ($rank -lt $bestRank -or ($rank -eq $bestRank -and $recency -gt $bestRecency)) { $best = $session; $bestRank = $rank; $bestRecency = $recency }
+    }
+    return $best
+}
+
+function Update-SgSurfaceProjection([object]$Entry) {
+    ConvertTo-SgSessionEntry $Entry -NoAdoption
+    $sessions = @($Entry.sessions)
+    $primary = if ($sessions.Count -eq 1) { $sessions[0] } else { Select-SgPrimarySession $sessions }
+    if (-not $primary) { return }
+    $roleProperty = $primary.PSObject.Properties['portRole']
+    $role = if ($roleProperty) { [string]$roleProperty.Value } else { '' }
+    $surfaceProperties = $Entry.PSObject.Properties
+    foreach ($property in $primary.PSObject.Properties) {
+        # The surface port is its persistent preference: secondary, shared and no-port sessions never move it.
+        if ($property.Name -eq 'port' -and ([int]$property.Value -le 0 -or $role -notin @('','primary'))) { continue }
+        $existing = $surfaceProperties[$property.Name]
+        if ($existing) { $existing.Value = $property.Value } else { $surfaceProperties.Add([psnoteproperty]::new($property.Name, $property.Value)) }
+    }
+}
+
+function Test-SgReservationFresh([object]$State, [int]$Minutes = 5) {
+    if (-not $State -or -not $State.PSObject.Properties['reservationTimeUtc'] -or -not $State.reservationTimeUtc) { return $false }
+    try { return (([datetime]::UtcNow - [datetime]::Parse([string]$State.reservationTimeUtc).ToUniversalTime()).TotalMinutes -lt $Minutes) } catch { return $false }
+}
+
+function Test-SgSessionLive([object]$Entry, [object]$Session, [hashtable]$SnapshotByPid = $null) {
+    if (-not $Session) { return $false }
+    if ([int]$Session.pid -gt 0 -and (Test-SgProcessIdentity (Get-SgSessionView $Entry $Session) $SnapshotByPid)) { return $true }
+    return [string]$Session.status -in @('reserved','starting') -and (Test-SgReservationFresh $Session)
+}
+
+function Get-SgLiveSessions([object]$Entry) {
+    return @(Get-SgEntrySessions $Entry | Where-Object { Test-SgSessionLive $Entry $_ })
+}
+
+# The target a start request addresses: the explicit device, else the live target it reuses, else the default.
+function Resolve-SgStartTarget([object]$Config, [string]$ProjectPath, [string]$FlutterDevice = '', [string]$TauriDevice = '') {
+    if ($TauriDevice) { return $TauriDevice }
+    if ($FlutterDevice) { return $FlutterDevice }
+    $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $ProjectPath }) | Select-Object -First 1
+    $live = if ($entry) { Select-SgPrimarySession @(Get-SgLiveSessions $entry) } else { $null }
+    if ($live) { return [string]$live.target }
+    try {
+        $kind = if ($entry) { [string]$entry.kind } else { Get-SgProjectKind $ProjectPath }
+        return Get-SgDefaultSessionTarget $kind (Get-SgRuntimeSettings $ProjectPath)
+    } catch { return 'default' }
+}
+
+function Get-SgSessionDependents([object]$Entry, [string]$Target) {
+    return @(Get-SgEntrySessions $Entry | Where-Object { [string]$_.target -ne $Target -and $_.PSObject.Properties['frontendOwner'] -and [string]$_.frontendOwner -eq $Target })
+}
+
+function Get-SgSessionDigest([string]$Text) {
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($Text)))).Replace('-','').ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
+
+function Get-SgSessionMutexName([object]$Config, [string]$ProjectPath, [string]$Target) {
+    return 'Local\ShipGlowsTarget-' + (Get-SgSessionDigest ($Config.RegistryPath + '|' + $ProjectPath.ToLowerInvariant() + '|' + $Target.ToLowerInvariant()))
+}
+
+function Invoke-SgNamedMutex([string]$SgMutexName, [string]$SgMutexBusyMessage, [scriptblock]$SgMutexAction, [int]$SgMutexTimeoutMilliseconds = 30000) {
+    $sgMutex = New-Object Threading.Mutex($false, $SgMutexName)
+    $sgMutexLocked = $false
+    try {
+        try { $sgMutexLocked = $sgMutex.WaitOne($SgMutexTimeoutMilliseconds) } catch [Threading.AbandonedMutexException] { $sgMutexLocked = $true }
+        if (-not $sgMutexLocked) { throw $SgMutexBusyMessage }
+        return & $SgMutexAction
+    } finally { if ($sgMutexLocked) { $sgMutex.ReleaseMutex() }; $sgMutex.Dispose() }
+}
+
+# Each launch writes its own stdout/stderr/setup logs under <surface>\<target>\<launch>; older launches of the
+# same target are pruned beyond the retention count, so concurrent targets never overwrite each other.
+function New-SgSessionLogDirectory([object]$Config, [object]$Entry, [string]$Target, [string]$Token) {
+    if ($Target -notmatch '^[a-z0-9-]{1,32}$') { throw "Invalid session target name: $Target" }
+    $targetRoot = Join-Path (Join-Path $Config.LogDirectory (Get-SgProjectLogKey $Entry)) $Target
+    Ensure-SgDirectory $targetRoot
+    $directory = Join-Path $targetRoot ('{0}-{1}' -f (Get-Date).ToString('yyyyMMdd-HHmmss'), $Token.Substring(0, 8))
+    Ensure-SgDirectory $directory
+    $expired = @(Get-ChildItem -LiteralPath $targetRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^\d{8}-\d{6}-[a-f0-9]{8}$' -and $_.FullName -ne $directory } | Sort-Object -Property CreationTimeUtc -Descending | Select-Object -Skip ([Math]::Max(0, $script:SgSessionLogRetention - 1)))
+    foreach ($item in $expired) { Remove-Item -LiteralPath $item.FullName -Recurse -Force -ErrorAction SilentlyContinue }
+    return $directory
+}
+
+function Format-SgSessionTime([object]$Value) {
+    $ticks = ConvertTo-SgSessionTicks $Value
+    if ($ticks -le 0) { return '' }
+    $local = ([datetime]::new($ticks, [DateTimeKind]::Utc)).ToLocalTime()
+    if ($local.Date -eq (Get-Date).Date) { return $local.ToString('HH:mm:ss') }
+    return $local.ToString('yyyy-MM-dd HH:mm')
+}
+
+function Get-SgSessionPortLabel([object]$Session) {
+    $port = [int]$Session.port
+    if ($port -le 0 -or [string](Get-SgOptionalValue $Session 'portRole') -eq 'none') { return 'no port' }
+    $mode = if ($Session.PSObject.Properties['frontendMode']) { [string]$Session.frontendMode } else { '' }
+    if ($mode -eq 'shared') { return ":$port shared frontend of $([string]$Session.frontendOwner)" }
+    if ($Session.PSObject.Properties['portRole'] -and [string]$Session.portRole -eq 'secondary') { return ":$port own (secondary port)" }
+    return ":$port"
+}
+
+# One line per target: what runs, where, since when, and the last lifecycle event of stopped targets.
+function Format-SgSessionStatusLines([object]$Entry) {
+    $lines = @()
+    foreach ($session in @(Get-SgEntrySessions $Entry | Sort-Object -Property @{Expression={ Get-SgSessionStatusRank $_ }}, @{Expression={ [string]$_.target }})) {
+        $status = if ($session.status) { [string]$session.status } else { 'stopped' }
+        $parts = @(('{0,-10} {1,-8}' -f [string]$session.target, $status))
+        if ($status -in @('reserved','starting','running','error')) {
+            $parts += Get-SgSessionPortLabel $session
+            $since = Format-SgSessionTime $(if ($session.PSObject.Properties['startedAtUtc'] -and $session.startedAtUtc) { $session.startedAtUtc } else { $session.startTimeUtc })
+            if ($since) { $parts += "since $since" }
+            if ([int]$session.pid -gt 0) { $parts += "pid $([int]$session.pid)" }
+            $device = if ($session.PSObject.Properties['tauriDeviceId'] -and $session.tauriDeviceId) { [string]$session.tauriDeviceId } elseif ($session.PSObject.Properties['flutterDeviceId'] -and $session.flutterDeviceId -and [string]$session.flutterDeviceId -ne [string]$session.target) { [string]$session.flutterDeviceId } else { '' }
+            if ($device) { $parts += "device $device" }
+            if ($status -eq 'error' -and $session.lastError) { $parts += [string]$session.lastError }
+        } else {
+            $stopped = Format-SgSessionTime $(if ($session.PSObject.Properties['stoppedAtUtc']) { $session.stoppedAtUtc } else { $null })
+            if ($stopped) { $parts += "at $stopped" }
+        }
+        if ($session.PSObject.Properties['lastEvent'] -and $session.lastEvent) { $parts += [string]$session.lastEvent }
+        if ($session.PSObject.Properties['errorLogPath'] -and $session.errorLogPath) { $parts += "logs $(Split-Path -Parent ([string]$session.errorLogPath))" }
+        $lines += ($parts -join ' | ')
+    }
+    return $lines
+}
+
 function Format-SgProjectStatus([object]$Entry) {
     if (-not $Entry) { return 'unknown project' }
+    $activeSessions = @(Get-SgEntrySessions $Entry | Where-Object { [string]$_.status -in @('reserved','starting','running') })
+    if ($activeSessions.Count -gt 1) {
+        $kind = [string]$Entry.kind
+        $status = [string](Select-SgPrimarySession $activeSessions).status
+        $labels = @($activeSessions | Sort-Object -Property @{Expression={ [string]$_.target }} | ForEach-Object {
+            $experience = Get-SgProjectExperience $kind ([int]$_.port) ([string]$_.target) $(if ($_.PSObject.Properties['flutterMode']) { [string]$_.flutterMode } else { '' }) ([string]$Entry.path)
+            "$($experience.Label) $(Get-SgSessionPortLabel $_)"
+        })
+        return "$status | $($labels -join ' + ')"
+    }
     $kind = if ($Entry.PSObject.Properties['kind'] -and $Entry.kind) { [string]$Entry.kind } else { 'unknown' }
     $port = if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 }
     $status = if ($Entry.PSObject.Properties['status'] -and $Entry.status) { [string]$Entry.status } else { 'discovered' }
@@ -967,8 +1288,24 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
     return $settings
 }
 
-function Get-SgFreePort([object]$Config, [int]$RequestedPort = 0, [string]$OwnerPath = '') {
-    $reserved = @((Read-SgRegistry $Config).projects | Where-Object { $_.port -and (-not $OwnerPath -or $_.path -ne $OwnerPath) } | ForEach-Object { [int]$_.port })
+# Ports held by other surfaces (their persistent port and active sessions) and by the owner's other targets.
+function Get-SgReservedPorts([object[]]$Projects, [string]$OwnerPath = '', [string]$OwnerTarget = '', [switch]$VerifySiblings) {
+    $ports = New-Object 'System.Collections.Generic.List[int]'
+    foreach ($project in @($Projects)) {
+        $own = $OwnerPath -and [string]$project.path -eq $OwnerPath
+        if (-not $own -and $project.PSObject.Properties['port'] -and [int]$project.port -gt 0) { $ports.Add([int]$project.port) }
+        foreach ($session in @(Get-SgEntrySessions $project)) {
+            if ([int]$session.port -le 0 -or [string]$session.status -notin @('reserved','starting','running') -or [string](Get-SgOptionalValue $session 'portRole') -eq 'none') { continue }
+            if ($own -and $OwnerTarget -and [string]$session.target -eq $OwnerTarget) { continue }
+            if ($own -and $VerifySiblings -and -not (Test-SgSessionLive $project $session)) { continue }
+            $ports.Add([int]$session.port)
+        }
+    }
+    return @($ports | Sort-Object -Unique)
+}
+
+function Get-SgFreePort([object]$Config, [int]$RequestedPort = 0, [string]$OwnerPath = '', [string]$OwnerTarget = '') {
+    $reserved = @(Get-SgReservedPorts (Read-SgRegistry $Config).projects $OwnerPath $OwnerTarget)
     $candidates = if ($RequestedPort -gt 0) { @($RequestedPort) } else { $Config.PortStart..$Config.PortEnd }
     foreach ($port in $candidates) {
         if ($reserved -contains $port) { continue }
@@ -999,104 +1336,104 @@ function Test-SgPortAvailable([int]$Port) {
     }
 }
 
-function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false, [switch]$NoPort, [switch]$PreservePort) {
+function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false, [switch]$NoPort, [switch]$PreservePort, [string]$Target = '', [int]$SharedPort = 0, [string]$PortRole = '') {
     if ($RequestedPort -ne 0 -and ($RequestedPort -lt 1024 -or $RequestedPort -gt 65535)) { throw 'Requested port must be 0 or between 1024 and 65535.' }
     $token = [guid]::NewGuid().ToString('N')
-    if ($NoPort) {
-        $result = Invoke-SgRegistryMutation $Config {
-            param($data)
-            $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
-            if (-not $entry) { throw "Project is not registered: $ProjectPath" }
-            # Native Flutter targets listen on no HTTP port but keep the surface port for a later Web launch.
-            if (-not $PreservePort) { $entry.port = 0 }
-            $entry.status = 'reserved'
-            $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $token -Force
-            $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue ([DateTime]::UtcNow.ToString('o')) -Force
-        }
-        $reservedEntry = $result.projects | Where-Object { $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $token } | Select-Object -First 1
-        if (-not $reservedEntry) { throw "No-port reservation could not be persisted for: $ProjectPath" }
-        return [pscustomobject]@{ Port=[int]$reservedEntry.port; Token=$token }
-    }
     $result = Invoke-SgRegistryMutation $Config {
         param($data)
         $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
         if (-not $entry) { throw "Project is not registered: $ProjectPath" }
+        $sessionTarget = if ($Target) { $Target } else { Get-SgSessionTargetFromState ([string]$entry.kind) (Select-SgPrimarySession @(Get-SgEntrySessions $entry)) }
 
-        $now = (Get-Date).ToUniversalTime()
+        # Reservations of launches that crashed before recording a process cannot hold a port or a target.
         foreach ($item in @($data.projects)) {
-            $hasReservationTime = $item.PSObject.Properties['reservationTimeUtc'] -and $item.reservationTimeUtc
-            if ($item.status -in @('reserved','starting') -and $hasReservationTime) {
-                $expired = $true
-                try {
-                    $expired = ($now - [datetime]::Parse([string]$item.reservationTimeUtc).ToUniversalTime()).TotalMinutes -ge 5
-                } catch {
-                    # Corrupt reservation metadata cannot retain a port lock.
-                    $expired = $true
-                }
-                if ($expired -and -not (Test-SgProcessIdentity $item)) {
-                    $item.status = 'stopped'
-                    $item | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
-                    $item | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+            foreach ($session in @(Get-SgEntrySessions $item)) {
+                if ($session.status -in @('reserved','starting') -and $session.PSObject.Properties['reservationTimeUtc'] -and $session.reservationTimeUtc -and -not (Test-SgReservationFresh $session) -and -not (Test-SgProcessIdentity (Get-SgSessionView $item $session))) {
+                    $session.status = 'stopped'
+                    $session | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
+                    $session | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
                 }
             }
         }
-
-        $otherPorts = @($data.projects | Where-Object { $_.path -ne $ProjectPath -and [int]$_.port -gt 0 } | ForEach-Object { [int]$_.port })
-        $existingPort = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
-        $candidates = if ($RequestedPort -gt 0) {
-            @($RequestedPort)
-        } elseif ($existingPort -gt 0) {
-            @($existingPort) + @($Config.PortStart..$Config.PortEnd | Where-Object { $_ -ne $existingPort })
-        } else {
-            @($Config.PortStart..$Config.PortEnd)
-        }
-
         $selected = 0
-        foreach ($candidate in $candidates) {
-            if ($otherPorts -contains $candidate -or -not (Test-SgPortAvailable $candidate)) {
-                if ($Explicit) { throw "Configured port $candidate is already occupied or reserved." }
-                continue
+        $role = 'none'
+        if ($SharedPort -gt 0) {
+            $selected = $SharedPort
+            $role = 'shared'
+        } elseif ($NoPort) {
+            # Native Flutter targets listen on no port but carry the surface port for a later Web launch.
+            if ($PreservePort -and $entry.PSObject.Properties['port']) { $selected = [int]$entry.port }
+        } else {
+            $siblingPorts = @(Get-SgReservedPorts @($entry) $ProjectPath $sessionTarget -VerifySiblings)
+            $otherPorts = @(Get-SgReservedPorts @($data.projects | Where-Object { $_.path -ne $ProjectPath }))
+            $existingPort = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
+            $candidates = if ($RequestedPort -gt 0) {
+                @($RequestedPort)
+            } elseif ($existingPort -gt 0) {
+                @($existingPort) + @($Config.PortStart..$Config.PortEnd | Where-Object { $_ -ne $existingPort })
+            } else {
+                @($Config.PortStart..$Config.PortEnd)
             }
-            $selected = $candidate
-            break
+            foreach ($candidate in $candidates) {
+                if ($siblingPorts -contains $candidate) {
+                    if ($Explicit) {
+                        $holder = @(Get-SgEntrySessions $entry | Where-Object { [int]$_.port -eq $candidate -and [string]$_.target -ne $sessionTarget }) | Select-Object -First 1
+                        throw "Port $candidate is held by the $([string]$holder.target) target of $($entry.name)."
+                    }
+                    continue
+                }
+                if ($otherPorts -contains $candidate -or -not (Test-SgPortAvailable $candidate)) {
+                    if ($Explicit) { throw "Configured port $candidate is already occupied or reserved." }
+                    continue
+                }
+                $selected = $candidate
+                break
+            }
+            if ($selected -le 0) { throw 'No free localhost port is available in the requested range.' }
+            $role = if ($PortRole) { $PortRole } else { 'primary' }
         }
-        if ($selected -le 0) { throw 'No free localhost port is available in the requested range.' }
-
-        $entry.port = $selected
-        $entry.status = 'reserved'
-        $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $token -Force
-        $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $now.ToString('o') -Force
+        $session = New-SgSessionRecord $sessionTarget
+        $session.port = $selected
+        $session.portRole = $role
+        $session.status = 'reserved'
+        $session.reservationToken = $token
+        $session.reservationTimeUtc = (Get-Date).ToUniversalTime().ToString('o')
+        Set-SgEntrySession $entry $session
+        # Obsidian keeps no surface port; native Flutter targets keep the surface port for a later Web launch.
+        if ($NoPort -and -not $PreservePort -and $SharedPort -le 0) { $entry.port = 0 }
     }
-    $reservedEntry = $result.projects | Where-Object { $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $token } | Select-Object -First 1
-    if (-not $reservedEntry) { throw "Port reservation could not be persisted for: $ProjectPath" }
-    return [pscustomobject]@{ Port = [int]$reservedEntry.port; Token = $token }
+    $reservedEntry = $result.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
+    $reservedSession = @(Get-SgEntrySessions $reservedEntry | Where-Object { $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $token }) | Select-Object -First 1
+    if (-not $reservedSession) { throw "Port reservation could not be persisted for: $ProjectPath" }
+    return [pscustomobject]@{ Port = [int]$reservedSession.port; Token = $token; Target = [string]$reservedSession.target }
+}
+
+function Find-SgReservedSession([object]$Entry, [string]$Token, [object]$EntryData = $null) {
+    if (-not $Entry) { return $null }
+    $session = @(Get-SgEntrySessions $Entry | Where-Object { $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -and $_.reservationToken -eq $Token }) | Select-Object -First 1
+    if ($session -or -not $EntryData -or -not $EntryData.PSObject.Properties['pid'] -or [int]$EntryData.pid -le 0 -or -not $EntryData.PSObject.Properties['startTimeUtc'] -or -not $EntryData.startTimeUtc) { return $session }
+    # A concurrent reconciliation may clear the token of a live launch; the exact recorded process identity still proves ownership.
+    $launchTicks = ConvertTo-SgUtcStartTicks $EntryData.startTimeUtc
+    return @(Get-SgEntrySessions $Entry | Where-Object {
+        $sameProcess = $false
+        if ([int]$_.pid -eq [int]$EntryData.pid -and $_.PSObject.Properties['startTimeUtc'] -and $_.startTimeUtc) {
+            try { $sameProcess = (ConvertTo-SgUtcStartTicks $_.startTimeUtc) -eq $launchTicks } catch { $sameProcess = $false }
+        }
+        $sameProcess
+    }) | Select-Object -First 1
 }
 
 function Set-SgReservationState([object]$Config, [string]$ProjectPath, [string]$Token, [string]$Status, [object]$EntryData = $null) {
     Invoke-SgRegistryMutation $Config {
         param($data)
-        $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath -and $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $Token } | Select-Object -First 1
-        if (-not $entry -and $EntryData -and $EntryData.PSObject.Properties['pid'] -and [int]$EntryData.pid -gt 0 -and $EntryData.PSObject.Properties['startTimeUtc'] -and $EntryData.startTimeUtc) {
-            # A concurrent reconciliation may clear the token of a live launch; the exact recorded process identity still proves ownership.
-            $launchTicks = ConvertTo-SgUtcStartTicks $EntryData.startTimeUtc
-            $entry = $data.projects | Where-Object {
-                $sameProcess = $false
-                if ($_.path -eq $ProjectPath -and [int]$_.pid -eq [int]$EntryData.pid -and $_.PSObject.Properties['startTimeUtc'] -and $_.startTimeUtc) {
-                    try { $sameProcess = (ConvertTo-SgUtcStartTicks $_.startTimeUtc) -eq $launchTicks } catch { $sameProcess = $false }
-                }
-                $sameProcess
-            } | Select-Object -First 1
-        }
-        if (-not $entry) { throw "Port reservation was lost for: $ProjectPath" }
-        if ($EntryData) {
-            foreach ($property in $EntryData.PSObject.Properties) {
-                $entry | Add-Member -NotePropertyName $property.Name -NotePropertyValue $property.Value -Force
-            }
-        }
-        $entry.status = $Status
+        $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
+        $session = Find-SgReservedSession $entry $Token $EntryData
+        if (-not $session) { throw "Port reservation was lost for: $ProjectPath" }
+        if ($EntryData) { Copy-SgSessionFields $EntryData $session }
+        $session.status = $Status
         if ($Status -notin @('reserved','starting')) {
-            $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
-            $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+            $session | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
+            $session | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
         }
     } | Out-Null
 }
@@ -1104,14 +1441,13 @@ function Set-SgReservationState([object]$Config, [string]$ProjectPath, [string]$
 function Release-SgProjectPort([object]$Config, [string]$ProjectPath, [string]$Token, [string]$ErrorMessage = '') {
     Invoke-SgRegistryMutation $Config {
         param($data)
-        $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath -and $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $Token } | Select-Object -First 1
-        if (-not $entry) { return }
-        $entry.status = 'error'
-        $entry | Add-Member -NotePropertyName lastError -NotePropertyValue $ErrorMessage -Force
-        $entry | Add-Member -NotePropertyName pid -NotePropertyValue 0 -Force
-        $entry | Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $null -Force
-        $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
-        $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+        $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
+        $session = Find-SgReservedSession $entry $Token
+        if (-not $session) { return }
+        $session.status = 'error'
+        foreach ($pair in @(@('lastError',$ErrorMessage),@('pid',0),@('startTimeUtc',$null),@('reservationToken',$null),@('reservationTimeUtc',$null),@('stoppedAtUtc',[DateTime]::UtcNow.ToString('o')))) {
+            $session | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
+        }
     } | Out-Null
 }
 
@@ -2317,10 +2653,16 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
     $logWriter = $null
     $suppressNpmLock = $false
     try {
-        $deadline = (Get-Date).AddSeconds(30)
+        # Concurrent targets of one surface share its dependencies: a second target waits for the first setup.
+        $deadline = (Get-Date).AddSeconds(900)
+        $waitAnnounced = $false
         do {
             try { $lock = [IO.File]::Open("$statePath.lock", [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) }
-            catch [IO.IOException] { if ((Get-Date) -ge $deadline) { throw 'Dependency setup lock timed out.' }; Start-Sleep -Milliseconds 50 }
+            catch [IO.IOException] {
+                if ((Get-Date) -ge $deadline) { throw 'Dependency setup lock timed out.' }
+                if (-not $waitAnnounced) { Write-SgInfo 'Waiting for the dependency setup of another target of this project.'; $waitAnnounced = $true }
+                Start-Sleep -Milliseconds 200
+            }
         } while (-not $lock)
         $plan = New-SgDependencyPlan $ProjectPath $Kind
         $inputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind
@@ -2399,13 +2741,36 @@ function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
     Move-Item -LiteralPath $Path -Destination $rotated -Force
 }
 
-function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$FlutterMode = 'debug', [string]$TauriDevice = '', [string]$TauriDeviceName = '') {
+function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$FlutterMode = 'debug', [string]$TauriDevice = '', [string]$TauriDeviceName = '', [ValidateSet('','own','shared')][string]$TauriFrontend = '', [string]$TauriSessionDirectory = '') {
     if ($Kind -eq 'tauri') {
         $android = $TauriDevice -eq 'android'
         $tauri = Get-Content -LiteralPath (Join-Path $ProjectPath 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
         $devUrl = [uri]$tauri.build.devUrl
-        if ($devUrl.Host -notin @('127.0.0.1','localhost') -or $devUrl.Port -ne $Port) { throw "Tauri devUrl must use the assigned local port $Port." }
+        if ($devUrl.Host -notin @('127.0.0.1','localhost')) { throw "Tauri devUrl must use the assigned local port $Port." }
         if (-not $tauri.build.beforeDevCommand) { throw 'Tauri must declare beforeDevCommand to own its frontend server.' }
+        # A second concurrent target either attaches to the frontend another target already serves (shared:
+        # Tauri's JSON merge patch drops beforeDevCommand) or runs its own frontend on another port (own).
+        $frontendPatch = $null
+        if ($TauriFrontend -eq 'shared') {
+            if ($devUrl.Port -ne $Port) { throw "A shared Tauri frontend must use the devUrl port $($devUrl.Port)." }
+            $frontendPatch = [ordered]@{ build = [ordered]@{ beforeDevCommand = $null } }
+        } elseif ($TauriFrontend -eq 'own' -and $devUrl.Port -ne $Port) {
+            $builder = [UriBuilder]::new($devUrl)
+            $builder.Port = $Port
+            $frontendPatch = [ordered]@{ build = [ordered]@{ devUrl = $builder.Uri.AbsoluteUri } }
+        } elseif ($devUrl.Port -ne $Port) { throw "Tauri devUrl must use the assigned local port $Port." }
+        $devConfig = Join-Path $ProjectPath 'src-tauri\tauri.dev.conf.json'
+        $configArgument = if (-not $android -and (Test-Path -LiteralPath $devConfig -PathType Leaf)) { ' --config "src-tauri\tauri.dev.conf.json"' } else { '' }
+        if ($frontendPatch) {
+            if (-not $TauriSessionDirectory) { throw 'A Tauri frontend override requires its session directory.' }
+            # Tauri reads one merged override: the desktop dev overlay first, then the frontend patch.
+            $merged = if ($configArgument) { Get-Content -LiteralPath $devConfig -Raw | ConvertFrom-Json -AsHashtable } else { [ordered]@{} }
+            Merge-SgJsonObject $merged $frontendPatch
+            $sessionConfig = Join-Path $TauriSessionDirectory 'tauri.session.conf.json'
+            if ($sessionConfig -match '["%&|^<>!]') { throw 'The Tauri session configuration path cannot be passed safely to cmd.exe.' }
+            [IO.File]::WriteAllText($sessionConfig, ($merged | ConvertTo-Json -Depth 20), (New-Object Text.UTF8Encoding($false)))
+            $configArgument = " --config `"$sessionConfig`""
+        }
         $manager = Get-SgNodePackageManager $ProjectPath
         $prefix = if (@($manager.PrefixArguments).Count) { ' ' + (@($manager.PrefixArguments) -join ' ') } else { '' }
         $cargo = Get-SgCommandPath @('cargo.exe')
@@ -2437,12 +2802,10 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
                 if (-not $pnpm) { throw 'Tauri Android needs pnpm on PATH: its Gradle build calls pnpm back outside Corepack.' }
                 $runner = "`"$pnpm`""
             }
-            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call $runner exec tauri android dev --host 127.0.0.1$deviceArgument"
+            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call $runner exec tauri android dev --host 127.0.0.1$configArgument$deviceArgument"
             return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri android dev'; Interactive=$false; FlutterSdkRoot=$null }
         }
-        $devConfig = Join-Path $ProjectPath 'src-tauri\tauri.dev.conf.json'
-        $devConfigArgument = if (Test-Path -LiteralPath $devConfig -PathType Leaf) { ' --config "src-tauri\tauri.dev.conf.json"' } else { '' }
-        $command ="set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri dev$devConfigArgument"
+        $command ="set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri dev$configArgument"
         return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri dev'; Interactive=$false; FlutterSdkRoot=$null }
     }
     $signature = Get-SgCommandSignature $ProjectPath $Kind $Port
@@ -2623,16 +2986,19 @@ function Complete-SgManagedProcessExit([object]$Config, [string]$ProjectPath, [i
     Invoke-SgRegistryMutation $Config {
         param($registry)
         $entry = @($registry.projects | Where-Object { $_.path -eq $ProjectPath })[0]
-        if (-not $entry -or [int]$entry.pid -ne $Pid -or [string]$entry.startTimeUtc -ne $StartTimeUtc) { return }
+        $session = if ($entry) { @(Get-SgEntrySessions $entry | Where-Object { [int]$_.pid -eq $Pid -and [string]$_.startTimeUtc -eq $StartTimeUtc }) | Select-Object -First 1 } else { $null }
+        if (-not $session) { return }
         # An explicit stop clears the PID first. This watcher therefore only
         # records an unrequested exit of the exact process it was assigned to.
-        if ($entry.status -in @('starting', 'running')) {
-            $entry.status = 'error'
-            $entry.pid = 0
-            $entry.startTimeUtc = $null
-            $entry | Add-Member -NotePropertyName lastError -NotePropertyValue 'Managed application process exited unexpectedly. Inspect the project logs before restarting.' -Force
-            if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
-            if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+        if ($session.status -in @('starting', 'running')) {
+            $now = [DateTime]::UtcNow
+            $session.status = 'error'
+            foreach ($pair in @(@('pid',0),@('startTimeUtc',$null),@('reservationToken',$null),@('reservationTimeUtc',$null),@('stoppedAtUtc',$now.ToString('o')),@('lastEvent','exited unexpectedly'),@('lastError','Managed application process exited unexpectedly. Inspect the project logs before restarting.'))) {
+                $session | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
+            }
+            foreach ($dependent in @(Get-SgSessionDependents $entry ([string]$session.target) | Where-Object { [string]$_.status -in @('starting','running') })) {
+                $dependent | Add-Member -NotePropertyName lastEvent -NotePropertyValue "shared frontend owner $([string]$session.target) exited at $($now.ToLocalTime().ToString('HH:mm:ss'))" -Force
+            }
         }
     } | Out-Null
 }
@@ -2767,7 +3133,7 @@ function Get-SgStartupFailure([string]$ErrorLogPath, [string]$Fallback = 'Proces
     return $Fallback
 }
 
-function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '', [object]$TauriAndroid = $null) {
+function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '', [object]$TauriAndroid = $null, [string]$TauriDesktopLaunchPath = '') {
     if ($Kind -eq 'flutter-web') { return Wait-SgFlutterReady $LogPath $TimeoutSeconds }
     $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 1800))
     do {
@@ -2787,6 +3153,12 @@ function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$
                 if ($TauriAndroid -and -not (Test-SgTauriAndroidAppRunning $TauriAndroid.Adb $TauriAndroid.Serial $TauriAndroid.AppId)) {
                     if ((Get-Date) -ge $deadline) { break }
                     Start-Sleep -Seconds 3
+                    continue
+                }
+                # A shared frontend answers before this target's Rust build ends; readiness is the native app itself.
+                if ($TauriDesktopLaunchPath -and $ProcessEntry -and -not (Test-SgTauriDesktopAppRunning ([int]$ProcessEntry.pid) $TauriDesktopLaunchPath)) {
+                    if ((Get-Date) -ge $deadline) { break }
+                    Start-Sleep -Seconds 2
                     continue
                 }
             }
@@ -2894,15 +3266,29 @@ function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload',
     try{$deadline=(Get-Date).AddSeconds($TimeoutSeconds);while((Get-Date)-lt $deadline){if(Test-Path -LiteralPath $response -PathType Leaf){$info=Get-Item -LiteralPath $response;if($info.Length-gt65536){throw 'Flutter supervisor response exceeds 64 KiB.'};try{$result=Get-Content -LiteralPath $response -Raw|ConvertFrom-Json -ErrorAction Stop}finally{Remove-Item -LiteralPath $response -Force -ErrorAction SilentlyContinue};$names=@($result.PSObject.Properties.Name);if($result -is[array]-or-not($result.PSObject.Properties['ok'])-or$result.ok-isnot[bool]){throw 'Malformed Flutter supervisor response.'};if($result.ok){if(($names|Sort-Object)-join',' -ne 'method,ok'-or[string]$result.method-cne$Method){throw 'Mismatched Flutter supervisor response.'};return $result}else{if(($names|Sort-Object)-join',' -ne 'error,ok'){throw 'Malformed Flutter supervisor response.'};throw 'Flutter supervisor command failed.'}};Start-Sleep -Milliseconds 100};throw "Flutter supervisor $Method command timed out."}finally{if(Test-Path -LiteralPath $target -PathType Leaf){Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue};if(Test-Path -LiteralPath $temp -PathType Leaf){Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue}}
 }
 
-function Invoke-SgFlutterProjectReload([object]$Config,[string]$ProjectPath,[int]$TimeoutSeconds=10) {
+function Invoke-SgFlutterProjectReload([object]$Config,[string]$ProjectPath,[int]$TimeoutSeconds=10,[string]$Target='') {
     # Hot reload is identity-bound: the registered process, supervisor state, daemon and app must all
     # match before the existing authenticated reload IPC is used. It never stops, starts or rebuilds.
+    # Without a target every running Flutter target of the surface reloads.
     $result={ param([string]$Status,[string]$Reason,[string]$Name=$null); [pscustomobject]@{Status=$Status;Reason=$Reason;Name=$Name} }
     if([string]::IsNullOrWhiteSpace($ProjectPath)){return (& $result 'unavailable' 'ProjectPath is required.')}
     try{$path=ConvertTo-SgCanonicalPath $ProjectPath}catch{return (& $result 'unavailable' 'The project path is invalid.')}
     $entry=@((Reconcile-SgRegistry $Config).projects|Where-Object{$_.path -eq $path})|Select-Object -First 1
     if(-not $entry){return (& $result 'unavailable' 'The project is not registered.')}
     if($entry.kind -ne 'flutter-web'){return (& $result 'unavailable' 'The registered project is not a managed Flutter session.')}
+    $sessions=@(Get-SgEntrySessions $entry|Where-Object{-not $Target -or [string]$_.target -eq $Target})
+    $running=@($sessions|Where-Object{[string]$_.status -eq 'running'})
+    if($running.Count -eq 0){$latest=Select-SgPrimarySession $sessions;$status=if($latest){[string]$latest.status}else{'stopped'};return (& $result 'unavailable' "The Flutter session is not ready (status=$status).")}
+    $outcomes=@($running|ForEach-Object{Invoke-SgFlutterSessionReload (Get-SgSessionView $entry $_) $TimeoutSeconds})
+    if($outcomes.Count -eq 1){return $outcomes[0]}
+    $targets=@($running|ForEach-Object{[string]$_.target}) -join ', '
+    $failed=@(for($index=0;$index -lt $outcomes.Count;$index++){if($outcomes[$index].Status -ne 'succeeded'){[pscustomobject]@{Target=[string]$running[$index].target;Outcome=$outcomes[$index]}}})
+    if($failed.Count -eq 0){return (& $result 'succeeded' $null "$([string]$entry.name) [$targets]")}
+    return (& $result $failed[0].Outcome.Status ("$($failed[0].Target): $($failed[0].Outcome.Reason)") "$([string]$entry.name) [$targets]")
+}
+
+function Invoke-SgFlutterSessionReload([object]$entry,[int]$TimeoutSeconds=10) {
+    $result={ param([string]$Status,[string]$Reason,[string]$Name=$null); [pscustomobject]@{Status=$Status;Reason=$Reason;Name=$Name} }
     if($entry.status -ne 'running'){return (& $result 'unavailable' "The Flutter session is not ready (status=$($entry.status)).")}
     if($entry.PSObject.Properties['flutterMode'] -and [string]$entry.flutterMode -eq 'profile'){return (& $result 'unavailable' "Flutter profile sessions support neither hot reload nor hot restart (Flutter: 'Restart is not supported in profile mode'). Rebuild with s restart -ProjectPath <path> -FlutterMode profile, or start a debug session for iterative work.")}
     if(-not $entry.PSObject.Properties['flutterAppId'] -or [string]::IsNullOrWhiteSpace([string]$entry.flutterAppId)){return (& $result 'unavailable' 'The Flutter application identity is unavailable.')}
@@ -2988,10 +3374,12 @@ function Test-SgTcpPortListening([int]$Port) {
 }
 
 function Reconcile-SgRegistry([object]$Config) {
-    return Invoke-SgRegistryMutation $Config {
+    return Invoke-SgRegistryMutation $Config -SkipProjection -Mutation {
         param($registry)
-        $signaturePids = @($registry.projects | Where-Object { $_.PSObject.Properties['commandSignature'] -and $_.commandSignature } | ForEach-Object { [int]$_.pid })
-        $processSnapshots = Get-SgProcessSnapshotMap @($registry.projects | ForEach-Object { [int]$_.pid }) -CommandLinePids $signaturePids
+        foreach ($project in @($registry.projects)) { ConvertTo-SgSessionEntry $project }
+        $allSessions = @(foreach ($project in @($registry.projects)) { @($project.sessions) })
+        $signaturePids = @($allSessions | Where-Object { $_.PSObject.Properties['commandSignature'] -and $_.commandSignature } | ForEach-Object { [int]$_.pid })
+        $processSnapshots = Get-SgProcessSnapshotMap @($allSessions | ForEach-Object { [int]$_.pid }) -CommandLinePids $signaturePids
         $listeningPorts = Get-SgListeningTcpPortSet
         $byIdentity = @{}
         $normalized = New-Object 'System.Collections.Generic.List[object]'
@@ -3012,34 +3400,22 @@ function Reconcile-SgRegistry([object]$Config) {
             $entry | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
             $entry.path = $launchPath
 
-            $live = Test-SgProcessIdentity $entry $processSnapshots
-            $freshReservation = $false
-            if (-not $live -and $entry.status -in @('reserved','starting') -and $entry.PSObject.Properties['reservationTimeUtc'] -and $entry.reservationTimeUtc) {
-                try {
-                    $freshReservation = (((Get-Date).ToUniversalTime() - [datetime]::Parse([string]$entry.reservationTimeUtc).ToUniversalTime()).TotalMinutes -lt 5)
-                } catch {
-                    $freshReservation = $false
+            $live = $false
+            $liveSessions = @()
+            foreach ($session in @($entry.sessions)) {
+                $view = Get-SgSessionView $entry $session
+                $wasActive = [string]$session.status -in @('reserved','starting','running')
+                if (Update-SgSessionLiveState $view $processSnapshots $listeningPorts) { $live = $true; $liveSessions += $session }
+                if ($wasActive -and [string]$view.status -in @('stopped','error') -and -not ($view.PSObject.Properties['stoppedAtUtc'] -and $view.stoppedAtUtc)) { $view | Add-Member -NotePropertyName stoppedAtUtc -NotePropertyValue ([DateTime]::UtcNow.ToString('o')) -Force }
+                foreach ($field in $script:SgLiveStateFields) {
+                    $changed = $view.PSObject.Properties[$field]
+                    if ($changed) { Set-SgNoteProperty $session $field $changed.Value }
                 }
-            }
-            if ($live) {
-                if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Get-SgOwnedFlutterNativePids $entry).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(($null -eq $listeningPorts -or $listeningPorts.ContainsKey([int]$entry.port)) -and (Test-SgHttpReady ([int]$entry.port))){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif(Test-SgStartupGraceActive $entry){$entry.status='starting';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Managed process is alive, but its local service port is not responding.' -Force}}else{$entry.status = 'running'}
-                # A live launch that is still starting owns its reservation until Start-SgProjectCore commits it.
-                if ($entry.status -ne 'starting') {
-                    if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
-                    if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
-                }
-            } elseif (-not $freshReservation) {
-                $flutterResidual=$entry.kind-eq'flutter-web'-and(@(Get-SgOwnedFlutterNativePids $entry).Count-gt0-or@(Get-SgOwnedFlutterListenerPids $entry).Count-gt0-or@(Get-SgOwnedFlutterBrowserPids $entry).Count-gt0)
-                if($flutterResidual){$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Owned Flutter process remains after supervisor exit.' -Force}elseif($entry.status-ne'error'){$entry.status = 'stopped'}
-                if($entry.kind-eq'flutter-web'){$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$entry.status) -Force}
-                if(-not$flutterResidual){$entry.pid=0;$entry|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $null -Force}
-                if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
-                if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
             }
 
             if ($entry.PSObject.Properties['backend'] -and $entry.backend -and $entry.backend.mode -eq 'local' -and ($entry.backend.status -eq 'error' -or ($entry.backend.status -eq 'ready' -and -not (Test-SgProcessIdentity $entry.backend.process)))) {
-                $entry.backend.status = if ($entry.status -eq 'stopped') { 'stopped' } else { 'error' }
-                if ($live) { $entry.status='error'; $entry.lastError='Required backend supervisor is no longer active.' }
+                $entry.backend.status = if (@(Get-SgEntrySessions $entry | Where-Object { [string]$_.status -ne 'stopped' }).Count -eq 0) { 'stopped' } else { 'error' }
+                foreach ($session in $liveSessions) { $session.status = 'error'; $session | Add-Member -NotePropertyName lastError -NotePropertyValue 'Required backend supervisor is no longer active.' -Force }
             }
             if (-not $byIdentity.ContainsKey($identity)) {
                 $byIdentity[$identity] = [pscustomobject]@{ Entry = $entry; Live = $live }
@@ -3065,9 +3441,35 @@ function Reconcile-SgRegistry([object]$Config) {
                     $winner | Add-Member -NotePropertyName $property -NotePropertyValue $candidateValue -Force
                 }
             }
+            foreach ($session in @(Get-SgEntrySessions $mergeSource)) {
+                if (-not (Get-SgEntrySession $winner ([string]$session.target))) { Set-SgEntrySession $winner $session }
+            }
         }
         $registry.projects = $normalized.ToArray()
+        foreach ($item in @($registry.projects)) { Update-SgSurfaceProjection $item }
     }
+}
+
+# Live state of one target session (a session view), from its exact process identity and service evidence.
+function Update-SgSessionLiveState([object]$entry, [hashtable]$processSnapshots, [object]$listeningPorts) {
+    $live = Test-SgProcessIdentity $entry $processSnapshots
+    $freshReservation = -not $live -and $entry.status -in @('reserved','starting') -and (Test-SgReservationFresh $entry)
+    if ($live) {
+        if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Get-SgOwnedFlutterNativePids $entry).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(($null -eq $listeningPorts -or $listeningPorts.ContainsKey([int]$entry.port)) -and (Test-SgHttpReady ([int]$entry.port))){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif(Test-SgStartupGraceActive $entry){$entry.status='starting';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $(if($entry.PSObject.Properties['frontendMode']-and[string]$entry.frontendMode-eq'shared'){"The shared frontend of the $([string]$entry.frontendOwner) target on :$([int]$entry.port) is not responding."}else{'Managed process is alive, but its local service port is not responding.'}) -Force}}else{$entry.status = 'running'}
+        # A live launch that is still starting owns its reservation until Start-SgProjectCore commits it.
+        if ($entry.status -ne 'starting') {
+            if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
+            if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+        }
+    } elseif (-not $freshReservation) {
+        $flutterResidual=$entry.kind-eq'flutter-web'-and(@(Get-SgOwnedFlutterNativePids $entry).Count-gt0-or@(Get-SgOwnedFlutterListenerPids $entry).Count-gt0-or@(Get-SgOwnedFlutterBrowserPids $entry).Count-gt0)
+        if($flutterResidual){$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Owned Flutter process remains after supervisor exit.' -Force}elseif($entry.status-ne'error'){$entry.status = 'stopped'}
+        if($entry.kind-eq'flutter-web'){$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$entry.status) -Force}
+        if(-not$flutterResidual){$entry.pid=0;$entry|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $null -Force}
+        if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
+        if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+    }
+    return $live
 }
 
 function Get-SgProjectEnvironmentPath([string]$ProjectPath) {
@@ -3374,6 +3776,45 @@ function Test-SgTauriAndroidAppRunning([string]$Adb, [string]$Serial, [string]$A
     } catch { return $false }
 }
 
+# The desktop app is a descendant of the session's tauri dev process, built under src-tauri\target\...\debug.
+function Test-SgTauriDesktopAppRunning([int]$RootPid, [string]$LaunchPath) {
+    if ($RootPid -le 0) { return $false }
+    $targetRoot = [IO.Path]::GetFullPath((Join-Path $LaunchPath 'src-tauri\target')).TrimEnd('\') + '\'
+    $processes = @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,ExecutablePath -ErrorAction SilentlyContinue)
+    $children = @{}
+    foreach ($process in $processes) {
+        $parent = [int]$process.ParentProcessId
+        if (-not $children.ContainsKey($parent)) { $children[$parent] = New-Object 'System.Collections.Generic.List[object]' }
+        $children[$parent].Add($process)
+    }
+    $queue = New-Object 'System.Collections.Generic.Queue[int]'
+    $seen = New-Object 'System.Collections.Generic.HashSet[int]'
+    $queue.Enqueue($RootPid)
+    while ($queue.Count -gt 0) {
+        $current = $queue.Dequeue()
+        if (-not $seen.Add($current) -or -not $children.ContainsKey($current)) { continue }
+        foreach ($child in $children[$current]) {
+            $executable = [string]$child.ExecutablePath
+            if ($executable -and $executable.StartsWith($targetRoot, [StringComparison]::OrdinalIgnoreCase) -and $executable -match '(?i)\\debug\\[^\\]+\.exe$' -and [IO.Path]::GetFileName($executable) -notmatch '(?i)^build-script-') { return $true }
+            $queue.Enqueue([int]$child.ProcessId)
+        }
+    }
+    return $false
+}
+
+function Get-SgTauriDevUrlPort([string]$LaunchPath) {
+    $tauri = Get-Content -LiteralPath (Join-Path $LaunchPath 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
+    return ([uri]$tauri.build.devUrl).Port
+}
+
+function Merge-SgJsonObject([Collections.IDictionary]$Base, [Collections.IDictionary]$Patch) {
+    foreach ($key in @($Patch.Keys)) {
+        $value = $Patch[$key]
+        if ($value -is [Collections.IDictionary] -and $Base.Contains($key) -and $Base[$key] -is [Collections.IDictionary]) { Merge-SgJsonObject $Base[$key] $value }
+        else { $Base[$key] = $value }
+    }
+}
+
 # Git checkout facts read from .git without a subprocess. RepositoryRoot is the main
 # checkout (null outside Git); IsLinkedWorktree marks `git worktree add` checkouts.
 function Get-SgGitCheckoutInfo([string]$Path) {
@@ -3450,7 +3891,19 @@ function Install-SgDevShortcut([object]$Entry, [string]$DesktopPath = '', [strin
     return $path
 }
 
-function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '', [ValidateSet('','debug','profile')][string]$FlutterMode = '', [ValidateSet('','windows','android')][string]$TauriDevice = '', [string]$TauriDeviceId = '', [switch]$Restart) {
+function Format-SgTauriFrontendConflict([object]$Entry, [object]$Holder, [string]$Target, [int]$Port) {
+    $holderTarget = [string]$Holder.target
+    $since = Format-SgSessionTime $(if (Get-SgOptionalValue $Holder 'startedAtUtc') { $Holder.startedAtUtc } else { Get-SgOptionalValue $Holder 'startTimeUtc' })
+    $path = [string]$Entry.path
+    return @(
+        "The Tauri $holderTarget target of $($Entry.name) already serves the frontend on :$Port$(if ($since) { " (since $since)" }). Starting $Target would replace it, so nothing was changed. Choose one:",
+        "  s start -ProjectPath `"$path`" -TauriDevice $Target -Frontend shared   # attach $Target to the running frontend; both apps hot reload",
+        "  s start -ProjectPath `"$path`" -TauriDevice $Target -Frontend own      # give $Target its own frontend on a free port (the frontend must honor PORT)",
+        "  s start -ProjectPath `"$path`" -TauriDevice $Target -Replace           # stop $holderTarget, then start $Target"
+    ) -join [Environment]::NewLine
+}
+
+function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '', [ValidateSet('','debug','profile')][string]$FlutterMode = '', [ValidateSet('','windows','android')][string]$TauriDevice = '', [string]$TauriDeviceId = '', [switch]$Restart, [ValidateSet('','own','shared')][string]$Frontend = '', [switch]$Replace) {
     $requestedPath = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Reconcile-SgRegistry $Config).projects | Where-Object { $_.path -eq $requestedPath }) | Select-Object -First 1
     if (-not $entry) {
@@ -3463,27 +3916,51 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }
     if (-not $entry) { throw "No runnable surface could be registered for: $requestedPath" }
     if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $($entry.path)" }
-    $alreadyRunning = Test-SgProcessIdentity $entry
+    $kind = [string]$entry.kind
+    $launchPath = if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }
     $settings = Get-SgRuntimeSettings $entry.path
     if ($TauriDevice) {
-        if ([string]$entry.kind -ne 'tauri') { throw 'Tauri target selection requires a Tauri project.' }
+        if ($kind -ne 'tauri') { throw 'Tauri target selection requires a Tauri project.' }
         $settings.TauriDevice = $TauriDevice
         $settings.TauriDeviceId = $(if ($TauriDevice -eq 'android') { $TauriDeviceId } else { $null })
     } elseif ($TauriDeviceId) { throw 'TauriDeviceId requires -TauriDevice android.' }
-    $runningTauriDevice = if ((Get-SgEntryDevice $entry)) { Get-SgEntryDevice $entry } else { 'windows' }
-    if (-not $TauriDevice -and $alreadyRunning -and [string]$entry.kind -eq 'tauri') {
-        # Restart and reuse keep the live target unless a new one is requested explicitly.
-        $settings.TauriDevice = $runningTauriDevice
-        $settings.TauriDeviceId = $(if ($entry.PSObject.Properties['tauriDeviceId']) { [string]$entry.tauriDeviceId } else { $null })
+    if ($FlutterDevice) {
+        if ($kind -ne 'flutter-web') { throw 'Flutter target selection requires a Flutter project.' }
+        $settings.FlutterDevice=$FlutterDevice
+        $settings.FlutterDeviceId=if($FlutterDevice -eq 'android'){$FlutterDeviceId}else{$FlutterDevice}
+    } elseif ($FlutterDeviceId) { throw 'FlutterDeviceId requires an explicit Android FlutterDevice.' }
+    if ($FlutterMode) {
+        if ($kind -ne 'flutter-web') { throw 'Flutter mode selection requires a Flutter project.' }
+        $settings.FlutterMode=$FlutterMode
     }
-    if ($alreadyRunning -and -not $Restart -and [string]$entry.kind -ne 'flutter-web') {
-        if ([string]$entry.kind -eq 'tauri' -and $runningTauriDevice -ne [string]$settings.TauriDevice) {
-            Write-SgInfo "Tauri target changed ($runningTauriDevice -> $($settings.TauriDevice)); restarting the managed session."
-            $Restart = $true
-        } else { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
+    if (($Frontend -or $Replace) -and $kind -ne 'tauri') { throw 'The -Frontend and -Replace choices apply to Tauri targets; the targets of other projects run side by side.' }
+    if ($Frontend -and $Replace) { throw 'Choose either -Frontend or -Replace, not both.' }
+
+    # Each target is its own session. Without an explicit target, start reuses the live one instead of
+    # replacing it; an explicit target starts beside the others.
+    $target = Get-SgDefaultSessionTarget $kind $settings
+    if (-not ($TauriDevice -or $FlutterDevice)) {
+        $reused = Select-SgPrimarySession @(Get-SgLiveSessions $entry)
+        if ($reused) {
+            $target = [string]$reused.target
+            if ($kind -eq 'tauri') { $settings.TauriDevice = $target; $settings.TauriDeviceId = Get-SgOptionalValue $reused 'tauriDeviceId' }
+            if ($kind -eq 'flutter-web') {
+                $settings.FlutterDevice = $target
+                $settings.FlutterDeviceId = $(if (Get-SgOptionalValue $reused 'flutterDeviceId') { [string]$reused.flutterDeviceId } else { $target })
+                if (-not $FlutterMode -and (Get-SgOptionalValue $reused 'flutterMode')) { $settings.FlutterMode = [string]$reused.flutterMode }
+            }
+        }
+    }
+    $session = Get-SgEntrySession $entry $target
+    $view = Get-SgSessionView $entry $session $target
+    $alreadyRunning = [bool]($session -and (Test-SgProcessIdentity $view))
+    $label = "$($entry.name) [$target]"
+    if ($alreadyRunning -and -not $Restart -and $kind -ne 'flutter-web') {
+        Write-SgInfo "Already running: $label on $(Get-SgSessionPortLabel $view)"
+        return $view
     }
     $tauriAndroid = $null
-    if ([string]$entry.kind -eq 'tauri' -and $settings.TauriDevice -eq 'android') {
+    if ($kind -eq 'tauri' -and $target -eq 'android') {
         $device = Resolve-SgTauriAndroidDevice ([string]$settings.TauriDeviceId)
         $tauriConfig = Get-Content -LiteralPath (Join-Path $entry.path 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
         $tauriAndroid = [pscustomobject]@{ Adb=$device.Adb; Serial=$device.Serial; Name=$device.Name; AppId=[string]$tauriConfig.identifier }
@@ -3491,32 +3968,64 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }
     $obsidianDescriptor = $null
     $obsidianVault = $null
-    if ([string]$entry.kind -eq 'obsidian-plugin') {
+    if ($kind -eq 'obsidian-plugin') {
         $obsidianDescriptor = Get-SgObsidianPluginDescriptor $entry.path
         if (-not $obsidianDescriptor) { throw 'Obsidian plugin metadata is no longer valid.' }
         $obsidianVault = Resolve-SgObsidianVault ([string]$settings.ObsidianVault) ([string]$obsidianDescriptor.PluginId)
         if ([string]$settings.ObsidianSyncMode -ne 'copy') { throw 'Only SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy is supported; links are never invented.' }
     }
-    if ($FlutterDevice) {
-        if ([string]$entry.kind -ne 'flutter-web') { throw 'Flutter target selection requires a Flutter project.' }
-        $settings.FlutterDevice=$FlutterDevice
-        $settings.FlutterDeviceId=if($FlutterDevice -eq 'android'){$FlutterDeviceId}else{$FlutterDevice}
-    } elseif ($FlutterDeviceId) { throw 'FlutterDeviceId requires an explicit Android FlutterDevice.' }
-    if ($FlutterMode) {
-        if ([string]$entry.kind -ne 'flutter-web') { throw 'Flutter mode selection requires a Flutter project.' }
-        $settings.FlutterMode=$FlutterMode
-    }
     $resolvedFlutterDevice = [string]$settings.FlutterDevice
     $resolvedFlutterMode = if ([string]$settings.FlutterMode) { [string]$settings.FlutterMode } else { 'debug' }
-    if ([string]$entry.kind -eq 'flutter-web') {
-        Assert-SgFlutterSymlinkSupport $(if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }) (Get-SgDependencyKindLabel 'flutter-web' $resolvedFlutterDevice)
+    if ($kind -eq 'flutter-web') {
+        Assert-SgFlutterSymlinkSupport $launchPath (Get-SgDependencyKindLabel 'flutter-web' $resolvedFlutterDevice)
     }
-    if ([string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
+    if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
         $flutterPath=Get-SgFlutterCommandPath
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
         $resolvedFlutterDevice=Resolve-SgFlutterAndroidDevice $flutterPath ([string]$settings.FlutterDeviceId)
         $settings.FlutterDeviceId=$resolvedFlutterDevice
     }
+    if ($alreadyRunning -and $Restart -and $kind -ne 'flutter-web') {
+        [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason 'restarted')
+        $alreadyRunning = $false
+    }
+
+    # Tauri targets of one surface compete for the devUrl frontend port: a second target shares it, gets its
+    # own port, or replaces the holder, and only when the operator says so.
+    $frontendMode = $null
+    $frontendOwner = $null
+    $sharedPort = 0
+    $portRole = ''
+    if ($kind -eq 'tauri') {
+        $devUrlPort = Get-SgTauriDevUrlPort $launchPath
+        $siblings = @(Get-SgLiveSessions $entry | Where-Object { [string]$_.target -ne $target })
+        $holder = @($siblings | Where-Object { [string](Get-SgOptionalValue $_ 'frontendMode') -ne 'shared' -and [int]$_.port -eq $devUrlPort }) | Select-Object -First 1
+        if ($Replace -and $siblings.Count -gt 0) {
+            foreach ($sibling in @($siblings | Sort-Object -Property @{Expression={ if (Get-SgOptionalValue $_ 'frontendOwner') { 0 } else { 1 } }})) {
+                Write-SgWarn "Replacing the Tauri $([string]$sibling.target) target of $($entry.name) as requested (-Replace)."
+                [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target ([string]$sibling.target) -Reason "replaced by the $target target")
+            }
+            $holder = $null
+        }
+        if ($holder) {
+            if ($Frontend -eq 'shared') {
+                $frontendMode = 'shared'
+                $frontendOwner = [string]$holder.target
+                $sharedPort = $devUrlPort
+                Write-SgInfo "Attaching $target to the frontend the $frontendOwner target serves on :$devUrlPort."
+            } elseif ($Frontend -eq 'own') {
+                $frontendMode = 'own'
+                $portRole = 'secondary'
+                Write-SgInfo "The $([string]$holder.target) target keeps :$devUrlPort; $target gets its own frontend port."
+            } else {
+                throw (Format-SgTauriFrontendConflict $entry $holder $target $devUrlPort)
+            }
+        } else {
+            if ($Frontend -eq 'shared') { throw "No running Tauri target of $($entry.name) serves the frontend on :$devUrlPort. Start $target without -Frontend shared." }
+            $frontendMode = 'own'
+        }
+    }
+
     $configuredPort = $RequestedPort
     if ($configuredPort -le 0 -and $env:SHIPGLOWS_ENV_PORT) {
         if ($env:SHIPGLOWS_ENV_PORT -notmatch '^\d+$' -or [int]$env:SHIPGLOWS_ENV_PORT -lt 1024 -or [int]$env:SHIPGLOWS_ENV_PORT -gt 65535) { throw 'SHIPGLOWS_ENV_PORT must be a port between 1024 and 65535.' }
@@ -3527,51 +4036,67 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $projectEnvironment = Get-SgProjectEnvironment $entry.path
         if ($projectEnvironment -and $projectEnvironment.Port -gt 0) { $configuredPort = [int]$projectEnvironment.Port }
     }
+    if ($sharedPort -gt 0) { $configuredPort = $sharedPort }
+    elseif ($portRole -eq 'secondary') { $configuredPort = $(if ($RequestedPort -gt 0) { $RequestedPort } else { 0 }) }
+    elseif ($kind -eq 'tauri' -and $RequestedPort -le 0) { $configuredPort = $devUrlPort }  # devUrl is the Tauri frontend's source of truth
+    elseif ($configuredPort -gt 0 -and $RequestedPort -le 0 -and $kind -ne 'tauri') {
+        # The surface port belongs to the target already using it; another target gets a free port.
+        $portHolder = @(Get-SgLiveSessions $entry | Where-Object { [string]$_.target -ne $target -and [int]$_.port -eq $configuredPort }) | Select-Object -First 1
+        if ($portHolder) {
+            Write-SgInfo "Port $configuredPort is used by the $([string]$portHolder.target) target; $target gets a free port."
+            $configuredPort = 0
+            $portRole = 'secondary'
+        }
+    }
     $flutterConfiguration = $null
-    if ([string]$entry.kind -eq 'flutter-web') {
-        $configurationPort = if ($configuredPort -gt 0) { $configuredPort } else { [int]$entry.port }
+    if ($kind -eq 'flutter-web') {
+        $sessionPort = if ($alreadyRunning -and [int]$view.port -gt 0) { [int]$view.port } elseif ($portRole -eq 'secondary') { 0 } else { [int]$entry.port }
+        $configurationPort = if ($configuredPort -gt 0) { $configuredPort } else { $sessionPort }
         if ($configuredPort -le 0 -and $settings.FlutterDevice -in @('chrome','web-server')) {
-            if (-not $alreadyRunning -or $configurationPort -le 0) { $configurationPort = Get-SgFreePort $Config 0 $entry.path }
+            if (-not $alreadyRunning -or $configurationPort -le 0) { $configurationPort = Get-SgFreePort $Config 0 $entry.path $target }
             $configuredPort = $configurationPort
         }
         $flutterConfiguration = Get-SgFlutterConfiguration $entry.path $settings $configurationPort
         if ($alreadyRunning) {
-            if (-not $Restart -and (Test-SgFlutterSessionConfiguration $entry $flutterConfiguration)) {
-                Write-SgInfo "Already running with verified Flutter configuration: $($entry.name)"
-                return $entry
+            if (-not $Restart -and (Test-SgFlutterSessionConfiguration $view $flutterConfiguration)) {
+                Write-SgInfo "Already running with verified Flutter configuration: $label"
+                return $view
             }
             [void](Resolve-SgPowerShellExecutable)
             if (-not (Get-SgFlutterCommandPath)) { throw 'Flutter SDK is unavailable; the existing session was preserved.' }
-            Write-SgInfo 'Flutter target or configuration changed; restarting the managed session.'
-            [void](Stop-SgProject $Config $entry.path -PreserveBackend)
-            if (Test-SgProcessIdentity $entry) { throw 'Cannot replace Flutter configuration while the previous session is still active.' }
+            Write-SgInfo "Flutter target or configuration changed; restarting the managed $target session."
+            [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason 'restarted')
+            if (Test-SgProcessIdentity $view) { throw 'Cannot replace Flutter configuration while the previous session is still active.' }
         }
     }
-    if ($alreadyRunning -and $Restart -and [string]$entry.kind -ne 'flutter-web') { [void](Stop-SgProject $Config $entry.path -PreserveBackend) }
     # A dead Flutter supervisor can leave its native runner alive (e.g. in the tray), locking the
-    # build output (LNK1168). Reuse the stop cleanup, scoped to this project's own runners.
-    if (-not $alreadyRunning -and [string]$entry.kind -eq 'flutter-web' -and [string]$entry.status -ne 'stopped') {
-        Write-SgInfo "Previous session of $($entry.name) ended as '$($entry.status)'; cleaning its leftover processes."
-        [void](Stop-SgProject $Config $entry.path -PreserveBackend)
+    # build output (LNK1168). Reuse the stop cleanup, scoped to this target's own runners.
+    if (-not $alreadyRunning -and $kind -eq 'flutter-web' -and $session -and [string]$session.status -ne 'stopped') {
+        Write-SgInfo "Previous $target session of $($entry.name) ended as '$($session.status)'; cleaning its leftover processes."
+        [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason 'cleaned after an unfinished session')
     }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
-    $flutterNative = [string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')
-    $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort -NoPort:([string]$entry.kind -eq 'obsidian-plugin' -or $flutterNative) -PreservePort:$flutterNative
+    $flutterNative = $kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')
+    $noPort = $kind -eq 'obsidian-plugin' -or $flutterNative
+    $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort -NoPort:$noPort -PreservePort:$flutterNative -Target $target -SharedPort $sharedPort -PortRole $portRole
     $port = $reservation.Port
     $reservationToken = $reservation.Token
-    if ([string]$entry.kind -eq 'obsidian-plugin') { Write-SgInfo 'Obsidian plugin watch has no HTTP port.' }
+    $sessionPortRole = if ($sharedPort -gt 0) { 'shared' } elseif ($noPort) { 'none' } elseif ($portRole) { $portRole } else { 'primary' }
+    if ($kind -eq 'obsidian-plugin') { Write-SgInfo 'Obsidian plugin watch has no HTTP port.' }
     elseif ($flutterNative) { Write-SgInfo "Flutter $($settings.FlutterDevice) target needs no HTTP port reservation." }
+    elseif ($sharedPort -gt 0) { Write-SgInfo "Sharing frontend port: $port" }
     elseif ($explicitPort) { Write-SgInfo "Using configured port: $port" }
     elseif ($previousPort -gt 0 -and $previousPort -eq $port) { Write-SgInfo "Reusing persistent port: $port" }
     else { Write-SgInfo "Assigned port: $port" }
-    $logDir = Join-Path $Config.LogDirectory (Get-SgProjectLogKey $entry)
-    Ensure-SgDirectory $logDir
+    try {
+        $logDir = New-SgSessionLogDirectory $Config $entry $target $reservationToken
+    } catch {
+        Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
+        throw
+    }
     $out = Join-Path $logDir 'stdout.log'; $err = Join-Path $logDir 'stderr.log'
     $setupLog = Join-Path $logDir 'setup.log'
-    foreach ($logPath in @($out,$err,$setupLog)) { Rotate-SgLogFile $logPath }
-    $launchPath = if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }
-    $kind = [string]$entry.kind
     $flutterProfilePath = $null
     $flutterLaunchDirectory = $null
     $flutterTokenPath = $null
@@ -3598,7 +4123,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     try {
         Invoke-SgDependencySetup $Config $launchPath $kind $setupLog (Get-SgDependencyKindLabel $kind $resolvedFlutterDevice) | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
-        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' })
+        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' }) $(if ($kind -eq 'tauri') { [string]$frontendMode } else { '' }) $logDir
         # A previous copy left running on the phone would satisfy readiness before the new build lands.
         if ($tauriAndroid) {
             [void](Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'shell','am','force-stop',$tauriAndroid.AppId) 15)
@@ -3625,9 +4150,10 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         throw
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); flutterMode = $(if ($kind -eq 'flutter-web') { $resolvedFlutterMode } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; target = $target; port = $port; portRole = $sessionPortRole; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; startedAtUtc = [DateTime]::UtcNow.ToString('o'); stoppedAtUtc = $null; lastEvent = $null; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; setupLogPath = $setupLog; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); flutterMode = $(if ($kind -eq 'flutter-web') { $resolvedFlutterMode } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath; frontendMode = $frontendMode; frontendOwner = $frontendOwner }
     if($kind-eq'tauri'){$entryData|Add-Member -NotePropertyName tauriDevice -NotePropertyValue $(if($tauriAndroid){'android'}else{'windows'}) -Force;$entryData|Add-Member -NotePropertyName tauriDeviceId -NotePropertyValue $(if($tauriAndroid){$tauriAndroid.Serial}else{$null}) -Force}
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force;$entryData|Add-Member -NotePropertyName flutterConfigurationFingerprint -NotePropertyValue $flutterConfiguration.Fingerprint -Force}
+    $retryFlutterDevice = if ($FlutterDevice) { $FlutterDevice } elseif ($kind -eq 'flutter-web') { $target } else { '' }
     Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
     if (-not (Test-SgProcessIdentity $entryData)) {
         if($kind-eq'flutter-web'){
@@ -3641,12 +4167,14 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $entryData.lastError)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $retryFlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode}
         return $entryData
     }
-    [void](Write-SgProjectEnvironment $entry.path $port $kind)
+    # Only the surface's primary target defines its durable URL; secondary and shared ports are per session.
+    if ($sessionPortRole -in @('primary','none')) { [void](Write-SgProjectEnvironment $entry.path $(if ($sessionPortRole -eq 'primary') { $port } else { 0 }) $kind) }
     $readyTimeout = if ([int]$settings.ReadyTimeoutSeconds -gt 0) { [int]$settings.ReadyTimeoutSeconds } else { 0 }
-    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 @((Join-Path $launchPath 'build\windows'),(Join-Path $launchPath '.dart_tool\flutter_build')) 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid){1800}else{300}) $entryData $err $tauriAndroid}
+    $tauriDesktopReadiness = if ($kind -eq 'tauri' -and -not $tauriAndroid -and $frontendMode -eq 'shared') { $launchPath } else { '' }
+    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 @((Join-Path $launchPath 'build\windows'),(Join-Path $launchPath '.dart_tool\flutter_build')) 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid -or $tauriDesktopReadiness){1800}else{300}) $entryData $err $tauriAndroid $tauriDesktopReadiness}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         if ($kind -eq 'obsidian-plugin') {
@@ -3666,8 +4194,8 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     } else {
         $entryData.status = 'error'
         if($kind-eq'flutter-web'){$entryData.flutterStartupState='error'}
-        if($kind-eq'flutter-web'){$entryData.flutterStartupState='error'}
         $entryData.lastError = if ($readiness.Error) { [string]$readiness.Error } else { 'Application readiness failed.' }
+        if ($kind -eq 'tauri' -and $sessionPortRole -eq 'secondary') { $entryData.lastError += " A Tauri frontend on its own port must honor the PORT environment variable (assigned :$port)." }
         $jobStopped=$false;if ($entryData.jobName) { $jobStopped=[bool](Stop-SgManagedJob $entryData) }
         if(-not$jobStopped-and(Test-SgProcessIdentity $entryData)){Stop-SgProcessTree ([int]$entryData.pid)}
         if($kind-eq'flutter-web'){
@@ -3682,7 +4210,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
         $diagnosticFailure=Get-SgStartupFailure $err $entryData.lastError
-        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode}
+        if(-not$RetryingFlutterStartup-and$resolvedFlutterDevice-eq'windows'-and(Test-SgFlutterStartupRetryable $diagnosticFailure)){Move-SgFlutterRetryDiagnostics $out $err;Write-SgWarn 'Flutter debug connection failed during startup; retrying once after verified cleanup.';return Start-SgProjectCore $Config $ProjectPath $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup -FlutterDevice $retryFlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode}
     }
     if($kind-eq'obsidian-plugin'){
         Write-SgInfo "$($entry.name) running: artifacts copied to $($entryData.obsidianPluginPath); Obsidian load validation is unavailable."
@@ -3692,8 +4220,12 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }elseif($kind-eq'flutter-web' -and $settings.FlutterDevice -in @('windows','android')){
         Write-SgInfo "$($entry.name) $($entryData.status): managed Flutter $($settings.FlutterDevice) app ($resolvedFlutterMode mode)"
     }elseif($tauriAndroid){
-        Write-SgInfo "$($entry.name) $($entryData.status): Tauri Android app on $($tauriAndroid.Serial), frontend http://127.0.0.1:$port via adb reverse"
+        Write-SgInfo "$($entry.name) $($entryData.status): Tauri Android app on $($tauriAndroid.Serial), frontend http://127.0.0.1:$port via adb reverse$(if ($frontendMode -eq 'shared') { " (shared with the $frontendOwner target)" })"
+    }elseif($frontendMode -eq 'shared'){
+        Write-SgInfo "$($entry.name) $($entryData.status): Tauri $target app on the shared frontend http://127.0.0.1:$port of the $frontendOwner target"
     }else{Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"}
+    $others = @(Get-SgEntrySessions (@((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $entry.path }) | Select-Object -First 1) | Where-Object { [string]$_.target -ne $target -and [string]$_.status -in @('starting','running') })
+    if ($others.Count -gt 0) { Write-SgInfo ("Other active targets: " + (@($others | ForEach-Object { "$([string]$_.target) $(Get-SgSessionPortLabel $_)" }) -join ', ')) }
     return $entryData
 }
 
@@ -3765,9 +4297,15 @@ function Stop-SgOwnedFlutterBrowser([object]$Entry) {
     return $ownedPids.Count -gt 0
 }
 
+# A shared session's port belongs to the target that serves the frontend; it is never this session's service.
+function Get-SgSessionServicePort([object]$Entry) {
+    if ([string](Get-SgOptionalValue $Entry 'portRole') -in @('shared','none') -or [string](Get-SgOptionalValue $Entry 'frontendMode') -eq 'shared') { return 0 }
+    return $(if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 })
+}
+
 function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8) {
     $deadline = (Get-Date).AddSeconds([Math]::Max(0, $TimeoutSeconds))
-    $entryPort = if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 }
+    $entryPort = Get-SgSessionServicePort $Entry
     do {
         $identityGone = -not (Test-SgProcessIdentity $Entry)
         $serviceGone = $entryPort -le 0 -or (Test-SgPortAvailable $entryPort)
@@ -3778,16 +4316,17 @@ function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8) {
     } while ($true)
 }
 
-function Stop-SgProjectCore([object]$Config, [string]$ProjectPath, [switch]$PreserveBackend) {
-    $path = ConvertTo-SgCanonicalPath $ProjectPath
-    $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
-    if (-not $entry) { return $false }
-    $entryPort = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
+function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [string]$Reason = 'stopped') {
+    $path = [string]$Entry.path
+    $target = [string]$Session.target
+    $entry = Get-SgSessionView $Entry $Session
+    $label = "$($entry.name) [$target]"
+    $entryPort = Get-SgSessionServicePort $entry
     $alreadyStopped = $entry.status -eq 'stopped' -and [int]$entry.pid -le 0
     $cleanedFlutterArtifacts=$false
     if($entry.kind -eq 'flutter-web' -and $alreadyStopped){try{$cleanedFlutterArtifacts=[bool](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
     $stoppedBySupervisor=$false
-    if($entry.kind -eq 'flutter-web' -and $entry.PSObject.Properties['flutterLaunchDirectory'] -and (Test-SgProcessIdentity $entry)){try{[void](Invoke-SgFlutterSupervisorCommand $entry 'stop' 8);$stoppedBySupervisor=$true}catch{Write-SgWarn "Flutter supervisor stop fallback: $($_.Exception.Message)"}}
+    if($entry.kind -eq 'flutter-web' -and $entry.PSObject.Properties['flutterLaunchDirectory'] -and $entry.flutterLaunchDirectory -and (Test-SgProcessIdentity $entry)){try{[void](Invoke-SgFlutterSupervisorCommand $entry 'stop' 8);$stoppedBySupervisor=$true}catch{Write-SgWarn "Flutter supervisor stop fallback: $($_.Exception.Message)"}}
     $stoppedFlutterListener = Stop-SgOwnedFlutterListener $entry
     $stoppedFlutterBrowser = Stop-SgOwnedFlutterBrowser $entry
     $stoppedFlutterNative = Stop-SgOwnedFlutterNative $entry
@@ -3797,29 +4336,85 @@ function Stop-SgProjectCore([object]$Config, [string]$ProjectPath, [switch]$Pres
     $identityLive = Test-SgProcessIdentity $entry
     $serviceLive = $entryPort -gt 0 -and -not (Test-SgPortAvailable $entryPort)
     if (($identityLive -or $serviceLive) -and $entry.PSObject.Properties['jobName'] -and $entry.jobName) {
-        if (-not (Stop-SgManagedJob $entry)) { throw "Managed process job is unavailable for $($entry.name); refusing an unverified stop." }
+        if (-not (Stop-SgManagedJob $entry)) { throw "Managed process job is unavailable for $label; refusing an unverified stop." }
         $stopped = $true
     } elseif ($identityLive) {
         Stop-SgProcessTree ([int]$entry.pid)
         $stopped = $true
     } elseif (-not $stoppedBySupervisor -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative -and [int]$entry.pid -gt 0) {
-        Write-SgWarn "Stale or unverified process for $($entry.name); no process was terminated."
+        Write-SgWarn "Stale or unverified process for $label; no process was terminated."
     }
-    if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $($entry.name); registry state was preserved." }
-    if (-not $PreserveBackend -and $entry.PSObject.Properties['backend']) { Stop-SgBackend $entry.backend }
+    if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
     Invoke-SgRegistryMutation $Config {
         param($data)
         $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
-        if ($found) {
-            if (-not $PreserveBackend -and $found.PSObject.Properties['backend']) { $found.backend.status='stopped' }
-            $found.status = 'stopped'; $found.pid = 0; $found.startTimeUtc = $null; $found.lastError = $null;if($found.kind-eq'flutter-web'){$found|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force}
-            if ($found.PSObject.Properties['reservationToken']) { $found.reservationToken = $null }
-            if ($found.PSObject.Properties['reservationTimeUtc']) { $found.reservationTimeUtc = $null }
+        $foundSession = if ($found) { Get-SgEntrySession $found $target } else { $null }
+        if (-not $foundSession) { return }
+        # A newer launch of this target may own the record by now; it is never marked stopped.
+        if (([int]$foundSession.pid -gt 0 -and [int]$foundSession.pid -ne [int]$entry.pid) -or ((Get-SgOptionalValue $foundSession 'reservationToken') -and [string]$foundSession.reservationToken -ne [string](Get-SgOptionalValue $entry 'reservationToken'))) { return }
+        foreach ($pair in @(@('status','stopped'),@('pid',0),@('startTimeUtc',$null),@('lastError',$null),@('reservationToken',$null),@('reservationTimeUtc',$null))) {
+            $foundSession | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
+        }
+        if ($found.kind -eq 'flutter-web') { $foundSession | Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force }
+        if (-not $alreadyStopped) {
+            $foundSession | Add-Member -NotePropertyName stoppedAtUtc -NotePropertyValue ([DateTime]::UtcNow.ToString('o')) -Force
+            $foundSession | Add-Member -NotePropertyName lastEvent -NotePropertyValue $Reason -Force
         }
     } | Out-Null
     if ($noRuntimeWork) { return $false }
     if($entry.kind -eq 'flutter-web'){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
     return $stopped
+}
+
+# Stops one target (and the targets attached to its frontend) or, without -Target, every target of the surface.
+function Stop-SgProjectCore([object]$Config, [string]$ProjectPath, [switch]$PreserveBackend, [string]$Target = '', [string]$Reason = '') {
+    $path = ConvertTo-SgCanonicalPath $ProjectPath
+    $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
+    if (-not $entry) { return $false }
+    ConvertTo-SgSessionEntry $entry
+    $sessions = @(Get-SgEntrySessions $entry)
+    if ($sessions.Count -eq 0) {
+        if ((Test-Path -LiteralPath $path -PathType Container) -and -not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
+        # A surface that never ran has nothing to stop; only a stale surface-level error is cleared.
+        if ($entry.PSObject.Properties['lastError'] -and $entry.lastError) {
+            Invoke-SgRegistryMutation $Config {
+                param($data)
+                $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
+                if ($found -and $found.PSObject.Properties['lastError']) { $found.lastError = $null }
+            } | Out-Null
+        }
+        return $false
+    }
+    if ($Target) {
+        $selected = @($sessions | Where-Object { [string]$_.target -eq $Target })
+        if ($selected.Count -eq 0) { Write-SgInfo "$($entry.name) has no $Target session."; return $false }
+        $dependents = @(Get-SgSessionDependents $entry $Target | Where-Object { Test-SgSessionLive $entry $_ })
+        foreach ($dependent in $dependents) {
+            Write-SgWarn "Stopping the $([string]$dependent.target) target too: it runs on the frontend of the $Target target. Start it again with s start -ProjectPath `"$path`" -TauriDevice $([string]$dependent.target)."
+        }
+        $ordered = @($dependents) + @($selected)
+    } else {
+        # Attached targets stop before the target that serves their frontend.
+        $ordered = @($sessions | Sort-Object -Property @{Expression={ if (Get-SgOptionalValue $_ 'frontendOwner') { 0 } else { 1 } }})
+    }
+    $stoppedAny = $false
+    foreach ($session in $ordered) {
+        $sessionReason = if ($Target -and [string]$session.target -ne $Target) { "stopped with the frontend of the $Target target" } elseif ($Reason) { $Reason } else { 'stopped' }
+        if (Stop-SgSessionCore $Config $entry $session $sessionReason) { $stoppedAny = $true }
+    }
+    # The surface backend stops with its last live target.
+    if (-not $PreserveBackend -and $entry.PSObject.Properties['backend'] -and $entry.backend) {
+        $current = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
+        if ($current -and @(Get-SgLiveSessions $current).Count -eq 0) {
+            Stop-SgBackend $entry.backend
+            Invoke-SgRegistryMutation $Config {
+                param($data)
+                $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
+                if ($found -and $found.PSObject.Properties['backend'] -and $found.backend) { $found.backend.status = 'stopped' }
+            } | Out-Null
+        }
+    }
+    return $stoppedAny
 }
 
 function Open-SgProject([object]$Config, [object]$Entry) {
@@ -3859,7 +4454,7 @@ function Open-SgProject([object]$Config, [object]$Entry) {
         [void](Stop-SgOwnedFlutterListener $Entry);[void](Stop-SgOwnedFlutterBrowser $Entry)
         if(-not(Wait-SgFlutterOwnedExtinction $Entry 8)){throw 'Owned Flutter processes remain after open; visible relaunch was refused.'}
         [void](Remove-SgFlutterLaunchArtifacts $Config $Entry)
-        return Start-SgProject $Config ([string]$Entry.path) $port -FlutterVisible
+        return Start-SgProject $Config ([string]$Entry.path) $port -FlutterVisible -FlutterDevice 'chrome'
     }
     if ($Entry.kind -eq 'flutter-web' -and $Entry.PSObject.Properties['flutterDevice'] -and $Entry.flutterDevice -eq 'chrome') {
         Write-SgInfo 'Flutter is already running in its managed visible Chrome session.'
@@ -3893,7 +4488,8 @@ function Unregister-SgProject([object]$Config, [string]$ProjectPath) {
     $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
     if (-not $entry) { throw "Project is not registered: $path" }
     if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
-    if (Test-SgProcessIdentity $entry) { throw "Project is still running: $($entry.name). Stop it before unregistering." }
+    $liveTargets = @(Get-SgLiveSessions $entry | ForEach-Object { [string]$_.target })
+    if ($liveTargets.Count -gt 0) { throw "Project is still running: $($entry.name) [$($liveTargets -join ', ')]. Stop it before unregistering." }
     Invoke-SgRegistryMutation $Config {
         param($data)
         $data.projects = @($data.projects | Where-Object { $_.path -ne $path })
@@ -3913,5 +4509,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
