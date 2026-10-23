@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-06-11"
 updated: "2026-10-23"
@@ -31,7 +31,7 @@ evidence:
   - "2026-07-17 DevServer implementation confirms cli/lib.sh ui_* primitives as the shared gum/Bash shell UI authority."
   - "Brand 1.2.0 changes public visual hierarchy to lead with business partnership while preserving existing code-level design authority."
   - "2026-10-23: shared Flutter packages drifted apart (keycaps, buttons, menus restyled per request); user decision: one shared ShipglowsTheme role layer in shipglows-ui-engine, first consumer CommandGlows."
-next_review: "2026-09-13"
+next_review: "2026-11-23"
 next_step: "/103-sg-verify design-system-authority"
 ---
 
@@ -112,6 +112,10 @@ declared token source.
   every value their own theme extension leaves out. A package theme keeps only
   what is specific to that component.
 - Without a declared `ShipglowsTheme`, roles fall back to the `ColorScheme`.
+  This keeps the former look of the command bar, guide and title bar; the
+  menu was aligned on the bar (highlight, shared keycaps, radii).
+- Every key of a shared package is a `ShipglowsKeycap`; a package theme may
+  recolor it, never redraw it.
 
 Rules:
 
