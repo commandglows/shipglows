@@ -679,6 +679,17 @@ function Open-SgManagedProject([object]$Entry) {
     Open-SgProject $config $Entry | Out-Null
 }
 
+# Without an explicit target, s open picks one session (often the desktop app); a running
+# Tauri Android session beside it still needs its USB link restored after a cable replug.
+function Open-SgAndroidCompanionSessions([object]$Entry, [object]$Opened) {
+    if (Get-SgRequestedTarget) { return }
+    if ($Opened -and $Opened.PSObject.Properties['target'] -and [string]$Opened.target -eq 'android') { return }
+    foreach ($session in @(Get-SgEntrySessions $Entry)) {
+        if ([string]$session.target -ne 'android' -or [string]$session.status -ne 'running') { continue }
+        Open-SgManagedProject (Get-SgSessionView $Entry $session)
+    }
+}
+
 function Invoke-Navigate {
     $entry = Get-SelectedProject 'navigate'
     if (-not $entry) { return }
@@ -1109,7 +1120,7 @@ try {
             else { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRestart $entry.path } }
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
-        'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject (Resolve-SgTargetView $entry) } }
+        'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { $view = Resolve-SgTargetView $entry; Open-SgManagedProject $view; Open-SgAndroidCompanionSessions $entry $view } }
         'extension-inspect' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
             $descriptor = Get-SgBrowserExtensionDescriptor $path $Browser
