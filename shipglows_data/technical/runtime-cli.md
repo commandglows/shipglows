@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.44.1"
+artifact_version: "1.45.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-19"
+updated: "2026-10-23"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -118,9 +118,33 @@ per-surface `.shipglows.backend.json` contract in `ShipGlows.Backend.ps1`.
 `Start-SgProjectCore` remains the internal application/authentication implementation.
 Backend validation and readiness precede registry reconciliation, registration,
 port reservation and any replacement stop. Menu and CLI restart request the same
-transaction rather than stopping first. A per-project named mutex serializes
-start, stop and backend-supervisor actions. Existing manifests are never inferred
-or generated; a justified `none` mode is the only no-backend exception.
+transaction rather than stopping first. A per-project named mutex orders backend
+preparation, backend-supervisor checks and stops; it stays held for the whole
+launch only when the backend is `local`, whose supervisor watches the application
+state. Otherwise each target start holds its own per-target mutex, so the targets
+of one surface start side by side. The surface backend is shared by its targets:
+a changed backend fingerprint refuses while another target still runs on the
+previous one, and the backend stops with the last live target. Existing manifests
+are never inferred or generated; a justified `none` mode is the only no-backend exception.
+
+## Windows target sessions
+
+Each registry surface keeps one session per run target in `sessions`: Tauri
+`windows`/`android`, Flutter `windows`/`android`/`chrome`/`web-server`, and one
+target (`web`, `chrome`, `obsidian`) for the other kinds. A session owns its
+status, port and `portRole` (`primary`, `secondary`, `shared`, `none`), process
+identity, `startedAtUtc`, `stoppedAtUtc`, `lastEvent` and per-launch logs under
+`logs\<surface>\<target>\<launch>\`. The surface-level fields mirror the primary
+session for older readers; only a `primary` session moves the surface's durable
+port. Starting a target never replaces another: without an explicit target, start
+reuses the live one. Two Tauri targets compete for the `devUrl` frontend port, so
+the second requires `-Frontend shared` (a generated session config drops
+`beforeDevCommand`), `-Frontend own` (its own port through `PORT` and an
+overridden `devUrl`) or `-Replace`. Stopping a frontend owner stops the targets
+attached to it. A status read reconciles pre-target surfaces in place without
+migrating them, adopts surface-level writes of an older CLI on migrated surfaces,
+and skips the registry write when nothing changed; the first lifecycle mutation
+migrates a surface. Focused proof: `tests/windows/devserver-multi-target.ps1`.
 
 `ShipGlows.BackendSupervisor.ps1` owns the declared local command within the detached
 Windows Job and checks readiness after the application is attached. Loss of local
@@ -253,7 +277,7 @@ analytics must not be sent to public research providers.
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Menu frontends that render the root menu and grouped submenus | Keep frontend behavior equivalent; update both variants together |
 | `cli/windows/install-devserver.ps1`, `cli/windows/shipglows-devserver.ps1`, `cli/windows/shipglows.ps1` | Native Windows dependency bootstrap, DevServer frontend, and focused ShipGlows commands | Install the pinned checksum-verified Gum binary into the user runtime, prefer it for interactive choices, preserve the plain PowerShell fallback, and keep `rename rio` isolated from Codex state |
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
-| `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
+| `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry with per-target sessions, process lifecycle, ports, and per-launch logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
 | `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
