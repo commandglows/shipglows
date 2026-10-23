@@ -3826,6 +3826,30 @@ function Get-SgAndroidPackageInstallStamp([string]$Adb, [string]$Serial, [string
     return ''
 }
 
+# s open: replugging the cable drops adb reverse and the app can no longer load frontend chunks.
+# The link is restored and confirmed, or the command fails; it never reports a silent success.
+function Restore-SgTauriAndroidLink([object]$Entry) {
+    $serial = [string](Get-SgOptionalValue $Entry 'tauriDeviceId')
+    $port = [int]$Entry.port
+    $path = [string](Get-SgOptionalValue $Entry 'path')
+    if (-not $serial) { throw "android: no phone is recorded for this session; run s restart -ProjectPath `"$path`" -TauriDevice android." }
+    $adb = Get-SgAdbPath
+    $state = Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'get-state') 15
+    if (-not $state -or [int]$state.ExitCode -ne 0 -or ([string]$state.Output).Trim() -ne 'device') {
+        throw "android ${serial}: phone absent; plug it back in, accept USB debugging, then run s open again."
+    }
+    $linked = {
+        $list = Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'reverse','--list') 15
+        [bool]($list -and [int]$list.ExitCode -eq 0 -and ([string]$list.Output) -match "(?m)\btcp:$port\s+tcp:$port\s*$")
+    }
+    if (& $linked) { Write-SgInfo "android ${serial}: reverse :$port already active."; return }
+    $reverse = Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'reverse',"tcp:$port","tcp:$port") 15
+    if (-not $reverse -or [int]$reverse.ExitCode -ne 0 -or -not (& $linked)) {
+        throw "android ${serial}: adb reverse tcp:$port could not be restored; replug the phone, then run s open again."
+    }
+    Write-SgInfo "android ${serial}: reverse :$port restored."
+}
+
 # s stop: the phone keeps neither the USB link to the stopped dev server nor the app using it.
 function Stop-SgTauriAndroidLink([object]$Entry, [int]$Port) {
     $serial = [string](Get-SgOptionalValue $Entry 'tauriDeviceId')
@@ -4541,14 +4565,7 @@ function Open-SgProject([object]$Config, [object]$Entry) {
         return $Entry
     }
     if ($Entry.kind -eq 'tauri' -and (Get-SgEntryDevice $Entry) -eq 'android') {
-        # Replugging the cable drops adb reverse and the app can no longer load frontend chunks.
-        $serial = if ($Entry.PSObject.Properties['tauriDeviceId']) { [string]$Entry.tauriDeviceId } else { '' }
-        if ($serial) {
-            $reverse = Invoke-SgFlutterAndroidTool (Get-SgAdbPath) @('-s',$serial,'reverse',"tcp:$([int]$Entry.port)","tcp:$([int]$Entry.port)") 15
-            if ($reverse -and [int]$reverse.ExitCode -eq 0) { Write-SgInfo "USB link to the dev server restored on $serial (adb reverse tcp:$([int]$Entry.port))." }
-            else { Write-SgWarn "adb reverse failed on $serial; reconnect the phone, accept USB debugging, then run s open again." }
-        }
-        Write-SgInfo 'Tauri is running in its managed Android app session on the connected phone.'
+        Restore-SgTauriAndroidLink $Entry
         return $Entry
     }
     Start-Process "http://127.0.0.1:$([int]$Entry.port)"
