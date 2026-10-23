@@ -1869,7 +1869,10 @@ function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
     $result = Invoke-SgBoundedProcess $NpmPath @('view',$PackageName,'version','--json','--registry=https://registry.npmjs.org/') 45
     if ($result.TimedOut -or $result.ExitCode -ne 0) { throw "Exact version resolution failed for $PackageName." }
     try {
-        $resolved = @($result.Output | ConvertFrom-Json)
+        # npm writes config warnings (e.g. a project .npmrc carrying pnpm keys) to stderr,
+        # which the bounded runner merges into Output; only the JSON payload is parsed.
+        $payload = (@(([string]$result.Output) -split "`r?`n" | Where-Object { $_ -notmatch '^npm (warn|WARN|notice|NOTICE)\b' }) -join "`n").Trim()
+        $resolved = @($payload | ConvertFrom-Json)
         $version = if ($resolved.Count -eq 1) { [string]$resolved[0] } else { '' }
     } catch { $version = '' }
     if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "Exact version resolution failed for $PackageName." }
