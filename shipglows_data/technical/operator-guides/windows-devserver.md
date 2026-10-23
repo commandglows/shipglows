@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.32.0"
+artifact_version: "1.33.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-10-23"
@@ -582,6 +582,12 @@ dépendances, qui s'exécute une seule fois à la fois.
 `SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
 
 Les APK et AAB restent des sorties de release ou de validation autonome ciblée : installation, permissions, notifications, services, plugins natifs et comportement sans Flutter attaché. Ils ne remplacent pas la boucle de développement live.
+
+### Tauri Android en développement
+
+`s start -ProjectPath <app> -TauriDevice android` (ou `SHIPGLOWS_TAURI_DEVICE=android` dans `.shipglows.env`) lance `tauri android dev --host 127.0.0.1` sur un téléphone branché en USB ; jamais de build release. `-TauriDeviceId <serial adb>` (ou `SHIPGLOWS_TAURI_DEVICE_ID`) choisit l'appareil ; sinon un téléphone physique passe avant un émulateur, et aucun émulateur n'est démarré. Avec plusieurs appareils, ShipGlows transmet à Tauri le nom qu'il reconnaît (nom Bluetooth d'un téléphone, nom d'AVD d'un émulateur) et refuse deux appareils de même nom.
+
+Le téléphone joint le serveur Vite local par `adb reverse tcp:<port>`. Au démarrage, l'app est arrêtée sur le téléphone, puis la session devient `running` quand la nouvelle version y tourne (délai de compilation jusqu'à 30 min). Si l'app est installée mais ne tourne toujours pas 90 s plus tard, le démarrage échoue tout de suite, avec un renvoi vers `adb logcat` : elle plante probablement au lancement. `s open` rétablit `adb reverse` après un rebranchement du câble. `s stop` retire `adb reverse` et arrête l'app sur le téléphone. Une session Android ne reçoit pas de raccourci Bureau.
 
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
