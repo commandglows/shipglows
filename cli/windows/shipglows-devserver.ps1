@@ -20,6 +20,8 @@ param(
     [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
     [string]$FlutterDeviceId = '',
     [ValidateSet('','debug','profile')][string]$FlutterMode = '',
+    [ValidateSet('','windows','android')][string]$TauriDevice = '',
+    [string]$TauriDeviceId = '',
     [switch]$Open,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
@@ -132,6 +134,8 @@ function Show-SgShortcutHelp {
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
     Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>] [-FlutterMode debug|profile] [-Open]'
     Write-Host '    -FlutterMode profile runs flutter run --profile for performance measurement (never --release); profile sessions cannot hot reload or hot restart, use s restart to rebuild.' -ForegroundColor DarkGray
+    Write-Host '    [-TauriDevice windows|android] [-TauriDeviceId <adb serial>]'
+    Write-Host '    -TauriDevice android runs tauri android dev on a connected phone (adb reverse keeps the local dev port; never a release build).' -ForegroundColor DarkGray
     Write-Host '  s extension-inspect [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Json]'
     Write-Host '  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
@@ -185,7 +189,7 @@ Ensure-SgDirectory $config.LogDirectory
 
 function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible, [switch]$Restart) {
     $results = New-Object 'System.Collections.Generic.List[object]'
-    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -Restart:$Restart | ForEach-Object {
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Restart:$Restart | ForEach-Object {
         $item = $_
         if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
             [void]$results.Add($item)
