@@ -667,14 +667,15 @@ function Get-SgStackMcpDefinitions {
     param($Needs, [hashtable]$Versions, [string]$NpxPath)
     $definitions = New-Object Collections.Generic.List[object]
     if (($Needs.PSObject.Properties['Firebase'] -and [bool]$Needs.Firebase) -or ($Needs.PSObject.Properties['FlutterFire'] -and [bool]$Needs.FlutterFire)) {
-        $version = [string]$Versions.Firebase
-        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Firebase MCP requires an exact firebase-tools version.' }
-        $definitions.Add([pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"firebase-tools@$version",'mcp'); RequiresAuthentication=$true })
+        # An unresolved version leaves this MCP pending instead of failing the whole install.
+        $version = if ($Versions -and $Versions.ContainsKey('Firebase')) { [string]$Versions['Firebase'] } else { '' }
+        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { Write-Warning 'Firebase MCP remains pending: no exact firebase-tools version was resolved.' }
+        else { $definitions.Add([pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"firebase-tools@$version",'mcp'); RequiresAuthentication=$true }) }
     }
     if ($Needs.PSObject.Properties['Convex'] -and [bool]$Needs.Convex) {
-        $version = [string]$Versions.Convex
-        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Convex MCP requires an exact Convex version.' }
-        $definitions.Add([pscustomobject]@{ Name='convex'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"convex@$version",'mcp','start'); RequiresAuthentication=$true })
+        $version = if ($Versions -and $Versions.ContainsKey('Convex')) { [string]$Versions['Convex'] } else { '' }
+        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { Write-Warning 'Convex MCP remains pending: no exact Convex version was resolved.' }
+        else { $definitions.Add([pscustomobject]@{ Name='convex'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"convex@$version",'mcp','start'); RequiresAuthentication=$true }) }
     }
     if ($Needs.PSObject.Properties['Clerk'] -and [bool]$Needs.Clerk) {
         $definitions.Add([pscustomobject]@{ Name='clerk'; Type='remote'; Url='https://mcp.clerk.com/mcp'; Command=''; Arguments=@(); RequiresAuthentication=$false })

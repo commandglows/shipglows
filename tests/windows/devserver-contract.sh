@@ -67,6 +67,7 @@ for regression in \
   devserver-display-name.ps1 \
   devserver-readiness-logs.ps1 \
   devserver-port-reservation.ps1 \
+  devserver-multi-target.ps1 \
   devserver-cli-performance.ps1 \
   native-cli-launcher.ps1 \
   project-environment-schema.ps1 \
@@ -199,7 +200,7 @@ rg -n '\[Console\]::IsInputRedirected|non-interactive installation' "$INSTALLER"
 rg -n 'keep this window open|WinGet can take several minutes|\| Out-Host' "$INSTALLER"
 rg -n 'function Write-SgInstallerWarning|WARNING:.*ForegroundColor Yellow|--disable-interactivity.*\| Out-Null' "$INSTALLER"
 ! rg -n 'Write-Warning|winget\.Source install.*\| Out-Host' "$INSTALLER"
-rg -n 'Install-SgCommandWrappers|Add-SgRuntimeToUserPath|shipglows-dev\.cmd|s\.cmd|Native short commands installed: s, sg' "$INSTALLER"
+rg -n 'Install-SgCommandWrappers|Add-SgRuntimeToUserPath|shipglows-dev\.cmd|s\.cmd|Native commands installed: shipglows-dev, sg' "$INSTALLER"
 rg -n 'Install-SgApplicationCommandWrapper|@call "\$target" %\*|Application command installed:' "$INSTALLER"
 rg -n "Install-SgApplicationCommandWrapper '(npm|npx|corepack|pnpm|codex|claude|opencode|kilo|kilocode|gemini)'" "$INSTALLER"
 rg -n 'Install-SgAgentShortcut|%~dp0\$TargetName\.cmd|Agent shortcut installed:' "$INSTALLER"

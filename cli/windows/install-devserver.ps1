@@ -339,15 +339,11 @@ call exit /b %%errorlevel%%
     Add-SgRuntimeToUserPath
 
     $shortCommand = Join-Path $runtimeDir 's.cmd'
-    $shortExecutable = Join-Path $runtimeDir 's.exe'
     $existing = Get-Command s -ErrorAction SilentlyContinue | Select-Object -First 1
     $canUseShortCommand = -not $existing
     if ($existing -and $existing.Source) {
         try {
-            $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -in @(
-                [IO.Path]::GetFullPath($shortCommand),
-                [IO.Path]::GetFullPath($shortExecutable)
-            )
+            $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortCommand)
         } catch { }
     }
     if ($canUseShortCommand) {
@@ -375,14 +371,7 @@ call exit /b %%errorlevel%%
         foreach ($nativeCommand in @('shipglows-dev.exe','sg.exe')) {
             Copy-Item -LiteralPath $compiledLauncher -Destination (Join-Path $runtimeDir $nativeCommand) -Force
         }
-        if ($canUseShortCommand) {
-            try {
-                Copy-Item -LiteralPath $compiledLauncher -Destination $shortExecutable -Force
-                Write-Host 'Native short commands installed: s, sg' -ForegroundColor Green
-            } catch [IO.IOException] {
-                Write-SgInstallerWarning "The running s.exe launcher is locked. Run 'shipglows update runtime' outside s to refresh the native launcher."
-            }
-        }
+        Write-Host 'Native commands installed: shipglows-dev, sg' -ForegroundColor Green
     } finally {
         Remove-Item -LiteralPath $compiledLauncher -Force -ErrorAction SilentlyContinue
     }
@@ -1880,7 +1869,10 @@ function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
     $result = Invoke-SgBoundedProcess $NpmPath @('view',$PackageName,'version','--json','--registry=https://registry.npmjs.org/') 45
     if ($result.TimedOut -or $result.ExitCode -ne 0) { throw "Exact version resolution failed for $PackageName." }
     try {
-        $resolved = @($result.Output | ConvertFrom-Json)
+        # npm writes config warnings (e.g. a project .npmrc carrying pnpm keys) to stderr,
+        # which the bounded runner merges into Output; only the JSON payload is parsed.
+        $payload = (@(([string]$result.Output) -split "`r?`n" | Where-Object { $_ -notmatch '^npm (warn|WARN|notice|NOTICE)\b' }) -join "`n").Trim()
+        $resolved = @($payload | ConvertFrom-Json)
         $version = if ($resolved.Count -eq 1) { [string]$resolved[0] } else { '' }
     } catch { $version = '' }
     if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "Exact version resolution failed for $PackageName." }

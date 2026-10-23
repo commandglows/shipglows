@@ -29,16 +29,21 @@ try {
                 $module=Get-Module ShipGlows.DevServer
                 $healthy=& $module { param($Readiness) Test-SgBackendReady $Readiness } $payload.Readiness
                 if (-not $healthy -or $child.HasExited) {
+                    # Every target of the surface runs on this backend: all of them stop and record the cause.
+                    $liveTargets=@(& $module { param($Entry) Get-SgLiveSessions $Entry | ForEach-Object { [string]$_.target } } $entry)
                     [void](Stop-SgProject $payload.Config $payload.ProjectPath -PreserveBackend)
                     & $module {
-                        param($Payload)
+                        param($Payload,$Targets)
                         Invoke-SgRegistryMutation $Payload.Config { param($data)
                             $entry=@($data.projects | Where-Object { $_.path -eq $Payload.ProjectPath }) | Select-Object -First 1
                             if ($entry -and $entry.PSObject.Properties['backend'] -and $entry.backend.instanceId -eq $Payload.InstanceId) {
+                                foreach ($session in @(Get-SgEntrySessions $entry | Where-Object { [string]$_.target -in $Targets })) {
+                                    $session.status='error'; $session | Add-Member -NotePropertyName lastError -NotePropertyValue 'Required local backend lost readiness.' -Force
+                                }
                                 $entry.status='error'; $entry.lastError='Required local backend lost readiness.'; $entry.backend.status='error'
                             }
                         } | Out-Null
-                    } $payload
+                    } $payload $liveTargets
                     return
                 }
                 if ($entry.status -notin @('running','starting','reserved')) { return }

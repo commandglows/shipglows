@@ -57,7 +57,7 @@ try {
     if(@($stopOrder|Sort-Object -Unique).Count-ne$stopOrder.Count){throw 'Process tree stop terminated a duplicated or cyclic PID more than once.'}
     if(700-in$stopOrder-or800-in$stopOrder-or666-in$stopOrder){throw 'Process tree stop overreached into an orphan, missing parent, or unrelated process.'}
     $entrypoint = Get-Content -Raw ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\cli\windows\shipglows-devserver.ps1')))
-    if (-not $entrypoint.Contains("'stop' { if (`$ProjectPath) { [void](Stop-SgProject `$config `$ProjectPath)")) { throw 'Direct stop does not suppress the internal Boolean result.' }
+    if (-not $entrypoint.Contains("'stop' { if (`$ProjectPath) { [void](Stop-SgProject `$config `$ProjectPath -Target (Get-SgRequestedTarget))")) { throw 'Direct stop does not suppress the internal Boolean result.' }
     if (-not $entrypoint.Contains('function Invoke-SgRequiredStart') -or -not $entrypoint.Contains("`$result.status -eq 'error'") -or -not $entrypoint.Contains('throw $reason')) { throw 'One-shot startup errors are not converted into a non-zero CLI failure.' }
     if (-not $entrypoint.Contains("'reload' {") -or -not $entrypoint.Contains('Invoke-SgFlutterProjectReload $config $ProjectPath 15')) { throw 'The explicit managed Flutter reload command is not dispatched.' }
     $tokens=$null;$errors=$null
@@ -66,7 +66,7 @@ try {
     if(-not$startFunction-or$errors.Count){throw 'Could not isolate the one-shot start wrapper for behavioral proof.'}
     Invoke-Expression $startFunction.Extent.Text
     $config=[pscustomobject]@{}
-    $FlutterDevice='android';$FlutterDeviceId='fixture-device';$FlutterMode='profile'
+    $FlutterDevice='android';$FlutterDeviceId='fixture-device';$FlutterMode='profile';$TauriDevice='';$TauriDeviceId='';$Frontend='';$Replace=$false
     function Start-SgProject {
         param($Config,$Path,$RequestedPort,[switch]$FlutterVisible,$FlutterDevice,$FlutterDeviceId,$FlutterMode)
         if($FlutterDevice-ne'android'-or$FlutterDeviceId-ne'fixture-device'-or$FlutterMode-ne'profile'){throw 'One-shot start lost explicit Flutter target/device/mode selection.'}
