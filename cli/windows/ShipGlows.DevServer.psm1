@@ -4440,7 +4440,8 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
         Write-SgWarn "Stale or unverified process for $label; no process was terminated."
     }
     if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
-    if ($entry.kind -eq 'tauri' -and $target -eq 'android' -and -not $alreadyStopped) { Stop-SgTauriAndroidLink $entry $entryPort }
+    # A shared-frontend session has no service port of its own, but its phone still reverses the frontend port.
+    if ($entry.kind -eq 'tauri' -and $target -eq 'android' -and -not $alreadyStopped) { Stop-SgTauriAndroidLink $entry ([int](Get-SgOptionalValue $entry 'port')) }
     Invoke-SgRegistryMutation $Config {
         param($data)
         $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
