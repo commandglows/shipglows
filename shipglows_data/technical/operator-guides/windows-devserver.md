@@ -589,6 +589,13 @@ Les APK et AAB restent des sorties de release ou de validation autonome ciblée 
 
 Le téléphone joint le serveur Vite local par `adb reverse tcp:<port>`. Au démarrage, l'app est arrêtée sur le téléphone, puis la session devient `running` quand la nouvelle version y tourne (délai de compilation jusqu'à 30 min). Si l'app est installée mais ne tourne toujours pas 90 s plus tard, le démarrage échoue tout de suite, avec un renvoi vers `adb logcat` : elle plante probablement au lancement. `s open` rétablit `adb reverse` après un rebranchement du câble et le confirme ; si le téléphone est absent, il échoue avec un message clair. `s stop` retire `adb reverse` et arrête l'app sur le téléphone. Une session Android ne reçoit pas de raccourci Bureau.
 
+Particularités du lancement Android :
+
+- La surcouche `src-tauri/tauri.dev.conf.json` du desktop n'est pas appliquée : elle renomme l'identifiant, auquel le projet Android généré est lié.
+- Le build Gradle rappelle `pnpm tauri android android-studio-script`. Sous un parent Corepack, ce `pnpm` imbriqué refuse de passer à la version épinglée (`ERR_PNPM_BAD_PM_VERSION`) : ShipGlows lance donc `pnpm` directement, qui choisit lui-même la version de `packageManager`.
+- Une session `-Frontend shared` n'a pas de port de service propre, mais `s stop` retire quand même `adb reverse` sur le port du frontend partagé.
+- Pour inspecter l'app sur le téléphone : `adb forward tcp:9333 localabstract:webview_devtools_remote_<pid>` (pid donné par `adb shell pidof <identifier>`), puis DevTools/CDP sur la page dont l'URL contient `tauri.localhost` ; chaque WebView native de réseau apparaît aussi comme une page distincte.
+
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
 Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
