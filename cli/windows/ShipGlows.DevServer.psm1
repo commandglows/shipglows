@@ -2423,9 +2423,11 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         }
         if ($android) {
             # The generated Android project is bound to the base identifier, so the desktop dev
-            # overlay (which renames it) is not applied. Tauri forwards the local devUrl port over adb reverse.
+            # overlay (which renames it) is not applied. Without --host Tauri rewrites devUrl to the
+            # LAN address, which the loopback-only frontend never answers; the phone reaches the
+            # loopback port through the adb reverse set up by Start-SgProjectCore instead.
             if ($TauriDeviceName -notmatch '^[A-Za-z0-9 ._()-]{1,128}$') { throw 'Invalid Tauri Android device name.' }
-            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri android dev `"$TauriDeviceName`""
+            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri android dev --host 127.0.0.1 `"$TauriDeviceName`""
             return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri android dev'; Interactive=$false; FlutterSdkRoot=$null }
         }
         $devConfig = Join-Path $ProjectPath 'src-tauri\tauri.dev.conf.json'
@@ -3583,7 +3585,11 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
         $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' })
         # A previous copy left running on the phone would satisfy readiness before the new build lands.
-        if ($tauriAndroid) { [void](Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'shell','am','force-stop',$tauriAndroid.AppId) 15) }
+        if ($tauriAndroid) {
+            [void](Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'shell','am','force-stop',$tauriAndroid.AppId) 15)
+            $reverse = Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'reverse',"tcp:$port","tcp:$port") 15
+            if (-not $reverse -or [int]$reverse.ExitCode -ne 0) { throw "adb reverse tcp:$port failed on $($tauriAndroid.Serial)." }
+        }
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
         throw
