@@ -761,7 +761,7 @@ function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$Flutter
                     Artifact = 'managed Tauri Android session'
                     StartOutcome = 'Tauri Android development session with shared Vite frontend'
                     StartNextAction = 'Follow the build logs until the app opens on the phone; frontend edits hot reload.'
-                    OpenAction = 'Use the app on the connected Android device.'
+                    OpenAction = 'Restore the USB link (adb reverse) after a cable replug.'
                     OpenNextAction = 'Validate the app, then run s stop -ProjectPath <path> when finished.'
                 }
             }
@@ -3874,7 +3874,14 @@ function Open-SgProject([object]$Config, [object]$Entry) {
         return $Entry
     }
     if ($Entry.kind -eq 'tauri' -and (Get-SgEntryDevice $Entry) -eq 'android') {
-        Write-SgInfo 'Tauri is already running in its managed Android app session on the connected phone.'
+        # Replugging the cable drops adb reverse and the app can no longer load frontend chunks.
+        $serial = if ($Entry.PSObject.Properties['tauriDeviceId']) { [string]$Entry.tauriDeviceId } else { '' }
+        if ($serial) {
+            $reverse = Invoke-SgFlutterAndroidTool (Get-SgAdbPath) @('-s',$serial,'reverse',"tcp:$([int]$Entry.port)","tcp:$([int]$Entry.port)") 15
+            if ($reverse -and [int]$reverse.ExitCode -eq 0) { Write-SgInfo "USB link to the dev server restored on $serial (adb reverse tcp:$([int]$Entry.port))." }
+            else { Write-SgWarn "adb reverse failed on $serial; reconnect the phone, accept USB debugging, then run s open again." }
+        }
+        Write-SgInfo 'Tauri is running in its managed Android app session on the connected phone.'
         return $Entry
     }
     Start-Process "http://127.0.0.1:$([int]$Entry.port)"
