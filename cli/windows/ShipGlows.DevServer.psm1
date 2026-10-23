@@ -2426,8 +2426,9 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             # overlay (which renames it) is not applied. Without --host Tauri rewrites devUrl to the
             # LAN address, which the loopback-only frontend never answers; the phone reaches the
             # loopback port through the adb reverse set up by Start-SgProjectCore instead.
-            if ($TauriDeviceName -notmatch '^[A-Za-z0-9 ._()-]{1,128}$') { throw 'Invalid Tauri Android device name.' }
-            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri android dev --host 127.0.0.1 `"$TauriDeviceName`""
+            if ($TauriDeviceName -and $TauriDeviceName -notmatch '^[^"%&|^<>!\r\n]{1,128}$') { throw 'Invalid Tauri Android device name.' }
+            $deviceArgument = if ($TauriDeviceName) { " `"$TauriDeviceName`"" } else { '' }
+            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri android dev --host 127.0.0.1$deviceArgument"
             return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri android dev'; Interactive=$false; FlutterSdkRoot=$null }
         }
         $devConfig = Join-Path $ProjectPath 'src-tauri\tauri.dev.conf.json'
@@ -3346,9 +3347,14 @@ function Resolve-SgTauriAndroidDevice([string]$RequestedSerial = '', [scriptbloc
         $serial = if ($physical.Count -gt 0) { $physical[0] } else { @($serials | Sort-Object) | Select-Object -First 1 }
         if (-not $serial) { throw 'No authorized Android device is connected. Enable USB debugging, accept the prompt on the phone, then retry.' }
     }
-    $model = & $Runner $adb @('-s',$serial,'shell','getprop','ro.product.model')
-    $name = if ($model -and [int]$model.ExitCode -eq 0) { ([string]$model.Output).Trim() } else { '' }
-    if (-not $name) { throw "Android device model could not be read: $serial" }
+    # With a single device Tauri picks it without a name; otherwise it matches the Bluetooth
+    # name for physical phones (dumpsys bluetooth_manager), not the model.
+    $name = ''
+    if ($serials.Count -gt 1) {
+        $bluetooth = & $Runner $adb @('-s',$serial,'shell','dumpsys','bluetooth_manager')
+        if ($bluetooth -and [int]$bluetooth.ExitCode -eq 0 -and ([string]$bluetooth.Output) -match '(?m)^\s*name:\s*(.+?)\s*$') { $name = $Matches[1] }
+        if (-not $name) { throw "Several Android devices are connected and the name Tauri needs for $serial could not be read; disconnect the others and retry." }
+    }
     return [pscustomobject]@{ Serial=$serial; Name=$name; Adb=$adb }
 }
 
@@ -3472,7 +3478,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $device = Resolve-SgTauriAndroidDevice ([string]$settings.TauriDeviceId)
         $tauriConfig = Get-Content -LiteralPath (Join-Path $entry.path 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
         $tauriAndroid = [pscustomobject]@{ Adb=$device.Adb; Serial=$device.Serial; Name=$device.Name; AppId=[string]$tauriConfig.identifier }
-        Write-SgInfo "Tauri Android target: $($device.Name) ($($device.Serial))"
+        Write-SgInfo "Tauri Android target: $($device.Serial)"
     }
     $obsidianDescriptor = $null
     $obsidianVault = $null
@@ -3677,7 +3683,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }elseif($kind-eq'flutter-web' -and $settings.FlutterDevice -in @('windows','android')){
         Write-SgInfo "$($entry.name) $($entryData.status): managed Flutter $($settings.FlutterDevice) app ($resolvedFlutterMode mode)"
     }elseif($tauriAndroid){
-        Write-SgInfo "$($entry.name) $($entryData.status): Tauri Android app on $($tauriAndroid.Name), frontend http://127.0.0.1:$port via adb reverse"
+        Write-SgInfo "$($entry.name) $($entryData.status): Tauri Android app on $($tauriAndroid.Serial), frontend http://127.0.0.1:$port via adb reverse"
     }else{Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"}
     return $entryData
 }
