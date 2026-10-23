@@ -2428,7 +2428,16 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             # loopback port through the adb reverse set up by Start-SgProjectCore instead.
             if ($TauriDeviceName -and $TauriDeviceName -notmatch '^[^"%&|^<>!\r\n]{1,128}$') { throw 'Invalid Tauri Android device name.' }
             $deviceArgument = if ($TauriDeviceName) { " `"$TauriDeviceName`"" } else { '' }
-            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri android dev --host 127.0.0.1$deviceArgument"
+            # Gradle calls `pnpm tauri android android-studio-script` back; under a Corepack parent
+            # that nested pnpm refuses to switch to the pinned version, so pnpm runs directly and
+            # selects the packageManager version itself.
+            $runner = "`"$($manager.Manager)`"$prefix"
+            if ($manager.Name -eq 'pnpm' -and $manager.Pinned) {
+                $pnpm = Get-SgCommandPath @('pnpm.cmd','pnpm.exe')
+                if (-not $pnpm) { throw 'Tauri Android needs pnpm on PATH: its Gradle build calls pnpm back outside Corepack.' }
+                $runner = "`"$pnpm`""
+            }
+            $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call $runner exec tauri android dev --host 127.0.0.1$deviceArgument"
             return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri android dev'; Interactive=$false; FlutterSdkRoot=$null }
         }
         $devConfig = Join-Path $ProjectPath 'src-tauri\tauri.dev.conf.json'
