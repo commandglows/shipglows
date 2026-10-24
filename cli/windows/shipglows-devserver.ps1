@@ -1077,9 +1077,18 @@ function Invoke-Menu {
                 '0' { return }
                 default { Write-SgWarn 'Unknown choice.' }
             }
-        } catch { Write-SgError $_.Exception.Message }
+        } catch { Write-SgCommandFailure $_ }
         if ($choice -eq 'u') { return }
         if (-not $choiceUiAvailable) { Read-Host 'Press Enter to continue' | Out-Null }
+    }
+}
+
+# A deliberate `throw '<message>'` is a diagnosis; anything else (null method call, .NET exception,
+# parameter binding) is a defect, so its script stack trace is shown with the message.
+function Write-SgCommandFailure([System.Management.Automation.ErrorRecord]$Record) {
+    Write-SgError $Record.Exception.Message
+    if ([string]$Record.FullyQualifiedErrorId -cne [string]$Record.Exception.Message -and $Record.ScriptStackTrace) {
+        Write-SgError "Unexpected error ($($Record.FullyQualifiedErrorId)); stack trace:`n$($Record.ScriptStackTrace)"
     }
 }
 
@@ -1161,4 +1170,4 @@ try {
         'help' { Show-SgShortcutHelp }
         'exit' { return }
     }
-} catch { Write-SgError $_.Exception.Message; exit 1 }
+} catch { Write-SgCommandFailure $_; exit 1 }

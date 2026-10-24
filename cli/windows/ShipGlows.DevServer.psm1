@@ -3451,9 +3451,9 @@ function Stop-SgOwnedFlutterNative([object]$Entry) {$owned=@(Get-SgOwnedFlutterN
 function Wait-SgFlutterOwnedExtinction([object]$Entry,[int]$TimeoutSeconds=8,[int]$QuietMilliseconds=1000) {
     $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds));$quietSince=$null
     do{
-        $identityLive=Test-SgProcessIdentity $Entry;$browser=@(Get-SgOwnedFlutterBrowserPids $Entry);$listener=@(Get-SgOwnedFlutterListenerPids $Entry);$native=@(Get-SgOwnedFlutterNativePids $Entry)
-        if(-not$identityLive){if($browser.Count-gt0){[void](Stop-SgOwnedFlutterBrowser $Entry)};if($listener.Count-gt0){[void](Stop-SgOwnedFlutterListener $Entry)};if($native.Count-gt0){[void](Stop-SgOwnedFlutterNative $Entry)}}
-        if(-not$identityLive-and$browser.Count-eq0-and$listener.Count-eq0-and$native.Count-eq0){if(-not$quietSince){$quietSince=Get-Date}elseif(((Get-Date)-$quietSince).TotalMilliseconds-ge[Math]::Max(0,$QuietMilliseconds)){return $true}}else{$quietSince=$null}
+        $identityLive=Test-SgProcessIdentity $Entry;$launch=@(Get-SgOwnedFlutterLaunchPids $Entry);$browser=@(Get-SgOwnedFlutterBrowserPids $Entry);$listener=@(Get-SgOwnedFlutterListenerPids $Entry);$native=@(Get-SgOwnedFlutterNativePids $Entry)
+        if(-not$identityLive){if($launch.Count-gt0){[void](Stop-SgOwnedFlutterLaunch $Entry)};if($browser.Count-gt0){[void](Stop-SgOwnedFlutterBrowser $Entry)};if($listener.Count-gt0){[void](Stop-SgOwnedFlutterListener $Entry)};if($native.Count-gt0){[void](Stop-SgOwnedFlutterNative $Entry)}}
+        if(-not$identityLive-and$launch.Count-eq0-and$browser.Count-eq0-and$listener.Count-eq0-and$native.Count-eq0){if(-not$quietSince){$quietSince=Get-Date}elseif(((Get-Date)-$quietSince).TotalMilliseconds-ge[Math]::Max(0,$QuietMilliseconds)){return $true}}else{$quietSince=$null}
         if((Get-Date)-ge$deadline){return $false};Start-Sleep -Milliseconds 100
     }while($true)
 }
@@ -3461,7 +3461,7 @@ function Wait-SgFlutterOwnedExtinction([object]$Entry,[int]$TimeoutSeconds=8,[in
 function Remove-SgFlutterLaunchArtifacts([object]$Config,[object]$Entry) {
     if(-not$Entry-or-not$Entry.PSObject.Properties['flutterLaunchDirectory']-or-not$Entry.flutterLaunchDirectory){return $true};$launch=[IO.Path]::GetFullPath([string]$Entry.flutterLaunchDirectory);$base=[IO.Path]::GetFullPath((Join-Path $Config.RuntimeDirectory 'flutter-launch')).TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar
     if(-not$launch.StartsWith($base,[StringComparison]::OrdinalIgnoreCase)-or(Split-Path $launch -Leaf)-notmatch'^[a-f0-9]{32}$'){throw 'Refusing Flutter launch cleanup outside the managed runtime identity.'};if(-not(Test-Path -LiteralPath $launch)){return $true};Assert-SgNoReparseTree $launch
-    if(Test-SgProcessIdentity $Entry -or @(Get-SgOwnedFlutterBrowserPids $Entry).Count -gt 0 -or @(Get-SgOwnedFlutterListenerPids $Entry).Count -gt 0 -or @(Get-SgOwnedFlutterNativePids $Entry).Count -gt 0){throw 'Refusing Flutter launch cleanup while owned processes remain.'};Remove-Item -LiteralPath $launch -Recurse -Force;return -not(Test-Path -LiteralPath $launch)
+    if(Test-SgProcessIdentity $Entry -or @(Get-SgOwnedFlutterLaunchPids $Entry).Count -gt 0 -or @(Get-SgOwnedFlutterBrowserPids $Entry).Count -gt 0 -or @(Get-SgOwnedFlutterListenerPids $Entry).Count -gt 0 -or @(Get-SgOwnedFlutterNativePids $Entry).Count -gt 0){throw 'Refusing Flutter launch cleanup while owned processes remain.'};Remove-Item -LiteralPath $launch -Recurse -Force;return -not(Test-Path -LiteralPath $launch)
 }
 
 function Get-SgListeningTcpPortSet {
@@ -4512,7 +4512,29 @@ function Stop-SgProcessTree([int]$RootPid) {
         [void]$ids.Add($Parent)
     }
     Add-ProcessPostOrder $RootPid
-    foreach ($pid in @($ids)) { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue }
+    # $PID is read-only: the loop variable must not be named $pid.
+    foreach ($treePid in @($ids)) { Stop-Process -Id $treePid -Force -ErrorAction SilentlyContinue }
+}
+
+# Every process whose command line names this session's private launch directory (the supervisor and
+# the browser profile inside it) belongs to the session, even after the registered host died.
+function Get-SgOwnedFlutterLaunchPids([object]$Entry) {
+    if (-not $Entry -or $Entry.kind -ne 'flutter-web' -or -not $Entry.PSObject.Properties['flutterLaunchDirectory'] -or [string]::IsNullOrWhiteSpace([string]$Entry.flutterLaunchDirectory)) { return @() }
+    $launch = [IO.Path]::GetFullPath([string]$Entry.flutterLaunchDirectory).TrimEnd('\','/')
+    if ((Split-Path $launch -Leaf) -notmatch '^[a-f0-9]{32}$') { return @() }
+    $launchPattern = '(?i)' + [regex]::Escape($launch) + '(?:[\\/"''\s]|$)'
+    $owned = @()
+    foreach ($process in @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)) {
+        if ([int]$process.ProcessId -eq $PID) { continue }
+        if ([string]$process.CommandLine -match $launchPattern) { $owned += [int]$process.ProcessId }
+    }
+    return @($owned | Sort-Object -Unique)
+}
+
+function Stop-SgOwnedFlutterLaunch([object]$Entry) {
+    $ownedPids = @(Get-SgOwnedFlutterLaunchPids $Entry)
+    foreach ($ownedPid in $ownedPids) { Stop-SgProcessTree $ownedPid }
+    return $ownedPids.Count -gt 0
 }
 
 function Get-SgOwnedFlutterListenerPids([object]$Entry) {
@@ -4583,7 +4605,9 @@ function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8) {
         $identityGone = -not (Test-SgProcessIdentity $Entry)
         $serviceGone = $entryPort -le 0 -or (Test-SgPortAvailable $entryPort)
         $nativeGone=$Entry.kind-ne'flutter-web'-or@(Get-SgOwnedFlutterNativePids $Entry).Count-eq0
-        if ($identityGone -and $serviceGone -and $nativeGone) { return $true }
+        # A Flutter session is stopped only once its supervisor tree and browser profile are gone too.
+        $launchGone=$Entry.kind-ne'flutter-web'-or(@(Get-SgOwnedFlutterLaunchPids $Entry).Count-eq0-and@(Get-SgOwnedFlutterBrowserPids $Entry).Count-eq0)
+        if ($identityGone -and $serviceGone -and $nativeGone -and $launchGone) { return $true }
         if ((Get-Date) -ge $deadline) { return $false }
         Start-Sleep -Milliseconds 100
     } while ($true)
@@ -4600,12 +4624,14 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     if($entry.kind -eq 'flutter-web' -and $alreadyStopped){Copy-SgFlutterSessionDiagnostics $entry;try{$cleanedFlutterArtifacts=[bool](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
     $stoppedBySupervisor=$false
     if($entry.kind -eq 'flutter-web' -and $entry.PSObject.Properties['flutterLaunchDirectory'] -and $entry.flutterLaunchDirectory -and (Test-SgProcessIdentity $entry)){try{[void](Invoke-SgFlutterSupervisorCommand $entry 'stop' 8);$stoppedBySupervisor=$true}catch{Write-SgWarn "Flutter supervisor stop fallback: $($_.Exception.Message)"}}
+    # A supervisor that did not acknowledge stop (or outlived its registered host) is killed with its whole tree.
+    $stoppedFlutterLaunch = if ($stoppedBySupervisor) { $false } else { Stop-SgOwnedFlutterLaunch $entry }
     $stoppedFlutterListener = Stop-SgOwnedFlutterListener $entry
     $stoppedFlutterBrowser = Stop-SgOwnedFlutterBrowser $entry
     $stoppedFlutterNative = Stop-SgOwnedFlutterNative $entry
-    $noRuntimeWork = $alreadyStopped -and -not $cleanedFlutterArtifacts -and -not $stoppedBySupervisor -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative
+    $noRuntimeWork = $alreadyStopped -and -not $cleanedFlutterArtifacts -and -not $stoppedBySupervisor -and -not $stoppedFlutterLaunch -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative
     if ((Test-Path -LiteralPath $path -PathType Container) -and -not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
-    $stopped = $cleanedFlutterArtifacts -or $stoppedBySupervisor -or $stoppedFlutterListener -or $stoppedFlutterBrowser -or $stoppedFlutterNative
+    $stopped = $cleanedFlutterArtifacts -or $stoppedBySupervisor -or $stoppedFlutterLaunch -or $stoppedFlutterListener -or $stoppedFlutterBrowser -or $stoppedFlutterNative
     $identityLive = Test-SgProcessIdentity $entry
     $serviceLive = $entryPort -gt 0 -and -not (Test-SgPortAvailable $entryPort)
     if (($identityLive -or $serviceLive) -and $entry.PSObject.Properties['jobName'] -and $entry.jobName) {
@@ -4614,10 +4640,18 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     } elseif ($identityLive) {
         Stop-SgProcessTree ([int]$entry.pid)
         $stopped = $true
-    } elseif (-not $stoppedBySupervisor -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative -and [int]$entry.pid -gt 0) {
+    } elseif (-not $stoppedBySupervisor -and -not $stoppedFlutterLaunch -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative -and [int]$entry.pid -gt 0) {
         Write-SgWarn "Stale or unverified process for $label; no process was terminated."
     }
-    if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
+    if (-not (Wait-SgManagedExtinction $entry 8)) {
+        # An acknowledged stop that still leaves session processes behind gets one forced pass before refusing.
+        if ($entry.kind -eq 'flutter-web') {
+            [void](Stop-SgOwnedFlutterLaunch $entry); [void](Stop-SgOwnedFlutterBrowser $entry); [void](Stop-SgOwnedFlutterListener $entry); [void](Stop-SgOwnedFlutterNative $entry)
+            if ($entry.PSObject.Properties['jobName'] -and $entry.jobName) { [void](Stop-SgManagedJob $entry) } elseif (Test-SgProcessIdentity $entry) { Stop-SgProcessTree ([int]$entry.pid) }
+            $stopped = $true
+        }
+        if ($entry.kind -ne 'flutter-web' -or -not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
+    }
     # A shared-frontend session has no service port of its own, but its phone still reverses the frontend port.
     if ($entry.kind -eq 'tauri' -and $target -eq 'android' -and -not $alreadyStopped) { Stop-SgTauriAndroidLink $entry ([int](Get-SgOptionalValue $entry 'port')) }
     if ($entry.kind -eq 'flutter-web' -and -not $alreadyStopped -and (Get-SgEntryDevice $entry) -eq 'android') {
