@@ -3296,8 +3296,8 @@ function Update-SgFlutterBuildStallDeadline([datetime]$StallDeadline,[datetime]$
 # Windows passes build\windows (native MSBuild) and .dart_tool\flutter_build (Dart kernel
 # compile): a large Dart compile writes nothing under build\windows for minutes. Android passes
 # Get-SgFlutterAndroidBuildActivity (Gradle output, caches and user home). BuildLabel names the
-# target in the failure message and BuildHint is appended to build failures.
-function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [int]$ActiveProgressTimeoutSeconds = 600, [string[]]$BuildActivityPath = @(), [int]$BuildStallTimeoutSeconds = 300, [string[]]$BuildActivityShallowPath = @(), [string]$BuildLabel = 'Windows', [string]$BuildHint = '') {
+# target in the failure message ('' gives a plain "Flutter build"); BuildHint is appended to build failures.
+function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [int]$ActiveProgressTimeoutSeconds = 600, [string[]]$BuildActivityPath = @(), [int]$BuildStallTimeoutSeconds = 300, [string[]]$BuildActivityShallowPath = @(), [string]$BuildLabel = '', [string]$BuildHint = '') {
     $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
     $progressDeadline=(Get-Date).AddSeconds([Math]::Max($TimeoutSeconds,$ActiveProgressTimeoutSeconds))
     $activeProgress=$false;$stalled=$false
@@ -3311,8 +3311,8 @@ function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds 
         if($activeProgress-and$hasActivityPath-and$now-ge$stallDeadline){$stalled=$true;break}
         if(((-not$activeProgress)-and$now-ge$deadline)-or($activeProgress-and$now-ge$progressDeadline)){break};Start-Sleep -Milliseconds 250
     }while($true)
-    $hint=if($BuildHint){" $BuildHint"}else{''}
-    [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($stalled){"Flutter $BuildLabel build stalled: no build output for $BuildStallTimeoutSeconds seconds before app.started.$hint"}elseif($activeProgress){"Flutter $BuildLabel build timed out after $ActiveProgressTimeoutSeconds seconds before app.started.$hint"}else{'Flutter supervisor timed out before app.started.'});DaemonPid=0}
+    $hint=if($BuildHint){" $BuildHint"}else{''};$target=if($BuildLabel){" $BuildLabel"}else{''}
+    [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($stalled){"Flutter$target build stalled: no build output for $BuildStallTimeoutSeconds seconds before app.started.$hint"}elseif($activeProgress){"Flutter$target build timed out after $ActiveProgressTimeoutSeconds seconds before app.started.$hint"}else{'Flutter supervisor timed out before app.started.'});DaemonPid=0}
 }
 
 # Flutter readiness per target. Windows and Android builds get a progress-aware window: the wait
@@ -3320,14 +3320,14 @@ function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds 
 # window is longer because a first build downloads the Gradle distribution as one large file.
 function Wait-SgFlutterStartupReady([string]$LaunchDirectory,[string]$LaunchPath,[object]$Entry,[string]$ResolvedDevice,[string]$RequestedDevice) {
     $statePath=Join-Path $LaunchDirectory 'state.json'
-    if($ResolvedDevice-eq'windows'){return Wait-SgFlutterSupervisorReady $statePath 90 $Entry 1800 @((Join-Path $LaunchPath 'build\windows'),(Join-Path $LaunchPath '.dart_tool\flutter_build')) 300}
+    if($ResolvedDevice-eq'windows'){return Wait-SgFlutterSupervisorReady $statePath 90 $Entry 1800 @((Join-Path $LaunchPath 'build\windows'),(Join-Path $LaunchPath '.dart_tool\flutter_build')) 300 -BuildLabel 'Windows'}
     if($RequestedDevice-eq'android'){
         $cold=Get-SgFlutterAndroidColdBuildReason $LaunchPath
         if($cold){Write-SgInfo "First Flutter Android build ($cold): Gradle may download its distribution, dependencies and Android SDK components, which can take well over 10 minutes. ShipGlows keeps waiting while Gradle writes build output (cut after 10 minutes without output, hard cap 30 minutes)."}
         $activity=Get-SgFlutterAndroidBuildActivity $LaunchPath $LaunchDirectory
         return Wait-SgFlutterSupervisorReady $statePath 90 $Entry 1800 $activity.Path 600 -BuildActivityShallowPath $activity.ShallowPath -BuildLabel 'Android' -BuildHint 'A first Android build downloads the Gradle distribution, dependencies and Android SDK components; check the session logs with s status.'
     }
-    Wait-SgFlutterSupervisorReady $statePath 90 $Entry 600
+    Wait-SgFlutterSupervisorReady $statePath 90 $Entry 600 -BuildLabel $(if($ResolvedDevice-in@('chrome','web-server')){'web'}else{[string]$ResolvedDevice})
 }
 
 function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload','stop','open')][string]$Method,[int]$TimeoutSeconds=10) {

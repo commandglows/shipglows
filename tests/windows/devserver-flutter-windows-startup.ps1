@@ -59,7 +59,8 @@ try{
             [IO.File]::WriteAllText($statePath,'{"status":"building","appId":"app-build","daemonPid":42,"progressActive":true}')
             function Test-SgProcessIdentity {$true}
             $clock=[Diagnostics.Stopwatch]::StartNew();$buildTimeout=Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1;$clock.Stop()
-            if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'build timed out'){throw 'Active Flutter build progress did not receive its dedicated startup window.'}
+            if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'^Flutter build timed out after 1 seconds'){throw "Active Flutter build progress did not receive its dedicated startup window or an unlabelled message: $($buildTimeout.Error)"}
+            if((Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1 -BuildLabel 'web').Error-notmatch'^Flutter web build timed out'){throw 'A Flutter web build timeout was not labelled with its own target.'}
             $transitionAt=[datetime]'2026-09-04T20:00:00Z';$timing=Update-SgFlutterReadinessWindow $true $false $transitionAt.AddMinutes(-1) 90 $transitionAt
             if($timing.ActiveProgress-or$timing.Deadline-ne$transitionAt.AddSeconds(90)){throw 'Flutter debug attachment did not receive a fresh deadline after a long build completed.'}
             $buildRoot=Join-Path $stateRoot 'build\windows';New-Item -ItemType Directory -Path $buildRoot -Force|Out-Null;[IO.File]::WriteAllText((Join-Path $buildRoot 'old.obj'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $buildRoot 'old.obj'),[datetime]::UtcNow.AddHours(-1))
