@@ -31,7 +31,6 @@ linked_systems:
   - "shipglows_data/editorial/claim-register.md"
   - "shipglows_data/editorial/page-intent-map.md"
   - "shipglows_data/editorial/editorial-update-gate.md"
-  - "shipglows_data/workflow/evidence/content-quality-rubric-sample-run.md"
   - "shipglows_data/business/business.md"
   - "shipglows_data/business/product.md"
   - "shipglows_data/business/branding.md"
@@ -55,7 +54,6 @@ evidence:
   - "User decision 2026-05-24: integrate structured feedback and project-specific scoring rules inside content skills instead of creating one skill per project."
   - "shipglows_data/workflow/TASKS.md now tracks: cadrer une grille de notation éditoriale réutilisable par les skills contenu, avec critères communs et règles spécifiques par projet."
   - "shipglows_data/workflow/research/tools.md records Essay Grader AI as inspiration for editorial rubric scoring."
-  - "shipglows_data/workflow/evidence/content-quality-rubric-sample-run.md records a schema-complete sample rubric output and rejection scenarios for duplicate, conflicting, and stale score states."
 next_step: "/sg-ship"
 ---
 
