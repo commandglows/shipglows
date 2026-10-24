@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.15.1"
+artifact_version: "0.16.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-30"
+updated: "2026-10-24"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-10-24: the changelog records Flutter VM service, DevTools and live-log reporting in s status."
   - "The 2026-08-30 changelog records the separate native Windows developer-tool status and update surfaces, with public publication held for installed-host proof."
   - "The 2026-08-30 changelog records global managed-repository closure changelog classification and the shared Context History runtime."
   - "The 2026-08-26 changelog records latest-build artifact access and the native Windows Auth0 CLI integration."
@@ -31,6 +32,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ## [Unreleased]
 
+- `s status -ProjectPath <p>` now shows the `VM service` and `DevTools` URIs of a running managed Flutter session (debug and profile), and `-Json` exposes `vmServiceUri`, `devToolsUri` and `dtdUri`, recorded by the supervisor from the `app.debugPort`, `app.devTools` and `app.dtd` events and cleared at stop. Flutter logs have a single live source: `s status`, `s logs` and `-Json` point to the supervisor's `flutter-launch\<runId>\flutter.stdout.log` / `flutter.stderr.log` instead of the empty durable `stdout.log` / `stderr.log`, which now receive one post-mortem copy at every stop.
 - Added `-FlutterMode debug|profile` to `s start` (and `SHIPGLOWS_FLUTTER_MODE` in `.shipglows.env`): the managed Flutter session can run `flutter run --machine --profile -d <device>` for performance measurement with the same supervisor, Doppler wrapper and public-define projection as debug. The registry records `flutterMode`, `s status` shows it, the session fingerprint restarts on a mode change, the source watcher stays off in profile and `s reload` refuses with the `s restart … -FlutterMode profile` alternative (Flutter supports neither hot reload nor hot restart in profile mode). `--release` is never a managed session.
 - Added `shipglows check` to the Windows CLI: runs the lint and test scripts declared by `package.json` or `pubspec.yaml`; placeholder lint scripts count as not configured and Bun lockfiles are refused.
 - Added `trigger: manual` to `.shipglows/required-gate.json` so a managed-project gate runs on `workflow_dispatch` only; `ruleset-plan`/`ruleset-apply` refuse it, and `audit --repository --ruleset-id` flags a ruleset that still requires the gate.

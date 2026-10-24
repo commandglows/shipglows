@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.14.0"
+artifact_version: "3.15.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-10-23"
+updated: "2026-10-24"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -36,6 +36,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-10-24: a commandglows_app profile session hid its VM service and DevTools URIs in flutter-launch while s status announced empty logs; the supervisor now records them and s status points to the live flutter.*.log files."
   - "The Windows CLI publishes a bounded shipglows.cli-capabilities.v1 snapshot that conversations may inspect without starting the CLI."
   - "The Windows installer writes the global development environment file."
   - "Each managed project exposes its durable assigned URL in a visible, versioned ENVIRONMENT.md file."
@@ -85,7 +86,18 @@ For startup diagnostics, read the target session's `logPath` and `errorLogPath`
 `%LOCALAPPDATA%\ShipGlows\DevServer\logs\<name>-<path-hash>\<target>\<yyyyMMdd-HHmmss>-<id>\`
 (the five latest launches per target are kept), so two targets or two launches
 never overwrite each other's logs; files directly under `<name>-<path-hash>\`
-or a folder named after the bare display name belong to older sessions. A web readiness timeout is configured through `.shipglows.env`
+or a folder named after the bare display name belong to older sessions. A
+Flutter session writes its live logs only to the supervisor's
+`flutter.stdout.log` / `flutter.stderr.log` under
+`%LOCALAPPDATA%\ShipGlows\DevServer\flutter-launch\<runId>\`; while that
+directory exists, `s status -ProjectPath <path> [-Json]` and `s logs` point
+there (`-Json`: `logPath`, `errorLogPath`, `logDirectory`), and the session's
+durable `stdout.log` / `stderr.log` only receive one post-mortem copy at stop.
+A running Flutter session (debug or profile) also carries `vmServiceUri`,
+`devToolsUri` and `dtdUri`, shown as `VM service` / `DevTools` lines by
+`s status`; use them to attach DevTools or a VM service client instead of
+searching the disk. They embed the VM service auth code: never copy them into
+a commit, document or fixture. A web readiness timeout is configured through `.shipglows.env`
 (`SHIPGLOWS_READY_TIMEOUT_SECONDS`, see `project-runtime-policy.md`).
 
 Report runtime capabilities from the global file before attempting tool discovery:

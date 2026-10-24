@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.45.0"
+artifact_version: "1.46.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-23"
+updated: "2026-10-24"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -42,6 +42,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "2026-10-24: a commandglows_app profile session hid its VM service and DevTools URIs in flutter-launch while s status announced empty logs; the supervisor now records them and s status points to the live flutter.*.log files."
   - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows focused-launcher replay 2026-09-04: `shipglows.cmd` enters the managed PowerShell runtime directly or through an explicit secure bootstrap route, and the compatibility form `shipglows update runtime` normalizes to the canonical updater without locking `s.exe`."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
@@ -796,7 +797,14 @@ Chrome while preserving debug/hot-reload support. The advanced
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
 and stdout after the CLI exits. It records the last protocol event, Flutter exit
 code and exit reason, and registry reconciliation requires its `running` state
-instead of trusting a live wrapper alone. State readers allow delete sharing,
+instead of trusting a live wrapper alone. It also records the loopback-only
+VM service (`app.debugPort` `wsUri`), DevTools (`app.devTools`) and DTD
+(`app.dtd`) URIs of its own app, cleared on `app.stop` or exit; reconciliation
+mirrors them into the session's `vmServiceUri`, `devToolsUri` and `dtdUri`, and
+`s status` prints `VM service` / `DevTools` lines for a running target. Its
+`flutter.stdout.log` / `flutter.stderr.log` are the single live log source:
+`s status`, `s logs` and `-Json` point to them while the launch directory
+exists, and the durable session logs receive one post-mortem copy at stop. State readers allow delete sharing,
 while atomic publication retries only transient Windows sharing violations for
 a bounded interval and propagates persistent or unrelated I/O failures. On Windows desktop, cleanup recognizes
 only the exact current-project Debug runner declared by `BINARY_NAME`; transient
