@@ -42,8 +42,24 @@ class ProfileError(Exception):
     """Raised for an invalid profile file or request."""
 
 
+def private_data_dir() -> Path:
+    """Resolve the durable private data root (see canonical-runtime-and-private-roots.md)."""
+    value = os.environ.get("SHIPGLOWS_PRIVATE_DATA_DIR", "")
+    if not value and sys.platform == "win32":
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+                value = str(winreg.QueryValueEx(key, "SHIPGLOWS_PRIVATE_DATA_DIR")[0])
+        except OSError:
+            value = ""
+    root = Path(value) if value else Path.home() / ".shipglows" / "data"
+    if not root.is_absolute() or not root.is_dir():
+        raise ProfileError(f"private data root unavailable: {root}")
+    return root
+
+
 def user_profile_path() -> Path:
-    return Path.home() / ".shipglows" / "state" / "execution-profile.json"
+    return private_data_dir() / "shipglows_data" / "execution-profile.json"
 
 
 def project_profile_path(project: str | Path) -> Path:
@@ -132,7 +148,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "show":
-            out: dict[str, object] = {"builtin": BUILTIN, "user": {"path": str(user_profile_path()), "axes": _load(user_profile_path())}}
+            user_path = user_profile_path()
+            out: dict[str, object] = {"builtin": BUILTIN, "user": {"path": str(user_path), "axes": _load(user_path)}}
             if args.project:
                 path = project_profile_path(args.project)
                 out["project"] = {"path": str(path), "axes": _load(path)}

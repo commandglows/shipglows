@@ -99,7 +99,8 @@ effective value per workload with
 Precedence, highest first: explicit invocation tags, mode defaults (`auto`
 permits test, server and commit; `blitz` denies every local workload),
 project profile `shipglows_data/execution-profile.json`, user profile
-`~/.shipglows/state/execution-profile.json`, built-in defaults (build and CI
+`$SHIPGLOWS_PRIVATE_DATA_DIR/shipglows_data/execution-profile.json`
+(the versioned ShipGlows private data repository), built-in defaults (build and CI
 denied; test, server and commit allowed).
 
 A tag is a one-off exception. When the operator asks to change the default

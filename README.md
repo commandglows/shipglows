@@ -954,10 +954,16 @@ Execution posture composes with those routes and every public métier command:
 sg-development feature checkout #local
 sg-bug fix payment callback #nolocal
 sg-engineering verify checkout #ci
+sg-development fix login #notest
+shipglows auto seo
 shipglows blitz #ci until=18:00
 ```
 
-`#ci` implies `#nolocal` and only identifies deferred proof; it does not
+Granular tags `#build`/`#nobuild`, `#test`/`#notest`, `#server`/`#noserver`,
+`#commit`/`#nocommit`, and `#noci` control one workload each; without a tag the
+saved default execution profile applies (`shipglows profile`). `shipglows auto`
+keeps improving the whole business autonomously with local proof and milestone
+commits, never pushing. `#ci` implies `#nolocal` and only identifies deferred proof; it does not
 authorize push or workflow dispatch. `shipglows blitz` always implies
 `#nolocal` and rejects `#local`. The older `shipglows nolocal <objective>` form
 remains accepted as a compatibility alias. These are agent-invocation tags,
