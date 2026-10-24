@@ -1,0 +1,11 @@
+Launching lib\main.dart on Windows in profile mode...
+[{"event":"daemon.connected","params":{"version":"0.6.1","pid":4242}}]
+[{"event":"app.start","params":{"appId":"fixture-app-1","deviceId":"windows","directory":"C:\\fixture\\commandglows_app","supportsRestart":false,"launchMode":"run","mode":"profile"}}]
+[{"event":"app.progress","params":{"appId":"fixture-app-1","id":"0","progressId":null,"message":"Building Windows application...","finished":false}}]
+[{"event":"app.progress","params":{"appId":"fixture-app-1","id":"0","progressId":null,"finished":true}}]
+[{"event":"app.debugPort","params":{"appId":"other-app","port":1,"baseUri":"http://127.0.0.1:1/OTHERtoken000=/","wsUri":"ws://127.0.0.1:1/OTHERtoken000=/ws"}}]
+[{"event":"app.debugPort","params":{"appId":"fixture-app-1","port":3196,"baseUri":"http://127.0.0.1:3196/FAKEvmToken0=/","wsUri":"ws://127.0.0.1:3196/FAKEvmToken0=/ws"}}]
+[{"event":"app.devTools","params":{"appId":"fixture-app-1","uri":"http://127.0.0.1:9100/?uri=ws://127.0.0.1:3196/FAKEvmToken0=/ws"}}]
+[{"event":"app.devTools","params":{"appId":"fixture-app-1","uri":"https://devtools.example.com/?uri=ws://127.0.0.1:3196/FAKEvmToken0=/ws"}}]
+[{"event":"app.dtd","params":{"appId":"fixture-app-1","uri":"ws://127.0.0.1:52011/FAKEdtdToken="}}]
+[{"event":"app.started","params":{"appId":"fixture-app-1"}}]

@@ -137,8 +137,24 @@ function Pump-SgFlutterChanges([object]$Watcher,[object]$DebounceState,[int]$Max
 
 function New-SgFlutterProtocolState {
     $now=[datetime]::UtcNow.ToString('o')
-    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastEvent=$null; LastProtocolError=$null; FlutterExitCode=$null; ExitReason=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; UpdatedAtUtc=$now }
+    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastEvent=$null; LastProtocolError=$null; FlutterExitCode=$null; ExitReason=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; VmServiceUri=$null; DevToolsUri=$null; DtdUri=$null; UpdatedAtUtc=$now }
 }
+
+# Debug endpoints are only ever loopback URIs announced by flutter run --machine; anything else is ignored.
+function ConvertTo-SgFlutterLoopbackUri([object]$Params,[string]$Name,[string[]]$Schemes) {
+    if(-not$Params-or-not$Params.PSObject.Properties[$Name]-or$Params.$Name-isnot[string]){return $null}
+    $value=[string]$Params.$Name;if($value.Length-gt2048-or$value-match'[\s"<>]'){return $null}
+    $uri=$null;if(-not[Uri]::TryCreate($value,[UriKind]::Absolute,[ref]$uri)){return $null}
+    if($uri.Scheme-notin$Schemes-or$uri.Host-notin@('127.0.0.1','localhost','[::1]','::1')){return $null}
+    return $value
+}
+
+function Test-SgFlutterEventApp([object]$State,[object]$Params) {
+    if(-not$Params.PSObject.Properties['appId']){return $true}
+    return [bool]($State.AppId-and[string]$Params.appId-ceq[string]$State.AppId)
+}
+
+function Clear-SgFlutterDebugEndpoints([object]$State) { $State.VmServiceUri=$null; $State.DevToolsUri=$null; $State.DtdUri=$null }
 
 function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
     if([string]::IsNullOrWhiteSpace($Line)-or$Line.Length-gt1048576){throw 'Invalid Flutter machine envelope size.'}
@@ -163,7 +179,10 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
             'app.start' { if ([string]$params.appId -match '^[A-Za-z0-9._-]{1,256}$') { $State.AppId=[string]$params.appId; $State.Status='starting'; $State.ProgressActive=$false } }
             'app.progress' { if(-not$State.Ready-and$State.AppId-and$params.PSObject.Properties['appId']-and[string]$params.appId-ceq[string]$State.AppId-and$params.PSObject.Properties['finished']-and$params.finished-is[bool]){$State.LastProgressAtUtc=[datetime]::UtcNow.ToString('o');$State.ProgressActive=-not[bool]$params.finished;$State.Status=if($State.ProgressActive){'building'}else{'starting'}} }
             'app.started' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $State.Ready=$true; $State.ProgressActive=$false; $State.Status='running'; $State.LastError=$null } }
-            'app.stop' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $wasReady=[bool]$State.Ready;$State.Ready=$false;$State.ProgressActive=$false;$State.Status='stopped';if($params.PSObject.Properties['error']-and$params.error){$State.Status='error';$State.LastError='Flutter reported an application error.'}elseif(-not$wasReady){$State.Status='error';$State.LastError='Flutter application stopped before app.started.'} } }
+            'app.debugPort' { if ($State.AppId -and (Test-SgFlutterEventApp $State $params)) { $uri=ConvertTo-SgFlutterLoopbackUri $params 'wsUri' @('ws','wss'); if ($uri) { $State.VmServiceUri=$uri } } }
+            'app.devTools' { if (Test-SgFlutterEventApp $State $params) { $uri=ConvertTo-SgFlutterLoopbackUri $params 'uri' @('http','https'); if ($uri) { $State.DevToolsUri=$uri } } }
+            'app.dtd' { if (Test-SgFlutterEventApp $State $params) { $uri=ConvertTo-SgFlutterLoopbackUri $params 'uri' @('ws','wss'); if ($uri) { $State.DtdUri=$uri } } }
+            'app.stop' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { Clear-SgFlutterDebugEndpoints $State;$wasReady=[bool]$State.Ready;$State.Ready=$false;$State.ProgressActive=$false;$State.Status='stopped';if($params.PSObject.Properties['error']-and$params.error){$State.Status='error';$State.LastError='Flutter reported an application error.'}elseif(-not$wasReady){$State.Status='error';$State.LastError='Flutter application stopped before app.started.'} } }
         }
     }
     $State.UpdatedAtUtc=[datetime]::UtcNow.ToString('o')
@@ -274,7 +293,7 @@ function Invoke-SgFlutterSupervisor {
             if($stopRequested){if(-not $process.WaitForExit(5000)){$process.Kill()};break}
             Start-Sleep -Milliseconds 100
         }
-    } finally { if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.FlutterExitCode=try{[int]$process.ExitCode}catch{$null};$state.Ready=$false;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};$state.ExitReason=if($stopRequested){'stop-requested'}elseif($state.LastEvent-eq'app.stop'){'app-stopped-during-startup'}else{'flutter-host-exited'};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
+    } finally { if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.FlutterExitCode=try{[int]$process.ExitCode}catch{$null};$state.Ready=$false;Clear-SgFlutterDebugEndpoints $state;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};$state.ExitReason=if($stopRequested){'stop-requested'}elseif($state.LastEvent-eq'app.stop'){'app-stopped-during-startup'}else{'flutter-host-exited'};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
 }
 
 if (-not $TestMode) { Invoke-SgFlutterSupervisor }

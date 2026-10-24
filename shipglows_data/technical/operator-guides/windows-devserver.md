@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.33.0"
+artifact_version: "1.34.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-23"
+updated: "2026-10-24"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-10-24 sur commandglows_app, une session profile Windows laissait vides le stdout.log et le stderr.log annoncés par `s status`, et cachait le VM service et DevTools dans flutter-launch ; `s status` affiche depuis ces URI et les journaux réellement écrits."
   - "Le 2026-10-23 sur CommunityGlows, un `tauri android dev` lancé par une autre session a remplacé sans message la session Tauri Windows et écrasé son stderr.log ; chaque cible a depuis sa propre session, ses logs par lancement, et un second Tauri exige un choix explicite."
   - "Le replay du 2026-09-04 confirme que `shipglows update status` s'exécute dans le PowerShell géré et que `shipglows update runtime` reste accepté comme forme de compatibilité sans verrouiller `s.exe`."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
@@ -571,7 +572,14 @@ donc de démarrer tant que l'opératrice n'a pas choisi :
 
 `s status -ProjectPath <app>` liste chaque cible avec son état, son port (propre
 ou partagé), son heure de démarrage, son PID, son appareil et son dossier de
-logs ; `-Json` donne la même vue aux agents. `stop`, `restart`, `reload`, `logs`
+logs ; `-Json` donne la même vue aux agents. Une cible Flutter en cours
+d'exécution (debug ou profile) affiche aussi ses lignes `VM service` (`wsUri`
+de `app.debugPort`) et `DevTools` (`app.devTools`) ; `-Json` expose
+`vmServiceUri`, `devToolsUri` et `dtdUri` (`app.dtd`). Le superviseur les lit
+dans le flux `flutter run --machine`, les écrit dans son `state.json`, et la
+réconciliation du statut les recopie dans la session du registre ; l'arrêt les
+efface. Ces URI contiennent le code d'authentification du VM service : ne les
+copiez jamais dans un commit, une doc ou une fixture. `stop`, `restart`, `reload`, `logs`
 et `open` acceptent `-TauriDevice` ou `-FlutterDevice` pour viser une cible, et
 agissent sur toutes les cibles sinon. Les cibles d'une surface partagent son
 backend, arrêté avec la dernière cible active, et leur installation de
@@ -664,6 +672,16 @@ deux cibles d'une même surface ou deux lancements successifs ne partagent plus
 leurs fichiers `stdout.log`, `stderr.log` et `setup.log`. Les cinq derniers
 lancements de chaque cible sont conservés. Chaque session du registre garde le
 chemin exact de ses journaux (`logPath`, `errorLogPath`, `setupLogPath`).
+
+Une session Flutter a une seule source de vérité pour ses journaux en direct :
+les fichiers `flutter.stdout.log` et `flutter.stderr.log` que le superviseur
+écrit dans `%LOCALAPPDATA%\ShipGlows\DevServer\flutter-launch\<runId>\`, au fil
+du flux `--machine`. Tant que ce dossier existe, `s status`, `s logs` et
+`-Json` (`logPath`, `errorLogPath`, `logDirectory`) pointent vers lui. Le
+dossier de lancement étant supprimé à l'arrêt, sa fin de journal (256 Kio
+au plus, secrets masqués) et le résumé de `state.json` sont copiés une seule
+fois dans le `stdout.log` / `stderr.log` durables : ce sont des journaux
+post-mortem, jamais dupliqués pendant l'exécution.
 
 Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
 

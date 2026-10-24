@@ -17,11 +17,11 @@ $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< 
 $script:CliCapabilitySchema = 'shipglows.cli-capabilities.v1'
 $script:CliCapabilityMaxBytes = 65536
 # Runtime fields owned by one target session. The surface's top-level copies mirror its primary session.
-$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent')
+$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent','vmServiceUri','devToolsUri','dtdUri')
 $script:SgSessionLogRetention = 5
 $script:SgSessionFieldSet = [Collections.Generic.HashSet[string]]::new([string[]]$script:SgSessionFields, [StringComparer]::OrdinalIgnoreCase)
 # The fields reconciliation can change on a session.
-$script:SgLiveStateFields = @('status','pid','startTimeUtc','lastError','reservationToken','reservationTimeUtc','flutterStartupState','flutterAppId','flutterDaemonPid','stoppedAtUtc')
+$script:SgLiveStateFields = @('status','pid','startTimeUtc','lastError','reservationToken','reservationTimeUtc','flutterStartupState','flutterAppId','flutterDaemonPid','vmServiceUri','devToolsUri','dtdUri','stoppedAtUtc')
 
 function Write-SgInfo([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Cyan }
 function Write-SgWarn([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Yellow }
@@ -1159,8 +1159,13 @@ function Format-SgSessionStatusLines([object]$Entry) {
             if ($stopped) { $parts += "at $stopped" }
         }
         if ($session.PSObject.Properties['lastEvent'] -and $session.lastEvent) { $parts += [string]$session.lastEvent }
-        if ($session.PSObject.Properties['errorLogPath'] -and $session.errorLogPath) { $parts += "logs $(Split-Path -Parent ([string]$session.errorLogPath))" }
+        $logs = Get-SgSessionLogFiles $session
+        if ($logs.Directory) { $parts += "logs $($logs.Directory)" }
         $lines += ($parts -join ' | ')
+        if ($status -eq 'running') {
+            if ($session.PSObject.Properties['vmServiceUri'] -and $session.vmServiceUri) { $lines += "  VM service  $([string]$session.vmServiceUri)" }
+            if ($session.PSObject.Properties['devToolsUri'] -and $session.devToolsUri) { $lines += "  DevTools    $([string]$session.devToolsUri)" }
+        }
     }
     return $lines
 }
@@ -3319,6 +3324,8 @@ function Get-SgBoundedFileTail([string]$Path,[int]$MaxBytes=262144) {
 function Copy-SgFlutterDiagnostics([object]$Entry,[string]$DurableOut,[string]$DurableErr) {
     if(-not$Entry-or-not$Entry.PSObject.Properties['flutterLaunchDirectory']){return}
     $launch=[string]$Entry.flutterLaunchDirectory;if(-not(Test-Path -LiteralPath $launch -PathType Container)){return};Assert-SgNoReparseTree $launch
+    # One copy per launch: a stop retried after a pending cleanup never duplicates the post-mortem.
+    $marker=Join-Path $launch 'diagnostics.copied';if(Test-Path -LiteralPath $marker -PathType Leaf){return};[IO.File]::WriteAllText($marker,'')
     foreach($pair in @(@('flutter.stdout.log',$DurableOut),@('flutter.stderr.log',$DurableErr))){$source=Join-Path $launch $pair[0];if(Test-Path -LiteralPath $source -PathType Leaf){$text=Protect-SgDiagnosticText (Get-SgBoundedFileTail $source 262144);Add-Content -LiteralPath $pair[1] -Value $text}}
     $statePath=Join-Path $launch 'state.json';if(Test-Path -LiteralPath $statePath -PathType Leaf){try{if((Get-Item -LiteralPath $statePath).Length-gt262144){throw 'Oversized Flutter supervisor state.'};$state=(Get-SgBoundedFileTail $statePath 262144)|ConvertFrom-Json -ErrorAction Stop;$lastError=Protect-SgDiagnosticText ([string]$state.lastError);$protocolError=Protect-SgDiagnosticText ([string]$state.lastProtocolError);$summary=[ordered]@{status=[string]$state.status;lastError=$lastError;lastEvent=[string]$state.lastEvent;lastProtocolError=$protocolError;flutterExitCode=$(if($null-ne$state.flutterExitCode){[int]$state.flutterExitCode}else{$null});exitReason=[string]$state.exitReason;appId=[string]$state.appId;daemonPid=[int]$state.daemonPid}|ConvertTo-Json -Compress;Add-Content -LiteralPath $DurableOut -Value $summary}catch{Add-Content -LiteralPath $DurableErr -Value 'Flutter supervisor state could not be preserved.'}}
 }
@@ -3330,6 +3337,28 @@ function Get-SgFlutterSupervisorState([object]$Entry) {
     if(-not$Entry-or-not$Entry.PSObject.Properties['flutterLaunchDirectory']-or-not$Entry.flutterLaunchDirectory){return $null}
     $statePath=Join-Path ([string]$Entry.flutterLaunchDirectory) 'state.json'
     try{if(-not(Test-Path -LiteralPath $statePath -PathType Leaf)-or(Get-Item -LiteralPath $statePath).Length-gt262144){return $null};$state=Get-SgBoundedFileTail $statePath 262144|ConvertFrom-Json -ErrorAction Stop;if($state-is[array]){return $null};return $state}catch{return $null}
+}
+
+# Mirrors the VM service, DevTools and DTD URIs the supervisor parsed from flutter run --machine; a missing state clears them.
+function Set-SgFlutterDebugEndpoints([object]$Entry,[object]$State) {
+    foreach($pair in @(@('vmServiceUri','VmServiceUri'),@('devToolsUri','DevToolsUri'),@('dtdUri','DtdUri'))){
+        $value=if($State-and$State.PSObject.Properties[$pair[1]]-and$State.($pair[1])-is[string]-and([string]$State.($pair[1])).Length-le2048-and[string]$State.($pair[1])-match'^(wss?|https?)://(127\.0\.0\.1|localhost|\[::1\])[:/]'){[string]$State.($pair[1])}else{$null}
+        $Entry|Add-Member -NotePropertyName $pair[0] -NotePropertyValue $value -Force
+    }
+}
+
+# The live Flutter logs are the supervisor's flutter.stdout.log / flutter.stderr.log; the durable session logs only receive their post-mortem copy.
+function Get-SgSessionLogFiles([object]$Session) {
+    $launch=if($Session.PSObject.Properties['flutterLaunchDirectory']-and$Session.flutterLaunchDirectory){[string]$Session.flutterLaunchDirectory}else{''}
+    if($launch-and(Test-Path -LiteralPath (Join-Path $launch 'flutter.stdout.log') -PathType Leaf)){return [pscustomobject]@{Directory=$launch;Out=(Join-Path $launch 'flutter.stdout.log');Err=(Join-Path $launch 'flutter.stderr.log');Live=$true}}
+    $out=if($Session.PSObject.Properties['logPath']-and$Session.logPath){[string]$Session.logPath}else{''};$err=if($Session.PSObject.Properties['errorLogPath']-and$Session.errorLogPath){[string]$Session.errorLogPath}else{''}
+    $directory=if($err){Split-Path -Parent $err}elseif($out){Split-Path -Parent $out}else{''}
+    return [pscustomobject]@{Directory=$directory;Out=$out;Err=$err;Live=$false}
+}
+
+function Copy-SgFlutterSessionDiagnostics([object]$Entry) {
+    if(-not$Entry.PSObject.Properties['logPath']-or-not$Entry.logPath-or-not$Entry.PSObject.Properties['errorLogPath']-or-not$Entry.errorLogPath){return}
+    try{Copy-SgFlutterDiagnostics $Entry ([string]$Entry.logPath) ([string]$Entry.errorLogPath)}catch{Write-SgWarn "Flutter logs could not be preserved: $($_.Exception.Message)"}
 }
 
 function Get-SgOwnedFlutterNativePids([object]$Entry) {
@@ -3446,6 +3475,7 @@ function Reconcile-SgRegistry([object]$Config) {
                     if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
                     if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
                 }
+                if($entry.kind-eq'flutter-web'){Set-SgFlutterDebugEndpoints $entry $(if($sessionLive-and$entry.status-eq'running'){Get-SgFlutterSupervisorState $entry}else{$null})}
                 if ($legacySurface) { continue }
                 if ($wasActive -and $entry.status -in @('stopped','error') -and -not ($entry.PSObject.Properties['stoppedAtUtc'] -and $entry.stoppedAtUtc)) { $entry | Add-Member -NotePropertyName stoppedAtUtc -NotePropertyValue ([DateTime]::UtcNow.ToString('o')) -Force }
                 foreach ($field in $script:SgLiveStateFields) {
@@ -4279,7 +4309,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
             $entryData | Add-Member -NotePropertyName obsidianPluginPath -NotePropertyValue ([string]$sync.TargetPath) -Force
             $entryData | Add-Member -NotePropertyName obsidianArtifactPaths -NotePropertyValue @($readiness.ArtifactPaths) -Force
         }
-        if($kind-eq'flutter-web'){$entryData.flutterStartupState='running'}
+        if($kind-eq'flutter-web'){$entryData.flutterStartupState='running';Set-SgFlutterDebugEndpoints $entryData (Get-SgFlutterSupervisorState $entryData)}
         $entryData.flutterAppId = $readiness.AppId
         if($readiness.PSObject.Properties['DaemonPid']){$entryData.flutterDaemonPid=[int]$readiness.DaemonPid}
         Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData
@@ -4419,7 +4449,7 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     $entryPort = Get-SgSessionServicePort $entry
     $alreadyStopped = $entry.status -eq 'stopped' -and [int]$entry.pid -le 0
     $cleanedFlutterArtifacts=$false
-    if($entry.kind -eq 'flutter-web' -and $alreadyStopped){try{$cleanedFlutterArtifacts=[bool](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
+    if($entry.kind -eq 'flutter-web' -and $alreadyStopped){Copy-SgFlutterSessionDiagnostics $entry;try{$cleanedFlutterArtifacts=[bool](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
     $stoppedBySupervisor=$false
     if($entry.kind -eq 'flutter-web' -and $entry.PSObject.Properties['flutterLaunchDirectory'] -and $entry.flutterLaunchDirectory -and (Test-SgProcessIdentity $entry)){try{[void](Invoke-SgFlutterSupervisorCommand $entry 'stop' 8);$stoppedBySupervisor=$true}catch{Write-SgWarn "Flutter supervisor stop fallback: $($_.Exception.Message)"}}
     $stoppedFlutterListener = Stop-SgOwnedFlutterListener $entry
@@ -4452,14 +4482,14 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
         foreach ($pair in @(@('status','stopped'),@('pid',0),@('startTimeUtc',$null),@('lastError',$null),@('reservationToken',$null),@('reservationTimeUtc',$null))) {
             $foundSession | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
         }
-        if ($found.kind -eq 'flutter-web') { $foundSession | Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force }
+        if ($found.kind -eq 'flutter-web') { $foundSession | Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force; Set-SgFlutterDebugEndpoints $foundSession $null }
         if (-not $alreadyStopped) {
             $foundSession | Add-Member -NotePropertyName stoppedAtUtc -NotePropertyValue ([DateTime]::UtcNow.ToString('o')) -Force
             $foundSession | Add-Member -NotePropertyName lastEvent -NotePropertyValue $Reason -Force
         }
     } | Out-Null
     if ($noRuntimeWork) { return $false }
-    if($entry.kind -eq 'flutter-web'){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
+    if($entry.kind -eq 'flutter-web'){Copy-SgFlutterSessionDiagnostics $entry;try{[void](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
     return $stopped
 }
 
@@ -4599,5 +4629,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

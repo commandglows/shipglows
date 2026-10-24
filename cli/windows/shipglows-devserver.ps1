@@ -133,6 +133,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s e      Start a project'
     Write-Host '  s status                           Show every project surface and state'
     Write-Host '  s status -ProjectPath <path> [-Json]  Show one project, each active target with its port and start time, and next action'
+    Write-Host '    Running Flutter targets also show their VM service and DevTools URIs (debug and profile); -Json adds vmServiceUri, devToolsUri, dtdUri and the live log paths.' -ForegroundColor DarkGray
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
     Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>] [-FlutterMode debug|profile] [-Open]'
     Write-Host '    -FlutterMode profile runs flutter run --profile for performance measurement (never --release); profile sessions cannot hot reload or hot restart, use s restart to rebuild.' -ForegroundColor DarkGray
@@ -669,9 +670,10 @@ function Invoke-Logs($entry) {
     }
     $tail = if ($sessions.Count -gt 1) { 40 } else { 80 }
     foreach ($session in @($sessions | Sort-Object -Property @{Expression={ if ($_.PSObject.Properties['target']) { [string]$_.target } else { '' } }})) {
-        if ($session.PSObject.Properties['target'] -and $session.target) { Write-Host "=== $($session.target) | $($session.status) | $(Split-Path -Parent ([string]$session.logPath)) ===" -ForegroundColor Cyan }
-        if (Test-Path -LiteralPath $session.logPath) { Get-Content -LiteralPath $session.logPath -Tail $tail }
-        if ($session.errorLogPath -and (Test-Path -LiteralPath $session.errorLogPath)) { Write-Host '--- stderr ---' -ForegroundColor Yellow; Get-Content -LiteralPath $session.errorLogPath -Tail $tail }
+        $logs = Get-SgSessionLogFiles $session
+        if ($session.PSObject.Properties['target'] -and $session.target) { Write-Host "=== $($session.target) | $($session.status) | $($logs.Directory) ===" -ForegroundColor Cyan }
+        if ($logs.Out -and (Test-Path -LiteralPath $logs.Out)) { Get-Content -LiteralPath $logs.Out -Tail $tail }
+        if ($logs.Err -and (Test-Path -LiteralPath $logs.Err)) { Write-Host '--- stderr ---' -ForegroundColor Yellow; Get-Content -LiteralPath $logs.Err -Tail $tail }
     }
 }
 
@@ -1091,7 +1093,9 @@ try {
                 $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
                 if (-not $entry) { throw "Project is not registered: $path" }
                 if ($Json) {
-                    [pscustomobject]@{ name=[string]$entry.name; path=[string]$entry.path; kind=[string]$entry.kind; status=[string]$entry.status; port=[int]$entry.port; targets=@(Get-SgEntrySessions $entry) } | ConvertTo-Json -Depth 6
+                    # Each target reports the log files actually being written (live Flutter supervisor logs while they exist).
+                    $targets = @(Get-SgEntrySessions $entry | ForEach-Object { $view = $_ | Select-Object *; $logs = Get-SgSessionLogFiles $_; $view | Add-Member -NotePropertyName logPath -NotePropertyValue $(if ($logs.Out) { $logs.Out } else { $null }) -Force; $view | Add-Member -NotePropertyName errorLogPath -NotePropertyValue $(if ($logs.Err) { $logs.Err } else { $null }) -Force; $view | Add-Member -NotePropertyName logDirectory -NotePropertyValue $(if ($logs.Directory) { $logs.Directory } else { $null }) -Force; $view })
+                    [pscustomobject]@{ name=[string]$entry.name; path=[string]$entry.path; kind=[string]$entry.kind; status=[string]$entry.status; port=[int]$entry.port; targets=$targets } | ConvertTo-Json -Depth 6
                 } else { Show-SgProjectStatus $entry }
             } else { Show-SgWindowsDashboard }
         }
