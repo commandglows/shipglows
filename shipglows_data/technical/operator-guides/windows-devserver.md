@@ -539,7 +539,12 @@ lancement, une taille et des délais bornés ; il n'exécute aucune commande lib
 
 Chaque lancement Chrome reçoit un profil ShipGlows unique. Stop et Restart ne
 recherchent un éventuel navigateur orphelin qu'avec le chemin exact de ce profil
-et ne terminent jamais Chrome par son seul nom. Pour Windows desktop, le registre
+et ne terminent jamais Chrome par son seul nom. Si le superviseur ne répond pas
+à l'ordre stop, Stop et Restart terminent tous les processus dont la ligne de
+commande cite le dossier de lancement privé de la session (superviseur, outil
+Flutter, profil Chrome) ; la session n'est marquée `stopped` qu'une fois tous ces
+processus disparus. Une erreur inattendue de `s` affiche son message et sa pile
+d'appels. Pour Windows desktop, le registre
 exige aussi l'état `running` du superviseur ; Stop et les échecs de démarrage ne
 terminent que le runner Debug exact déclaré par le projet. Une défaillance
 transitoire du lecteur de journaux ou de la connexion Debug reçoit au plus un

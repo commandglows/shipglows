@@ -809,6 +809,13 @@ while atomic publication retries only transient Windows sharing violations for
 a bounded interval and propagates persistent or unrelated I/O failures. On Windows desktop, cleanup recognizes
 only the exact current-project Debug runner declared by `BINARY_NAME`; transient
 debug-connection failures receive one retry only after verified extinction.
+When the supervisor does not acknowledge the authenticated stop, the stop kills
+the tree of every process whose command line names the session's private launch
+directory (supervisor, Flutter tool, Chrome profile) before the Job; extinction,
+and therefore the `stopped` registry write, requires those processes and the
+browser profile to be gone, with one forced pass before the registry is left
+untouched. `ShipGlows.MobileToolchain.psm1` keeps its start-time-checked
+`Stop-SgProcessTree` module-private so it cannot shadow DevServer's helper.
 The ordinary attachment deadline remains bounded, while an explicit active
 Flutter build receives a separate ten-minute ceiling so a healthy cold Windows
 compile is not terminated at the ninety-second attachment boundary. Supervisor
