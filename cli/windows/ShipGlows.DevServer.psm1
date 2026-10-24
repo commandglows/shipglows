@@ -4336,7 +4336,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
             }
             [void](Resolve-SgPowerShellExecutable)
             if (-not (Get-SgFlutterCommandPath)) { throw 'Flutter SDK is unavailable; the existing session was preserved.' }
-            Write-SgInfo "Flutter target or configuration changed; restarting the managed $target session."
+            Write-SgInfo $(if ($Restart) { "Restarting the managed $target session." } else { "Flutter target or configuration changed; restarting the managed $target session." })
             [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason 'restarted')
             if (Test-SgProcessIdentity $view) { throw 'Cannot replace Flutter configuration while the previous session is still active.' }
             if ((Get-SgEntryDevice $view) -eq 'android' -and -not (Wait-SgFlutterAndroidAppStopped $view $launchPath)) { throw "The previous Android app of $label is still running on the device; the restart was refused instead of racing it." }
@@ -4636,8 +4636,16 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     $identityLive = Test-SgProcessIdentity $entry
     $serviceLive = $entryPort -gt 0 -and -not (Test-SgPortAvailable $entryPort)
     if (($identityLive -or $serviceLive) -and $entry.PSObject.Properties['jobName'] -and $entry.jobName) {
-        if (-not (Stop-SgManagedJob $entry)) { throw "Managed process job is unavailable for $label; refusing an unverified stop." }
-        $stopped = $true
+        if (Stop-SgManagedJob $entry) { $stopped = $true }
+        else {
+            # The job is gone (a supervisor that acknowledged stop closes it while its port drains, or the
+            # session predates the current runtime). Only verified processes are terminated here; the
+            # extinction proof below still refuses to mark the session stopped if anything survives.
+            Write-SgWarn "Managed process job is unavailable for $label; falling back to the verified forced stop."
+            if ($entry.kind -eq 'flutter-web') { [void](Stop-SgOwnedFlutterLaunch $entry); [void](Stop-SgOwnedFlutterListener $entry); [void](Stop-SgOwnedFlutterBrowser $entry); [void](Stop-SgOwnedFlutterNative $entry) }
+            if (Test-SgProcessIdentity $entry) { Stop-SgProcessTree ([int]$entry.pid) }
+            $stopped = $true
+        }
     } elseif ($identityLive) {
         Stop-SgProcessTree ([int]$entry.pid)
         $stopped = $true
@@ -4648,7 +4656,8 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
         # An acknowledged stop that still leaves session processes behind gets one forced pass before refusing.
         if ($entry.kind -eq 'flutter-web') {
             [void](Stop-SgOwnedFlutterLaunch $entry); [void](Stop-SgOwnedFlutterBrowser $entry); [void](Stop-SgOwnedFlutterListener $entry); [void](Stop-SgOwnedFlutterNative $entry)
-            if ($entry.PSObject.Properties['jobName'] -and $entry.jobName) { [void](Stop-SgManagedJob $entry) } elseif (Test-SgProcessIdentity $entry) { Stop-SgProcessTree ([int]$entry.pid) }
+            $jobStopped = $entry.PSObject.Properties['jobName'] -and $entry.jobName -and (Stop-SgManagedJob $entry)
+            if (-not $jobStopped -and (Test-SgProcessIdentity $entry)) { Stop-SgProcessTree ([int]$entry.pid) }
             $stopped = $true
         }
         if ($entry.kind -ne 'flutter-web' -or -not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
