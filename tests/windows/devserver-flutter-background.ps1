@@ -71,6 +71,18 @@ try {
             try{[void](Assert-SgFlutterAndroidSdk (Join-Path $jdkFixture 'app') 'flutter.bat');throw 'A missing Android platform and NDK did not block the Android launch.'}catch{if($_.Exception.Message-notmatch'^Android SDK at .*lacks what the Gradle build needs: platform android-36 \(compileSdk 36 in android\\app\\build\.gradle\.kts\), NDK 27\.0\.12077973 \(ndkVersion 27\.0\.12077973 in android\\app\\build\.gradle\.kts\)\. Gradle would download it during the build\. Install first: sdkmanager "platforms;android-36" "ndk;27\.0\.12077973"$'){throw "Unexpected Android SDK verdict: $($_.Exception.Message)"}}
             New-Item -ItemType Directory -Path (Join-Path $jdkFixture 'sdk\platforms\android-36'),(Join-Path $jdkFixture 'sdk\ndk\27.0.12077973') -Force|Out-Null;Set-Content -LiteralPath (Join-Path $jdkFixture 'sdk\platforms\android-36\android.jar') -Value 'x';Set-Content -LiteralPath (Join-Path $jdkFixture 'sdk\ndk\27.0.12077973\source.properties') -Value 'x'
             if(-not(Assert-SgFlutterAndroidSdk (Join-Path $jdkFixture 'app') 'flutter.bat').Ready){throw 'An installed platform and NDK were rejected.'}
+            if((Get-SgFlutterAndroidApplicationId (Join-Path $jdkFixture 'app'))-ne''){throw 'An applicationId was invented for a build script without one.'}
+            Set-Content -LiteralPath (Join-Path $jdkFixture 'app\android\app\build.gradle.kts') -Value "android {`n    defaultConfig {`n        // applicationId = `"com.example.commented`"`n        applicationId = `"com.example.app`"`n    }`n}"
+            if((Get-SgFlutterAndroidApplicationId (Join-Path $jdkFixture 'app'))-ne'com.example.app'){throw 'applicationId was not read from build.gradle.kts.'}
+            $androidView=[pscustomobject]@{kind='flutter-web';flutterDeviceId='R5CR10ABC';launchPath=(Join-Path $jdkFixture 'app')}
+            $script:adbCalls=@();$script:pidofCount=0
+            & (Get-Module ShipGlows.DevServer) { Set-Item -Path function:script:Get-SgAdbPath -Value { 'adb.exe' } }
+            $adbRunner={param($f,$a) $joined=$a-join' ';$script:adbCalls+=$joined;if($joined-match'pidof'){$script:pidofCount++;if($script:pidofCount-le2){[pscustomobject]@{ExitCode=0;Output='12345';TimedOut=$false}}else{[pscustomobject]@{ExitCode=1;Output='';TimedOut=$false}}}else{[pscustomobject]@{ExitCode=0;Output='';TimedOut=$false}}}
+            if(-not(Wait-SgFlutterAndroidAppStopped $androidView (Join-Path $jdkFixture 'app') 5 $adbRunner {param($ms)})-or($script:adbCalls-notcontains'-s R5CR10ABC shell am force-stop com.example.app')-or$script:pidofCount-ne3){throw "Android app extinction did not force-stop and wait for pidof to clear: $($script:adbCalls -join ' | ')"}
+            $script:adbCalls=@()
+            if(Wait-SgFlutterAndroidAppStopped $androidView (Join-Path $jdkFixture 'app') 1 {param($f,$a) [pscustomobject]@{ExitCode=0;Output='777';TimedOut=$false}} {param($ms)}){throw 'An Android app that never exits was reported as stopped.'}
+            if(-not(Wait-SgFlutterAndroidAppStopped ([pscustomobject]@{kind='flutter-web';flutterDeviceId='windows'}) (Join-Path $jdkFixture 'app') 1 {param($f,$a) throw 'adb must not run for a Windows target'} {param($ms)})){throw 'A non-Android target was blocked by the Android app check.'}
+            if(-not(Wait-SgFlutterAndroidAppStopped $androidView (Join-Path $jdkFixture 'app') 1 {param($f,$a) [pscustomobject]@{ExitCode=1;Output='error: device not found';TimedOut=$false}} {param($ms)})){throw 'An absent phone must not block the stop.'}
         } finally { Remove-Item -LiteralPath $jdkFixture -Recurse -Force -ErrorAction SilentlyContinue }
 
         $fixture = Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-settings-{0}" -f [guid]::NewGuid().ToString('N'))

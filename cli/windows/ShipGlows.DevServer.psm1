@@ -3886,6 +3886,45 @@ function Resolve-SgFlutterAndroidDevice([string]$FlutterPath, [string]$Requested
     throw "Android emulator did not become ready within $TimeoutSeconds seconds: $AvdName"
 }
 
+# 'stopped' or 'error' when a Flutter session's own state says its application ended, even if the
+# supervisor process is still alive; '' while it is starting, building or running.
+function Get-SgFlutterEndedStatus([object]$View) {
+    $state = Get-SgFlutterSupervisorState $View
+    $status = if ($state -and $state.PSObject.Properties['status']) { [string]$state.status } elseif ($View.PSObject.Properties['status']) { [string]$View.status } else { '' }
+    if ($status -in @('stopped','error')) { return $status }
+    ''
+}
+
+# applicationId of the project's Android app module, read from android\app\build.gradle(.kts); '' when unknown.
+function Get-SgFlutterAndroidApplicationId([string]$LaunchPath) {
+    $script=@((Join-Path $LaunchPath 'android\app\build.gradle.kts'),(Join-Path $LaunchPath 'android\app\build.gradle'))|Where-Object{Test-Path -LiteralPath $_ -PathType Leaf}|Select-Object -First 1
+    if(-not$script){return ''}
+    try{$text=[regex]::Replace((Get-Content -LiteralPath $script -Raw -ErrorAction Stop),'(?m)//.*$','');if($text-match'(?m)^\s*applicationId\s*=?\s*"([A-Za-z0-9_.]+)"'){return [string]$Matches[1]}}catch{}
+    ''
+}
+
+# After a stop, the Android app of a Flutter session must be gone from the device before the next
+# build installs and launches it, or the new session sees "Application finished" mid-build. Forces
+# the stop by applicationId and waits for pidof to come back empty. $true when the app is proven
+# gone or cannot be observed (no serial, no applicationId, no adb, device absent); $false only when
+# the app is still running after TimeoutSeconds.
+function Wait-SgFlutterAndroidAppStopped([object]$View,[string]$LaunchPath,[int]$TimeoutSeconds=15,[scriptblock]$Runner=$null,[scriptblock]$Waiter=$null) {
+    $serial=[string](Get-SgOptionalValue $View 'flutterDeviceId')
+    if(-not$serial-or$serial-in@('windows','chrome','web-server','android')){return $true}
+    $appId=Get-SgFlutterAndroidApplicationId $LaunchPath
+    if(-not$appId){return $true}
+    $adb=try{Get-SgAdbPath}catch{''}
+    if(-not$adb){return $true}
+    if(-not$Runner){$Runner={param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 15}}
+    if(-not$Waiter){$Waiter={param($Milliseconds) Start-Sleep -Milliseconds $Milliseconds}}
+    $probe={$result=& $Runner $adb @('-s',$serial,'shell','pidof',$appId);if(-not$result-or[int]$result.ExitCode-ne0){return 'absent'};if(([string]$result.Output).Trim()-match'^\d+'){'running'}else{'gone'}}
+    if((& $probe)-ne'running'){return $true}
+    [void](& $Runner $adb @('-s',$serial,'shell','am','force-stop',$appId))
+    $deadline=[datetime]::UtcNow.AddSeconds([Math]::Max(1,$TimeoutSeconds))
+    do{& $Waiter 500;if((& $probe)-ne'running'){return $true}}while([datetime]::UtcNow-lt$deadline)
+    $false
+}
+
 function Get-SgAdbPath {
     $adb = Get-SgCommandPath @('adb.exe')
     if (-not $adb) {
@@ -4175,6 +4214,16 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     $view = Get-SgSessionView $entry $session $target
     $alreadyRunning = [bool]($session -and (Test-SgProcessIdentity $view))
     $label = "$($entry.name) [$target]"
+    # A Flutter supervisor can outlive its application (phone asleep, USB unplugged, app.stop):
+    # the registry says stopped or error while the process is alive. That is not a running
+    # session to reuse; it is stopped first, then relaunched like any ended session.
+    $endedFlutterStatus = if ($alreadyRunning -and $kind -eq 'flutter-web') { Get-SgFlutterEndedStatus $view } else { '' }
+    if ($endedFlutterStatus) {
+        Write-SgInfo "Previous $target session of $($entry.name) ended as '$endedFlutterStatus' while its supervisor was still alive (device asleep or unplugged?); stopping it before relaunch."
+        [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason "relaunched after an ended session ($endedFlutterStatus)")
+        if (Test-SgProcessIdentity $view) { throw "Cannot relaunch $label while its previous supervisor is still active." }
+        $alreadyRunning = $false
+    }
     if ($alreadyRunning -and -not $Restart -and $kind -ne 'flutter-web') {
         Write-SgInfo "Already running: $label on $(Get-SgSessionPortLabel $view)"
         return $view
@@ -4289,11 +4338,12 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
             Write-SgInfo "Flutter target or configuration changed; restarting the managed $target session."
             [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason 'restarted')
             if (Test-SgProcessIdentity $view) { throw 'Cannot replace Flutter configuration while the previous session is still active.' }
+            if ((Get-SgEntryDevice $view) -eq 'android' -and -not (Wait-SgFlutterAndroidAppStopped $view $launchPath)) { throw "The previous Android app of $label is still running on the device; the restart was refused instead of racing it." }
         }
     }
     # A dead Flutter supervisor can leave its native runner alive (e.g. in the tray), locking the
     # build output (LNK1168). Reuse the stop cleanup, scoped to this target's own runners.
-    if (-not $alreadyRunning -and $kind -eq 'flutter-web' -and $session -and [string]$session.status -ne 'stopped') {
+    if (-not $alreadyRunning -and -not $endedFlutterStatus -and $kind -eq 'flutter-web' -and $session -and [string]$session.status -ne 'stopped') {
         Write-SgInfo "Previous $target session of $($entry.name) ended as '$($session.status)'; cleaning its leftover processes."
         [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason 'cleaned after an unfinished session')
     }
@@ -4570,6 +4620,10 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
     # A shared-frontend session has no service port of its own, but its phone still reverses the frontend port.
     if ($entry.kind -eq 'tauri' -and $target -eq 'android' -and -not $alreadyStopped) { Stop-SgTauriAndroidLink $entry ([int](Get-SgOptionalValue $entry 'port')) }
+    if ($entry.kind -eq 'flutter-web' -and -not $alreadyStopped -and (Get-SgEntryDevice $entry) -eq 'android') {
+        $appPath = if (Get-SgOptionalValue $entry 'launchPath') { [string]$entry.launchPath } else { $path }
+        if (-not (Wait-SgFlutterAndroidAppStopped $entry $appPath)) { Write-SgWarn "The Android app of $label is still running on the device after force-stop; the next start may see it finish mid-build." }
+    }
     Invoke-SgRegistryMutation $Config {
         param($data)
         $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
@@ -4727,5 +4781,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

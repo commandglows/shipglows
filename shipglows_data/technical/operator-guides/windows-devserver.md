@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.37.0"
+artifact_version: "1.38.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-10-24"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21 mis en veille, la session Flutter Android passait à stopped mais `s start` répondait « Already running with verified Flutter configuration » puis « unexpected status: stopped », et `s restart` voyait « Application finished » pendant le build ; `s start` relance depuis une session stopped/error dont le superviseur survit, et `s stop`/`s restart` attendent que l'app soit éteinte sur le téléphone (am force-stop + pidof) avant de relancer."
   - "Le 2026-10-24 sur CommandGlows, `s start -FlutterDevice android` lançait le build alors que la plateforme Android demandée par compileSdk n'était pas installée ; Gradle la téléchargeait pendant le build jusqu'au délai. `s start` vérifie depuis compileSdk et ndkVersion contre `platforms/` et `ndk/` du SDK et refuse le lancement avec la commande sdkmanager exacte."
   - "Le 2026-10-24 sur CommandGlows, Gradle 8.14 refusait le build Android (« Java 25.0.3 incompatible with Gradle 8.14 ») : Flutter prenait le JBR 25 d'Android Studio avant le JDK 17 de ShipGlows, car seul `flutter config --jdk-dir` passe devant ce JBR ; l'installeur épingle depuis ce réglage et `s start` vérifie la compatibilité Gradle/JDK avant le build."
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21, `s start -FlutterDevice android` abandonnait après 10 minutes (« Flutter supervisor timed out before app.started ») alors que le premier build Gradle à froid progressait encore ; Android suit depuis la même fenêtre sensible à la progression que Windows (coupure après 10 min sans écriture Gradle, plafond 30 min) et annonce qu'un premier build Android peut être long."
@@ -615,6 +616,21 @@ lue dans son fichier `release`). En cas d'incompatibilité, avec
 un `JAVA_HOME` compatible et le dit ; sinon il refuse le lancement avec la
 commande exacte `flutter config --jdk-dir "<jdk>"`. Un projet sans wrapper
 Gradle n'est pas jugé.
+
+Quand le téléphone s'endort ou que le câble USB est débranché, Flutter signale
+`app.stop` : la session passe à `stopped` (ou `error`) alors que le processus
+superviseur peut survivre quelques instants ou rester vivant. `s start` ne
+confond plus cette session avec une session active : si l'état Flutter dit
+`stopped` ou `error`, il l'arrête (« Previous android session … ended as
+'stopped' while its supervisor was still alive … stopping it before relaunch »)
+puis relance normalement, au lieu de répondre « Already running » et d'échouer
+sur « unexpected status: stopped ». `s stop` d'une session Flutter Android éteint
+aussi l'app sur le téléphone (`adb shell am force-stop <applicationId>`, lu dans
+`android/app/build.gradle(.kts)`) et attend que `pidof` ne la trouve plus ;
+`s restart` et un changement de configuration refusent de relancer tant que
+l'app précédente tourne encore sur l'appareil, car le nouveau build la verrait
+sinon se terminer (« Application finished ») en pleine installation. Un téléphone
+absent ne bloque pas l'arrêt : il est seulement signalé.
 
 Toujours avant le build, `s start` vérifie que le SDK Android installé contient
 déjà ce que le build Gradle va demander : la plateforme `platforms/android-<compileSdk>`
