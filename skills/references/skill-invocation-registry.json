@@ -9,6 +9,12 @@
       ]
     },
     "nolocal": {
+      "implies": [
+        "nobuild",
+        "notest",
+        "noserver",
+        "nocommit"
+      ],
       "conflicts": [
         "local"
       ],
@@ -19,9 +25,64 @@
         "nolocal"
       ],
       "conflicts": [
-        "local"
+        "local",
+        "noci"
       ],
       "deferred_proof_target": "ci",
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "build": {
+      "conflicts": [
+        "nobuild"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "nobuild": {
+      "conflicts": [
+        "build"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "test": {
+      "conflicts": [
+        "notest"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "notest": {
+      "conflicts": [
+        "test"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "server": {
+      "conflicts": [
+        "noserver"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "noserver": {
+      "conflicts": [
+        "server"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "commit": {
+      "conflicts": [
+        "nocommit"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "nocommit": {
+      "conflicts": [
+        "commit"
+      ],
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    },
+    "noci": {
+      "conflicts": [
+        "ci"
+      ],
       "policy_reference": "skills/references/execution-posture-tags.md"
     }
   },
@@ -423,6 +484,7 @@
       "modes": [
         "default",
         "context",
+        "profile",
         "blitz",
         "auto"
       ],

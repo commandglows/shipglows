@@ -25,7 +25,7 @@ next_step: none
 
 # Entrypoint Special Modes
 
-Load only for update, context, blitz, auto, hygiene or execution-posture compatibility.
+Load only for update, context, profile, blitz, auto, hygiene or execution-posture compatibility.
 Apply only the selected mode; this is never an eager bundle.
 
 An explicit request to update ShipGlows resolves the active installation
@@ -52,6 +52,12 @@ launch a replacement server, substitute an Astro/Vite default such as `4321`,
 or call recorded Python or configured Playwright absent merely because its tool
 is missing from the first visible list. End with a compact `Contexte actif`
 summary.
+
+`shipglows profile [changes]` shows or changes the saved default execution
+profile through `$SHIPGLOWS_ROOT/tools/shipglows_execution_profile.py`
+(`show`, `set <axis>=allow|deny`, user scope by default, project scope on
+request). Natural requests such as « change mon profil par défaut » select it.
+See `execution-posture-tags.md` for axes and precedence.
 
 `shipglows blitz [scope or horizon]` is the public autonomous credit-window
 mode. The canonical router hands it to internal `708-sg-blitz`, which freezes the

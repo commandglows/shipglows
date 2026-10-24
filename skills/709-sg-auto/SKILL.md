@@ -59,7 +59,9 @@ outcome). No argument means the whole business. There is no horizon: continue
 until platform stop or operator interruption. Exhausting the backlog is not a
 stop reason; run a fresh multi-facet opportunity sweep first.
 
-Effective execution posture defaults to `#local`. `auto #nolocal` restricts the
+Effective execution posture defaults to `#local`: the Auto mode default permits
+tests, dev servers and commits even when the saved profile denies them;
+explicit tags such as `#notest` still win. `auto #nolocal` restricts the
 run to static work with deferred proof; `auto #ci` implies `#nolocal` and
 records CI only as a deferred proof destination without triggering it.
 
