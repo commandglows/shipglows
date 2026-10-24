@@ -1096,6 +1096,86 @@ function Test-SgVersionCommand {
     return -not $result.TimedOut -and $result.ExitCode -eq 0 -and $result.Output -match $Pattern
 }
 
+# Flutter picks the JDK for Gradle in this order: `flutter config --jdk-dir`, the Android Studio
+# bundled JBR, JAVA_HOME, then PATH. Android Studio ships a newer Java than Gradle supports every
+# few months (JBR 25 against Gradle 8.14 on 2026-10-24), so JAVA_HOME alone never protects a build:
+# the ShipGlows JDK must be pinned through jdk-dir. These helpers stay subprocess-free.
+function Get-SgShipGlowsJdkHome { Join-Path $env:LOCALAPPDATA 'ShipGlows\jdk17' }
+
+function Get-SgFlutterSettingsPath {
+    $candidates=@($(if($env:APPDATA){Join-Path $env:APPDATA '.flutter_settings'}),$(if($env:USERPROFILE){Join-Path $env:USERPROFILE '.flutter_settings'}))|Where-Object{$_}
+    foreach($candidate in $candidates){if(Test-Path -LiteralPath $candidate -PathType Leaf){return $candidate}}
+    return [string]@($candidates)[0]
+}
+
+function Get-SgFlutterConfiguredJdkDir([string]$SettingsPath=(Get-SgFlutterSettingsPath)) {
+    if(-not$SettingsPath-or-not(Test-Path -LiteralPath $SettingsPath -PathType Leaf)){return ''}
+    try{$settings=Get-Content -LiteralPath $SettingsPath -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop;if($settings.PSObject.Properties['jdk-dir']-and$settings.'jdk-dir'){return [string]$settings.'jdk-dir'}}catch{}
+    ''
+}
+
+# Major Java version from <jdk>\release (JAVA_VERSION="17.0.20", "1.8.0_392" -> 8); 0 when unknown.
+function Get-SgJdkMajorVersion([string]$JdkHome) {
+    if(-not$JdkHome){return 0}
+    $release=Join-Path $JdkHome 'release'
+    if(-not(Test-Path -LiteralPath $release -PathType Leaf)){return 0}
+    try{
+        $line=@(Get-Content -LiteralPath $release -ErrorAction Stop|Where-Object{$_-match'^\s*JAVA_VERSION\s*='})|Select-Object -First 1
+        if($line-and$line-match'"(\d+)(?:\.(\d+))?'){$major=[int]$Matches[1];if($major-eq1-and$Matches[2]){return [int]$Matches[2]};return $major}
+    }catch{}
+    0
+}
+
+function Get-SgAndroidStudioJbrHome([string[]]$CandidatePaths=@((Join-Path ([Environment]::GetFolderPath('ProgramFiles')) 'Android\Android Studio\jbr'),$(if($env:LOCALAPPDATA){Join-Path $env:LOCALAPPDATA 'Programs\Android Studio\jbr'}))) {
+    foreach($candidate in @($CandidatePaths|Where-Object{$_})){if(Test-Path -LiteralPath (Join-Path $candidate 'bin\java.exe') -PathType Leaf){return $candidate}}
+    ''
+}
+
+# The JDK Flutter will hand to Gradle, with where it comes from.
+function Resolve-SgFlutterEffectiveJdk([string]$ConfiguredJdkDir=(Get-SgFlutterConfiguredJdkDir),[string]$AndroidStudioJbr=(Get-SgAndroidStudioJbrHome),[string]$JavaHome=$env:JAVA_HOME) {
+    $choice=if($ConfiguredJdkDir-and(Test-Path -LiteralPath $ConfiguredJdkDir -PathType Container)){@{Home=$ConfiguredJdkDir;Source='flutter config --jdk-dir'}}elseif($AndroidStudioJbr){@{Home=$AndroidStudioJbr;Source='Android Studio bundled JBR'}}elseif($JavaHome-and(Test-Path -LiteralPath $JavaHome -PathType Container)){@{Home=$JavaHome;Source='JAVA_HOME'}}else{@{Home='';Source='none'}}
+    [pscustomobject]@{Home=[string]$choice.Home;Source=[string]$choice.Source;Major=(Get-SgJdkMajorVersion ([string]$choice.Home))}
+}
+
+# Gradle version pinned by android\gradle\wrapper\gradle-wrapper.properties, or $null.
+function Get-SgGradleWrapperVersion([string]$ProjectPath) {
+    $properties=Join-Path $ProjectPath 'android\gradle\wrapper\gradle-wrapper.properties'
+    if(-not(Test-Path -LiteralPath $properties -PathType Leaf)){return $null}
+    try{
+        $line=@(Get-Content -LiteralPath $properties -ErrorAction Stop|Where-Object{$_-match'^\s*distributionUrl\s*='})|Select-Object -First 1
+        if($line-and$line-match'gradle-(\d+(?:\.\d+){1,2})(?:-(?:rc|milestone)-\d+)?-(?:all|bin)\.zip'){return [version]$Matches[1]}
+    }catch{}
+    $null
+}
+
+# Java versions able to run a Gradle release (Gradle compatibility matrix, "running Gradle" column).
+# Max=0 means newer than the table: no upper bound is enforced.
+function Get-SgGradleJavaSupport([version]$Gradle) {
+    $table=@(@([version]'9.1',25),@([version]'8.14',24),@([version]'8.10',23),@([version]'8.8',22),@([version]'8.5',21),@([version]'8.3',20),@([version]'7.6',19),@([version]'7.5',18),@([version]'7.3',17),@([version]'7.0',16),@([version]'6.7',15),@([version]'6.3',14),@([version]'6.0',13))
+    $max=0;foreach($row in $table){if($Gradle-ge$row[0]){$max=[int]$row[1];break}}
+    if($Gradle-ge[version]'9.1'-and$Gradle-gt[version]'9.1.99'){$max=0}
+    [pscustomobject]@{Min=$(if($Gradle-ge[version]'9.0'){17}else{8});Max=$max}
+}
+
+function Test-SgGradleJdkCompatible([version]$Gradle,[int]$JavaMajor) {
+    if(-not$Gradle-or$JavaMajor-le0){return $true}
+    $support=Get-SgGradleJavaSupport $Gradle
+    return ($JavaMajor-ge$support.Min)-and(($support.Max-eq0)-or($JavaMajor-le$support.Max))
+}
+
+# Verdict for an Android project: whether Flutter's effective JDK can run its Gradle, and which
+# installed JDK could be pinned instead (ShipGlows JDK first, then JAVA_HOME).
+function Get-SgFlutterAndroidJdkVerdict([string]$ProjectPath,[object]$Effective=(Resolve-SgFlutterEffectiveJdk),[string[]]$CandidateHomes=@((Get-SgShipGlowsJdkHome),$env:JAVA_HOME)) {
+    $gradle=Get-SgGradleWrapperVersion $ProjectPath
+    $support=if($gradle){Get-SgGradleJavaSupport $gradle}else{$null}
+    $compatible=Test-SgGradleJdkCompatible $gradle ([int]$Effective.Major)
+    $candidate=''
+    if(-not$compatible){foreach($home in @($CandidateHomes|Where-Object{$_}|Select-Object -Unique)){if((Test-Path -LiteralPath $home -PathType Container)-and(Test-SgGradleJdkCompatible $gradle (Get-SgJdkMajorVersion $home))){$candidate=$home;break}}}
+    $range=if($support){if($support.Max-gt0){"Java $($support.Min)-$($support.Max)"}else{"Java $($support.Min)+"}}else{''}
+    $problem=if($compatible){''}else{"Gradle $gradle (android\gradle\wrapper\gradle-wrapper.properties) runs on $range, but Flutter would build with Java $($Effective.Major) from $($Effective.Source) ($($Effective.Home))."}
+    [pscustomobject]@{Gradle=$gradle;Compatible=$compatible;Effective=$Effective;Candidate=$candidate;Problem=$problem;Range=$range}
+}
+
 function Resolve-SgExistingJdk17 {
     param([string]$JavaHome = $env:JAVA_HOME, [string]$JavaCommand = '', [scriptblock]$Runner = $null)
     $candidates = New-Object Collections.Generic.List[string]
@@ -1419,3 +1499,4 @@ function Get-SgFlutterAndroidDiagnostic {
 
 Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgTauriDesktopBaseline,Get-SgTauriDesktopMiseConfig,Resolve-SgTrustedMisePath,Invoke-SgIsolatedTauriMise,Test-SgTauriDesktopRustToolchain,Test-SgTauriDesktopRustWrappers,Install-SgTauriDesktopRustToolchain,Get-SgWindowsWebView2State,Get-SgTauriWindowsEnvironmentObservation,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
 Export-ModuleMember -Function Resolve-SgTrustedWingetIdentity
+Export-ModuleMember -Function Get-SgShipGlowsJdkHome,Get-SgFlutterSettingsPath,Get-SgFlutterConfiguredJdkDir,Get-SgJdkMajorVersion,Get-SgAndroidStudioJbrHome,Resolve-SgFlutterEffectiveJdk,Get-SgGradleWrapperVersion,Get-SgGradleJavaSupport,Test-SgGradleJdkCompatible,Get-SgFlutterAndroidJdkVerdict

@@ -1366,12 +1366,29 @@ function Get-SgHypervisorEvidence {
     } catch { return $false }
 }
 
+# Flutter prefers the Android Studio bundled JBR over JAVA_HOME, and that JBR regularly runs ahead
+# of what the project's Gradle accepts (JBR 25 vs Gradle 8.14). Pinning `flutter config --jdk-dir`
+# to the validated JDK is the only setting Flutter honours first; it is idempotent.
+function Set-SgFlutterJdkDir([string]$FlutterPath, [string]$JdkHome) {
+    if (-not $FlutterPath -or -not (Test-Path -LiteralPath $FlutterPath -PathType Leaf)) { Write-SgInstallerWarning 'Flutter JDK pinning is pending: no Flutter executable is available yet.'; return $false }
+    if (-not $JdkHome -or -not (Test-Path -LiteralPath (Join-Path $JdkHome 'bin\java.exe') -PathType Leaf)) { Write-SgInstallerWarning "Flutter JDK pinning is pending: JDK home is not usable: $JdkHome"; return $false }
+    $jdkHomeFull = [IO.Path]::GetFullPath($JdkHome)
+    $current = Get-SgFlutterConfiguredJdkDir
+    if ($current -and ([IO.Path]::GetFullPath($current)).Equals($jdkHomeFull,[StringComparison]::OrdinalIgnoreCase)) { Write-Host "Flutter already builds Android with the validated JDK: $jdkHomeFull" -ForegroundColor Green; return $true }
+    $result = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.jdk-dir' -Label 'Pinning the validated JDK for Flutter Android builds' -File $FlutterPath -Arguments @('config','--jdk-dir',$jdkHomeFull) -TimeoutSeconds 90
+    if ($result.TimedOut -or $result.ExitCode -ne 0) { Write-SgInstallerWarning "Flutter JDK pinning failed; run: flutter config --jdk-dir `"$jdkHomeFull`""; return $false }
+    $jbr = Get-SgAndroidStudioJbrHome
+    Write-Host "Flutter Android builds now use JDK $(Get-SgJdkMajorVersion $jdkHomeFull) at $jdkHomeFull$(if($jbr){" instead of the Android Studio JBR (Java $(Get-SgJdkMajorVersion $jbr))"})." -ForegroundColor Green
+    return $true
+}
+
 function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths, [bool]$TauriRequired = $false) {
     if (-not $FlutterReady -and -not $TauriRequired) { Write-SgInstallerWarning 'Android setup is pending because no Flutter or Tauri Android consumer was detected.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false; SdkRoot=''; NdkReady=$false } }
     if (-not (Test-SgSupportedAndroidArchitecture)) { Write-SgInstallerWarning 'Android setup is pending: automatic Windows provisioning currently requires an x64 operating system. No Android package was downloaded.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
     $interactive = -not [Console]::IsInputRedirected
     $java = Install-SgJdk17
     if (-not $java) { return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    Set-SgFlutterJdkDir -FlutterPath (Get-SgToolPath 'flutter.bat' $FlutterPaths) -JdkHome (Split-Path (Split-Path $java -Parent) -Parent)
     $managedSdkRoot = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
     $existingSdk = Resolve-SgExistingAndroidSdk -CandidateRoots @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,$managedSdkRoot) -SdkManagerCommand (Get-SgToolPath 'sdkmanager.bat' @())
     $managedSdk = -not $existingSdk.Ready -or ($existingSdk.Root -and $existingSdk.Root.Equals($managedSdkRoot,[StringComparison]::OrdinalIgnoreCase))

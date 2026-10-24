@@ -3827,6 +3827,26 @@ function Get-SgFlutterAndroidDevices([string]$FlutterPath, [scriptblock]$Runner 
     return @($devices | Where-Object { $_.targetPlatform -match '^android-' -and [string]$_.id -match '^[A-Za-z0-9._:-]{1,128}$' })
 }
 
+# Before an Android build: Flutter must hand Gradle a JDK the project's Gradle can run. With
+# AutoRepair the ShipGlows JDK (or a compatible JAVA_HOME) is pinned through `flutter config
+# --jdk-dir`; otherwise the launch stops with the exact command. Projects without a Gradle wrapper
+# are not judged. Returns the verdict for status reporting.
+function Assert-SgFlutterAndroidJdk([string]$LaunchPath,[string]$FlutterPath,[bool]$AutoRepair=$true,[scriptblock]$Runner=$null) {
+    $modulePath=Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
+    if (-not (Test-Path -LiteralPath $modulePath -PathType Leaf)) { throw 'ShipGlows mobile toolchain transport is unavailable.' }
+    if (-not (Get-Module ShipGlows.MobileToolchain)) { Import-Module $modulePath -DisableNameChecking }
+    $verdict=ShipGlows.MobileToolchain\Get-SgFlutterAndroidJdkVerdict $LaunchPath
+    if($verdict.Compatible){return $verdict}
+    $remedy=if($verdict.Candidate){"flutter config --jdk-dir `"$($verdict.Candidate)`""}else{"install a JDK within $($verdict.Range) (the ShipGlows installer provides JDK 17 and pins it) and run flutter config --jdk-dir <that JDK>"}
+    if(-not$verdict.Candidate-or-not$AutoRepair){throw "$($verdict.Problem) Fix: $remedy. Gradle refuses the build otherwise (`"Java $($verdict.Effective.Major) incompatible with Gradle $($verdict.Gradle)`")."}
+    if(-not$Runner){$Runner={param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 90}}
+    Write-SgWarn "$($verdict.Problem) Pinning Flutter to $($verdict.Candidate) (auto-repair): $remedy"
+    $result=& $Runner $FlutterPath @('config','--jdk-dir',$verdict.Candidate)
+    if(-not$result-or($result.PSObject.Properties['TimedOut']-and$result.TimedOut)-or[int]$result.ExitCode-ne0){throw "Flutter JDK pinning failed; run it yourself: $remedy"}
+    $verdict.Compatible=$true;$verdict.Problem=''
+    $verdict
+}
+
 function Resolve-SgFlutterAndroidDevice([string]$FlutterPath, [string]$RequestedDeviceId = '', [string]$AvdName = 'ShipGlows_API_36', [scriptblock]$Runner = $null, [scriptblock]$Waiter = $null, [int]$TimeoutSeconds = 180) {
     if ($RequestedDeviceId -and $RequestedDeviceId -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'Invalid requested Flutter Android device identifier.' }
     if ($AvdName -notmatch '^[A-Za-z0-9._-]{1,64}$') { throw 'Invalid Android emulator name.' }
@@ -4170,6 +4190,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
         $flutterPath=Get-SgFlutterCommandPath
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
+        [void](Assert-SgFlutterAndroidJdk $launchPath $flutterPath ([bool]$settings.AutoRepair))
         $resolvedFlutterDevice=Resolve-SgFlutterAndroidDevice $flutterPath ([string]$settings.FlutterDeviceId)
         $settings.FlutterDeviceId=$resolvedFlutterDevice
     }
@@ -4693,5 +4714,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

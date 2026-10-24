@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.35.0"
+artifact_version: "1.36.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-10-24"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-10-24 sur CommandGlows, Gradle 8.14 refusait le build Android (« Java 25.0.3 incompatible with Gradle 8.14 ») : Flutter prenait le JBR 25 d'Android Studio avant le JDK 17 de ShipGlows, car seul `flutter config --jdk-dir` passe devant ce JBR ; l'installeur épingle depuis ce réglage et `s start` vérifie la compatibilité Gradle/JDK avant le build."
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21, `s start -FlutterDevice android` abandonnait après 10 minutes (« Flutter supervisor timed out before app.started ») alors que le premier build Gradle à froid progressait encore ; Android suit depuis la même fenêtre sensible à la progression que Windows (coupure après 10 min sans écriture Gradle, plafond 30 min) et annonce qu'un premier build Android peut être long."
   - "Le 2026-10-24 sur commandglows_app, une session profile Windows laissait vides le stdout.log et le stderr.log annoncés par `s status`, et cachait le VM service et DevTools dans flutter-launch ; `s status` affiche depuis ces URI et les journaux réellement écrits."
   - "Le 2026-10-23 sur CommunityGlows, un `tauri android dev` lancé par une autre session a remplacé sans message la session Tauri Windows et écrasé son stderr.log ; chaque cible a depuis sa propre session, ses logs par lancement, et un second Tauri exige un choix explicite."
@@ -242,7 +243,9 @@ ne sont pas requis par le parcours Shadow PC.
    automatiquement Gum dans le runtime ShipGlows pour le menu interactif,
    puis installe Git, GitHub CLI, Node LTS, pnpm, uv et un commit Flutter résolu.
    Les installations Flutter/Dart, JDK 17 et Android SDK externes valides sont
-   réutilisées sans remplacer leurs variables ni le `PATH`. Sinon JDK 17 est
+   réutilisées sans remplacer leurs variables ni le `PATH` ; dans tous les cas
+   le JDK retenu est épinglé pour Flutter par `flutter config --jdk-dir`, car
+   Flutter préfère sinon le JBR d'Android Studio. Sinon JDK 17 est
    installé dans le profil utilisateur avant la présentation des conditions
    Android; les archives ZIP sont vérifiées et les packages ciblent Android 36.
    La question émulateur n'est posée que si
@@ -594,6 +597,23 @@ dépendances, qui s'exécute une seule fois à la fois.
 ### Flutter Android en développement
 
 `SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
+
+Flutter choisit le JDK du build Gradle dans cet ordre : `flutter config
+--jdk-dir`, puis le JBR embarqué d'Android Studio, puis `JAVA_HOME`. Le JBR
+d'Android Studio dépasse régulièrement ce que le Gradle du projet accepte (JBR 25
+contre Gradle 8.14, qui s'arrête à Java 24) ; `JAVA_HOME` seul ne protège donc
+jamais le build. L'installeur épingle le JDK 17 de ShipGlows via `flutter config
+--jdk-dir` juste après l'avoir validé (idempotent, message « Flutter Android
+builds now use JDK 17 … »). Avant chaque build Android, `s start` lit sans
+sous-processus le `distributionUrl` de `android/gradle/wrapper/gradle-wrapper.properties`,
+la table de compatibilité Gradle → Java (8.5→21, 8.8→22, 8.10→23, 8.14→24,
+9.1→25 ; Gradle 9 exige Java 17) et le JDK effectif de Flutter (`jdk-dir` du
+fichier `.flutter_settings`, sinon JBR d'Android Studio, sinon `JAVA_HOME`, version
+lue dans son fichier `release`). En cas d'incompatibilité, avec
+`SHIPGLOWS_AUTO_REPAIR` (défaut `true`) il épingle lui-même le JDK ShipGlows ou
+un `JAVA_HOME` compatible et le dit ; sinon il refuse le lancement avec la
+commande exacte `flutter config --jdk-dir "<jdk>"`. Un projet sans wrapper
+Gradle n'est pas jugé.
 
 Le premier build Android d'un projet est long : Gradle télécharge sa
 distribution (`gradle-8.x-all.zip`), les dépendances et parfois des composants
