@@ -3330,7 +3330,7 @@ function Wait-SgFlutterStartupReady([string]$LaunchDirectory,[string]$LaunchPath
     Wait-SgFlutterSupervisorReady $statePath 90 $Entry 600 -BuildLabel $(if($ResolvedDevice-in@('chrome','web-server')){'web'}else{[string]$ResolvedDevice})
 }
 
-function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload','stop','open')][string]$Method,[int]$TimeoutSeconds=10) {
+function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload','restart','stop','open')][string]$Method,[int]$TimeoutSeconds=10) {
     # The supervisor can spend 10 seconds awaiting app.stop before publishing
     # its response. Do not enter forced cleanup while that request is pending.
     if($Method -in @('stop','open')){$TimeoutSeconds=[Math]::Max($TimeoutSeconds,12)}
@@ -3343,10 +3343,11 @@ function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload',
     try{$deadline=(Get-Date).AddSeconds($TimeoutSeconds);while((Get-Date)-lt $deadline){if(Test-Path -LiteralPath $response -PathType Leaf){$info=Get-Item -LiteralPath $response;if($info.Length-gt65536){throw 'Flutter supervisor response exceeds 64 KiB.'};try{$result=Get-Content -LiteralPath $response -Raw|ConvertFrom-Json -ErrorAction Stop}finally{Remove-Item -LiteralPath $response -Force -ErrorAction SilentlyContinue};$names=@($result.PSObject.Properties.Name);if($result -is[array]-or-not($result.PSObject.Properties['ok'])-or$result.ok-isnot[bool]){throw 'Malformed Flutter supervisor response.'};if($result.ok){if(($names|Sort-Object)-join',' -ne 'method,ok'-or[string]$result.method-cne$Method){throw 'Mismatched Flutter supervisor response.'};return $result}else{if(($names|Sort-Object)-join',' -ne 'error,ok'){throw 'Malformed Flutter supervisor response.'};throw 'Flutter supervisor command failed.'}};Start-Sleep -Milliseconds 100};throw "Flutter supervisor $Method command timed out."}finally{if(Test-Path -LiteralPath $target -PathType Leaf){Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue};if(Test-Path -LiteralPath $temp -PathType Leaf){Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue}}
 }
 
-function Invoke-SgFlutterProjectReload([object]$Config,[string]$ProjectPath,[int]$TimeoutSeconds=10,[string]$Target='') {
+function Invoke-SgFlutterProjectReload([object]$Config,[string]$ProjectPath,[int]$TimeoutSeconds=10,[string]$Target='',[switch]$Full) {
     # Hot reload is identity-bound: the registered process, supervisor state, daemon and app must all
     # match before the existing authenticated reload IPC is used. It never stops, starts or rebuilds.
-    # Without a target every running Flutter target of the surface reloads.
+    # Without a target every running Flutter target of the surface reloads. -Full sends a hot restart
+    # (state rebuilt from main(), e.g. after route changes) through the same identity checks.
     $result={ param([string]$Status,[string]$Reason,[string]$Name=$null); [pscustomobject]@{Status=$Status;Reason=$Reason;Name=$Name} }
     if([string]::IsNullOrWhiteSpace($ProjectPath)){return (& $result 'unavailable' 'ProjectPath is required.')}
     try{$path=ConvertTo-SgCanonicalPath $ProjectPath}catch{return (& $result 'unavailable' 'The project path is invalid.')}
@@ -3356,7 +3357,7 @@ function Invoke-SgFlutterProjectReload([object]$Config,[string]$ProjectPath,[int
     $sessions=@(Get-SgEntrySessions $entry|Where-Object{-not $Target -or [string]$_.target -eq $Target})
     $running=@($sessions|Where-Object{[string]$_.status -eq 'running'})
     if($running.Count -eq 0){$latest=Select-SgPrimarySession $sessions;$status=if($latest){[string]$latest.status}else{'stopped'};return (& $result 'unavailable' "The Flutter session is not ready (status=$status).")}
-    $outcomes=@($running|ForEach-Object{Invoke-SgFlutterSessionReload (Get-SgSessionView $entry $_) $TimeoutSeconds})
+    $outcomes=@($running|ForEach-Object{Invoke-SgFlutterSessionReload (Get-SgSessionView $entry $_) $TimeoutSeconds -Full:$Full})
     if($outcomes.Count -eq 1){return $outcomes[0]}
     $targets=@($running|ForEach-Object{[string]$_.target}) -join ', '
     $failed=@(for($index=0;$index -lt $outcomes.Count;$index++){if($outcomes[$index].Status -ne 'succeeded'){[pscustomobject]@{Target=[string]$running[$index].target;Outcome=$outcomes[$index]}}})
@@ -3364,7 +3365,7 @@ function Invoke-SgFlutterProjectReload([object]$Config,[string]$ProjectPath,[int
     return (& $result $failed[0].Outcome.Status ("$($failed[0].Target): $($failed[0].Outcome.Reason)") "$([string]$entry.name) [$targets]")
 }
 
-function Invoke-SgFlutterSessionReload([object]$entry,[int]$TimeoutSeconds=10) {
+function Invoke-SgFlutterSessionReload([object]$entry,[int]$TimeoutSeconds=10,[switch]$Full) {
     $result={ param([string]$Status,[string]$Reason,[string]$Name=$null); [pscustomobject]@{Status=$Status;Reason=$Reason;Name=$Name} }
     if($entry.status -ne 'running'){return (& $result 'unavailable' "The Flutter session is not ready (status=$($entry.status)).")}
     if($entry.PSObject.Properties['flutterMode'] -and [string]$entry.flutterMode -eq 'profile'){return (& $result 'unavailable' "Flutter profile sessions support neither hot reload nor hot restart (Flutter: 'Restart is not supported in profile mode'). Rebuild with s restart -ProjectPath <path> -FlutterMode profile, or start a debug session for iterative work.")}
@@ -3377,7 +3378,7 @@ function Invoke-SgFlutterSessionReload([object]$entry,[int]$TimeoutSeconds=10) {
     if(-not $state.PSObject.Properties['status'] -or [string]$state.status -ne 'running' -or -not $state.PSObject.Properties['ready'] -or $state.ready -isnot [bool] -or -not $state.ready){return (& $result 'unavailable' 'The Flutter application is not ready.')}
     if(-not $state.PSObject.Properties['appId'] -or [string]$state.appId -cne [string]$entry.flutterAppId){return (& $result 'unavailable' 'The Flutter application identity is stale.')}
     if($entry.PSObject.Properties['flutterDaemonPid'] -and [int]$entry.flutterDaemonPid -gt 0 -and $state.PSObject.Properties['daemonPid'] -and [int]$state.daemonPid -ne [int]$entry.flutterDaemonPid){return (& $result 'unavailable' 'The Flutter daemon identity is stale.')}
-    try{[void](Invoke-SgFlutterSupervisorCommand $entry 'reload' $TimeoutSeconds);return (& $result 'succeeded' $null ([string]$entry.name))}
+    try{[void](Invoke-SgFlutterSupervisorCommand $entry $(if($Full){'restart'}else{'reload'}) $TimeoutSeconds);return (& $result 'succeeded' $null ([string]$entry.name))}
     catch{return (& $result 'failed' (Protect-SgDiagnosticText $_.Exception.Message))}
 }
 

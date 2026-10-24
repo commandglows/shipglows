@@ -102,7 +102,7 @@ function ConvertFrom-SgFlutterCommandJson([string]$Json, [string]$ExpectedToken)
     if($command.id -isnot[string] -or $command.method -isnot[string]){throw 'Malformed supervisor command schema.'};$id = [string]$command.id
     if ($id -notmatch '^[A-Za-z0-9-]{1,64}$') { throw 'Invalid supervisor command id.' }
     $method = [string]$command.method
-    if ($method -notin @('reload','stop','open')) { throw 'Unsupported supervisor command method.' }
+    if ($method -notin @('reload','restart','stop','open')) { throw 'Unsupported supervisor command method.' }
     return [pscustomobject]@{ Id=$id; Method=$method }
 }
 
@@ -215,15 +215,17 @@ function Write-SgFlutterJsonAtomic([string]$Path, [object]$Value, [int]$RetryTim
     }finally{if($temp-and[IO.File]::Exists($temp)){[IO.File]::Delete($temp)};if([IO.File]::Exists($backup)){[IO.File]::Delete($backup)}}
 }
 
-function New-SgFlutterMachineRequestJson([int]$Id, [string]$Method, [string]$AppId) {
+# FullRestart turns app.restart into a hot restart: app state is rebuilt from main(), which
+# picks up route tables and other initializers a hot reload keeps, without a new build.
+function New-SgFlutterMachineRequestJson([int]$Id, [string]$Method, [string]$AppId, [switch]$FullRestart) {
     $params = [ordered]@{appId=$AppId}
-    if ($Method -eq 'app.restart') { $params.fullRestart=$false; $params.pause=$false; $params.reason='ShipGlows source change'; $params.debounce=$true }
+    if ($Method -eq 'app.restart') { $params.fullRestart=[bool]$FullRestart; $params.pause=$false; $params.reason=$(if($FullRestart){'ShipGlows hot restart'}else{'ShipGlows source change'}); $params.debounce=$true }
     $message=[ordered]@{id=$Id;method=$Method;params=$params}
     return ConvertTo-Json -InputObject @($message) -Depth 5 -Compress
 }
 
-function Send-SgFlutterMachineRequest([Diagnostics.Process]$Process, [int]$Id, [string]$Method, [string]$AppId) {
-    $request = New-SgFlutterMachineRequestJson $Id $Method $AppId
+function Send-SgFlutterMachineRequest([Diagnostics.Process]$Process, [int]$Id, [string]$Method, [string]$AppId, [switch]$FullRestart) {
+    $request = New-SgFlutterMachineRequestJson $Id $Method $AppId -FullRestart:$FullRestart
     $Process.StandardInput.WriteLine($request)
     $Process.StandardInput.Flush()
 }
@@ -285,7 +287,7 @@ function Invoke-SgFlutterSupervisor {
                 if(-not $claimedPath){continue}
                 $response=[ordered]@{ok=$false;error='Invalid command.'}
                 try { $claimed=Get-Item -LiteralPath $claimedPath -ErrorAction Stop;if($claimed.Length -gt 65536){throw 'Supervisor command exceeds 64 KiB.'};$command=ConvertFrom-SgFlutterCommandJson ([IO.File]::ReadAllText($claimedPath)) $token;$response=[ordered]@{ok=$true;method=$command.Method}
-                    if($command.Method -eq 'reload'){if($Mode -eq 'profile'){throw 'Restart is not supported in profile mode.'};if(-not $state.Ready){throw 'Flutter application is not ready.'};$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10);Write-SgFlutterJsonAtomic $statePath $state}
+                    if($command.Method -in @('reload','restart')){if($Mode -eq 'profile'){throw 'Restart is not supported in profile mode.'};if(-not $state.Ready){throw 'Flutter application is not ready.'};$full=$command.Method -eq 'restart';$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId -FullRestart:$full;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId $(if($full){30}else{10}));Write-SgFlutterJsonAtomic $statePath $state}
                     elseif($command.Method -in @('stop','open')){if($state.AppId){$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.stop' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)};$stopRequested=$true}
                 } catch {$response=[ordered]@{ok=$false;error=$_.Exception.Message}}
                 try{Write-SgFlutterJsonAtomic (Join-Path $responseDir ($commandFile.BaseName+'.json')) $response}finally{Remove-Item -LiteralPath $claimedPath -Force -ErrorAction SilentlyContinue}

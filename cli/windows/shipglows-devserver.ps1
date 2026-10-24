@@ -25,6 +25,7 @@ param(
     [ValidateSet('','own','shared')][string]$Frontend = '',
     [switch]$Replace,
     [switch]$Open,
+    [switch]$Full,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
     [string]$MenuSessionRequestPath = '',
@@ -145,6 +146,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]'
     Write-Host '  s reload -ProjectPath <path>      Hot reload the managed Flutter targets (or one with -FlutterDevice)'
+    Write-Host '    -Full hot restarts instead (a few seconds, state rebuilt from main()): use it when routes or initializers change, instead of s restart.' -ForegroundColor DarkGray
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
     Write-Host '  s stop -ProjectPath <path>        Stop every target of the project, or one with -TauriDevice/-FlutterDevice'
     Write-Host '  s restart|logs|open -ProjectPath <path> [-TauriDevice|-FlutterDevice <target>]  Act on every target or on one'
@@ -1121,9 +1123,9 @@ try {
             if ($startPath) { $started = Invoke-SgRequiredStart $startPath $Port -Visible:$Open; if ($Open) { Open-SgManagedProject $started } }
         }
         'reload' {
-            if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path>' }
-            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath 15 (Get-SgRequestedTarget)
-            if ($reload.Status -eq 'succeeded') { Write-SgInfo "$($reload.Name) reload succeeded" }
+            if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path> [-Full]' }
+            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath $(if ($Full) { 40 } else { 15 }) (Get-SgRequestedTarget) -Full:$Full
+            if ($reload.Status -eq 'succeeded') { Write-SgInfo "$($reload.Name) $(if ($Full) { 'hot restart' } else { 'reload' }) succeeded" }
             elseif ($reload.Status -eq 'unavailable') { throw "reload unavailable: $($reload.Reason)" }
             else { throw "reload failed: $($reload.Reason)" }
         }
