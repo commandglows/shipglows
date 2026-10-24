@@ -1388,7 +1388,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     $interactive = -not [Console]::IsInputRedirected
     $java = Install-SgJdk17
     if (-not $java) { return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
-    Set-SgFlutterJdkDir -FlutterPath (Get-SgToolPath 'flutter.bat' $FlutterPaths) -JdkHome (Split-Path (Split-Path $java -Parent) -Parent)
+    [void](Set-SgFlutterJdkDir -FlutterPath (Get-SgToolPath 'flutter.bat' $FlutterPaths) -JdkHome (Split-Path (Split-Path $java -Parent) -Parent))
     $managedSdkRoot = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
     $existingSdk = Resolve-SgExistingAndroidSdk -CandidateRoots @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,$managedSdkRoot) -SdkManagerCommand (Get-SgToolPath 'sdkmanager.bat' @())
     $managedSdk = -not $existingSdk.Ready -or ($existingSdk.Root -and $existingSdk.Root.Equals($managedSdkRoot,[StringComparison]::OrdinalIgnoreCase))
