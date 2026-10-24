@@ -1176,6 +1176,84 @@ function Get-SgFlutterAndroidJdkVerdict([string]$ProjectPath,[object]$Effective=
     [pscustomobject]@{Gradle=$gradle;Compatible=$compatible;Effective=$Effective;Candidate=$candidate;Problem=$problem;Range=$range}
 }
 
+# Android SDK root as Gradle resolves it: android\local.properties sdk.dir (written by Flutter),
+# then ANDROID_HOME, ANDROID_SDK_ROOT, then the ShipGlows-managed %LOCALAPPDATA%\Android\Sdk.
+function Get-SgAndroidSdkRoot([string]$ProjectPath='') {
+    $candidates=New-Object Collections.Generic.List[string]
+    if($ProjectPath){
+        $local=Join-Path $ProjectPath 'android\local.properties'
+        if(Test-Path -LiteralPath $local -PathType Leaf){try{$line=@(Get-Content -LiteralPath $local -ErrorAction Stop|Where-Object{$_-match'^\s*sdk\.dir\s*='})|Select-Object -First 1;if($line-and$line-match'^\s*sdk\.dir\s*=\s*(.+?)\s*$'){$candidates.Add((($Matches[1]-replace'\\\\','\')-replace'\\:',':'))}}catch{}}
+    }
+    foreach($value in @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,$(if($env:LOCALAPPDATA){Join-Path $env:LOCALAPPDATA 'Android\Sdk'}))){if($value){$candidates.Add([string]$value)}}
+    foreach($candidate in $candidates){if(Test-Path -LiteralPath $candidate -PathType Container){return [IO.Path]::GetFullPath($candidate)}}
+    ''
+}
+
+# Flutter SDK root from its command path (…\flutter\bin\flutter.bat) or the project's local.properties.
+function Get-SgFlutterSdkRoot([string]$FlutterPath='',[string]$ProjectPath='') {
+    if($FlutterPath){try{$root=Split-Path (Split-Path ([IO.Path]::GetFullPath($FlutterPath)) -Parent) -Parent;if(Test-Path -LiteralPath (Join-Path $root 'packages\flutter_tools') -PathType Container){return $root}}catch{}}
+    if($ProjectPath){
+        $local=Join-Path $ProjectPath 'android\local.properties'
+        if(Test-Path -LiteralPath $local -PathType Leaf){try{$line=@(Get-Content -LiteralPath $local -ErrorAction Stop|Where-Object{$_-match'^\s*flutter\.sdk\s*='})|Select-Object -First 1;if($line-and$line-match'^\s*flutter\.sdk\s*=\s*(.+?)\s*$'){$root=(($Matches[1]-replace'\\\\','\')-replace'\\:',':');if(Test-Path -LiteralPath $root -PathType Container){return [IO.Path]::GetFullPath($root)}}}catch{}}
+    }
+    ''
+}
+
+# Defaults a Flutter project inherits through `flutter.compileSdkVersion` / `flutter.ndkVersion`,
+# read from the Flutter Gradle plugin sources (Kotlin FlutterExtension, or the older Groovy plugin).
+function Get-SgFlutterGradleDefaults([string]$FlutterRoot) {
+    $defaults=[pscustomobject]@{CompileSdk=0;NdkVersion=''}
+    if(-not$FlutterRoot){return $defaults}
+    foreach($relative in @('packages\flutter_tools\gradle\src\main\kotlin\FlutterExtension.kt','packages\flutter_tools\gradle\src\main\groovy\flutter.groovy','packages\flutter_tools\gradle\flutter.gradle')){
+        $file=Join-Path $FlutterRoot $relative
+        if(-not(Test-Path -LiteralPath $file -PathType Leaf)){continue}
+        try{
+            $text=Get-Content -LiteralPath $file -Raw -ErrorAction Stop
+            if($text-match'(?m)^\s*(?:val|static\s+int|static\s+final\s+int)\s+compileSdkVersion(?:\s*:\s*Int)?\s*=\s*(\d+)'){$defaults.CompileSdk=[int]$Matches[1]}
+            if($text-match'(?m)^\s*(?:val|static\s+String|static\s+final\s+String)\s+ndkVersion(?:\s*:\s*String)?\s*=\s*"([0-9][0-9.]*)"'){$defaults.NdkVersion=[string]$Matches[1]}
+        }catch{}
+        if($defaults.CompileSdk-gt0-or$defaults.NdkVersion){break}
+    }
+    $defaults
+}
+
+# compileSdk and ndkVersion the project's Gradle build will ask the Android SDK for, with where
+# each value comes from. 0 / '' when the build script cannot be read statically.
+function Get-SgFlutterAndroidBuildRequirements([string]$ProjectPath,[string]$FlutterRoot='') {
+    $result=[pscustomobject]@{CompileSdk=0;CompileSdkSource='';NdkVersion='';NdkSource='';BuildScript=''}
+    $script=@((Join-Path $ProjectPath 'android\app\build.gradle.kts'),(Join-Path $ProjectPath 'android\app\build.gradle'))|Where-Object{Test-Path -LiteralPath $_ -PathType Leaf}|Select-Object -First 1
+    if(-not$script){return $result}
+    $result.BuildScript=[string]$script;$relative=[string]$script;if($relative.StartsWith($ProjectPath,[StringComparison]::OrdinalIgnoreCase)){$relative=$relative.Substring($ProjectPath.Length).TrimStart('\')}
+    try{$text=Get-Content -LiteralPath $script -Raw -ErrorAction Stop}catch{return $result}
+    $text=[regex]::Replace($text,'(?m)//.*$','')
+    $defaults=$null
+    if($text-match'(?m)^\s*compileSdk(?:Version)?\s*=?\s*(\d+)\b'){$result.CompileSdk=[int]$Matches[1];$result.CompileSdkSource="compileSdk $($Matches[1]) in $relative"}
+    elseif($text-match'(?m)^\s*compileSdk(?:Version)?\s*=?\s*flutter\.compileSdkVersion\b'){$defaults=Get-SgFlutterGradleDefaults $FlutterRoot;if($defaults.CompileSdk-gt0){$result.CompileSdk=$defaults.CompileSdk;$result.CompileSdkSource="flutter.compileSdkVersion = $($defaults.CompileSdk) of the Flutter SDK, used by $relative"}}
+    if($text-match'(?m)^\s*ndkVersion\s*=?\s*"([0-9][0-9.]*)"'){$result.NdkVersion=[string]$Matches[1];$result.NdkSource="ndkVersion $($Matches[1]) in $relative"}
+    elseif($text-match'(?m)^\s*ndkVersion\s*=?\s*flutter\.ndkVersion\b'){if(-not$defaults){$defaults=Get-SgFlutterGradleDefaults $FlutterRoot};if($defaults.NdkVersion){$result.NdkVersion=$defaults.NdkVersion;$result.NdkSource="flutter.ndkVersion = $($defaults.NdkVersion) of the Flutter SDK, used by $relative"}}
+    $result
+}
+
+# Whether the installed Android SDK already holds the platform and NDK the project's Gradle build
+# needs; otherwise Gradle downloads them inside the build (minutes for an NDK). Missing packages are
+# named in sdkmanager coordinates with the exact install command.
+function Get-SgFlutterAndroidSdkVerdict([string]$ProjectPath,[string]$FlutterRoot='',[string]$SdkRoot=(Get-SgAndroidSdkRoot $ProjectPath)) {
+    $requirements=Get-SgFlutterAndroidBuildRequirements $ProjectPath $FlutterRoot
+    $missing=New-Object Collections.Generic.List[string];$details=New-Object Collections.Generic.List[string]
+    if(-not$SdkRoot){
+        $problem=if($requirements.CompileSdk-gt0-or$requirements.NdkVersion){'No Android SDK was found (android\local.properties sdk.dir, ANDROID_HOME, ANDROID_SDK_ROOT, %LOCALAPPDATA%\Android\Sdk); the ShipGlows installer provisions one.'}else{''}
+        return [pscustomobject]@{Ready=(-not$problem);SdkRoot='';Requirements=$requirements;Missing=@();Problem=$problem;Command=''}
+    }
+    if($requirements.CompileSdk-gt0-and-not(Test-Path -LiteralPath (Join-Path $SdkRoot "platforms\android-$($requirements.CompileSdk)\android.jar") -PathType Leaf)){$missing.Add("platforms;android-$($requirements.CompileSdk)");$details.Add("platform android-$($requirements.CompileSdk) ($($requirements.CompileSdkSource))")}
+    if($requirements.NdkVersion-and-not(Test-Path -LiteralPath (Join-Path $SdkRoot "ndk\$($requirements.NdkVersion)\source.properties") -PathType Leaf)){$missing.Add("ndk;$($requirements.NdkVersion)");$details.Add("NDK $($requirements.NdkVersion) ($($requirements.NdkSource))")}
+    $sdkManager=Join-Path $SdkRoot 'cmdline-tools\latest\bin\sdkmanager.bat'
+    $tool=if(Test-Path -LiteralPath $sdkManager -PathType Leaf){"`"$sdkManager`""}else{'sdkmanager'}
+    $quoted=@($missing|ForEach-Object{'"'+$_+'"'}) -join ' '
+    $command=if($missing.Count-gt0){"$tool $quoted"}else{''}
+    $problem=if($missing.Count-gt0){"Android SDK at $SdkRoot lacks what the Gradle build needs: $($details -join ', '). Gradle would download it during the build. Install first: $command"}else{''}
+    [pscustomobject]@{Ready=($missing.Count-eq0);SdkRoot=$SdkRoot;Requirements=$requirements;Missing=@($missing);Problem=$problem;Command=$command}
+}
+
 function Resolve-SgExistingJdk17 {
     param([string]$JavaHome = $env:JAVA_HOME, [string]$JavaCommand = '', [scriptblock]$Runner = $null)
     $candidates = New-Object Collections.Generic.List[string]
@@ -1499,4 +1577,5 @@ function Get-SgFlutterAndroidDiagnostic {
 
 Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgTauriDesktopBaseline,Get-SgTauriDesktopMiseConfig,Resolve-SgTrustedMisePath,Invoke-SgIsolatedTauriMise,Test-SgTauriDesktopRustToolchain,Test-SgTauriDesktopRustWrappers,Install-SgTauriDesktopRustToolchain,Get-SgWindowsWebView2State,Get-SgTauriWindowsEnvironmentObservation,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
 Export-ModuleMember -Function Resolve-SgTrustedWingetIdentity
+Export-ModuleMember -Function Get-SgAndroidSdkRoot,Get-SgFlutterSdkRoot,Get-SgFlutterGradleDefaults,Get-SgFlutterAndroidBuildRequirements,Get-SgFlutterAndroidSdkVerdict
 Export-ModuleMember -Function Get-SgShipGlowsJdkHome,Get-SgFlutterSettingsPath,Get-SgFlutterConfiguredJdkDir,Get-SgJdkMajorVersion,Get-SgAndroidStudioJbrHome,Resolve-SgFlutterEffectiveJdk,Get-SgGradleWrapperVersion,Get-SgGradleJavaSupport,Test-SgGradleJdkCompatible,Get-SgFlutterAndroidJdkVerdict

@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.36.0"
+artifact_version: "1.37.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-10-24"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-10-24 sur CommandGlows, `s start -FlutterDevice android` lançait le build alors que la plateforme Android demandée par compileSdk n'était pas installée ; Gradle la téléchargeait pendant le build jusqu'au délai. `s start` vérifie depuis compileSdk et ndkVersion contre `platforms/` et `ndk/` du SDK et refuse le lancement avec la commande sdkmanager exacte."
   - "Le 2026-10-24 sur CommandGlows, Gradle 8.14 refusait le build Android (« Java 25.0.3 incompatible with Gradle 8.14 ») : Flutter prenait le JBR 25 d'Android Studio avant le JDK 17 de ShipGlows, car seul `flutter config --jdk-dir` passe devant ce JBR ; l'installeur épingle depuis ce réglage et `s start` vérifie la compatibilité Gradle/JDK avant le build."
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21, `s start -FlutterDevice android` abandonnait après 10 minutes (« Flutter supervisor timed out before app.started ») alors que le premier build Gradle à froid progressait encore ; Android suit depuis la même fenêtre sensible à la progression que Windows (coupure après 10 min sans écriture Gradle, plafond 30 min) et annonce qu'un premier build Android peut être long."
   - "Le 2026-10-24 sur commandglows_app, une session profile Windows laissait vides le stdout.log et le stderr.log annoncés par `s status`, et cachait le VM service et DevTools dans flutter-launch ; `s status` affiche depuis ces URI et les journaux réellement écrits."
@@ -614,6 +615,21 @@ lue dans son fichier `release`). En cas d'incompatibilité, avec
 un `JAVA_HOME` compatible et le dit ; sinon il refuse le lancement avec la
 commande exacte `flutter config --jdk-dir "<jdk>"`. Un projet sans wrapper
 Gradle n'est pas jugé.
+
+Toujours avant le build, `s start` vérifie que le SDK Android installé contient
+déjà ce que le build Gradle va demander : la plateforme `platforms/android-<compileSdk>`
+et le NDK `ndk/<ndkVersion>`. `compileSdk` et `ndkVersion` sont lus dans
+`android/app/build.gradle.kts` (ou `build.gradle`) ; les valeurs
+`flutter.compileSdkVersion` et `flutter.ndkVersion` sont résolues dans le
+`FlutterExtension.kt` du SDK Flutter du projet (`flutter.sdk` de
+`android/local.properties`, sinon le `flutter` de la commande). Le SDK Android est
+celui de `sdk.dir` dans `android/local.properties`, sinon `ANDROID_HOME`,
+`ANDROID_SDK_ROOT`, puis `%LOCALAPPDATA%\Android\Sdk`. S'il manque un paquet,
+le lancement est refusé avec son origine et la commande exacte, par exemple
+`"<sdk>\cmdline-tools\latest\bin\sdkmanager.bat" "platforms;android-36" "ndk;28.2.13676358"`,
+car Gradle le téléchargerait sinon pendant le build (un NDK pèse plus d'un Go)
+et le démarrage paraîtrait bloqué. Rien n'est installé automatiquement : les
+paquets SDK exigent l'acceptation de leurs licences.
 
 Le premier build Android d'un projet est long : Gradle télécharge sa
 distribution (`gradle-8.x-all.zip`), les dépendances et parfois des composants

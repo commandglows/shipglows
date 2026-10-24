@@ -3847,6 +3847,18 @@ function Assert-SgFlutterAndroidJdk([string]$LaunchPath,[string]$FlutterPath,[bo
     $verdict
 }
 
+# Before an Android build: the installed Android SDK must already hold the platform (compileSdk)
+# and NDK the project's Gradle build asks for, or Gradle downloads them inside the build and the
+# startup looks stalled. Nothing is installed automatically: SDK packages need license consent.
+function Assert-SgFlutterAndroidSdk([string]$LaunchPath,[string]$FlutterPath) {
+    $modulePath=Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
+    if (-not (Test-Path -LiteralPath $modulePath -PathType Leaf)) { throw 'ShipGlows mobile toolchain transport is unavailable.' }
+    if (-not (Get-Module ShipGlows.MobileToolchain)) { Import-Module $modulePath -DisableNameChecking }
+    $verdict=ShipGlows.MobileToolchain\Get-SgFlutterAndroidSdkVerdict $LaunchPath (ShipGlows.MobileToolchain\Get-SgFlutterSdkRoot $FlutterPath $LaunchPath)
+    if(-not$verdict.Ready){throw $verdict.Problem}
+    $verdict
+}
+
 function Resolve-SgFlutterAndroidDevice([string]$FlutterPath, [string]$RequestedDeviceId = '', [string]$AvdName = 'ShipGlows_API_36', [scriptblock]$Runner = $null, [scriptblock]$Waiter = $null, [int]$TimeoutSeconds = 180) {
     if ($RequestedDeviceId -and $RequestedDeviceId -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'Invalid requested Flutter Android device identifier.' }
     if ($AvdName -notmatch '^[A-Za-z0-9._-]{1,64}$') { throw 'Invalid Android emulator name.' }
@@ -4191,6 +4203,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $flutterPath=Get-SgFlutterCommandPath
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
         [void](Assert-SgFlutterAndroidJdk $launchPath $flutterPath ([bool]$settings.AutoRepair))
+        [void](Assert-SgFlutterAndroidSdk $launchPath $flutterPath)
         $resolvedFlutterDevice=Resolve-SgFlutterAndroidDevice $flutterPath ([string]$settings.FlutterDeviceId)
         $settings.FlutterDeviceId=$resolvedFlutterDevice
     }
@@ -4714,5 +4727,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
