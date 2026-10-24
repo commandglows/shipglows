@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.34.0"
+artifact_version: "1.35.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-10-24"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21, `s start -FlutterDevice android` abandonnait après 10 minutes (« Flutter supervisor timed out before app.started ») alors que le premier build Gradle à froid progressait encore ; Android suit depuis la même fenêtre sensible à la progression que Windows (coupure après 10 min sans écriture Gradle, plafond 30 min) et annonce qu'un premier build Android peut être long."
   - "Le 2026-10-24 sur commandglows_app, une session profile Windows laissait vides le stdout.log et le stderr.log annoncés par `s status`, et cachait le VM service et DevTools dans flutter-launch ; `s status` affiche depuis ces URI et les journaux réellement écrits."
   - "Le 2026-10-23 sur CommunityGlows, un `tauri android dev` lancé par une autre session a remplacé sans message la session Tauri Windows et écrasé son stderr.log ; chaque cible a depuis sa propre session, ses logs par lancement, et un second Tauri exige un choix explicite."
   - "Le replay du 2026-09-04 confirme que `shipglows update status` s'exécute dans le PowerShell géré et que `shipglows update runtime` reste accepté comme forme de compatibilité sans verrouiller `s.exe`."
@@ -506,8 +507,13 @@ par Flutter. Le registre ne passe à `running` qu'après les événements machin
 `app.start` puis `app.started` ; une réponse HTTP ou TCP seule ne prouve pas que
 l'application a exécuté `main()`. Pendant un build Flutter Windows actif, le
 démarrage n'est interrompu qu'après 5 minutes sans écriture dans `build/windows`
-(build bloqué) ou au plafond de 30 minutes ; un premier build à froid qui
-progresse n'est donc plus coupé. L'action Open remplace cette session headless
+ou `.dart_tool/flutter_build` (build bloqué) ou au plafond de 30 minutes ; un
+premier build à froid qui progresse n'est donc plus coupé. Un build Flutter
+Android actif suit la même règle avec une fenêtre de 10 minutes sans écriture
+Gradle (sortie `build/`, `android/.gradle`, journaux du superviseur, et dans le
+Gradle user home `caches/modules-2`, `daemon` et `wrapper/dists` parcouru en
+surface), car le téléchargement de la distribution Gradle est un seul gros
+fichier. L'action Open remplace cette session headless
 par un Chrome visible toujours contrôlé par Flutter, afin de conserver le hot
 reload. Start et Restart restent silencieux et recréent une session headless
 gérée ; aucun navigateur ne s'ouvre avant l'action explicite Open.
@@ -588,6 +594,18 @@ dépendances, qui s'exécute une seule fois à la fois.
 ### Flutter Android en développement
 
 `SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
+
+Le premier build Android d'un projet est long : Gradle télécharge sa
+distribution (`gradle-8.x-all.zip`), les dépendances et parfois des composants
+du SDK Android, souvent bien plus de 10 minutes. `s start` l'annonce avant
+d'attendre quand `build/app` manque ou que la distribution nommée par
+`android/gradle/wrapper/gradle-wrapper.properties` n'est pas encore dans le
+Gradle user home, puis attend tant que Gradle écrit : la session ne passe à
+`error` qu'après 10 minutes sans aucune écriture (« Flutter Android build
+stalled ») ou au plafond de 30 minutes (« Flutter Android build timed out after
+1800 seconds »), chaque message rappelant la cause probable et `s status` pour
+les journaux. Le 2026-10-24, un Galaxy S21 sur CommandGlows était coupé après
+10 minutes alors que « Running Gradle task 'assembleDebug' » progressait encore.
 
 Les APK et AAB restent des sorties de release ou de validation autonome ciblée : installation, permissions, notifications, services, plugins natifs et comportement sans Flutter attaché. Ils ne remplacent pas la boucle de développement live.
 

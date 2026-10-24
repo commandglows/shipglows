@@ -3230,14 +3230,60 @@ function Update-SgFlutterReadinessWindow([bool]$WasActiveProgress,[bool]$IsActiv
     [pscustomobject]@{ActiveProgress=$IsActiveProgress;Deadline=$Deadline}
 }
 
-# Latest file write under any of the given directories (missing ones are skipped).
-function Get-SgLatestWriteUtc([string[]]$Path) {
+# Latest file write under any of the given directories (missing ones are skipped). ShallowPath
+# roots are walked only ShallowDepth levels deep, counting directory and file writes, so a huge
+# tree such as the extracted Gradle distributions stays cheap enough to poll every few seconds.
+function Get-SgLatestWriteUtc([string[]]$Path,[string[]]$ShallowPath=@(),[int]$ShallowDepth=2) {
     $latest=[datetime]::MinValue
     foreach($root in @($Path)){
         if(-not$root-or-not[IO.Directory]::Exists($root)){continue}
         try{foreach($file in ([IO.DirectoryInfo]$root).EnumerateFiles('*',[IO.SearchOption]::AllDirectories)){if($file.LastWriteTimeUtc-gt$latest){$latest=$file.LastWriteTimeUtc}}}catch{}
     }
+    foreach($root in @($ShallowPath)){
+        if(-not$root-or-not[IO.Directory]::Exists($root)){continue}
+        $pending=New-Object 'Collections.Generic.Queue[object]';$pending.Enqueue(@{Dir=[IO.DirectoryInfo]$root;Depth=0})
+        while($pending.Count-gt0){
+            $item=$pending.Dequeue();$dir=$item.Dir
+            try{
+                if($dir.LastWriteTimeUtc-gt$latest){$latest=$dir.LastWriteTimeUtc}
+                foreach($file in $dir.EnumerateFiles()){if($file.LastWriteTimeUtc-gt$latest){$latest=$file.LastWriteTimeUtc}}
+                if([int]$item.Depth-lt$ShallowDepth){foreach($child in $dir.EnumerateDirectories()){$pending.Enqueue(@{Dir=$child;Depth=([int]$item.Depth+1)})}}
+            }catch{}
+        }
+    }
     $latest
+}
+
+function Get-SgGradleUserHome { if($env:GRADLE_USER_HOME){[string]$env:GRADLE_USER_HOME}else{Join-Path $env:USERPROFILE '.gradle'} }
+
+# Android build progress: Gradle writes intermediates under build\, project caches under
+# android\.gradle, the Dart kernel under .dart_tool\flutter_build and the supervisor logs; a
+# first build also fills the Gradle user home (distribution under wrapper\dists, dependencies
+# under caches\modules-2, daemon logs under daemon). The extracted distributions are only
+# walked shallowly: the whole tree holds tens of thousands of files.
+function Get-SgFlutterAndroidBuildActivity([string]$LaunchPath,[string]$LaunchDirectory) {
+    $gradleHome=Get-SgGradleUserHome
+    [pscustomobject]@{
+        Path=@((Join-Path $LaunchPath 'build'),(Join-Path $LaunchPath 'android\.gradle'),(Join-Path $LaunchPath '.dart_tool\flutter_build'),$LaunchDirectory,(Join-Path $gradleHome 'caches\modules-2'),(Join-Path $gradleHome 'daemon'))
+        ShallowPath=@((Join-Path $gradleHome 'wrapper\dists'))
+    }
+}
+
+# Why a first Android build will be slow, or '' when previous Gradle output and the wrapper
+# distribution named by android\gradle\wrapper\gradle-wrapper.properties are already present.
+function Get-SgFlutterAndroidColdBuildReason([string]$LaunchPath) {
+    if(-not(Test-Path -LiteralPath (Join-Path $LaunchPath 'build\app') -PathType Container)){return 'no previous Gradle output under build\app'}
+    $properties=Join-Path $LaunchPath 'android\gradle\wrapper\gradle-wrapper.properties'
+    if(Test-Path -LiteralPath $properties -PathType Leaf){
+        try{
+            $line=@(Get-Content -LiteralPath $properties -ErrorAction Stop|Where-Object{$_-match'^\s*distributionUrl\s*='})|Select-Object -First 1
+            if($line-and$line-match'/(gradle-[A-Za-z0-9.-]+)\.zip\s*$'){
+                $name=$Matches[1];$dist=Join-Path (Get-SgGradleUserHome) "wrapper\dists\$name"
+                if(-not(Test-Path -LiteralPath $dist -PathType Container)-or@(Get-ChildItem -LiteralPath $dist -Filter '*.ok' -File -Recurse -Depth 1 -ErrorAction SilentlyContinue).Count-eq0){return "Gradle distribution $name is not downloaded yet"}
+            }
+        }catch{}
+    }
+    ''
 }
 
 function Update-SgFlutterBuildStallDeadline([datetime]$StallDeadline,[datetime]$LastActivityUtc,[datetime]$LatestWriteUtc,[int]$StallTimeoutSeconds,[datetime]$Now=(Get-Date)) {
@@ -3248,22 +3294,40 @@ function Update-SgFlutterBuildStallDeadline([datetime]$StallDeadline,[datetime]$
 # With BuildActivityPath, an active build is only cut after BuildStallTimeoutSeconds without
 # any file write under those paths, or when ActiveProgressTimeoutSeconds (hard cap) is reached.
 # Windows passes build\windows (native MSBuild) and .dart_tool\flutter_build (Dart kernel
-# compile): a large Dart compile writes nothing under build\windows for minutes.
-function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [int]$ActiveProgressTimeoutSeconds = 600, [string[]]$BuildActivityPath = @(), [int]$BuildStallTimeoutSeconds = 300) {
+# compile): a large Dart compile writes nothing under build\windows for minutes. Android passes
+# Get-SgFlutterAndroidBuildActivity (Gradle output, caches and user home). BuildLabel names the
+# target in the failure message and BuildHint is appended to build failures.
+function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [int]$ActiveProgressTimeoutSeconds = 600, [string[]]$BuildActivityPath = @(), [int]$BuildStallTimeoutSeconds = 300, [string[]]$BuildActivityShallowPath = @(), [string]$BuildLabel = 'Windows', [string]$BuildHint = '') {
     $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
     $progressDeadline=(Get-Date).AddSeconds([Math]::Max($TimeoutSeconds,$ActiveProgressTimeoutSeconds))
     $activeProgress=$false;$stalled=$false
-    $stallDeadline=(Get-Date).AddSeconds([Math]::Max(0,$BuildStallTimeoutSeconds));$lastActivityUtc=Get-SgLatestWriteUtc $BuildActivityPath;$nextActivityScan=Get-Date
-    $hasActivityPath=@($BuildActivityPath|Where-Object{$_}).Count-gt0
+    $stallDeadline=(Get-Date).AddSeconds([Math]::Max(0,$BuildStallTimeoutSeconds));$lastActivityUtc=Get-SgLatestWriteUtc $BuildActivityPath $BuildActivityShallowPath;$nextActivityScan=Get-Date
+    $hasActivityPath=@(@($BuildActivityPath)+@($BuildActivityShallowPath)|Where-Object{$_}).Count-gt0
     do {
         if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-SgBoundedFileTail $StatePath 262144|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}};$currentProgress=[bool](($state.PSObject.Properties['progressActive']-and[bool]$state.progressActive)-or[string]$state.status-eq'building');$timing=Update-SgFlutterReadinessWindow $activeProgress $currentProgress $deadline $TimeoutSeconds;$deadline=$timing.Deadline;$activeProgress=$timing.ActiveProgress}catch{}}
         if($ProcessEntry-and-not(Test-SgProcessIdentity $ProcessEntry)){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor exited during startup.';DaemonPid=0}}
         $now=Get-Date
-        if($hasActivityPath-and$now-ge$nextActivityScan){$nextActivityScan=$now.AddSeconds(5);$activity=Update-SgFlutterBuildStallDeadline $stallDeadline $lastActivityUtc (Get-SgLatestWriteUtc $BuildActivityPath) $BuildStallTimeoutSeconds $now;$stallDeadline=$activity.StallDeadline;$lastActivityUtc=$activity.LastActivityUtc}
+        if($hasActivityPath-and$now-ge$nextActivityScan){$nextActivityScan=$now.AddSeconds(5);$activity=Update-SgFlutterBuildStallDeadline $stallDeadline $lastActivityUtc (Get-SgLatestWriteUtc $BuildActivityPath $BuildActivityShallowPath) $BuildStallTimeoutSeconds $now;$stallDeadline=$activity.StallDeadline;$lastActivityUtc=$activity.LastActivityUtc}
         if($activeProgress-and$hasActivityPath-and$now-ge$stallDeadline){$stalled=$true;break}
         if(((-not$activeProgress)-and$now-ge$deadline)-or($activeProgress-and$now-ge$progressDeadline)){break};Start-Sleep -Milliseconds 250
     }while($true)
-    [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($stalled){"Flutter Windows build stalled: no build output for $BuildStallTimeoutSeconds seconds before app.started."}elseif($activeProgress){'Flutter Windows build timed out before app.started.'}else{'Flutter supervisor timed out before app.started.'});DaemonPid=0}
+    $hint=if($BuildHint){" $BuildHint"}else{''}
+    [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($stalled){"Flutter $BuildLabel build stalled: no build output for $BuildStallTimeoutSeconds seconds before app.started.$hint"}elseif($activeProgress){"Flutter $BuildLabel build timed out after $ActiveProgressTimeoutSeconds seconds before app.started.$hint"}else{'Flutter supervisor timed out before app.started.'});DaemonPid=0}
+}
+
+# Flutter readiness per target. Windows and Android builds get a progress-aware window: the wait
+# only ends after a stall without build output or at the 30-minute hard cap. Android's stall
+# window is longer because a first build downloads the Gradle distribution as one large file.
+function Wait-SgFlutterStartupReady([string]$LaunchDirectory,[string]$LaunchPath,[object]$Entry,[string]$ResolvedDevice,[string]$RequestedDevice) {
+    $statePath=Join-Path $LaunchDirectory 'state.json'
+    if($ResolvedDevice-eq'windows'){return Wait-SgFlutterSupervisorReady $statePath 90 $Entry 1800 @((Join-Path $LaunchPath 'build\windows'),(Join-Path $LaunchPath '.dart_tool\flutter_build')) 300}
+    if($RequestedDevice-eq'android'){
+        $cold=Get-SgFlutterAndroidColdBuildReason $LaunchPath
+        if($cold){Write-SgInfo "First Flutter Android build ($cold): Gradle may download its distribution, dependencies and Android SDK components, which can take well over 10 minutes. ShipGlows keeps waiting while Gradle writes build output (cut after 10 minutes without output, hard cap 30 minutes)."}
+        $activity=Get-SgFlutterAndroidBuildActivity $LaunchPath $LaunchDirectory
+        return Wait-SgFlutterSupervisorReady $statePath 90 $Entry 1800 $activity.Path 600 -BuildActivityShallowPath $activity.ShallowPath -BuildLabel 'Android' -BuildHint 'A first Android build downloads the Gradle distribution, dependencies and Android SDK components; check the session logs with s status.'
+    }
+    Wait-SgFlutterSupervisorReady $statePath 90 $Entry 600
 }
 
 function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload','stop','open')][string]$Method,[int]$TimeoutSeconds=10) {
@@ -4299,7 +4363,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if ($sessionPortRole -in @('primary','none')) { [void](Write-SgProjectEnvironment $entry.path $(if ($sessionPortRole -eq 'primary') { $port } else { 0 }) $kind) }
     $readyTimeout = if ([int]$settings.ReadyTimeoutSeconds -gt 0) { [int]$settings.ReadyTimeoutSeconds } else { 0 }
     $tauriDesktopReadiness = if ($kind -eq 'tauri' -and -not $tauriAndroid -and $frontendMode -eq 'shared') { $launchPath } else { '' }
-    $readiness = if($kind -eq 'flutter-web'){$(if($resolvedFlutterDevice-eq'windows'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 1800 @((Join-Path $launchPath 'build\windows'),(Join-Path $launchPath '.dart_tool\flutter_build')) 300}else{Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') 90 $entryData 600})}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid -or $tauriDesktopReadiness){1800}else{300}) $entryData $err $tauriAndroid $tauriDesktopReadiness}
+    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterStartupReady $flutterLaunchDirectory $launchPath $entryData $resolvedFlutterDevice ([string]$settings.FlutterDevice)}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid -or $tauriDesktopReadiness){1800}else{300}) $entryData $err $tauriAndroid $tauriDesktopReadiness}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         if ($kind -eq 'obsidian-plugin') {
