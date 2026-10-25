@@ -432,6 +432,28 @@ telle quelle : après un changement de recette, utiliser `s restart`.
 }
 ```
 
+#### Recette Doppler pour une API Python/FastAPI
+
+Sans recette, `s start` cherche `app/main.py` puis `main.py` et lance uvicorn sans
+secrets. Un fichier optionnel `.shipglows.python.json` (schéma
+`shipglows.python-recipe.v1`) à la racine de la surface déclare la cible uvicorn
+`app` (module `a.b:objet`, dont le fichier doit exister dans le projet) et le
+scope Doppler. `s start` lance alors `doppler run --project … --config …
+--no-fallback -- <python ou uv> -m uvicorn <app> --host 127.0.0.1 --port <port>` :
+toute la config de dev entre dans le processus de l'API. Seules les configs
+`dev`, `stg` ou `staging` (suffixe `_…` facultatif) sont acceptées, jamais une
+config de production ; `"doppler": "NONE"` déclare une API sans Doppler. Sans
+Doppler installé, le lancement est refusé. Après un changement de recette,
+utiliser `s restart`.
+
+```json
+{
+  "schemaVersion": "shipglows.python-recipe.v1",
+  "doppler": { "project": "contentglows_app", "config": "dev" },
+  "app": "api.main:app"
+}
+```
+
 ### Monorepos, registre et Flutter Web
 
 Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des

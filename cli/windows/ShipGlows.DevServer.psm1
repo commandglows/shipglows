@@ -2283,6 +2283,36 @@ function Add-SgNodeRecipeLauncher([string]$ProjectPath, [string]$Command) {
     return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) $only--no-fallback --no-check-version --silent -- " + $Command.Substring(5)
 }
 
+function Read-SgPythonRecipe([string]$ProjectPath) {
+    # Optional launch recipe for Python/FastAPI surfaces: the uvicorn application and a
+    # Doppler development/staging scope injected whole into the API process. Production
+    # configs are refused outright; secret values never enter launch artifacts.
+    $path = Join-Path $ProjectPath '.shipglows.python.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
+    $item = Get-Item -LiteralPath $path -Force
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Python launch recipe cannot be a reparse point.' }
+    if ($item.Length -gt 65536) { throw 'Python launch recipe exceeds 64 KiB.' }
+    try { $recipe = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Python launch recipe is not valid JSON.' }
+    if ($null -eq $recipe -or $recipe -is [array] -or (@($recipe.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'app,doppler,schemaVersion') { throw 'Python launch recipe fields are invalid.' }
+    if ($recipe.schemaVersion -cne 'shipglows.python-recipe.v1') { throw 'Unsupported Python launch recipe version.' }
+    if ($recipe.app -isnot [string] -or $recipe.app -cnotmatch '^[A-Za-z_][A-Za-z0-9_]{0,63}(\.[A-Za-z_][A-Za-z0-9_]{0,63}){0,7}:[A-Za-z_][A-Za-z0-9_]{0,63}$') { throw 'Python recipe app must be a uvicorn target such as api.main:app.' }
+    $modulePath = Join-Path $ProjectPath ($recipe.app.Split(':')[0].Replace('.','\'))
+    if (-not (Test-Path -LiteralPath "$modulePath.py" -PathType Leaf) -and -not (Test-Path -LiteralPath (Join-Path $modulePath '__init__.py') -PathType Leaf)) { throw "Python recipe app module '$($recipe.app.Split(':')[0])' was not found in the project." }
+    $dopplerNone = $recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE'
+    if (-not $dopplerNone -and ($null -eq $recipe.doppler -or $recipe.doppler -is [string] -or (@($recipe.doppler.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'config,project' -or $recipe.doppler.project -isnot [string] -or $recipe.doppler.project -cnotmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,95}$' -or $recipe.doppler.config -isnot [string] -or $recipe.doppler.config -cnotmatch '^(dev|stg|staging)(_[a-zA-Z0-9_-]+)?$')) { throw 'Python recipe must declare Doppler as NONE or provide an exact development/staging project and config.' }
+    return $recipe
+}
+
+function Add-SgPythonRecipeLauncher([string]$ProjectPath, [string]$Command) {
+    # Wrap the managed `call "<python>" ...` command so Doppler injects the declared development config.
+    $recipe = Read-SgPythonRecipe $ProjectPath
+    if (-not $recipe -or ($recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE')) { return $Command }
+    $doppler = Get-SgCommandPath @('doppler.exe')
+    if (-not $doppler) { throw 'The declared Python recipe requires Doppler. No unauthenticated fallback is allowed.' }
+    if (-not $Command.StartsWith('call "')) { throw 'Python launch command cannot be wrapped by its Doppler recipe.' }
+    return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) --no-fallback --no-check-version --silent -- " + $Command.Substring(5)
+}
+
 function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port) {
     return "ShipGlows:${Kind}:${Port}:$([IO.Path]::GetFullPath($ProjectPath))"
 }
@@ -2894,7 +2924,8 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         $command = Add-SgNodeRecipeLauncher $ProjectPath $command
         $args = @('/d','/s','/c',"`"$command`"")
     } elseif ($Kind -eq 'python') {
-        $target = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'app\main.py')) { 'app.main:app' } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'main.py')) { 'main:app' } else { throw 'FastAPI entrypoint not found. V1 supports app/main.py or main.py with app.' }
+        $pythonRecipe = Read-SgPythonRecipe $ProjectPath
+        $target = if ($pythonRecipe) { $pythonRecipe.app } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'app\main.py')) { 'app.main:app' } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'main.py')) { 'main:app' } else { throw 'FastAPI entrypoint not found. Declare app in .shipglows.python.json, or provide app/main.py or main.py with app.' }
         $file = $env:ComSpec
         if (Test-Path -LiteralPath (Join-Path $ProjectPath 'uv.lock') -PathType Leaf) {
             $uv = Get-SgCommandPath @('uv.exe','uv.cmd','uv'); if (-not $uv) { throw 'uv is required for Python launch.' }
@@ -2904,6 +2935,7 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw 'Python virtual environment not found. Dependency setup must create .venv before launch.' }
             $command = "call `"$python`" -m uvicorn $target --host 127.0.0.1 --port $Port & rem $signature"
         }
+        $command = Add-SgPythonRecipeLauncher $ProjectPath $command
         $args = @('/d','/s','/c',"`"$command`"")
     } else {
         $flutter = Get-SgFlutterCommandPath; if (-not $flutter) { throw 'Flutter SDK is unavailable on PATH and at the ShipGlows-managed location.' }
