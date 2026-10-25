@@ -552,7 +552,9 @@ processus disparus. Si le job de processus de la session a déjà disparu (le
 superviseur qui a accepté l'arrêt ferme son job pendant que le port se libère,
 ou la session date d'un runtime antérieur), Stop et Restart ne refusent plus
 (« refusing an unverified stop ») : ils terminent seulement les processus vérifiés
-de la session et exigent toujours la preuve d'extinction. Sans `-FlutterDevice`,
+de la session et exigent toujours la preuve d'extinction. Un port désormais servi
+par une autre cible vivante du même projet (par exemple `web-server` après une
+session `chrome` morte) n'est ni attendu ni fouillé à l'arrêt. Sans `-FlutterDevice`,
 `s start` reprend la session vivante, sinon la dernière cible utilisée (si
 `.shipglows.env` ne fixe pas `SHIPGLOWS_FLUTTER_DEVICE`), plutôt que la cible par
 défaut. Le `pubspec.lock` du projet que `flutter pub get` réécrit après une
