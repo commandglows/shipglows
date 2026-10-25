@@ -414,6 +414,38 @@ call exit /b %%errorlevel%%
 
 }
 
+function Install-SgWebResearchCommands {
+    # The research tools live in the ShipGlows checkout, not in the runtime payload.
+    $toolsDir = Join-Path (Join-Path $Workspace 'shipglows') 'tools'
+    if (-not (Test-Path -LiteralPath (Join-Path $toolsDir 'shipglows_search.py') -PathType Leaf)) {
+        Write-SgInstallerWarning "Web research commands skipped: no ShipGlows checkout at $toolsDir."
+        return
+    }
+    foreach ($tool in @('search','parallel','fetch','scraping')) {
+        $script = Join-Path $toolsDir "shipglows_$tool.py"
+        if (-not (Test-Path -LiteralPath $script -PathType Leaf)) { continue }
+        Set-SgLauncherContent (Join-Path $runtimeDir "shipglows-$tool.cmd") "@echo off`r`npython `"$script`" %*`r`nexit /b %errorlevel%`r`n"
+    }
+    Write-Host 'Web research commands installed: shipglows-search, shipglows-parallel, shipglows-fetch, shipglows-scraping' -ForegroundColor Green
+
+    # Free local SearXNG + Crawl4AI: start it when Docker already runs, never install Docker here.
+    if (-not (Get-Command docker -CommandType Application -ErrorAction SilentlyContinue)) {
+        Write-SgInstallerWarning 'Local search stack not started: Docker Desktop is missing (winget install Docker.DockerDesktop), then run: shipglows-scraping up'
+        return
+    }
+    $python = Get-SgToolPath 'python'
+    if (-not $python) {
+        Write-SgInstallerWarning 'Local search stack not started: python is missing. Run later: shipglows-scraping up'
+        return
+    }
+    $result = Invoke-SgBoundedProcess -File $python -Arguments @((Join-Path $toolsDir 'shipglows_scraping.py'), 'up') -TimeoutSeconds 1800
+    if ($result.TimedOut -or $result.ExitCode -ne 0) {
+        Write-SgInstallerWarning 'Local search stack not ready (is Docker Desktop running?). Run later: shipglows-scraping up'
+    } else {
+        Write-Host 'Local search stack ready: SearXNG 127.0.0.1:8888, Crawl4AI 127.0.0.1:11235' -ForegroundColor Green
+    }
+}
+
 function Test-SgTool([string]$Name, [string[]]$KnownPaths = @()) {
     if (Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue) { return $true }
     foreach ($path in $KnownPaths) {
@@ -1998,7 +2030,7 @@ Remove-SgObsoleteProfileCommand
 Import-Module (Join-Path $runtimeDir 'ShipGlows.PowerShellRuntime.psm1') -Force -DisableNameChecking
 $env:SHIPGLOWS_MANAGED_PWSH = Resolve-SgManagedPowerShell
 # Never rewrite the batch launcher while it is waiting for this updater.
-if (-not $UpdateDeveloperTools) { Install-SgCommandWrappers }
+if (-not $UpdateDeveloperTools) { Install-SgCommandWrappers; Install-SgWebResearchCommands }
 [void](Install-SgGum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')

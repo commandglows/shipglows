@@ -58,6 +58,10 @@ provider. Failure reasons name the error type, its cause and the attempt count.
 
 - Never print, pass or persist provider keys; keys come only from the Doppler
   `dotfiles/dev` scope.
-- `shipglows-parallel` stays the tool for Extract, Task research and Monitor;
+- To read a page, use `shipglows-fetch <url>` (local Crawl4AI, then Firecrawl,
+  then Parallel Extract; exit 3 means use the native fetch for that URL).
+- `shipglows-parallel` stays the tool for Task research and Monitor;
   `shipglows-search` covers search only.
+- `shipglows-scraping status` shows whether the free local stack runs;
+  `shipglows-scraping up` starts it (`local/scraping/README.md`).
 - Relevance order from any provider is not a Google SERP position.

@@ -2,31 +2,36 @@
 
 Stack Docker locale, écoutant uniquement sur `127.0.0.1`, pour éviter les appels payants à Firecrawl et Parallel.
 
-| Service | URL | Rôle |
-|---------|-----|------|
-| SearXNG | `http://127.0.0.1:8888` | Premier fournisseur de `shipglows-search` (API JSON) |
-| Crawl4AI | `http://127.0.0.1:11235` | Rendu navigateur d'une page en Markdown (`/crawl`, `/md`, playground `/playground`) |
+| Service | URL | Utilisé par |
+|---------|-----|-------------|
+| SearXNG | `http://127.0.0.1:8888` | `shipglows-search` (premier fournisseur) |
+| Crawl4AI | `http://127.0.0.1:11235` | `shipglows-fetch` (premier fournisseur), playground `/playground` |
 
-## Démarrer / arrêter
-
-Crawl4AI exige un token, sinon il n'écoute que dans son conteneur. Il vit dans `local/scraping/.env` (ignoré par Git) ; à créer une fois :
+## Commandes
 
 ```bash
-printf 'CRAWL4AI_API_TOKEN=%s\n' "$(python -c 'import secrets;print(secrets.token_hex(32))')" > local/scraping/.env
+shipglows-scraping up        # installe/démarre : token, conteneurs, attente de disponibilité
+shipglows-scraping status    # Docker, conteneurs, santé des deux services (exit 1 si pas prêt)
+shipglows-scraping logs crawl4ai
+shipglows-scraping down      # arrête et supprime les conteneurs
+
+shipglows-search "requête"                 # SearXNG → Firecrawl → Parallel
+shipglows-fetch https://exemple.com/page   # Crawl4AI → Firecrawl → Parallel, Markdown en JSON
 ```
 
-Les appels passent `Authorization: Bearer <token>`.
+`shipglows-fetch` accepte jusqu'à dix URL, `--full` (page entière au lieu du contenu principal), `--max-chars` (40 000 par défaut, `0` = tout) et `--provider`. Exit 3 : une URL a échoué partout.
 
-```bash
-docker compose -f local/scraping/docker-compose.yml up -d
-docker compose -f local/scraping/docker-compose.yml down
-```
+## Nouvel ordinateur
 
-Les conteneurs ont `restart: unless-stopped` : ils redémarrent avec Docker Desktop.
+1. Installer Docker Desktop (`winget install Docker.DockerDesktop`) et le lancer.
+2. Lancer l'installeur ShipGlows : il crée les commandes et démarre la stack si Docker tourne. Sinon : `shipglows-scraping up`.
 
-## Cascade
+`up` crée une seule fois `local/scraping/.env` (ignoré par Git) avec le token Crawl4AI : sans token, Crawl4AI n'écoute que dans son conteneur. Les conteneurs ont `restart: unless-stopped` et redémarrent avec Docker Desktop.
 
-`shipglows-search` essaie SearXNG, puis Firecrawl, puis Parallel. Un service arrêté, une réponse vide, `--after-date` ou `--location` passent au fournisseur suivant après une seule tentative. `SHIPGLOWS_SEARXNG_URL` change l'adresse ; `off` désactive SearXNG.
+## Réglages
+
+- `SHIPGLOWS_SEARXNG_URL`, `SHIPGLOWS_CRAWL4AI_URL` : autre adresse ; `off` désactive le fournisseur local.
+- Un service arrêté ou une réponse vide passe au fournisseur suivant après une seule tentative. `--after-date` et `--location` sautent SearXNG.
 
 ## Limites
 
