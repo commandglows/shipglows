@@ -1,0 +1,27 @@
+# Self-hosted search and scraping, loopback only.
+# SearXNG backs the first provider of shipglows-search; Crawl4AI renders pages to Markdown.
+# Start: docker compose -f local/scraping/docker-compose.yml up -d
+name: shipglows-scraping
+
+services:
+  searxng:
+    image: searxng/searxng:2026.9.8-3fdc6d753
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8888:8080"
+    environment:
+      SEARXNG_BASE_URL: http://127.0.0.1:8888/
+      SEARXNG_SECRET: ${SEARXNG_SECRET:-shipglows-loopback-only}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+
+  crawl4ai:
+    image: unclecode/crawl4ai:0.9.4
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11235:11235"
+    environment:
+      # Without a token the image binds the container's loopback and the published port stays dead.
+      CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:?set CRAWL4AI_API_TOKEN in local/scraping/.env}
+    shm_size: 1g
+    mem_limit: 3g
