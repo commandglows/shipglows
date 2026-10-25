@@ -4628,9 +4628,9 @@ function Get-SgSessionServicePort([object]$Entry) {
     return $(if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 })
 }
 
-function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8) {
+function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8, [int]$ServicePort = -1) {
     $deadline = (Get-Date).AddSeconds([Math]::Max(0, $TimeoutSeconds))
-    $entryPort = Get-SgSessionServicePort $Entry
+    $entryPort = if ($ServicePort -ge 0) { $ServicePort } else { Get-SgSessionServicePort $Entry }
     do {
         $identityGone = -not (Test-SgProcessIdentity $Entry)
         $serviceGone = $entryPort -le 0 -or (Test-SgPortAvailable $entryPort)
@@ -4649,6 +4649,10 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     $entry = Get-SgSessionView $Entry $Session
     $label = "$($entry.name) [$target]"
     $entryPort = Get-SgSessionServicePort $entry
+    # A port now served by another live target of this surface (e.g. web-server replacing a dead chrome
+    # session) is not this session's service: neither its listener nor its release is checked here.
+    if ($entryPort -gt 0 -and @(Get-SgLiveSessions $Entry | Where-Object { [string]$_.target -ne $target -and [int](Get-SgOptionalValue $_ 'port') -eq $entryPort }).Count -gt 0) { $entryPort = 0 }
+    $stopListener = { if ($entryPort -gt 0) { Stop-SgOwnedFlutterListener $entry } else { $false } }
     $alreadyStopped = $entry.status -eq 'stopped' -and [int]$entry.pid -le 0
     $cleanedFlutterArtifacts=$false
     if($entry.kind -eq 'flutter-web' -and $alreadyStopped){Copy-SgFlutterSessionDiagnostics $entry;try{$cleanedFlutterArtifacts=[bool](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
@@ -4656,7 +4660,7 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     if($entry.kind -eq 'flutter-web' -and $entry.PSObject.Properties['flutterLaunchDirectory'] -and $entry.flutterLaunchDirectory -and (Test-SgProcessIdentity $entry)){try{[void](Invoke-SgFlutterSupervisorCommand $entry 'stop' 8);$stoppedBySupervisor=$true}catch{Write-SgWarn "Flutter supervisor stop fallback: $($_.Exception.Message)"}}
     # A supervisor that did not acknowledge stop (or outlived its registered host) is killed with its whole tree.
     $stoppedFlutterLaunch = if ($stoppedBySupervisor) { $false } else { Stop-SgOwnedFlutterLaunch $entry }
-    $stoppedFlutterListener = Stop-SgOwnedFlutterListener $entry
+    $stoppedFlutterListener = (& $stopListener)
     $stoppedFlutterBrowser = Stop-SgOwnedFlutterBrowser $entry
     $stoppedFlutterNative = Stop-SgOwnedFlutterNative $entry
     $noRuntimeWork = $alreadyStopped -and -not $cleanedFlutterArtifacts -and -not $stoppedBySupervisor -and -not $stoppedFlutterLaunch -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative
@@ -4671,7 +4675,7 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
             # session predates the current runtime). Only verified processes are terminated here; the
             # extinction proof below still refuses to mark the session stopped if anything survives.
             Write-SgWarn "Managed process job is unavailable for $label; falling back to the verified forced stop."
-            if ($entry.kind -eq 'flutter-web') { [void](Stop-SgOwnedFlutterLaunch $entry); [void](Stop-SgOwnedFlutterListener $entry); [void](Stop-SgOwnedFlutterBrowser $entry); [void](Stop-SgOwnedFlutterNative $entry) }
+            if ($entry.kind -eq 'flutter-web') { [void](Stop-SgOwnedFlutterLaunch $entry); [void]((& $stopListener)); [void](Stop-SgOwnedFlutterBrowser $entry); [void](Stop-SgOwnedFlutterNative $entry) }
             if (Test-SgProcessIdentity $entry) { Stop-SgProcessTree ([int]$entry.pid) }
             $stopped = $true
         }
@@ -4681,15 +4685,15 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     } elseif (-not $stoppedBySupervisor -and -not $stoppedFlutterLaunch -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative -and [int]$entry.pid -gt 0) {
         Write-SgWarn "Stale or unverified process for $label; no process was terminated."
     }
-    if (-not (Wait-SgManagedExtinction $entry 8)) {
+    if (-not (Wait-SgManagedExtinction $entry 8 $entryPort)) {
         # An acknowledged stop that still leaves session processes behind gets one forced pass before refusing.
         if ($entry.kind -eq 'flutter-web') {
-            [void](Stop-SgOwnedFlutterLaunch $entry); [void](Stop-SgOwnedFlutterBrowser $entry); [void](Stop-SgOwnedFlutterListener $entry); [void](Stop-SgOwnedFlutterNative $entry)
+            [void](Stop-SgOwnedFlutterLaunch $entry); [void](Stop-SgOwnedFlutterBrowser $entry); [void]((& $stopListener)); [void](Stop-SgOwnedFlutterNative $entry)
             $jobStopped = $entry.PSObject.Properties['jobName'] -and $entry.jobName -and (Stop-SgManagedJob $entry)
             if (-not $jobStopped -and (Test-SgProcessIdentity $entry)) { Stop-SgProcessTree ([int]$entry.pid) }
             $stopped = $true
         }
-        if ($entry.kind -ne 'flutter-web' -or -not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
+        if ($entry.kind -ne 'flutter-web' -or -not (Wait-SgManagedExtinction $entry 8 $entryPort)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
     }
     # A shared-frontend session has no service port of its own, but its phone still reverses the frontend port.
     if ($entry.kind -eq 'tauri' -and $target -eq 'android' -and -not $alreadyStopped) { Stop-SgTauriAndroidLink $entry ([int](Get-SgOptionalValue $entry 'port')) }
