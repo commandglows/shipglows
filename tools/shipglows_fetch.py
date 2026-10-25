@@ -39,24 +39,66 @@ def require_markdown(provider: str, markdown: object) -> str:
     return markdown
 
 
-def fetch_crawl4ai(url: str, args: argparse.Namespace, opener=None) -> dict:
+def crawl4ai_payload(urls: list[str], args: argparse.Namespace) -> dict:
+    params = {
+        "cache_mode": "bypass",
+        "remove_overlay_elements": True,
+        # Leave headroom under the HTTP timeout so a slow page reports its own error.
+        "page_timeout": int(max(args.timeout - 5, 5) * 1000),
+    }
+    if not args.full:
+        params["excluded_tags"] = ["nav", "footer", "header", "aside"]
+        content_filter = ({"type": "BM25ContentFilter", "params": {"user_query": args.query}} if args.query
+                          else {"type": "PruningContentFilter", "params": {}})
+        params["markdown_generator"] = {"type": "DefaultMarkdownGenerator", "params": {"content_filter": content_filter}}
+    return {"urls": urls, "crawler_config": {"type": "CrawlerRunConfig", "params": params}}
+
+
+def crawl4ai_page(item: dict, args: argparse.Namespace, token: str) -> dict:
+    status = item.get("status_code")
+    if item.get("success") is False or (isinstance(status, int) and status >= 400):
+        reason = safe_message(item.get("error_message") or "unknown error", token)
+        raise ProviderError(f"Crawl4AI could not read the page (HTTP {status}): {reason}")
+    markdown = item.get("markdown") if isinstance(item.get("markdown"), dict) else {}
+    raw = markdown.get("raw_markdown")
+    fit = markdown.get("fit_markdown")
+    # A query filter can drop everything on an off-topic page; the whole page beats nothing.
+    text = raw if args.full or not isinstance(fit, str) or not fit.strip() else fit
+    metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+    title = metadata.get("title")
+    return {"title": title if isinstance(title, str) else "", "markdown": require_markdown("Crawl4AI", text)}
+
+
+def crawl4ai_batch(urls: list[str], args: argparse.Namespace, opener=None) -> dict:
+    """Read every URL in one /crawl call; map each URL to a page or the exception to report."""
     if CRAWL4AI_URL.lower().endswith("off"):
-        raise ProviderSkipped("SHIPGLOWS_CRAWL4AI_URL is off")
+        return dict.fromkeys(urls, ProviderSkipped("SHIPGLOWS_CRAWL4AI_URL is off"))
     token = crawl4ai_token()
     if not token:
-        raise ProviderSkipped("no Crawl4AI token; run `shipglows-scraping up`")
+        return dict.fromkeys(urls, ProviderSkipped("no Crawl4AI token; run `shipglows-scraping up`"))
     request = Request(
-        f"{CRAWL4AI_URL}/md",
-        data=json.dumps({"url": url, "f": "raw" if args.full else "fit"}).encode("utf-8"),
+        f"{CRAWL4AI_URL}/crawl",
+        data=json.dumps(crawl4ai_payload(urls, args)).encode("utf-8"),
         headers={"Accept": "application/json", "Content-Type": "application/json", "Authorization": f"Bearer {token}"},
         method="POST",
     )
-    # The local stack is either up or not: one attempt, then the paid providers.
-    data = send_json(request, provider="Crawl4AI", secret=token, timeout=args.timeout, opener=opener, retry=False,
-                     http_error=lambda code, body: f"Crawl4AI HTTP {code}: {safe_message(body[:200].decode('utf-8', 'replace'), token)}")
-    if data.get("success") is False:
-        raise ProviderError(f"Crawl4AI could not read the page: {safe_message(data.get('error', 'unknown error'), token)}")
-    return {"title": "", "markdown": require_markdown("Crawl4AI", data.get("markdown"))}
+    try:
+        # The local stack is either up or not: one attempt, then the paid providers.
+        data = send_json(request, provider="Crawl4AI", secret=token, timeout=args.timeout + 10 * (len(urls) - 1),
+                         opener=opener, retry=False,
+                         http_error=lambda code, body: f"Crawl4AI HTTP {code}: "
+                                                       f"{safe_message(body[:200].decode('utf-8', 'replace'), token)}")
+    except ProviderError as error:
+        return dict.fromkeys(urls, error)
+    items = {item.get("url"): item for item in data.get("results") or [] if isinstance(item, dict)}
+    pages: dict = {}
+    for url in urls:
+        item = items.get(url) or items.get(url.rstrip("/")) or items.get(url + "/")
+        try:
+            pages[url] = crawl4ai_page(item, args, token) if item else ProviderError("Crawl4AI returned no result for this URL.")
+        except ProviderError as error:
+            pages[url] = error
+    return pages
 
 
 def fetch_firecrawl(url: str, args: argparse.Namespace, opener=None) -> dict:
@@ -82,7 +124,7 @@ def fetch_parallel(url: str, args: argparse.Namespace, opener=None) -> dict:
     if not os.environ.get("PARALLEL_API_KEY", "").strip():
         raise ProviderSkipped("PARALLEL_API_KEY is not set")
     try:
-        data = request_extract(argparse.Namespace(url=[url], objective=None, full_content=True, timeout=args.timeout),
+        data = request_extract(argparse.Namespace(url=[url], objective=args.query, full_content=True, timeout=args.timeout),
                                opener=opener)
     except ParallelError as error:
         raise ProviderError(str(error)) from None
@@ -93,14 +135,19 @@ def fetch_parallel(url: str, args: argparse.Namespace, opener=None) -> dict:
     return {"title": item["title"], "markdown": require_markdown("Parallel", item["full_content"] or "\n\n".join(item["excerpts"]))}
 
 
-FETCHERS = {"crawl4ai": fetch_crawl4ai, "firecrawl": fetch_firecrawl, "parallel": fetch_parallel}
+FETCHERS = {"firecrawl": fetch_firecrawl, "parallel": fetch_parallel}
 
 
-def fetch_one(url: str, args: argparse.Namespace, opener=None) -> dict:
+def fetch_one(url: str, args: argparse.Namespace, local: dict, opener=None) -> dict:
     attempts = []
     for provider in (PROVIDERS if args.provider == "auto" else (args.provider,)):
         try:
-            page = FETCHERS[provider](url, args, opener=opener)
+            if provider == "crawl4ai":
+                page = local[url]
+                if isinstance(page, Exception):
+                    raise page
+            else:
+                page = FETCHERS[provider](url, args, opener=opener)
         except ProviderSkipped as reason:
             attempts.append({"provider": provider, "status": "skipped", "reason": str(reason)})
             continue
@@ -124,6 +171,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--provider", choices=("auto", *PROVIDERS), default="auto",
                         help="auto tries Crawl4AI, Firecrawl then Parallel (default); naming one disables fallback")
     parser.add_argument("--full", action="store_true", help="whole page instead of the main content")
+    parser.add_argument("--query", help="keep the passages relevant to this query (Crawl4AI BM25, Parallel objective)")
     parser.add_argument("--max-chars", type=int, default=DEFAULT_MAX_CHARS,
                         help=f"truncate each page's Markdown (default {DEFAULT_MAX_CHARS}; 0 keeps everything)")
     parser.add_argument("--timeout", type=float,
@@ -146,7 +194,9 @@ def main(argv: list[str] | None = None, opener=None) -> int:
     except (ProviderError, argparse.ArgumentTypeError) as error:
         print(f"shipglows-fetch: {error}", file=sys.stderr)
         return 2
-    pages = [fetch_one(url, args, opener=opener) for url in dict.fromkeys(urls)]
+    urls = list(dict.fromkeys(urls))
+    local = crawl4ai_batch(urls, args, opener=opener) if args.provider in ("auto", "crawl4ai") else {}
+    pages = [fetch_one(url, args, local, opener=opener) for url in urls]
     print(json.dumps({"pages": pages}, ensure_ascii=False, indent=2))
     failed = [page for page in pages if page["provider"] is None]
     for page in failed:

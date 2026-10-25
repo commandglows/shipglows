@@ -19,7 +19,9 @@ shipglows-search "requête"                 # SearXNG → Firecrawl → Parallel
 shipglows-fetch https://exemple.com/page   # Crawl4AI → Firecrawl → Parallel, Markdown en JSON
 ```
 
-`shipglows-fetch` accepte jusqu'à dix URL, `--full` (page entière au lieu du contenu principal), `--max-chars` (40 000 par défaut, `0` = tout) et `--provider`. Exit 3 : une URL a échoué partout.
+`shipglows-fetch` accepte jusqu'à dix URL, lues en un seul appel Crawl4AI (`/crawl`). Options : `--query "..."` (ne garde que les passages pertinents, filtre BM25 ; objectif Parallel en secours), `--full` (page entière au lieu du contenu principal), `--max-chars` (40 000 par défaut, `0` = tout), `--provider`. Les bandeaux cookies et la navigation sont retirés ; une page en erreur HTTP ou détectée comme bloquée passe à Firecrawl. Exit 3 : une URL a échoué partout.
+
+Pas de mode furtif ni de contournement anti-bot : les sites protégés passent par l'API Firecrawl.
 
 ## Nouvel ordinateur
 

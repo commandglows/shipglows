@@ -25,6 +25,12 @@ class FakeResponse:
         return self.body[:size]
 
 
+def crawl_result(url, markdown, fit=None, status=200, success=True):
+    return {"results": [{"url": url, "success": success, "status_code": status, "error_message": "blocked",
+                         "metadata": {"title": "Local"},
+                         "markdown": {"raw_markdown": markdown, "fit_markdown": markdown if fit is None else fit}}]}
+
+
 class FetchFallbackTests(unittest.TestCase):
     def setUp(self):
         env = patch.dict(os.environ, {"CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "fc-key",
@@ -53,11 +59,33 @@ class FetchFallbackTests(unittest.TestCase):
         return status, json.loads(out.getvalue()), calls
 
     def test_crawl4ai_serves_first_with_token(self):
-        status, output, calls = self.run_fetch(["https://example.com/"], {"markdown": "# Local"})
+        status, output, calls = self.run_fetch(["https://example.com/"], crawl_result("https://example.com/", "# Local"))
         self.assertEqual(status, 0)
         self.assertEqual(output["pages"][0]["provider"], "crawl4ai")
+        self.assertEqual(output["pages"][0]["title"], "Local")
         self.assertEqual(calls[0].get_header("Authorization"), "Bearer c4-token")
-        self.assertEqual(json.loads(calls[0].data)["f"], "fit")
+        params = json.loads(calls[0].data)["crawler_config"]["params"]
+        self.assertEqual(params["markdown_generator"]["params"]["content_filter"]["type"], "PruningContentFilter")
+
+    def test_query_uses_bm25_and_empty_fit_keeps_whole_page(self):
+        result = crawl_result("https://example.com/", "whole page", fit="")
+        _, output, calls = self.run_fetch(["https://example.com/", "--query", "pricing"], result)
+        content_filter = json.loads(calls[0].data)["crawler_config"]["params"]["markdown_generator"]["params"]["content_filter"]
+        self.assertEqual(content_filter, {"type": "BM25ContentFilter", "params": {"user_query": "pricing"}})
+        self.assertEqual(output["pages"][0]["markdown"], "whole page")
+
+    def test_blocked_or_http_error_page_falls_back(self):
+        result = crawl_result("https://example.com/", "Just a moment", status=403, success=False)
+        _, output, _ = self.run_fetch(["https://example.com/"], result)
+        self.assertEqual(output["pages"][0]["provider"], "firecrawl")
+        self.assertIn("HTTP 403", output["pages"][0]["attempts"][0]["reason"])
+
+    def test_urls_share_one_crawl4ai_call(self):
+        result = {"results": [*crawl_result("https://b.example/", "B")["results"],
+                              *crawl_result("https://a.example/", "A")["results"]]}
+        _, output, calls = self.run_fetch(["https://a.example/", "https://b.example/"], result)
+        self.assertEqual([page["markdown"] for page in output["pages"]], ["A", "B"])
+        self.assertEqual(len(calls), 1)
 
     def test_stopped_stack_falls_back_after_one_attempt(self):
         status, output, calls = self.run_fetch(["https://example.com/"], ConnectionRefusedError("refused"))
@@ -66,11 +94,11 @@ class FetchFallbackTests(unittest.TestCase):
         self.assertEqual(sum("firecrawl" not in call.full_url for call in calls), 1)
 
     def test_empty_page_falls_back(self):
-        _, output, _ = self.run_fetch(["https://example.com/"], {"markdown": "  "})
+        _, output, _ = self.run_fetch(["https://example.com/"], crawl_result("https://example.com/", "  "))
         self.assertEqual(output["pages"][0]["provider"], "firecrawl")
 
     def test_max_chars_truncates(self):
-        _, output, _ = self.run_fetch(["https://example.com/", "--max-chars", "3"], {"markdown": "abcdef"})
+        _, output, _ = self.run_fetch(["https://example.com/", "--max-chars", "3"], crawl_result("https://example.com/", "abcdef"))
         self.assertEqual(output["pages"][0]["markdown"], "abc")
         self.assertTrue(output["pages"][0]["truncated"])
 
