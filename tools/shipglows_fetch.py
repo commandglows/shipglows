@@ -1,28 +1,39 @@
 #!/usr/bin/env python3
-"""Read public pages as Markdown with provider fallback: local Crawl4AI, Firecrawl, then Parallel.
+"""Read public pages as Markdown with provider fallback: plain HTTP, local Crawl4AI, Firecrawl, then Parallel.
 
-Each URL goes through the cascade on its own; a stopped local stack, a missing
-key, exhausted credits, a network error or an empty page moves to the next
-provider. Exit 3 means at least one URL failed every provider: use the agent's
-native fetch for it.
+Plain HTTP reads static HTML without a browser in a fraction of a second; a
+JavaScript app shell, an HTTP error or a non-HTML answer moves the URL to the
+Crawl4AI browser. Each URL goes through the cascade on its own; a stopped
+local stack, a missing key, exhausted credits, a network error or an empty page
+moves to the next provider. Exit 3 means at least one URL failed every
+provider: use the agent's native fetch for it.
 """
 
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import sys
-from urllib.request import Request
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from shipglows_html import filter_by_query, html_to_markdown, looks_like_js_shell  # noqa: E402
 from shipglows_http import ProviderError, resolve_timeout, safe_message, send_json  # noqa: E402
 from shipglows_parallel import ParallelError, normalize_public_url, request_extract  # noqa: E402
 from shipglows_scraping import CRAWL4AI_URL, crawl4ai_token  # noqa: E402
 
 FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape"
-PROVIDERS = ("crawl4ai", "firecrawl", "parallel")
+PROVIDERS = ("http", "crawl4ai", "firecrawl", "parallel")
+HTTP_ENV = "SHIPGLOWS_FETCH_HTTP"
+HTTP_MAX_TIMEOUT = 15.0
+HTTP_MAX_BYTES = 5_000_000
+HTTP_USER_AGENT = "Mozilla/5.0 (compatible; ShipGlows-fetch/1.0)"
+# /crawl returns each page's raw and cleaned HTML next to the Markdown; the loopback service is trusted.
+CRAWL4AI_MAX_BYTES = 64 * 1024 * 1024
 EXIT_ALL_FAILED = 3
 TIMEOUT_ENV = "SHIPGLOWS_FETCH_TIMEOUT"
 DEFAULT_TIMEOUT = 60.0
@@ -37,6 +48,41 @@ def require_markdown(provider: str, markdown: object) -> str:
     if not isinstance(markdown, str) or not markdown.strip():
         raise ProviderError(f"{provider} returned an empty page.")
     return markdown
+
+
+def fetch_http(url: str, args: argparse.Namespace, opener=None) -> dict:
+    if os.environ.get(HTTP_ENV, "").strip().lower() == "off":
+        raise ProviderSkipped(f"{HTTP_ENV} is off")
+    request = Request(url, headers={"User-Agent": HTTP_USER_AGENT, "Accept": "text/html,application/xhtml+xml"})
+    try:
+        with (opener or urlopen)(request, timeout=min(args.timeout, HTTP_MAX_TIMEOUT)) as response:
+            headers = getattr(response, "headers", None)
+            content_type = headers.get("Content-Type", "") if headers is not None else "text/html"
+            if "html" not in content_type.lower():
+                raise ProviderSkipped(f"not an HTML page ({content_type.split(';')[0] or 'unknown type'})")
+            charset = headers.get_content_charset() if headers is not None and hasattr(headers, "get_content_charset") else None
+            html = response.read(HTTP_MAX_BYTES).decode(charset or "utf-8", "replace")
+    except HTTPError as error:
+        raise ProviderError(f"HTTP {error.code}") from None
+    except (URLError, TimeoutError, OSError, LookupError) as error:
+        raise ProviderError(f"network error ({type(error).__name__})") from None
+    title, markdown = html_to_markdown(html, url, full=args.full)
+    if looks_like_js_shell(html, markdown):
+        raise ProviderError("the static HTML is a JavaScript shell; a browser must render it")
+    if args.query and not args.full:
+        markdown = filter_by_query(markdown, args.query)
+    return {"title": title, "markdown": require_markdown("HTTP", markdown)}
+
+
+def fetch_http_all(urls: list[str], args: argparse.Namespace, opener=None) -> dict:
+    """Read every URL over plain HTTP in parallel; map each URL to a page or the exception to report."""
+    def attempt(url):
+        try:
+            return fetch_http(url, args, opener=opener)
+        except (ProviderError, ProviderSkipped) as error:
+            return error
+    with ThreadPoolExecutor(max_workers=min(8, len(urls))) as pool:
+        return dict(zip(urls, pool.map(attempt, urls)))
 
 
 def crawl4ai_payload(urls: list[str], args: argparse.Namespace) -> dict:
@@ -85,7 +131,7 @@ def crawl4ai_batch(urls: list[str], args: argparse.Namespace, opener=None) -> di
     try:
         # The local stack is either up or not: one attempt, then the paid providers.
         data = send_json(request, provider="Crawl4AI", secret=token, timeout=args.timeout + 10 * (len(urls) - 1),
-                         opener=opener, retry=False,
+                         opener=opener, retry=False, max_bytes=CRAWL4AI_MAX_BYTES,
                          http_error=lambda code, body: f"Crawl4AI HTTP {code}: "
                                                        f"{safe_message(body[:200].decode('utf-8', 'replace'), token)}")
     except ProviderError as error:
@@ -139,11 +185,12 @@ FETCHERS = {"firecrawl": fetch_firecrawl, "parallel": fetch_parallel}
 
 
 def fetch_one(url: str, args: argparse.Namespace, local: dict, opener=None) -> dict:
+    """`local` maps each local provider (http, crawl4ai) to its precomputed {url: page or exception}."""
     attempts = []
     for provider in (PROVIDERS if args.provider == "auto" else (args.provider,)):
         try:
-            if provider == "crawl4ai":
-                page = local[url]
+            if provider in local:
+                page = local[provider].get(url, ProviderSkipped("not attempted"))
                 if isinstance(page, Exception):
                     raise page
             else:
@@ -165,13 +212,13 @@ def fetch_one(url: str, args: argparse.Namespace, local: dict, opener=None) -> d
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="shipglows-fetch",
-        description="Read public pages as Markdown through local Crawl4AI, falling back to Firecrawl then Parallel. "
+        description="Read public pages as Markdown: plain HTTP first, then the local Crawl4AI browser, then Firecrawl and Parallel. "
         "Exit 3 means a URL failed every provider: use the agent's native fetch for it.")
     parser.add_argument("url", nargs="+", metavar="URL", help="public http(s) URL; up to ten")
     parser.add_argument("--provider", choices=("auto", *PROVIDERS), default="auto",
-                        help="auto tries Crawl4AI, Firecrawl then Parallel (default); naming one disables fallback")
+                        help="auto tries HTTP, Crawl4AI, Firecrawl then Parallel (default); naming one disables fallback")
     parser.add_argument("--full", action="store_true", help="whole page instead of the main content")
-    parser.add_argument("--query", help="keep the passages relevant to this query (Crawl4AI BM25, Parallel objective)")
+    parser.add_argument("--query", help="keep the passages relevant to this query (term filter over HTTP, Crawl4AI BM25, Parallel objective)")
     parser.add_argument("--max-chars", type=int, default=DEFAULT_MAX_CHARS,
                         help=f"truncate each page's Markdown (default {DEFAULT_MAX_CHARS}; 0 keeps everything)")
     parser.add_argument("--timeout", type=float,
@@ -195,7 +242,13 @@ def main(argv: list[str] | None = None, opener=None) -> int:
         print(f"shipglows-fetch: {error}", file=sys.stderr)
         return 2
     urls = list(dict.fromkeys(urls))
-    local = crawl4ai_batch(urls, args, opener=opener) if args.provider in ("auto", "crawl4ai") else {}
+    local: dict = {}
+    if args.provider in ("auto", "http"):
+        local["http"] = fetch_http_all(urls, args, opener=opener)
+    if args.provider in ("auto", "crawl4ai"):
+        # Only the pages plain HTTP could not read pay for a browser.
+        pending = [url for url in urls if isinstance(local.get("http", {}).get(url, ProviderError("")), Exception)]
+        local["crawl4ai"] = crawl4ai_batch(pending, args, opener=opener) if pending else {}
     pages = [fetch_one(url, args, local, opener=opener) for url in urls]
     print(json.dumps({"pages": pages}, ensure_ascii=False, indent=2))
     failed = [page for page in pages if page["provider"] is None]

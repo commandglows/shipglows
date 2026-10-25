@@ -5,9 +5,11 @@ import json
 import os
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from email.message import Message
 from unittest.mock import patch
 
 import tools.shipglows_fetch as fetch  # noqa: E402  (adds tools/ to sys.path)
+import shipglows_html  # noqa: E402
 import shipglows_http  # noqa: E402
 
 
@@ -34,7 +36,7 @@ def crawl_result(url, markdown, fit=None, status=200, success=True):
 class FetchFallbackTests(unittest.TestCase):
     def setUp(self):
         env = patch.dict(os.environ, {"CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "fc-key",
-                                      "PARALLEL_API_KEY": ""})
+                                      "PARALLEL_API_KEY": "", fetch.HTTP_ENV: "off"})
         env.start()
         self.addCleanup(env.stop)
         os.environ.pop(fetch.TIMEOUT_ENV, None)
@@ -107,6 +109,96 @@ class FetchFallbackTests(unittest.TestCase):
             status, output, _ = self.run_fetch(["https://example.com/"], ConnectionRefusedError("refused"))
         self.assertEqual(status, fetch.EXIT_ALL_FAILED)
         self.assertIsNone(output["pages"][0]["provider"])
+
+
+ARTICLE = "<p>" + "Notes app pricing starts at nine euros per month for teams. " * 12 + "</p>"
+STATIC_PAGE = f"""<html><head><title>Notes</title><script>x()</script></head><body>
+<nav><a href="/menu">Menu</a></nav><main><h1>Pricing</h1>{ARTICLE}<p><a href="/plans">Plans</a></p></main>
+<footer>Legal</footer></body></html>"""
+SHELL_PAGE = "<html><head>" + "<script src='a.js'></script>" * 5 + "</head><body><div id='root'></div></body></html>"
+
+
+class HtmlResponse:
+    def __init__(self, html, content_type="text/html; charset=utf-8"):
+        self.body = html.encode("utf-8")
+        self.headers = Message()
+        self.headers["Content-Type"] = content_type
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return None
+
+    def read(self, size=-1):
+        return self.body[:size]
+
+
+class HttpFirstTests(unittest.TestCase):
+    def setUp(self):
+        env = patch.dict(os.environ, {"CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "", "PARALLEL_API_KEY": ""})
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop(fetch.HTTP_ENV, None)
+        os.environ.pop(fetch.TIMEOUT_ENV, None)
+
+    def run_fetch(self, argv, page):
+        calls = []
+
+        def opener(request, timeout):
+            calls.append(request.full_url)
+            if request.full_url.endswith("/crawl"):
+                return FakeResponse(crawl_result("https://app.example/", "# Rendered by the browser"))
+            return page
+
+        out = io.StringIO()
+        with redirect_stdout(out), redirect_stderr(io.StringIO()):
+            status = fetch.main(argv, opener=opener)
+        return status, json.loads(out.getvalue()), calls
+
+    def test_static_page_skips_the_browser(self):
+        status, output, calls = self.run_fetch(["https://app.example/"], HtmlResponse(STATIC_PAGE))
+        page = output["pages"][0]
+        self.assertEqual((status, page["provider"], page["title"]), (0, "http", "Notes"))
+        self.assertIn("# Pricing", page["markdown"])
+        self.assertIn("[Plans](https://app.example/plans)", page["markdown"])
+        self.assertNotIn("Menu", page["markdown"])
+        self.assertFalse(any(url.endswith("/crawl") for url in calls))
+
+    def test_javascript_shell_goes_to_the_browser(self):
+        _, output, calls = self.run_fetch(["https://app.example/"], HtmlResponse(SHELL_PAGE))
+        page = output["pages"][0]
+        self.assertEqual(page["provider"], "crawl4ai")
+        self.assertIn("JavaScript shell", page["attempts"][0]["reason"])
+        self.assertTrue(calls[-1].endswith("/crawl"))
+
+    def test_non_html_answer_goes_to_the_browser(self):
+        _, output, _ = self.run_fetch(["https://app.example/"], HtmlResponse("%PDF", "application/pdf"))
+        self.assertEqual(output["pages"][0]["attempts"][0]["status"], "skipped")
+        self.assertEqual(output["pages"][0]["provider"], "crawl4ai")
+
+
+class HtmlConversionTests(unittest.TestCase):
+    def test_short_static_page_is_not_a_shell(self):
+        html = "<html><body><h1>Example</h1><p>This domain is for documentation examples only.</p></body></html>"
+        _, markdown = shipglows_html.html_to_markdown(html, "https://example.com/")
+        self.assertFalse(shipglows_html.looks_like_js_shell(html, markdown))
+
+    def test_query_keeps_matching_blocks_with_their_heading(self):
+        markdown = "# Intro
+
+Welcome.
+
+## Tarifs
+
+Le prix démarre à 9 €.
+
+## Équipe
+
+Nous sommes dix."
+        self.assertEqual(shipglows_html.filter_by_query(markdown, "prix"), "## Tarifs
+
+Le prix démarre à 9 €.")
 
 
 if __name__ == "__main__":

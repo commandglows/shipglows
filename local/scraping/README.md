@@ -16,10 +16,10 @@ shipglows-scraping logs crawl4ai
 shipglows-scraping down      # arrête et supprime les conteneurs
 
 shipglows-search "requête"                 # SearXNG → Firecrawl → Parallel
-shipglows-fetch https://exemple.com/page   # Crawl4AI → Firecrawl → Parallel, Markdown en JSON
+shipglows-fetch https://exemple.com/page   # HTTP simple → Crawl4AI → Firecrawl → Parallel, Markdown en JSON
 ```
 
-`shipglows-fetch` accepte jusqu'à dix URL, lues en un seul appel Crawl4AI (`/crawl`). Options : `--query "..."` (ne garde que les passages pertinents, filtre BM25 ; objectif Parallel en secours), `--full` (page entière au lieu du contenu principal), `--max-chars` (40 000 par défaut, `0` = tout), `--provider`. Les bandeaux cookies et la navigation sont retirés ; une page en erreur HTTP ou détectée comme bloquée passe à Firecrawl. Exit 3 : une URL a échoué partout.
+`shipglows-fetch` lit d'abord chaque page en HTTP simple, sans navigateur (≈ 0,3 s par page, en parallèle), et convertit le HTML en Markdown. Seules les pages vides sans JavaScript, en erreur HTTP ou non-HTML passent au navigateur Crawl4AI, en un seul appel `/crawl`. Mesuré sur 6 sites : 6 s au lieu de 13 s, et ≈ 1 s au lieu de 4 à 6 s pour une page statique seule. Jusqu'à dix URL par appel. Options : `--query "..."` (ne garde que les passages pertinents, filtre BM25 ; objectif Parallel en secours), `--full` (page entière au lieu du contenu principal), `--max-chars` (40 000 par défaut, `0` = tout), `--provider`. Les bandeaux cookies et la navigation sont retirés ; une page en erreur HTTP ou détectée comme bloquée passe à Firecrawl. Exit 3 : une URL a échoué partout.
 
 Pas de mode furtif ni de contournement anti-bot : les sites protégés passent par l'API Firecrawl.
 
@@ -33,6 +33,7 @@ Pas de mode furtif ni de contournement anti-bot : les sites protégés passent p
 ## Réglages
 
 - `SHIPGLOWS_SEARXNG_URL`, `SHIPGLOWS_CRAWL4AI_URL` : autre adresse ; `off` désactive le fournisseur local.
+- `SHIPGLOWS_FETCH_HTTP=off` : désactive la lecture HTTP simple (tout passe par le navigateur).
 - Un service arrêté ou une réponse vide passe au fournisseur suivant après une seule tentative. `--after-date` et `--location` sautent SearXNG.
 
 ## Limites
