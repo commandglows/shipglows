@@ -138,7 +138,10 @@ identity, `startedAtUtc`, `stoppedAtUtc`, `lastEvent` and per-launch logs under
 `logs\<surface>\<target>\<launch>\`. The surface-level fields mirror the primary
 session for older readers; only a `primary` session moves the surface's durable
 port. Starting a target never replaces another: without an explicit target, start
-reuses the live one. Two Tauri targets compete for the `devUrl` frontend port, so
+reuses the live one; a Flutter surface with no live session and no
+`SHIPGLOWS_FLUTTER_DEVICE` in `.shipglows.env` restarts its most recently used
+target (a `web-server` session that ended in error comes back as `web-server`, not
+as the built-in `windows`/`chrome` default). Two Tauri targets compete for the `devUrl` frontend port, so
 the second requires `-Frontend shared` (a generated session config drops
 `beforeDevCommand`), `-Frontend own` (its own port through `PORT` and an
 overridden `devUrl`) or `-Replace`. Stopping a frontend owner stops the targets

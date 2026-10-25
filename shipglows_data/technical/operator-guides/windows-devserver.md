@@ -534,8 +534,13 @@ n'ouvre ni ne recommande l'alias `localhost` pour cette session.
 Un petit superviseur persistant conserve le canal machine Flutter après la fin
 de la commande CLI. Les modifications `*.dart` sous `lib/` sont regroupées sur
 une fenêtre calme de 500 ms puis déclenchent `app.restart` en mode hot reload.
-Le canal local n'accepte que reload, stop et open, avec l'identité secrète du
+`s reload -ProjectPath <chemin> -Full` envoie à la place un hot restart
+(`fullRestart: true`, quelques secondes) : l'état repart de `main()`, ce qui prend
+en compte une table de routes ou un initialiseur modifié sans relancer la session.
+Le canal local n'accepte que reload, restart, stop et open, avec l'identité secrète du
 lancement, une taille et des délais bornés ; il n'exécute aucune commande libre.
+Une session lancée avant une mise à jour garde l'ancien superviseur : relancez-la
+une fois avec `s restart` pour obtenir `-Full`.
 
 Chaque lancement Chrome reçoit un profil ShipGlows unique. Stop et Restart ne
 recherchent un éventuel navigateur orphelin qu'avec le chemin exact de ce profil
@@ -543,8 +548,17 @@ et ne terminent jamais Chrome par son seul nom. Si le superviseur ne répond pas
 à l'ordre stop, Stop et Restart terminent tous les processus dont la ligne de
 commande cite le dossier de lancement privé de la session (superviseur, outil
 Flutter, profil Chrome) ; la session n'est marquée `stopped` qu'une fois tous ces
-processus disparus. Une erreur inattendue de `s` affiche son message et sa pile
-d'appels. Pour Windows desktop, le registre
+processus disparus. Si le job de processus de la session a déjà disparu (le
+superviseur qui a accepté l'arrêt ferme son job pendant que le port se libère,
+ou la session date d'un runtime antérieur), Stop et Restart ne refusent plus
+(« refusing an unverified stop ») : ils terminent seulement les processus vérifiés
+de la session et exigent toujours la preuve d'extinction. Sans `-FlutterDevice`,
+`s start` reprend la session vivante, sinon la dernière cible utilisée (si
+`.shipglows.env` ne fixe pas `SHIPGLOWS_FLUTTER_DEVICE`), plutôt que la cible par
+défaut. Le `pubspec.lock` du projet que `flutter pub get` réécrit après une
+modification d'un paquet `path:` est enregistré comme résultat de l'installation,
+et non plus signalé « Dependency inputs changed during setup ». Une erreur
+inattendue de `s` affiche son message et sa pile d'appels. Pour Windows desktop, le registre
 exige aussi l'état `running` du superviseur ; Stop et les échecs de démarrage ne
 terminent que le runner Debug exact déclaré par le projet. Une défaillance
 transitoire du lecteur de journaux ou de la connexion Debug reçoit au plus un

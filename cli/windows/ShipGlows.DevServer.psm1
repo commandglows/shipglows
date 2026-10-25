@@ -1073,16 +1073,29 @@ function Get-SgLiveSessions([object]$Entry) {
     return @(Get-SgEntrySessions $Entry | Where-Object { Test-SgSessionLive $Entry $_ })
 }
 
+# The session a start without an explicit target reuses: the live one, else (Flutter only, when
+# .shipglows.env declares no device) the most recently used target, so a session that ended in
+# error comes back on its own device instead of the built-in default.
+function Select-SgReusableSession([object]$Entry, [object]$Settings) {
+    if (-not $Entry) { return $null }
+    $live = Select-SgPrimarySession @(Get-SgLiveSessions $Entry)
+    if ($live -or [string]$Entry.kind -ne 'flutter-web' -or ($Settings -and (Get-SgOptionalValue $Settings 'FlutterDeviceDeclared'))) { return $live }
+    $best = $null; $bestRecency = [long]0
+    foreach ($session in @(Get-SgEntrySessions $Entry)) { $recency = Get-SgSessionRecency $session; if ($recency -gt $bestRecency) { $best = $session; $bestRecency = $recency } }
+    return $best
+}
+
 # The target a start request addresses: the explicit device, else the live target it reuses, else the default.
 function Resolve-SgStartTarget([object]$Config, [string]$ProjectPath, [string]$FlutterDevice = '', [string]$TauriDevice = '') {
     if ($TauriDevice) { return $TauriDevice }
     if ($FlutterDevice) { return $FlutterDevice }
     $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $ProjectPath }) | Select-Object -First 1
-    $live = if ($entry) { Select-SgPrimarySession @(Get-SgLiveSessions $entry) } else { $null }
-    if ($live) { return [string]$live.target }
     try {
+        $settings = Get-SgRuntimeSettings $ProjectPath
+        $reused = Select-SgReusableSession $entry $settings
+        if ($reused) { return [string]$reused.target }
         $kind = if ($entry) { [string]$entry.kind } else { Get-SgProjectKind $ProjectPath }
-        return Get-SgDefaultSessionTarget $kind (Get-SgRuntimeSettings $ProjectPath)
+        return Get-SgDefaultSessionTarget $kind $settings
     } catch { return 'default' }
 }
 
@@ -1246,7 +1259,7 @@ function Get-SgProjectLogKey([object]$Entry) {
 
 function Get-SgRuntimeSettings([string]$ProjectPath) {
     $defaultFlutterDevice = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container) { 'windows' } else { 'chrome' }
-    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; FlutterMode = 'debug'; TauriDevice = 'windows'; TauriDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy'; ReadyTimeoutSeconds = 0 }
+    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceDeclared = $false; FlutterDeviceId = $null; FlutterMode = 'debug'; TauriDevice = 'windows'; TauriDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy'; ReadyTimeoutSeconds = 0 }
     $file = Join-Path $ProjectPath '.shipglows.env'
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $settings }
     foreach ($rawLine in @(Get-Content -LiteralPath $file)) {
@@ -1263,7 +1276,7 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
         } elseif ($line -match '^SHIPGLOWS_AUTO_REPAIR=(true|false)$') {
             $settings.AutoRepair = $Matches[1] -eq 'true'
         } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE=(windows|android|chrome|web-server)$') {
-            $settings.FlutterDevice = $Matches[1]
+            $settings.FlutterDevice = $Matches[1]; $settings.FlutterDeviceDeclared = $true
         } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE_ID=([A-Za-z0-9._:-]{1,128})$') {
             $settings.FlutterDeviceId = $Matches[1]
         } elseif ($line -match '^SHIPGLOWS_FLUTTER_MODE=(debug|profile)$') {
@@ -2651,6 +2664,19 @@ function Get-SgDependencyKindLabel([string]$Kind, [string]$FlutterDevice) {
     return 'Flutter'
 }
 
+# Inputs the setup command itself may legitimately rewrite. Locked installs (pnpm --frozen-lockfile,
+# npm ci, uv sync --locked) write none; flutter pub get re-resolves the project's own pubspec.lock.
+function Get-SgDependencySetupOutputLabels([string]$Kind) {
+    if ($Kind -in @('astro','vite','browser-extension','tauri','python')) { return @() }
+    return @('pubspec.lock')
+}
+
+function Select-SgDependencyInputHashes([Collections.IDictionary]$InputHashes, [string[]]$ExcludedLabels) {
+    $selected = [ordered]@{}
+    foreach ($label in @($InputHashes.Keys)) { if ($label -notin $ExcludedLabels) { $selected[$label] = $InputHashes[$label] } }
+    return $selected
+}
+
 function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath, [string]$Label = '') {
     if (-not $Label) { $Label = $Kind }
     $statePath = Get-SgDependencyStatePath $Config $ProjectPath
@@ -2710,7 +2736,10 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
         $completedPlan = New-SgDependencyPlan $ProjectPath $Kind
         $completedInputHashes = Get-SgDependencyInputHashes $ProjectPath $Kind
         $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan $completedInputHashes
-        if ($completedDigest -cne $digest) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
+        # pub get rewrites the project's pubspec.lock whenever a path package changed; that output is
+        # recorded, not treated as a concurrent edit. Every other input must be unchanged.
+        $setupOutputs = @(Get-SgDependencySetupOutputLabels $Kind)
+        if ((Get-SgDependencyDigest $ProjectPath $Kind $completedPlan (Select-SgDependencyInputHashes $completedInputHashes $setupOutputs)) -cne (Get-SgDependencyDigest $ProjectPath $Kind $plan (Select-SgDependencyInputHashes $inputHashes $setupOutputs))) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
         Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind $completedInputHashes
         return $true
     } finally { if ($logWriter) { $logWriter.Dispose() }; if ($lock) { $lock.Dispose() } }
@@ -4196,11 +4225,11 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if (($Frontend -or $Replace) -and $kind -ne 'tauri') { throw 'The -Frontend and -Replace choices apply to Tauri targets; the targets of other projects run side by side.' }
     if ($Frontend -and $Replace) { throw 'Choose either -Frontend or -Replace, not both.' }
 
-    # Each target is its own session. Without an explicit target, start reuses the live one instead of
-    # replacing it; an explicit target starts beside the others.
+    # Each target is its own session. Without an explicit target, start reuses the live one (or, for
+    # Flutter, the last used one) instead of replacing it; an explicit target starts beside the others.
     $target = Get-SgDefaultSessionTarget $kind $settings
     if (-not ($TauriDevice -or $FlutterDevice)) {
-        $reused = Select-SgPrimarySession @(Get-SgLiveSessions $entry)
+        $reused = Select-SgReusableSession $entry $settings
         if ($reused) {
             $target = [string]$reused.target
             if ($kind -eq 'tauri') { $settings.TauriDevice = $target; $settings.TauriDeviceId = Get-SgOptionalValue $reused 'tauriDeviceId' }
