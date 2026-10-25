@@ -2310,7 +2310,7 @@ configure_command_wrappers() {
         echo -e "  ${GREEN}✅ Commande recherche web (SearXNG local → Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-search"
     fi
     if [ -x "$bin_dir/shipglows-fetch" ]; then
-        echo -e "  ${GREEN}✅ Lecture de pages (Crawl4AI local → Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-fetch (stack : shipglows-scraping up)"
+        echo -e "  ${GREEN}✅ Lecture de pages (HTTP → Crawl4AI local → Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-fetch (stack : shipglows-scraping up)"
     fi
     if [ -x "$bin_dir/shipglows-readwise" ]; then
         echo -e "  ${GREEN}✅ Commande Readwise / Reader disponible :${NC} shipglows readwise · shipglows-readwise"

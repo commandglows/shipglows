@@ -15,7 +15,10 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - tools/shipglows_search.py
+  - tools/shipglows_fetch.py
+  - tools/shipglows_scraping.py
   - cli/shipglows-search.sh
+  - local/scraping/README.md
   - cli/windows/ShipGlows.AgentInstructions.psm1
   - AGENT.md
 depends_on: []
