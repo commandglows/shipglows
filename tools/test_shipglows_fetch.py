@@ -104,6 +104,21 @@ class FetchFallbackTests(unittest.TestCase):
         self.assertEqual(output["pages"][0]["markdown"], "abc")
         self.assertTrue(output["pages"][0]["truncated"])
 
+    def test_firecrawl_rate_limit_moves_on_without_retry_in_auto_mode(self):
+        from urllib.error import HTTPError
+        calls = []
+
+        def opener(request, timeout):
+            calls.append(request.full_url)
+            if "firecrawl" in request.full_url:
+                raise HTTPError(request.full_url, 429, "rate", {}, io.BytesIO(b"{}"))
+            raise ConnectionRefusedError("refused")
+
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            status = fetch.main(["https://example.com/"], opener=opener)
+        self.assertEqual(status, fetch.EXIT_ALL_FAILED)
+        self.assertEqual(sum("firecrawl" in url for url in calls), 1)
+
     def test_every_provider_failing_exits_3(self):
         with patch.dict(os.environ, {"FIRECRAWL_API_KEY": ""}):
             status, output, _ = self.run_fetch(["https://example.com/"], ConnectionRefusedError("refused"))

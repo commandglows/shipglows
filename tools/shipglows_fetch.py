@@ -22,7 +22,14 @@ from urllib.request import Request, urlopen
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from shipglows_html import filter_by_query, html_to_markdown, looks_like_js_shell  # noqa: E402
-from shipglows_http import ProviderError, resolve_timeout, safe_message, send_json  # noqa: E402
+from shipglows_http import (  # noqa: E402
+    GATEWAY_HTTP_CODES,
+    RETRYABLE_HTTP_CODES,
+    ProviderError,
+    resolve_timeout,
+    safe_message,
+    send_json,
+)
 from shipglows_parallel import ParallelError, normalize_public_url, request_extract  # noqa: E402
 from shipglows_scraping import CRAWL4AI_URL, crawl4ai_token  # noqa: E402
 
@@ -157,7 +164,11 @@ def fetch_firecrawl(url: str, args: argparse.Namespace, opener=None) -> dict:
         headers={"Accept": "application/json", "Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
         method="POST",
     )
+    # With a fallback provider waiting, credits (402) and rate limits (429) move on at once;
+    # only gateway errors and network failures are worth retrying here.
+    retry_codes = GATEWAY_HTTP_CODES if args.provider == "auto" else RETRYABLE_HTTP_CODES
     data = send_json(request, provider="Firecrawl", secret=api_key, timeout=args.timeout, opener=opener,
+                     retry_codes=retry_codes,
                      http_error=lambda code, _body: {402: "Firecrawl HTTP 402: credits exhausted",
                                                      429: "Firecrawl HTTP 429: rate limited"}.get(code, f"Firecrawl HTTP {code}"))
     page = data.get("data") if isinstance(data.get("data"), dict) else {}
