@@ -4646,12 +4646,14 @@ function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8, [int
 function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [string]$Reason = 'stopped') {
     $path = [string]$Entry.path
     $target = [string]$Session.target
+    # PowerShell names are case-insensitive: $entry below replaces the $Entry parameter, so keep the surface.
+    $surface = $Entry
     $entry = Get-SgSessionView $Entry $Session
     $label = "$($entry.name) [$target]"
     $entryPort = Get-SgSessionServicePort $entry
     # A port now served by another live target of this surface (e.g. web-server replacing a dead chrome
     # session) is not this session's service: neither its listener nor its release is checked here.
-    if ($entryPort -gt 0 -and @(Get-SgLiveSessions $Entry | Where-Object { [string]$_.target -ne $target -and [int](Get-SgOptionalValue $_ 'port') -eq $entryPort }).Count -gt 0) { $entryPort = 0 }
+    if ($entryPort -gt 0 -and @(Get-SgLiveSessions $surface | Where-Object { [string]$_.target -ne $target -and [int](Get-SgOptionalValue $_ 'port') -eq $entryPort }).Count -gt 0) { $entryPort = 0 }
     $stopListener = { if ($entryPort -gt 0) { Stop-SgOwnedFlutterListener $entry } else { $false } }
     $alreadyStopped = $entry.status -eq 'stopped' -and [int]$entry.pid -le 0
     $cleanedFlutterArtifacts=$false
