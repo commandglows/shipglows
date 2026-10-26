@@ -11,4 +11,9 @@ while [ -L "$SCRIPT_SOURCE" ]; do
     esac
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+source "$SCRIPT_DIR/python-runtime.sh"
+if ! shipglows_python3_ready; then
+    shipglows_python3_diagnose "shipglows readwise"
+    exit 2
+fi
 exec python3 "$SCRIPT_DIR/shipglows_readwise.py" "$@"
