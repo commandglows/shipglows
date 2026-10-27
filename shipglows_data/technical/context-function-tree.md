@@ -141,7 +141,8 @@ shipglows-devserver.ps1
      -> Get-SgWorkspaceProjectCandidates (memory/persistent cache)
         -> Find-SgWorkspaceProjectCandidates (single bounded linear scan)
         -> Write-SgProjectIndex (validated atomic replacement)
-     -> Reconcile-SgRegistry (live-state authority)
+     -> Reconcile-SgRegistry (live-state authority; probes run in an unlocked dry pass, the locked pass reuses them)
+     -> Invoke-SgRegistryMutation (registry.lock held only to read/merge/write; holder recorded in registry.lock.owner.json)
      -> registry/process lifecycle functions
 ```
 

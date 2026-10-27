@@ -124,20 +124,43 @@ function Write-SgRegistry([object]$Config, [object]$Registry, [string]$Json = ''
     }
 }
 
+# The lock holder records itself next to registry.lock, so a waiter that times out names it.
+function Get-SgRegistryLockOwnerPath([object]$Config) { return "$($Config.LockPath).owner.json" }
+
+function Get-SgRegistryLockBusyMessage([object]$Config, [int]$TimeoutSeconds) {
+    $prefix = "Registry lock $($Config.LockPath) stayed busy for $TimeoutSeconds s"
+    $owner = $null
+    try { $owner = [IO.File]::ReadAllText((Get-SgRegistryLockOwnerPath $Config)) | ConvertFrom-Json -ErrorAction Stop } catch { $owner = $null }
+    if (-not $owner -or -not $owner.PSObject.Properties['pid']) { return "$prefix; its holder did not record itself (older ShipGlows CLI or external process)." }
+    $detail = "pid $([int]$owner.pid), $([string]$owner.operation), command: $([string]$owner.command), since $([string]$owner.acquiredAtUtc)"
+    if (-not (Get-Process -Id ([int]$owner.pid) -ErrorAction SilentlyContinue)) { return "$prefix; the last recorded holder has exited ($detail)." }
+    return "$prefix; held by $detail."
+}
+
 function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation, [switch]$SkipProjection) {
     # Reconciliation (-SkipProjection) migrates, adopts and projects each surface itself in one pass.
+    # The lock covers only read, merge and write: slow probes and waits run before it is taken.
     Ensure-SgDirectory $Config.RuntimeDirectory
     $lock = $null
+    $ownerPath = Get-SgRegistryLockOwnerPath $Config
     try {
-        $deadline = (Get-Date).AddSeconds(15)
+        $timeoutSeconds = if ($Config.PSObject.Properties['LockTimeoutSeconds'] -and [int]$Config.LockTimeoutSeconds -gt 0) { [int]$Config.LockTimeoutSeconds } else { 15 }
+        $deadline = (Get-Date).AddSeconds($timeoutSeconds)
         do {
             try {
                 $lock = [IO.File]::Open($Config.LockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
             } catch [IO.IOException] {
-                if ((Get-Date) -ge $deadline) { throw }
+                if ((Get-Date) -ge $deadline) { throw (Get-SgRegistryLockBusyMessage $Config $timeoutSeconds) }
                 Start-Sleep -Milliseconds 25
             }
         } while (-not $lock)
+        try {
+            $caller = @(Get-PSCallStack | Select-Object -Skip 1 | Where-Object { $_.Command -and $_.Command -notlike '<*' } | Select-Object -First 1)
+            $command = Protect-SgDiagnosticText ((@([Environment]::GetCommandLineArgs()) -join ' '))
+            if ($command.Length -gt 300) { $command = $command.Substring(0, 300) + '...' }
+            $owner = [pscustomobject]@{ pid=$PID; operation=$(if ($caller.Count) { [string]$caller[0].Command } else { 'Invoke-SgRegistryMutation' }); command=$command; acquiredAtUtc=[DateTime]::UtcNow.ToString('o') }
+            [IO.File]::WriteAllText($ownerPath, ($owner | ConvertTo-Json -Compress), [Text.UTF8Encoding]::new($false))
+        } catch { }
         $registry = Read-SgRegistry $Config -SkipMigration:$SkipProjection
         & $Mutation $registry
         # Reconciliation projects each surface itself as it goes.
@@ -149,7 +172,10 @@ function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation, [swi
         if ($null -eq $current -or $current.TrimEnd() -cne $json.TrimEnd()) { Write-SgRegistry $Config $registry $json }
         return $registry
     } finally {
-        if ($lock) { $lock.Dispose() }
+        if ($lock) {
+            try { [IO.File]::Delete($ownerPath) } catch { }
+            $lock.Dispose()
+        }
     }
 }
 
@@ -3536,16 +3562,39 @@ function Test-SgTcpPortListening([int]$Port) {
     try { foreach ($endpoint in [Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners()) { if ($endpoint.Port -eq $Port) { return $true } }; return $false } catch { return $true }
 }
 
+# Reconciliation probes (process scans, ports, HTTP) run once in an unlocked dry pass; the locked pass
+# reuses every result whose inputs did not change, so registry.lock is never held across a probe.
+$script:SgReconcileProbeCache = $null
+function Invoke-SgReconcileProbe([string]$Key, [scriptblock]$Probe) {
+    $cache = $script:SgReconcileProbeCache
+    if ($null -eq $cache) { return & $Probe }
+    if (-not $cache.ContainsKey($Key)) { $cache[$Key] = @(& $Probe) }
+    return $cache[$Key]
+}
+
 function Reconcile-SgRegistry([object]$Config) {
-    return Invoke-SgRegistryMutation $Config -SkipProjection -Mutation {
+    $previousCache = $script:SgReconcileProbeCache
+    $script:SgReconcileProbeCache = @{}
+    try {
+        # Best effort: a failed dry pass only leaves its probes to the locked pass.
+        try { & $script:SgReconcileMutation (Read-SgRegistry $Config -SkipMigration) | Out-Null } catch { }
+        return Invoke-SgRegistryMutation $Config -SkipProjection -Mutation $script:SgReconcileMutation
+    } finally {
+        $script:SgReconcileProbeCache = $previousCache
+    }
+}
+
+$script:SgReconcileMutation = {
         param($registry)
         # A status read never migrates a pre-target surface: it is reconciled in place as its own single
         # session and migrates with its next lifecycle change. Migrated surfaces adopt older-CLI writes here.
         foreach ($project in @($registry.projects)) { if ($project.PSObject.Properties['sessions']) { ConvertTo-SgSessionEntry $project } }
         $allSessions = @(foreach ($project in @($registry.projects)) { if ($project.PSObject.Properties['sessions']) { @($project.sessions) } else { $project } })
         $signaturePids = @($allSessions | Where-Object { $_.PSObject.Properties['commandSignature'] -and $_.commandSignature } | ForEach-Object { [int]$_.pid })
-        $processSnapshots = Get-SgProcessSnapshotMap @($allSessions | ForEach-Object { [int]$_.pid }) -CommandLinePids $signaturePids
-        $listeningPorts = Get-SgListeningTcpPortSet
+        $sessionPids = @($allSessions | ForEach-Object { [int]$_.pid })
+        $processSnapshots = Invoke-SgReconcileProbe "snapshot|$(@($sessionPids | Sort-Object) -join ',')|$(@($signaturePids | Sort-Object) -join ',')" { Get-SgProcessSnapshotMap $sessionPids -CommandLinePids $signaturePids }
+        if ($null -eq $processSnapshots) { $processSnapshots = @{} }
+        $listeningPorts = Invoke-SgReconcileProbe 'ports' { Get-SgListeningTcpPortSet }
         $byIdentity = @{}
         $normalized = New-Object 'System.Collections.Generic.List[object]'
         $reconciledInPlace = @{}
@@ -3575,6 +3624,8 @@ function Reconcile-SgRegistry([object]$Config) {
                 # (no per-session view on every status call); several targets get one view each.
                 $entry = if ($surfaceSessions.Count -eq 1) { $surface } else { Get-SgSessionView $surface $session }
                 if ($surfaceSessions.Count -eq 1 -and -not $legacySurface) { $reconciledInPlace[$identity] = $true }
+                # Flutter ownership probes are reused only for an unchanged session record.
+                $probeKey = if ($entry.kind -eq 'flutter-web') { $entry | ConvertTo-Json -Compress -Depth 10 } else { '' }
                 $wasActive = $entry.status -in @('reserved','starting','running')
                 $sessionLive = Test-SgProcessIdentity $entry $processSnapshots
                 $freshReservation = $false
@@ -3587,14 +3638,14 @@ function Reconcile-SgRegistry([object]$Config) {
                 }
                 if ($sessionLive) {
                     $live = $true; $liveSessions += $session
-                    if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Get-SgOwnedFlutterNativePids $entry).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(($null -eq $listeningPorts -or $listeningPorts.ContainsKey([int]$entry.port)) -and (Test-SgHttpReady ([int]$entry.port))){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif(Test-SgStartupGraceActive $entry){$entry.status='starting';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $(if($entry.PSObject.Properties['frontendMode']-and[string]$entry.frontendMode-eq'shared'){"The shared frontend of the $([string]$entry.frontendOwner) target on :$([int]$entry.port) is not responding."}else{'Managed process is alive, but its local service port is not responding.'}) -Force}}else{$entry.status = 'running'}
+                    if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Invoke-SgReconcileProbe "native-running|$([string]$flutterState.appId)|$probeKey" {Get-SgOwnedFlutterNativePids $entry}).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(($null -eq $listeningPorts -or $listeningPorts.ContainsKey([int]$entry.port)) -and (Invoke-SgReconcileProbe "http|$([int]$entry.port)" {Test-SgHttpReady ([int]$entry.port)})){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif(Test-SgStartupGraceActive $entry){$entry.status='starting';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $(if($entry.PSObject.Properties['frontendMode']-and[string]$entry.frontendMode-eq'shared'){"The shared frontend of the $([string]$entry.frontendOwner) target on :$([int]$entry.port) is not responding."}else{'Managed process is alive, but its local service port is not responding.'}) -Force}}else{$entry.status = 'running'}
                     # A live launch that is still starting owns its reservation until Start-SgProjectCore commits it.
                     if ($entry.status -ne 'starting') {
                         if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
                         if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
                     }
                 } elseif (-not $freshReservation) {
-                    $flutterResidual=$entry.kind-eq'flutter-web'-and(@(Get-SgOwnedFlutterNativePids $entry).Count-gt0-or@(Get-SgOwnedFlutterListenerPids $entry).Count-gt0-or@(Get-SgOwnedFlutterBrowserPids $entry).Count-gt0)
+                    $flutterResidual=$entry.kind-eq'flutter-web'-and(@(Invoke-SgReconcileProbe "native|$probeKey" {Get-SgOwnedFlutterNativePids $entry}).Count-gt0-or@(Invoke-SgReconcileProbe "listener|$probeKey" {Get-SgOwnedFlutterListenerPids $entry}).Count-gt0-or@(Invoke-SgReconcileProbe "browser|$probeKey" {Get-SgOwnedFlutterBrowserPids $entry}).Count-gt0)
                     if($flutterResidual){$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Owned Flutter process remains after supervisor exit.' -Force}elseif($entry.status-ne'error'){$entry.status = 'stopped'}
                     if($entry.kind-eq'flutter-web'){$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$entry.status) -Force}
                     if(-not$flutterResidual){$entry.pid=0;$entry|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $null -Force}
@@ -3656,7 +3707,6 @@ function Reconcile-SgRegistry([object]$Config) {
             if (-not $item.PSObject.Properties['sessions'] -or $reconciledInPlace.ContainsKey((Get-SgRunnableIdentity $item))) { continue }
             Update-SgSurfaceProjection $item
         }
-    }
 }
 
 function Get-SgProjectEnvironmentPath([string]$ProjectPath) {
@@ -4522,7 +4572,13 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         if($kind-eq'flutter-web'){$entryData.flutterStartupState='running';Set-SgFlutterDebugEndpoints $entryData (Get-SgFlutterSupervisorState $entryData)}
         $entryData.flutterAppId = $readiness.AppId
         if($readiness.PSObject.Properties['DaemonPid']){$entryData.flutterDaemonPid=[int]$readiness.DaemonPid}
-        Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData
+        # The application already runs: a busy registry delays its record, never fails the start.
+        try { Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData }
+        catch {
+            Write-SgWarn "$($entry.name) is running, but its registry update failed: $($_.Exception.Message) Retrying once."
+            try { Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData }
+            catch { Write-SgWarn "Registry update still pending: $($_.Exception.Message) The next 's status' reconciles the running session." }
+        }
         try { Start-SgManagedProcessExitMonitor $Config $entry.path ([int]$snapshot.Pid) ([string]$snapshot.StartTimeUtc) } catch { Write-SgWarn "Process exit monitoring could not start: $($_.Exception.Message)" }
         # The Desktop shortcut relaunches the desktop target, so phone sessions never get one.
         if (-not $tauriAndroid) { try { [void](Install-SgDevShortcut $entryData) } catch { Write-SgWarn "Dev shortcut skipped: $($_.Exception.Message)" } }
