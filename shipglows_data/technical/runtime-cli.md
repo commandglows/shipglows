@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.46.0"
+artifact_version: "1.47.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-24"
+updated: "2026-10-28"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -676,6 +676,17 @@ skill edits are already visible through valid junctions. Invalid state and local
 directory collisions fail closed. Neither command reloads an existing agent's
 context. The launcher must itself be deployed before these routes are available
 through an older installed command.
+
+`registry.lock` serializes registry read/merge/write only; slow reconciliation
+probes run before it is taken. The holder records its pid, operation and command
+in `registry.lock.owner.json`, and a waiter that times out after 15 s names it.
+`s doctor [-Json]` classifies every managed PowerShell process against the
+registry: each running session owns a job supervisor (plus a Flutter supervisor
+for Flutter) and a detached WMI-created exit watcher that records an unrequested
+exit. Only a supervisor no running session owns, or a watcher whose process has
+already exited, is an orphan; it is stopped with its tree only after an interactive
+confirmation. `s unlock` names the lock holder and stops it only after
+confirmation. Both list without stopping anything in a non-interactive console.
 
 Windows exposes a separate global developer-tool surface through
 `shipglows tools status|update` and `s tools status|update`. Status is read-only:

@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.30.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-10-19"
+updated: "2026-10-28"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -440,7 +440,9 @@ names are explicit workspace-relative launch paths, and navigation selects by
 canonical launch identity rather than by a potentially ambiguous label.
 
 Port selection and reservation share one inter-process registry lock, preventing
-concurrent starts from assigning the same port to different surfaces. Existing
+concurrent starts from assigning the same port to different surfaces. `s doctor`
+lists managed processes and the lock holder and stops orphans after confirmation;
+`s unlock` releases a stuck lock the same way. Existing
 single-surface registry entries are migrated by runnable path while preserving
 verified live process metadata. Flutter runs through a small persistent
 machine-protocol supervisor with managed logs. Iterative development uses the

@@ -157,6 +157,8 @@ function Show-SgShortcutHelp {
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
     Write-Host '  s a      Manage CLI authentication with official interactive flows'
+    Write-Host '  s doctor [-Json]  List managed PowerShell processes and the registry lock; offer to stop orphans after confirmation'
+    Write-Host '  s unlock          Name the registry lock holder and stop it after confirmation'
     Write-Host '  s capabilities    Print the closed CLI capability snapshot as JSON'
     Write-Host '  s private-data ...              Manage the explicit private-data connection and capability'
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
@@ -263,7 +265,7 @@ function Resolve-SgTargetView([object]$Entry) {
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','doctor','unlock','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -766,6 +768,70 @@ function Get-SgDeveloperToolWingetDefinitions {
     )
 }
 
+function Write-SgRegistryLockState([object]$Lock) {
+    if (-not $Lock.Busy) {
+        Write-SgInfo "Registry lock is free ($($Lock.Path))."
+        if ($Lock.OwnerPid) { Write-SgWarn "A stale holder record remains (pid $($Lock.OwnerPid), $($Lock.OwnerOperation)); the next lock owner replaces it." }
+    } elseif ($Lock.OwnerPid) {
+        $state = if ($Lock.OwnerAlive) { 'alive' } else { 'exited' }
+        Write-SgWarn "Registry lock is held by pid $($Lock.OwnerPid) ($state), $($Lock.OwnerOperation), since $($Lock.OwnerSince)"
+        Write-Host "    $($Lock.OwnerCommand)" -ForegroundColor DarkGray
+    } else {
+        Write-SgWarn 'Registry lock is held by a process that did not record itself (older ShipGlows CLI or external process).'
+    }
+}
+
+function Confirm-SgProcessStop([object[]]$Rows, [string]$Prompt) {
+    if (-not [Environment]::UserInteractive -or [Console]::IsInputRedirected) {
+        Write-SgWarn 'Nothing was stopped: stopping processes requires an interactive console for explicit confirmation.'
+        return $false
+    }
+    $choice = Read-Host "$Prompt [y/N]"
+    if ($choice.Trim().ToLowerInvariant() -notin @('y','yes','o','oui')) { Write-SgInfo 'Cancelled; nothing was stopped.'; return $false }
+    foreach ($row in @($Rows)) { Stop-SgProcessTree ([int]$row.Pid); Write-SgInfo "Stopped pid $($row.Pid) ($($row.Role)) and its child processes." }
+    return $true
+}
+
+function Format-SgRuntimeProcessRow([object]$Row) {
+    $holder = if ($Row.LockHolder) { ' [holds registry lock]' } else { '' }
+    return '{0,6}  {1,-18} {2,-9} {3:yyyy-MM-dd HH:mm}  {4}{5}' -f $Row.Pid, $Row.Role, $Row.State, $Row.StartedAt, $Row.Detail, $holder
+}
+
+# s doctor lists every managed PowerShell process and offers to stop only the orphans.
+function Invoke-SgDoctor {
+    $report = Get-SgRuntimeProcessReport $config
+    if ($Json) { $report | ConvertTo-Json -Depth 4; return }
+    Write-SgRegistryLockState $report.Lock
+    Write-Host ''
+    Write-Host 'Managed PowerShell processes' -ForegroundColor Cyan
+    if (-not $report.Processes.Count) { Write-Host '  none' }
+    foreach ($row in $report.Processes) { Write-Host (Format-SgRuntimeProcessRow $row) -ForegroundColor $(if ($row.State -eq 'orphan') { 'Yellow' } else { 'Gray' }) }
+    $orphans = @($report.Processes | Where-Object State -eq 'orphan')
+    Write-Host ''
+    if (-not $orphans.Count) { Write-SgInfo 'No orphan ShipGlows process. Each running session normally owns a supervisor and an exit watcher.'; return }
+    [void](Confirm-SgProcessStop $orphans "Stop $($orphans.Count) orphan process(es) and their children?")
+}
+
+# s unlock names the registry lock holder and stops it only after confirmation.
+function Invoke-SgUnlock {
+    $report = Get-SgRuntimeProcessReport $config
+    Write-SgRegistryLockState $report.Lock
+    if (-not $report.Lock.Busy) { return }
+    $holder = @($report.Processes | Where-Object LockHolder)
+    if (-not $holder.Count) {
+        if ($report.Lock.OwnerPid -and $report.Lock.OwnerAlive) { Write-SgWarn "pid $($report.Lock.OwnerPid) is not a managed ShipGlows process; stop it yourself if it is safe." }
+        else { Write-SgWarn "The holder is unknown. Run 's doctor' to list orphan ShipGlows processes." }
+        return
+    }
+    $row = $holder[0]
+    Write-Host (Format-SgRuntimeProcessRow $row)
+    if ($row.Role -in @('supervisor','flutter-supervisor') -and $row.State -eq 'healthy') { Write-SgWarn "Stopping it also stops the running session $($row.Detail)." }
+    if (Confirm-SgProcessStop @($row) "Stop pid $($row.Pid) to release the registry lock?") {
+        Start-Sleep -Milliseconds 300
+        Write-SgRegistryLockState (Get-SgRegistryLockState $config)
+    }
+}
+
 function Show-SgDeveloperToolsStatus {
     Write-Host 'ShipGlows developer-tool update status (read-only)' -ForegroundColor Cyan
     Write-Host 'Managed scope:' -ForegroundColor DarkGray
@@ -1159,6 +1225,8 @@ try {
         'select-logs' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }
+        'doctor' { Invoke-SgDoctor }
+        'unlock' { Invoke-SgUnlock }
         'capabilities' { Read-SgCliCapabilitySnapshot $config | ConvertTo-Json -Depth 5 -Compress }
         'update' { Invoke-SgUpdate }
         'update-status' { Show-SgUpdateStatus }

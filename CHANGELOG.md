@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.16.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-10-24"
+updated: "2026-10-28"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-10-28: the changelog records the registry lock holder diagnostics and the s doctor / s unlock commands."
   - "2026-10-24: the changelog records Flutter VM service, DevTools and live-log reporting in s status."
   - "The 2026-08-30 changelog records the separate native Windows developer-tool status and update surfaces, with public publication held for installed-host proof."
   - "The 2026-08-30 changelog records global managed-repository closure changelog classification and the shared Context History runtime."
@@ -32,6 +33,8 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ## [Unreleased]
 
+- `s start` no longer fails with the raw .NET sharing violation on `registry.lock` when another `s` command is busy: reconciliation probes run outside the lock, the holder records its pid, operation and command in `registry.lock.owner.json`, and a waiter that still times out after 15 s names that holder and points to `s unlock`.
+- Added `s doctor [-Json]` and `s unlock`. `s doctor` lists every managed PowerShell process with its role (job supervisor, Flutter supervisor, exit watcher, `s` command) and the session that owns it, plus the registry lock state, and offers to stop only orphans (a supervisor no running session owns, a watcher whose process already exited) after an interactive confirmation. `s unlock` names the lock holder and stops it only after confirmation, warning when that would stop a running session. Each running session normally owns two such processes (its supervisor and a detached exit watcher), so twenty processes for ten sessions are expected, not leaked.
 - Added `s reload -ProjectPath <path> -Full`: a Flutter hot restart (`app.restart` with `fullRestart: true`) through the same authenticated supervisor IPC and identity checks as `s reload`, so route tables and other initializers are rebuilt from `main()` in a few seconds instead of a full `s restart`. Combines with `-FlutterDevice`; profile sessions still refuse it.
 - `s restart` and `s stop` no longer refuse with "Managed process job is unavailable… refusing an unverified stop" when a session's process job is already gone (a Flutter supervisor that acknowledged stop while its port drains, or a session from an older runtime): they terminate only verified owned processes and still require the extinction proof before marking the session stopped. `s restart` no longer reports a configuration change it did not detect.
 - `s stop` of a dead Flutter target no longer fails with "Could not prove process and service extinction" when another live target of the same project now serves its port (a `web-server` session replacing an errored `chrome` one): that port is neither waited on nor searched for listeners to stop.

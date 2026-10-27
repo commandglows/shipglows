@@ -134,7 +134,24 @@ function Get-SgRegistryLockBusyMessage([object]$Config, [int]$TimeoutSeconds) {
     if (-not $owner -or -not $owner.PSObject.Properties['pid']) { return "$prefix; its holder did not record itself (older ShipGlows CLI or external process)." }
     $detail = "pid $([int]$owner.pid), $([string]$owner.operation), command: $([string]$owner.command), since $([string]$owner.acquiredAtUtc)"
     if (-not (Get-Process -Id ([int]$owner.pid) -ErrorAction SilentlyContinue)) { return "$prefix; the last recorded holder has exited ($detail)." }
-    return "$prefix; held by $detail."
+    return "$prefix; held by $detail. Run 's unlock' to inspect and release it."
+}
+
+# A non-blocking probe: the lock is taken and released at once, so it never delays a real holder.
+function Get-SgRegistryLockState([object]$Config) {
+    $busy = $false
+    try { $probe = [IO.File]::Open($Config.LockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None); $probe.Dispose() }
+    catch [IO.IOException] { $busy = $true }
+    $owner = $null
+    try { $owner = [IO.File]::ReadAllText((Get-SgRegistryLockOwnerPath $Config)) | ConvertFrom-Json -ErrorAction Stop } catch { $owner = $null }
+    $ownerPid = if ($owner -and $owner.PSObject.Properties['pid']) { [int]$owner.pid } else { 0 }
+    return [pscustomobject]@{
+        Path = $Config.LockPath; Busy = $busy; OwnerPid = $ownerPid
+        OwnerAlive = ($ownerPid -gt 0 -and [bool](Get-Process -Id $ownerPid -ErrorAction SilentlyContinue))
+        OwnerOperation = $(if ($ownerPid) { [string]$owner.operation } else { $null })
+        OwnerCommand = $(if ($ownerPid) { [string]$owner.command } else { $null })
+        OwnerSince = $(if ($ownerPid) { [string]$owner.acquiredAtUtc } else { $null })
+    }
 }
 
 function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation, [switch]$SkipProjection) {
@@ -3120,6 +3137,54 @@ function Start-SgManagedProcessExitMonitor([object]$Config, [string]$ProjectPath
     if (-not $creation -or [int]$creation.ReturnValue -ne 0 -or [int]$creation.ProcessId -le 0) { throw 'Managed process exit monitor could not be created.' }
 }
 
+# Every managed PowerShell process, classified against the registry for s doctor and s unlock.
+# Each running session normally owns two: its job supervisor and the exit watcher above, which
+# is detached (WMI-created) by design. Only a process that matches no live owner is an orphan.
+function Get-SgRuntimeProcessReport([object]$Config) {
+    $hostRoot = [IO.Path]::GetDirectoryName((Resolve-SgPowerShellExecutable))
+    $all = @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,ExecutablePath,CommandLine,CreationDate -ErrorAction SilentlyContinue)
+    $alive = @{}; foreach ($process in $all) { $alive[[int]$process.ProcessId] = $process }
+    $owned = @{}
+    foreach ($project in @((Read-SgRegistry $Config).projects)) {
+        foreach ($session in @(Get-SgEntrySessions $project)) {
+            if ([int]$session.pid -gt 0 -and [string]$session.status -in @('starting','running')) { $owned[[int]$session.pid] = "$($project.name) ($($session.target))" }
+        }
+    }
+    # The calling s command and its launchers are never reported.
+    $self = @{}; $cursor = $PID
+    while ($cursor -gt 0 -and $alive.ContainsKey($cursor) -and -not $self.ContainsKey($cursor)) { $self[$cursor] = $true; $cursor = [int]$alive[$cursor].ParentProcessId }
+    $lock = Get-SgRegistryLockState $Config
+    $rows = foreach ($process in $all) {
+        $id = [int]$process.ProcessId
+        $path = [string]$process.ExecutablePath
+        if ($self.ContainsKey($id) -or -not $path -or -not $path.StartsWith($hostRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { continue }
+        $command = [string]$process.CommandLine
+        $script = $command
+        $encoded = [regex]::Match($command, '-EncodedCommand\s+(\S+)')
+        if ($encoded.Success) { try { $script = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($encoded.Groups[1].Value)) } catch { } }
+        $role = 'other'; $state = 'active'; $detail = ''
+        $watched = [regex]::Match($script, 'Wait-Process -Id (\d+)')
+        if ($script -match 'Complete-SgManagedProcessExit' -and $watched.Success) {
+            $role = 'exit-watcher'; $target = [int]$watched.Groups[1].Value
+            if ($alive.ContainsKey($target)) { $state = 'healthy'; $detail = "waits for pid $target$(if ($owned.ContainsKey($target)) { " = $($owned[$target])" })" }
+            else { $state = 'orphan'; $detail = "its pid $target already exited" }
+        } elseif ($script -match 'ShipGlowsJobNative') {
+            $role = 'supervisor'
+            if ($owned.ContainsKey($id)) { $state = 'healthy'; $detail = $owned[$id] } else { $state = 'orphan'; $detail = 'no running registry session owns it' }
+        } elseif ($command -match 'ShipGlows\.FlutterSupervisor\.ps1') {
+            $role = 'flutter-supervisor'; $parent = [int]$process.ParentProcessId
+            if ($owned.ContainsKey($parent)) { $state = 'healthy'; $detail = $owned[$parent] } else { $state = 'orphan'; $detail = 'its managed supervisor is gone' }
+        } elseif ($command -match 'shipglows-devserver\.ps1') {
+            $role = 'cli'; $detail = 's command'
+        }
+        $started = if ($process.CreationDate) { [DateTime]$process.CreationDate } else { Get-Date }
+        # A start registers its supervisor a moment after creating it.
+        if ($state -eq 'orphan' -and ((Get-Date) - $started).TotalSeconds -lt 60) { $state = 'starting' }
+        [pscustomobject]@{ Pid = $id; Role = $role; State = $state; StartedAt = $started; Detail = $detail; LockHolder = ($lock.Busy -and $lock.OwnerPid -eq $id) }
+    }
+    return [pscustomobject]@{ Lock = $lock; Processes = @($rows | Sort-Object StartedAt) }
+}
+
 # A live web process launched by Start-SgProjectCore stays 'starting' while that start
 # still owns its readiness wait (bounded by Wait-SgProjectReady's 1800 s cap), so a
 # concurrent status read does not report a slow dev-server boot as an error.
@@ -4948,5 +5013,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

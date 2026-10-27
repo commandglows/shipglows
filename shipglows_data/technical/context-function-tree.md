@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.9.0"
+artifact_version: "0.10.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-27"
+updated: "2026-10-28"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -143,6 +143,7 @@ shipglows-devserver.ps1
         -> Write-SgProjectIndex (validated atomic replacement)
      -> Reconcile-SgRegistry (live-state authority; probes run in an unlocked dry pass, the locked pass reuses them)
      -> Invoke-SgRegistryMutation (registry.lock held only to read/merge/write; holder recorded in registry.lock.owner.json)
+     -> Get-SgRuntimeProcessReport / Get-SgRegistryLockState (s doctor, s unlock: classify managed pwsh processes, stop orphans after confirmation)
      -> registry/process lifecycle functions
 ```
 
