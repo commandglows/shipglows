@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-09-05"
+updated: "2026-10-27"
 status: active
 source_skill: 601-sg-product-entitlements
 scope: identity-consent-access
@@ -18,7 +18,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Approved Core plan: central identity, consent, access and email agent training, September 5, 2026."
-next_review: "2026-10-05"
+next_review: "2026-11-27"
 next_step: Revalidate project configuration and current official provider behavior before integration.
 ---
 
@@ -38,11 +38,11 @@ identity, backend, commercial and email contracts before implementation.
 | Marketing consent | Business + audience/purpose + address scope with evidence | Purchase, account creation, another brand's consent |
 | Delivery | Eligible outbox job, transport result and authenticated events | A template preview or a configured API key |
 
-Convex is the chosen central data owner where the project declares the
-CommandGlows service. Postmark is its selected transport. Auth0 is an identity
-adapter where explicitly selected. Do not convert these bindings into defaults
-for unrelated projects. Reuse a declared central service; do not copy its ledger
-into each product. Keep standalone models explicit.
+The central CommandGlows service is the default email path for every portfolio
+product (operator decision, 2026-10-27; see `postmark-first-platform-standard.md`).
+Its Convex owns contacts, consent ledger, suppressions and queue; Postmark is
+transport only. Products call it server-side and hold no provider token. Reuse it;
+do not copy its ledger. Auth0 stays an identity adapter only where explicitly selected.
 
 ## Identity and anonymous contacts
 

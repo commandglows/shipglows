@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-07"
-updated: "2026-08-07"
+updated: "2026-10-27"
 status: active
 source_skill: 202-sg-emailing
 scope: resend-agent-integration
@@ -28,6 +28,8 @@ next_step: "/103-sg-verify Resend agent integration"
 ---
 
 # Resend Agent Integration Playbook
+
+> **Legacy scope (2026-10-27).** Resend is no longer the default provider. Use this playbook only for inventory, migration or parity work on an existing Resend flow, under `postmark-first-platform-standard.md`. Do not connect Resend for a new integration.
 
 ## Purpose
 

@@ -5,25 +5,48 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "202-sg-emailing" / "SKILL.md"
 ALIAS = ROOT / "skills" / "emailing" / "SKILL.md"
-STANDARD = (
-    ROOT
-    / "skills"
-    / "202-sg-emailing"
-    / "references"
-    / "resend-first-platform-standard.md"
-)
+REFERENCES = ROOT / "skills" / "202-sg-emailing" / "references"
+STANDARD = REFERENCES / "postmark-first-platform-standard.md"
+# Superseded Resend-first standard, kept as history only.
+HISTORY = REFERENCES / "resend-first-platform-standard.md"
 
 
 class EmailingContractTests(unittest.TestCase):
     def test_provider_standard_is_discoverable_from_the_owner(self) -> None:
         skill = SKILL.read_text(encoding="utf-8")
-        self.assertIn("resend-first-platform-standard.md", skill)
+        self.assertIn("postmark-first-platform-standard.md", skill)
         self.assertIn("selecting or changing the email platform", skill)
+        self.assertNotIn("resend-first-platform-standard.md", skill)
         alias = ALIAS.read_text(encoding="utf-8")
-        self.assertIn("resend-first-platform-standard.md", alias)
+        self.assertIn("postmark-first-platform-standard.md", alias)
+        self.assertNotIn("resend-first-platform-standard.md", alias)
 
-    def test_standard_preserves_default_exceptions_and_consent_boundary(self) -> None:
+    def test_standard_routes_product_email_through_central_postmark(self) -> None:
         standard = STANDARD.read_text(encoding="utf-8")
+        for required in (
+            "CommandGlows",
+            "Postmark",
+            "Convex",
+            "Clerk",
+            "transactional",
+            "broadcast",
+            "purchase",
+            "explicit marketing consent",
+            "provider dashboard",
+            "Resend",
+            "resend-first-platform-standard.md",
+        ):
+            self.assertIn(required, standard)
+
+    def test_standard_forbids_provider_tokens_and_raw_html_in_apps(self) -> None:
+        standard = STANDARD.read_text(encoding="utf-8")
+        self.assertIn("Apps never hold a Postmark or Resend token", standard)
+        self.assertIn("Apps send blocks, never raw HTML", standard)
+
+    def test_superseded_resend_standard_is_kept_as_history(self) -> None:
+        history = HISTORY.read_text(encoding="utf-8")
+        self.assertIn("status: superseded", history)
+        self.assertIn("postmark-first-platform-standard.md", history)
         for required in (
             "Resend",
             "Beehiiv",
@@ -37,15 +60,9 @@ class EmailingContractTests(unittest.TestCase):
             "explicit marketing consent",
             "United States",
             "project and environment",
+            "provider projection",
         ):
-            self.assertIn(required, standard)
-
-    def test_standard_keeps_provider_state_as_a_projection(self) -> None:
-        standard = STANDARD.read_text(encoding="utf-8")
-        self.assertIn("provider projection", standard)
-        self.assertIn("Transactional", standard)
-        self.assertIn("Marketing", standard)
-        self.assertIn("Freshness", standard)
+            self.assertIn(required, history)
 
 
 if __name__ == "__main__":

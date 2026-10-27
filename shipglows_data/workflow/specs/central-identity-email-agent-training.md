@@ -1,10 +1,10 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-09-05"
+updated: "2026-10-27"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: central-identity-email-agent-training
@@ -20,6 +20,7 @@ supersedes: []
 evidence:
   - "Operator approved the four-part Core training plan on September 5, 2026."
   - "Read-only audit found Resend-only provider guidance, Auth0 selection guidance, and separate entitlement doctrine."
+  - "Operator decision 2026-10-27: Postmark-first portfolio standard; central CommandGlows service is the default."
 next_step: Use the integrated references for future product adaptations; real provider activation remains project-owned.
 ---
 
@@ -122,6 +123,14 @@ dirty work or rewrite global identity/commercial policies to match one pilot.
 | --- | --- | --- | --- |
 | 2026-09-05 | shipglows core | Audit and approved plan translated to scenario-first scope | Ready; implementation and review pending |
 | 2026-09-05 | shipglows core | Independent review, scoped proof, runtime checks and exact-scope delivery | PR 152 merged; local main aligned; temporary artifacts removed |
+| 2026-10-27 | shipglows core | Operator decision: Postmark-first portfolio standard, central CommandGlows service as default, Resend legacy | Doctrine updated in this lot (see Decision History) |
+
+## Decision History
+
+- **2026-10-27 (operator decision, Diane).** Postmark becomes the portfolio-wide email transport. All product email goes through the central CommandGlows email service (Convex owns contacts, consent ledger, suppressions and queue). Apps hold no provider token. Resend is legacy and moves flow by flow.
+- Superseded: `skills/202-sg-emailing/references/resend-first-platform-standard.md`, replaced by `postmark-first-platform-standard.md`. Routing by email type, Clerk auth emails, and planned shared packages are defined there.
+- Updated: `identity-consent-access-contract.md` (central service is the default for every product), `email-work-routing.md` (Resend playbook only for legacy migration), and the 202 owner skill and its alias.
+- Unchanged: the rules above on purchase, marketing consent, scoped withdrawal, and proof limits. The 2026-09-05 scenarios still hold. This decision adds no provider credentials, DNS, sends or migration authority.
 
 ## Current Chantier Flow
 

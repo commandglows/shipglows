@@ -30,12 +30,12 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 - `skills/references/source-intake-classification.md`
 - `skills/references/email-sequence-storage.md` when a sequence should be retained in a project repository
 - `skills/references/email-work-routing.md` when the task crosses writing, template, delivery, provider, agent, test, or release layers
-- `skills/202-sg-emailing/references/resend-first-platform-standard.md` when selecting or changing the email platform for a new integration; resolve current project/provider truth before assuming a migration.
+- `skills/202-sg-emailing/references/postmark-first-platform-standard.md` when selecting or changing the email platform or routing product email; resolve current project/provider truth before assuming a migration.
 - `references/accessible-email-writing-playbook.md` before drafting or auditing email content
 - `references/accessible-email-technical-playbook.md` when work touches templates, markup, provider setup, rendering, or technical QA
 - `references/email-deliverability-and-authentication-playbook.md` when work touches sending domains, SPF, DKIM, DMARC, reputation, compliance, suppression, or delivery operations
-- `references/resend-agent-integration-playbook.md` before an agent connects to or operates Resend through a plugin, MCP, CLI, or API
 - `references/postmark-agent-integration-playbook.md` for Postmark setup, adapters, streams, callbacks, migration or sends
+- `references/resend-agent-integration-playbook.md` only for legacy Resend inventory or migration work
 - `references/newsletter-components-playbook.md` for signup, confirmation, preferences, server proxies or operator preview/approval
 - `skills/references/identity-consent-access-contract.md` for central email integration or consent/identity/product-access boundaries; plain copywriting does not activate it
 
@@ -61,6 +61,7 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 - Use the editorial content map when a sequence is actually a public content, landing-page, FAQ, or repurposing request.
 - When using a source email as inspiration, extract structure, angle, proof pattern, CTA, and sequence role; do not copy distinctive phrasing or unsupported claims.
 - Surface opt-out, consent, and compliance consequences when relevant.
+- Route product email through the central CommandGlows service (Postmark transport); apps hold no provider token, and marketing needs explicit consent.
 - Treat accessibility as a drafting constraint: preserve language, direction, semantic structure, descriptive links, image alternatives, contrast, and a usable non-visual reading order through the writing playbook.
 - Do not claim an email accessible from automated checks alone; technical email work must use the technical playbook's transformed-markup, manual, client-matrix, and fallback verification.
 - Require explicit bounded authorization before an agent sends or schedules mail, mutates recipients or suppressions, changes domains/DNS/webhooks, or rotates credentials.
