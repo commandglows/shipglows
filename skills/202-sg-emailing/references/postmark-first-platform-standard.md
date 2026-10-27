@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-10-27"
-updated: "2026-10-27"
+updated: "2026-10-28"
 status: active
 source_skill: 202-sg-emailing
 scope: postmark-first-email-platform-standard
@@ -21,6 +21,8 @@ linked_systems:
   - skills/202-sg-emailing/references/postmark-agent-integration-playbook.md
   - skills/202-sg-emailing/references/resend-agent-integration-playbook.md
   - CommandGlows central email service (commandglows repo)
+  - shipglows-astro-engine/src/email (@shipglows/astro-engine 0.5.0)
+  - shipglows-email-engine/packages/email_mailbox_client
 depends_on: []
 supersedes:
   - skills/202-sg-emailing/references/resend-first-platform-standard.md
@@ -53,17 +55,31 @@ Defines the default email provider and the routing of every product email for Sh
 - Apps send structured content (paragraphs today; content blocks where the endpoint accepts them), never raw HTML; the central service alone renders email HTML.
 - Provider dashboards are projections. They are never the consent authority.
 
+## Central Capabilities
+
+The central service exposes these capabilities. Their contracts and operator procedures live in CommandGlows and are not duplicated here:
+
+- Service messages: `POST /api/v1/email/messages/service` (`service_message` permission), app-composed notices on the transactional stream, with no marketing content.
+- Public signup for portfolio sites: `POST /api/v1/email/public/subscriptions`, no credential, double opt-in, uniform `202`.
+- Registered sequences: `POST /api/v1/email/sequences/steps` (`sequence_send`). The operator registers timing; callers supply content only.
+- Contact import with provenance: `POST /api/v1/email/imports` (`contact_import`), run with `pnpm email:import`.
+- Campaign bridge for apps: `/api/bridge/email-campaigns/firebase/*`. Drafts only; approval stays with a human operator (`campaign_approve`).
+- Rich text blocks: restricted Markdown (`rich_text`), never HTML.
+- Pre-deploy check: `pnpm email:config-check`.
+
+Sources: `commandglows/shipglows_data/technical/central-email-api-contract.md` and `central-email-operations.md`; OpenAPI at `commandglows/commandglows_site/public/contracts/central-email-v1.openapi.json`.
+
 ## Routing By Email Type
 
 | Email type | Emitter | Path |
 | --- | --- | --- |
 | Authentication (OTP, magic link, verification, password reset) | Identity provider declared by the product | That provider's native auth emails, per the product's declared provider (see `skills/references/identity-provider-selection.md`). The central service and apps never reimplement them. |
-| Transactional and operational (receipts, access, alerts, service notices) | Each app's backend | `POST /api/v1/email/messages/transactional` on the business's transactional stream. Fixed service template; trusted service only. |
-| Product updates | ShipGlows App | Central campaigns on the product's business, under its declared marketing purpose; explicit marketing consent only. One marketing purpose per business Broadcast stream (see `central-email-operations.md`). |
-| Content newsletters | ContentGlows | ContentGlows writes the content; central campaigns deliver it on the broadcast stream. |
-| Website signups (newsletter, waitlist) | Product site via a server-side relay (Astro route or Vercel function) or the central public subscribe endpoint when available | `POST /api/v1/email/subscriptions` with double opt-in, through a shared Astro package (planned). |
+| Transactional and operational (receipts, access, alerts, service notices) | Each app's backend | Fixed notice: `POST /api/v1/email/messages/transactional` on the business's transactional stream, trusted service only. App-composed service content: `POST /api/v1/email/messages/service` (transactional stream, class `service`). |
+| Product updates | ShipGlows App | Central campaigns on the product's business, under its declared marketing purpose; explicit marketing consent only. Drafts go through the campaign bridge; approval stays with a human operator. One marketing purpose per business Broadcast stream (see `central-email-operations.md`). |
+| Content newsletters | ContentGlows | ContentGlows writes the content; central campaigns deliver it on the broadcast stream. The lab's `central` newsletter provider is available; its default stays `postmark` until the operator switches `NEWSLETTER_DELIVERY_PROVIDER`. |
+| Website signups (newsletter, waitlist) | Product site calls the central public subscribe endpoint, directly or through `@shipglows/astro-engine` `./email` | `POST /api/v1/email/public/subscriptions` with double opt-in; pending until confirmation. |
 
-Route names come from `central-email-operations.md`. The v1 OpenAPI currently publishes the campaigns, operations and templates resources. Verify each route against the contract before integration.
+Route names come from `central-email-operations.md`. The v1 OpenAPI publishes the campaigns, imports, operations, public subscriptions, sequences, service messages and templates resources. Verify each route against `central-email-api-contract.md` before integration.
 
 ## Stream Separation
 
@@ -107,12 +123,9 @@ The product's declared identity provider sends its own authentication emails nat
 Existing:
 
 - `newsletter_studio_flutter`: composition UI in `shipglows-email-engine/packages`.
-
-Planned, not implemented by this standard:
-
-- `@shipglows/email-client`: TypeScript client, target `shipglows-email-engine/packages/email-client`.
-- Astro signup component and route helper: target `shipglows-astro-engine`.
-- Python client: inside the ContentGlows lab.
+- `email_mailbox_client` (`shipglows-email-engine/packages/email_mailbox_client`): Dart `CentralCampaignBridgeApi` for the campaign bridge.
+- `@shipglows/astro-engine` 0.5.0 (`shipglows-astro-engine`): `./email` exports the `NewsletterSignup.astro` component and `subscribe.ts`; `./email/client` is the server-side client. No separate `@shipglows/email-client` package was created.
+- Python client: `contentglows/lab/api/services/central_email/`.
 
 ## Exceptions
 
