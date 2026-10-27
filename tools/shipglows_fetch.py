@@ -3,7 +3,9 @@
 
 Plain HTTP reads static HTML without a browser in a fraction of a second; a
 JavaScript app shell, an HTTP error or a non-HTML answer moves the URL to the
-Crawl4AI browser. Each URL goes through the cascade on its own; a stopped
+Crawl4AI browser. A YouTube video page is read from the player data embedded in
+its static HTML (title, channel, date, duration, description), so it needs no
+browser. Each URL goes through the cascade on its own; a stopped
 local stack, a missing key, exhausted credits, a network error or an empty page
 moves to the next provider. Exit 3 means at least one URL failed every
 provider: use the agent's native fetch for it.
@@ -15,6 +17,7 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 import json
 import os
+import re
 import sys
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -47,6 +50,10 @@ DEFAULT_TIMEOUT = 60.0
 DEFAULT_MAX_CHARS = 40000
 
 
+YOUTUBE_HOSTS = ("youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be")
+YOUTUBE_PLAYER_MARKER = re.compile(r"ytInitialPlayerResponse\s*=\s*")
+
+
 class ProviderSkipped(RuntimeError):
     """The provider cannot serve this request; try the next one."""
 
@@ -55,6 +62,37 @@ def require_markdown(provider: str, markdown: object) -> str:
     if not isinstance(markdown, str) or not markdown.strip():
         raise ProviderError(f"{provider} returned an empty page.")
     return markdown
+
+
+def is_youtube_url(url: str) -> bool:
+    host = url.split("://", 1)[-1].split("/", 1)[0].split(":", 1)[0].lower()
+    return host in YOUTUBE_HOSTS
+
+
+def youtube_markdown(html: str, url: str) -> tuple[str, str] | None:
+    """Title and Markdown of a YouTube video from its embedded player data, or None when absent."""
+    match = YOUTUBE_PLAYER_MARKER.search(html)
+    if match is None:
+        return None
+    try:
+        player, _ = json.JSONDecoder().raw_decode(html, match.end())
+    except ValueError:
+        return None
+    details = player.get("videoDetails") if isinstance(player, dict) else None
+    if not isinstance(details, dict) or not isinstance(details.get("title"), str):
+        return None
+    microformat = (player.get("microformat") or {}).get("playerMicroformatRenderer") or {}
+    facts = [("Channel", details.get("author")), ("Published", microformat.get("publishDate")), ("URL", url)]
+    seconds = details.get("lengthSeconds")
+    if isinstance(seconds, str) and seconds.isdigit():
+        minutes, second = divmod(int(seconds), 60)
+        facts.insert(2, ("Duration", f"{minutes // 60}:{minutes % 60:02d}:{second:02d}" if minutes >= 60 else f"{minutes}:{second:02d}"))
+    lines = [f"# {details['title']}", ""]
+    lines += [f"- {label}: {value}" for label, value in facts if isinstance(value, str) and value]
+    description = details.get("shortDescription")
+    if isinstance(description, str) and description.strip():
+        lines += ["", "## Description", "", description.strip()]
+    return details["title"], "\n".join(lines) + "\n"
 
 
 def fetch_http(url: str, args: argparse.Namespace, opener=None) -> dict:
@@ -73,6 +111,9 @@ def fetch_http(url: str, args: argparse.Namespace, opener=None) -> dict:
         raise ProviderError(f"HTTP {error.code}") from None
     except (URLError, TimeoutError, OSError, LookupError) as error:
         raise ProviderError(f"network error ({type(error).__name__})") from None
+    video = youtube_markdown(html, url) if is_youtube_url(url) else None
+    if video is not None:
+        return {"title": video[0], "markdown": video[1]}
     title, markdown = html_to_markdown(html, url, full=args.full)
     if looks_like_js_shell(html, markdown):
         raise ProviderError("the static HTML is a JavaScript shell; a browser must render it")
