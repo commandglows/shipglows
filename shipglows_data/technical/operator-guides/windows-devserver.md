@@ -590,6 +590,19 @@ nouvel essai, après extinction prouvée de tous les processus attribués. Le mo
 qui exige une connexion manuelle compatible avec Dart Debug, reste disponible
 uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
+### Flutter Web avec routes API locales
+
+Une surface Flutter lancée en `-FlutterDevice web-server` qui contient un dossier `api/` (ou un `vercel.json` déclarant `functions`) sert `/api/*` sur le même port que l'application, par exemple `http://127.0.0.1:3031/api/auth/youtube`. Le web-server Flutter passe sur un port libre interne ; le reste (`/`, hot reload, WebSocket de débogage) continue de passer par lui.
+
+- Méthode : `cli/windows/ShipGlows.ApiProxy.cjs`, un proxy Node sans dépendance. Les handlers Vercel `module.exports = async function handler(req, res)` reçoivent les helpers Vercel (`req.query`, `req.cookies`, `req.body`, `res.status`, `res.json`, `res.send`, `res.redirect`) ; le routage suit les fichiers Vercel (`[id].js`, `[...slug].js`, `index.js`).
+- Env : le scope Doppler déclaré dans `.shipglows.flutter.json` est injecté au proxy, sans jamais afficher de valeur. Les defines publics de l'origine web locale (par exemple `REPLAYGLOWS_APP_URL`) sont appliqués après injection.
+- Rechargement : les handlers CommonJS sont relus à chaque requête ; un changement de dépendance hors `api/` demande `s restart`.
+- Journal : les requêtes `/api` sont tracées dans les logs de session (`[api] METHOD path status durée`).
+- Registre : la session porte `apiProxy: active` et `flutterWebPort` (port du web-server Flutter interne).
+- Limites : `vercel.json` (rewrites, routes, runtimes) n'est pas interprété ; seuls les fichiers `.js`, `.cjs` et `.mjs` sous `api/` sont routés ; `chrome` n'est pas routé par l'API.
+
+Preuve attendue : `curl -i http://127.0.0.1:<port>/api/<route>` renvoie le handler (JSON ou redirection), et `curl -i http://127.0.0.1:<port>/` renvoie toujours l'application Flutter.
+
 ### Flutter Windows en développement
 
 Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `<dépôt>-<surface> - Dev` (par exemple `dreamglows-windows_app - Dev`), qui démarre la session ou réutilise celle déjà active. La même règle vaut pour les serveurs de dev Tauri, Astro, Vite et Flutter web ; pour le web, le raccourci ajoute `-Open` et ouvre le navigateur une fois le serveur prêt. Un worktree Git ne reçoit jamais de raccourci. Au démarrage, les raccourcis ShipGlows du même projet sous un ancien nom, et ceux qui pointent vers un worktree ou un dossier disparu, sont retirés. Un raccourci non créé par ShipGlows n’est jamais écrasé, et un échec de raccourci n’empêche jamais le démarrage. Seul `shipglows-dev start` crée ces raccourcis : aucun raccourci fait à la main.

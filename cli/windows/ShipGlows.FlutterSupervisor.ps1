@@ -9,7 +9,9 @@ param(
     [switch]$Visible,
     [string]$Device = 'chrome',
     [string]$DartDefineFile = '',
-    [ValidateSet('debug','profile')][string]$Mode = 'debug'
+    [ValidateSet('debug','profile')][string]$Mode = 'debug',
+    # Public port of a web-server surface with API routes; the Flutter web server then listens on $Port.
+    [int]$ApiProxyPort = 0
 )
 
 Set-StrictMode -Version Latest
@@ -67,6 +69,43 @@ function New-SgFlutterRunArguments([string]$Device,[int]$Port,[string]$ProfilePa
         $arguments+="--web-browser-flag=--user-data-dir=$ProfilePath"
     }
     return $arguments
+}
+
+# Doppler scope declared by the surface recipe; $null when the recipe declares NONE or no recipe exists.
+function Get-SgApiDopplerScope([string]$ProjectRoot) {
+    $recipePath=Join-Path $ProjectRoot '.shipglows.flutter.json'
+    if(-not(Test-Path -LiteralPath $recipePath -PathType Leaf)){return $null}
+    $recipe=Get-Content -LiteralPath $recipePath -Raw | ConvertFrom-Json
+    if($recipe.doppler -is [string]){return $null}
+    return [pscustomobject]@{Project=[string]$recipe.doppler.project;Config=[string]$recipe.doppler.config}
+}
+
+# Starts the Node API proxy on the public port. Doppler secrets come from the declared scope; the public
+# Flutter defines travel in SHIPGLOWS_API_PUBLIC_ENV and are applied by the proxy after injection.
+function Start-SgApiProxy([int]$ProxyPort,[int]$FlutterPort,[string]$ProjectRoot,[string]$PublicEnvironmentJson,[string]$LaunchRoot) {
+    if($ProxyPort -lt 1024 -or $ProxyPort -gt 65535 -or $FlutterPort -lt 1024 -or $FlutterPort -gt 65535 -or $ProxyPort -eq $FlutterPort){throw 'Invalid API proxy port.'}
+    $script=Join-Path $PSScriptRoot 'ShipGlows.ApiProxy.cjs'
+    if(-not(Test-Path -LiteralPath $script -PathType Leaf)){throw 'ShipGlows API proxy is missing.'}
+    $node=Get-Command node -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if(-not $node){throw 'Node.js is required for the local API proxy; it is not on PATH.'}
+    $proxyArguments=@($script,'--listen',"127.0.0.1:$ProxyPort",'--flutter',"127.0.0.1:$FlutterPort",'--root',(Join-Path $ProjectRoot 'api'))
+    $file=$node.Source
+    $scope=Get-SgApiDopplerScope $ProjectRoot
+    if($scope){
+        $doppler=Get-Command doppler -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if(-not $doppler){throw 'Doppler is required by the declared API scope; it is not on PATH.'}
+        $file=$doppler.Source
+        $proxyArguments=@('run','--project',$scope.Project,'--config',$scope.Config,'--no-fallback','--no-check-version','--',$node.Source)+$proxyArguments
+    }
+    $psi=New-Object Diagnostics.ProcessStartInfo
+    $psi.FileName=$file; $psi.Arguments=(@($proxyArguments | ForEach-Object { ConvertTo-SgWindowsArgument ([string]$_) }) -join ' ')
+    $psi.WorkingDirectory=$ProjectRoot; $psi.UseShellExecute=$false; $psi.CreateNoWindow=$true
+    $psi.EnvironmentVariables['SHIPGLOWS_API_PUBLIC_ENV']=$PublicEnvironmentJson
+    $process=New-Object Diagnostics.Process; $process.StartInfo=$psi
+    if(-not $process.Start()){throw 'API proxy process could not start.'}
+    Start-Sleep -Milliseconds 800
+    if($process.HasExited){throw "API proxy exited during startup (code $($process.ExitCode)); see $LaunchRoot."}
+    return $process
 }
 
 function Resolve-SgFlutterChromeExecutable([string]$Device,[string]$UserChromeExecutable=([Environment]::GetEnvironmentVariable('CHROME_EXECUTABLE','User'))) {
@@ -242,6 +281,7 @@ function Invoke-SgFlutterSupervisor {
     $token = [string]$env:SHIPGLOWS_SUPERVISOR_TOKEN
     if ($token -notmatch '^[a-f0-9]{64}$') { throw 'Missing or invalid supervisor token.' }
     Remove-Item Env:SHIPGLOWS_SUPERVISOR_TOKEN -ErrorAction SilentlyContinue
+    $publicEnvironment=[string]$env:SHIPGLOWS_API_PUBLIC_ENV; Remove-Item Env:SHIPGLOWS_API_PUBLIC_ENV -ErrorAction SilentlyContinue
     $launchRoot=[IO.Path]::GetFullPath($LaunchDirectory); $projectRoot=[IO.Path]::GetFullPath($ProjectPath)
     New-Item -ItemType Directory -Path $launchRoot -Force | Out-Null;Assert-SgFlutterNoReparsePath $launchRoot
     if(-not(Test-SgFlutterOwnerOnlyPath $launchRoot)){throw 'Flutter supervisor launch directory ACL is not owner-only.'}
@@ -272,6 +312,8 @@ function Invoke-SgFlutterSupervisor {
     $lib=Join-Path $projectRoot 'lib'
     # Profile builds support neither hot reload nor hot restart, so source watching stays off.
     if ($Mode -ne 'profile' -and (Test-Path -LiteralPath $lib -PathType Container)) { $watcher=New-SgFlutterChangeWatcher $lib }
+    $apiProcess=$null
+    if($ApiProxyPort -gt 0){try{$apiProcess=Start-SgApiProxy $ApiProxyPort $Port $projectRoot $publicEnvironment $launchRoot}catch{if(-not$process.HasExited){$process.Kill()};throw}}
     $requestId=1000; $stopRequested=$false
     try {
         while (-not $process.HasExited) {
@@ -295,7 +337,7 @@ function Invoke-SgFlutterSupervisor {
             if($stopRequested){if(-not $process.WaitForExit(5000)){$process.Kill()};break}
             Start-Sleep -Milliseconds 100
         }
-    } finally { if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.FlutterExitCode=try{[int]$process.ExitCode}catch{$null};$state.Ready=$false;Clear-SgFlutterDebugEndpoints $state;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};$state.ExitReason=if($stopRequested){'stop-requested'}elseif($state.LastEvent-eq'app.stop'){'app-stopped-during-startup'}else{'flutter-host-exited'};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
+    } finally { if($apiProcess -and -not$apiProcess.HasExited){& taskkill.exe /PID $apiProcess.Id /T /F *> $null};if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.FlutterExitCode=try{[int]$process.ExitCode}catch{$null};$state.Ready=$false;Clear-SgFlutterDebugEndpoints $state;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};$state.ExitReason=if($stopRequested){'stop-requested'}elseif($state.LastEvent-eq'app.stop'){'app-stopped-during-startup'}else{'flutter-host-exited'};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
 }
 
 if (-not $TestMode) { Invoke-SgFlutterSupervisor }
