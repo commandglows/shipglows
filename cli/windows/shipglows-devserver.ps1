@@ -805,9 +805,11 @@ function Invoke-SgDoctor {
     Write-Host ''
     Write-Host 'Managed PowerShell processes' -ForegroundColor Cyan
     if (-not $report.Processes.Count) { Write-Host '  none' }
-    foreach ($row in $report.Processes) { Write-Host (Format-SgRuntimeProcessRow $row) -ForegroundColor $(if ($row.State -eq 'orphan') { 'Yellow' } else { 'Gray' }) }
+    foreach ($row in $report.Processes) { Write-Host (Format-SgRuntimeProcessRow $row) -ForegroundColor $(if ($row.State -in @('orphan','stale')) { 'Yellow' } else { 'Gray' }) }
     $orphans = @($report.Processes | Where-Object State -eq 'orphan')
     Write-Host ''
+    $stale = @($report.Processes | Where-Object State -eq 'stale')
+    if ($stale.Count) { Write-SgWarn "$($stale.Count) process(es) belong to an ended session; stop them with the s stop command shown, which proves their extinction." }
     if (-not $orphans.Count) { Write-SgInfo 'No orphan ShipGlows process. Each running session normally owns a supervisor and an exit watcher.'; return }
     [void](Confirm-SgProcessStop $orphans "Stop $($orphans.Count) orphan process(es) and their children?")
 }

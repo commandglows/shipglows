@@ -685,7 +685,8 @@ registry: each running session owns a job supervisor (plus a Flutter supervisor
 for Flutter) and a detached WMI-created exit watcher that records an unrequested
 exit. Only a supervisor no running session owns, or a watcher whose process has
 already exited, is an orphan; it is stopped with its tree only after an interactive
-confirmation. `s unlock` names the lock holder and stops it only after
+confirmation. A process still recorded by an ended session is `stale`: doctor
+names the `s stop -ProjectPath` command instead of killing it. `s unlock` names the lock holder and stops it only after
 confirmation. Both list without stopping anything in a non-interactive console.
 
 Windows exposes a separate global developer-tool surface through

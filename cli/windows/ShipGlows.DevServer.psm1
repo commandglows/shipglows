@@ -3144,10 +3144,14 @@ function Get-SgRuntimeProcessReport([object]$Config) {
     $hostRoot = [IO.Path]::GetDirectoryName((Resolve-SgPowerShellExecutable))
     $all = @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,ExecutablePath,CommandLine,CreationDate -ErrorAction SilentlyContinue)
     $alive = @{}; foreach ($process in $all) { $alive[[int]$process.ProcessId] = $process }
-    $owned = @{}
+    $owned = @{}; $ended = @{}
     foreach ($project in @((Read-SgRegistry $Config).projects)) {
         foreach ($session in @(Get-SgEntrySessions $project)) {
-            if ([int]$session.pid -gt 0 -and [string]$session.status -in @('starting','running')) { $owned[[int]$session.pid] = "$($project.name) ($($session.target))" }
+            if ([int]$session.pid -le 0) { continue }
+            $label = "$($project.name) ($($session.target))"
+            if ([string]$session.status -in @('starting','running')) { $owned[[int]$session.pid] = $label }
+            # An ended session that still records a live pid is cleaned by s stop, which proves extinction.
+            else { $ended[[int]$session.pid] = "$label is $($session.status); run s stop -ProjectPath `"$($project.path)`"" }
         }
     }
     # The calling s command and its launchers are never reported.
@@ -3170,10 +3174,14 @@ function Get-SgRuntimeProcessReport([object]$Config) {
             else { $state = 'orphan'; $detail = "its pid $target already exited" }
         } elseif ($script -match 'ShipGlowsJobNative') {
             $role = 'supervisor'
-            if ($owned.ContainsKey($id)) { $state = 'healthy'; $detail = $owned[$id] } else { $state = 'orphan'; $detail = 'no running registry session owns it' }
+            if ($owned.ContainsKey($id)) { $state = 'healthy'; $detail = $owned[$id] }
+            elseif ($ended.ContainsKey($id)) { $state = 'stale'; $detail = $ended[$id] }
+            else { $state = 'orphan'; $detail = 'no registry session owns it' }
         } elseif ($command -match 'ShipGlows\.FlutterSupervisor\.ps1') {
             $role = 'flutter-supervisor'; $parent = [int]$process.ParentProcessId
-            if ($owned.ContainsKey($parent)) { $state = 'healthy'; $detail = $owned[$parent] } else { $state = 'orphan'; $detail = 'its managed supervisor is gone' }
+            if ($owned.ContainsKey($parent)) { $state = 'healthy'; $detail = $owned[$parent] }
+            elseif ($ended.ContainsKey($parent)) { $state = 'stale'; $detail = $ended[$parent] }
+            else { $state = 'orphan'; $detail = 'its managed supervisor is gone' }
         } elseif ($command -match 'shipglows-devserver\.ps1') {
             $role = 'cli'; $detail = 's command'
         }
