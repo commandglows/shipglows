@@ -73,8 +73,15 @@ def _frontmatter(text: str) -> str:
     return "" if end < 0 else text[4:end]
 
 
+BULK_COMMIT_FILES = 50
+
+
 def _last_touch(root: Path, scope: Path) -> dict[str, date]:
-    """Map repo-relative path -> last commit date in one git pass."""
+    """Map repo-relative path -> last deliberate commit date in one git pass.
+
+    Bulk commits (metadata migrations, mass renames) touch everything and are
+    skipped, so a targeted restore or edit still counts as recent activity.
+    """
     try:
         output = subprocess.run(
             ["git", "-C", str(root), "log", "--format=@%cs", "--name-only", "--", str(scope)],
@@ -83,12 +90,17 @@ def _last_touch(root: Path, scope: Path) -> dict[str, date]:
     except (OSError, subprocess.CalledProcessError):
         return {}
     touched: dict[str, date] = {}
-    current: date | None = None
+    commits: list[tuple[date, list[str]]] = []
     for line in output.splitlines():
         if line.startswith("@"):
-            current = date.fromisoformat(line[1:])
-        elif line and current and line not in touched:
-            touched[line] = current
+            commits.append((date.fromisoformat(line[1:]), []))
+        elif line and commits:
+            commits[-1][1].append(line)
+    for day, paths in commits:
+        if len(paths) > BULK_COMMIT_FILES:
+            continue
+        for path in paths:
+            touched.setdefault(path, day)
     return touched
 
 
@@ -178,10 +190,13 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
             rel = path.relative_to(root).as_posix()
             text = path.read_text(encoding="utf-8", errors="replace") if path.suffix == ".md" else ""
             needles = {path.name, path.stem} if len(path.stem) >= 8 else {rel}
-            # Frontmatter ``updated`` tracks content changes; bulk metadata
-            # commits would otherwise make every artifact look recent.
+            # Latest of frontmatter ``updated`` and the last non-bulk commit, so a
+            # deliberate restore or keep decision resets dormancy.
             declared = UPDATED.search(_frontmatter(text))
-            last = date.fromisoformat(declared.group(1)) if declared else touched.get(rel)
+            dates = [date.fromisoformat(declared.group(1))] if declared else []
+            if rel in touched:
+                dates.append(touched[rel])
+            last = max(dates) if dates else None
             mentioning = [row for row in rows if any(needle in row for needle in needles)]
             item_class = "untracked" if tracked is not None and rel not in tracked else (
                 "archived" if "archives" in path.relative_to(workflow).parts else None

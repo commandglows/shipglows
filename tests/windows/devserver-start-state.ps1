@@ -76,6 +76,25 @@ try {
     $visibleStored=(Read-SgRegistry $config).projects|Where-Object{$_.path-eq$flutterSurface}|Select-Object -First 1
     if(-not$visibleStarted.LaunchWasVisible-or$visibleStarted.Result.flutterHeadless-or$visibleStored.flutterHeadless-or$visibleStored.status-ne'running'){throw 'Visible Flutter promotion was not recorded as a non-headless managed session.'}
 
+    # Phone asleep / USB unplugged: the supervisor (pid 89) is alive but Flutter reported app.stop.
+    $endedLaunch=Join-Path $fixture 'ended-launch';New-Item -ItemType Directory -Path $endedLaunch -Force|Out-Null;[IO.File]::WriteAllText((Join-Path $endedLaunch 'state.json'),'{"status":"stopped","appId":"visible-app","daemonPid":890,"lastError":null,"lastEvent":"app.stop","exitReason":"flutter-host-exited"}')
+    & $module { param($Config,$Surface,$Launch) Invoke-SgRegistryMutation $Config {param($data);$item=@($data.projects|Where-Object{$_.path-eq$Surface})[0];ConvertTo-SgSessionEntry $item -NoAdoption;foreach($record in @($item)+@($item.sessions)){$record.status='stopped';$record|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force;$record|Add-Member -NotePropertyName flutterLaunchDirectory -NotePropertyValue $Launch -Force}} | Out-Null } $config $flutterSurface $endedLaunch
+    $relaunched=& $module {
+        param($Config,$Surface)
+        $script:stopReasons=@();$script:launches=0
+        function Test-SgPortAvailable { $true }
+        function Invoke-SgDependencySetup { }
+        function Get-SgLaunchSpec { $script:launches++;[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='relaunch-signature';Interactive=$false;FlutterSdkRoot='C:\flutter'} }
+        function Start-SgDetachedProcess { [pscustomobject]@{Id=90;CommandSignature='relaunch-signature'} }
+        function Get-SgProcessSnapshot { param($ProcessId) if([int]$ProcessId-eq89){[pscustomobject]@{Pid=89;StartTimeUtc='2026-08-15T00:00:02Z';ExecutablePath='mock.exe';CommandLine='visible-signature'}}else{[pscustomobject]@{Pid=90;StartTimeUtc='2026-08-15T00:00:03Z';ExecutablePath='mock.exe';CommandLine='relaunch-signature'}} }
+        function Test-SgProcessIdentity { param($Entry) [int]$Entry.pid -eq 89 -and $script:stopReasons.Count -eq 0 -or [int]$Entry.pid -eq 90 }
+        function Stop-SgProjectCore { param($Config,$ProjectPath,[switch]$PreserveBackend,$Target,$Reason) $script:stopReasons+=$Reason;Invoke-SgRegistryMutation $Config {param($data);$item=@($data.projects|Where-Object{$_.path-eq$ProjectPath})[0];$item.status='stopped';$item.pid=0;$item.startTimeUtc=$null} | Out-Null;$true }
+        function Wait-SgFlutterSupervisorReady { [pscustomobject]@{Ready=$true;AppId='relaunched-app';Error=$null;DaemonPid=900} }
+        $result=Start-SgProjectCore $Config $Surface
+        [pscustomobject]@{Result=$result;StopReasons=@($script:stopReasons);Launches=$script:launches}
+    } $config $flutterSurface
+    if($relaunched.Result.status-ne'running'-or$relaunched.Launches-ne1-or$relaunched.StopReasons.Count-ne1-or$relaunched.StopReasons[0]-notmatch'^relaunched after an ended session \(stopped\)$'){throw "A stopped Flutter session with a live supervisor was not stopped and relaunched: $($relaunched | ConvertTo-Json -Compress -Depth 3)"}
+
     $astroSurface=Join-Path $fixture 'astro-site';New-Item -ItemType Directory -Path $astroSurface -Force|Out-Null
     Set-Content (Join-Path $astroSurface 'package.json') '{"dependencies":{"astro":"latest"},"scripts":{"dev":"astro dev"}}' -Encoding UTF8
     New-Item -ItemType Directory -Path (Join-Path $astroSurface '.astro') -Force | Out-Null

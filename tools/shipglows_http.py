@@ -117,6 +117,7 @@ def send_json(
     retry: bool = True,
     retry_codes: frozenset[int] = RETRYABLE_HTTP_CODES,
     error_cls: type[ProviderError] = ProviderError,
+    max_bytes: int = MAX_RESPONSE_BYTES,
 ) -> dict:
     """Send one request with bounded retries and return its JSON object.
 
@@ -125,6 +126,7 @@ def send_json(
     Retry-After. Other HTTP errors fail at once. ``retry=False`` keeps a single
     attempt for requests that create remote resources, so a lost response never
     duplicates them. ``http_error(code, body)`` phrases the provider's error.
+    ``max_bytes`` caps the body; raise it only for a trusted local service.
     """
     max_attempts = MAX_ATTEMPTS if retry else 1
     attempt = 0
@@ -132,7 +134,7 @@ def send_json(
         attempt += 1
         try:
             with (opener or _open_once)(request, timeout=timeout) as response:
-                body = response.read(MAX_RESPONSE_BYTES + 1)
+                body = response.read(max_bytes + 1)
             break
         except HTTPError as error:
             try:
@@ -156,8 +158,8 @@ def send_json(
             delay = backoff_delay(attempt)
         _sleep(delay)
 
-    if len(body) > MAX_RESPONSE_BYTES:
-        raise error_cls(f"{provider} response exceeded the 4 MiB safety limit.")
+    if len(body) > max_bytes:
+        raise error_cls(f"{provider} response exceeded the {max_bytes // (1024 * 1024)} MiB safety limit.")
     try:
         data = json.loads(body.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError):

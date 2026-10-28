@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-10-20"
-updated: "2026-10-20"
+updated: "2026-10-25"
 status: active
 source_skill: 900-shipglows-core
 scope: web-research-fallback
@@ -15,7 +15,10 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - tools/shipglows_search.py
+  - tools/shipglows_fetch.py
+  - tools/shipglows_scraping.py
   - cli/shipglows-search.sh
+  - local/scraping/README.md
   - cli/windows/ShipGlows.AgentInstructions.psm1
   - AGENT.md
 depends_on: []
@@ -33,7 +36,8 @@ Load before any external web search or page read made by a skill or agent.
 ## Cascade
 
 1. `doppler run --project dotfiles --config dev -- shipglows-search "<query>"`
-   tries Firecrawl, then Parallel, and reports each attempt in `attempts`.
+   tries the free local SearXNG (`local/scraping/`), then DeepSeek
+   ($0.75 per 1,000 requests), then Firecrawl, then Parallel, and reports each attempt in `attempts`.
 2. Exit 3 means every CLI provider failed or was skipped: use a discovered
    Firecrawl or Parallel connector that was not already tried.
 3. Then use the agent's native web search and fetch tools.
@@ -43,7 +47,11 @@ missing keys, network errors and unsupported filters are reasons to move on,
 never a final answer. Report the provider that served the results only when it
 matters to the answer.
 
-Both providers share one transport (`tools/shipglows_http.py`): network errors
+A stopped local stack, an empty SearXNG answer, `--after-date` or `--location`
+move to Firecrawl after one attempt; `SHIPGLOWS_SEARXNG_URL` (default
+`http://127.0.0.1:8888`, `off` disables) points at the instance.
+
+All providers share one transport (`tools/shipglows_http.py`): network errors
 and HTTP 502/503/504 get up to 3 attempts with backoff; in `auto` mode
 Firecrawl's 402/429 move straight to Parallel. `--timeout` (or
 `SHIPGLOWS_SEARCH_TIMEOUT`, default 30 s) sets the per-attempt timeout for every
@@ -53,6 +61,11 @@ provider. Failure reasons name the error type, its cause and the attempt count.
 
 - Never print, pass or persist provider keys; keys come only from the Doppler
   `dotfiles/dev` scope.
-- `shipglows-parallel` stays the tool for Extract, Task research and Monitor;
+- To read a page, use `shipglows-fetch <url>` (plain HTTP, then the local
+  Crawl4AI browser for JavaScript pages, then DeepSeek, Firecrawl, then Parallel Extract;
+  exit 3 means use the native fetch for that URL).
+- `shipglows-parallel` stays the tool for Task research and Monitor;
   `shipglows-search` covers search only.
+- `shipglows-scraping status` shows whether the free local stack runs;
+  `shipglows-scraping up` starts it (`local/scraping/README.md`).
 - Relevance order from any provider is not a Google SERP position.

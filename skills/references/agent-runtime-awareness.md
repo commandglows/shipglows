@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.13.0"
+artifact_version: "3.18.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-10-16"
+updated: "2026-10-24"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -36,6 +36,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-10-24: a commandglows_app profile session hid its VM service and DevTools URIs in flutter-launch while s status announced empty logs; the supervisor now records them and s status points to the live flutter.*.log files."
   - "The Windows CLI publishes a bounded shipglows.cli-capabilities.v1 snapshot that conversations may inspect without starting the CLI."
   - "The Windows installer writes the global development environment file."
   - "Each managed project exposes its durable assigned URL in a visible, versioned ENVIRONMENT.md file."
@@ -66,8 +67,10 @@ Before work depends on a local server or runtime-specific tool on Windows:
 
 1. Read `%USERPROFILE%\.shipglows\environment.md` for the global development environment.
 2. Resolve the registered project and selected managed surface from the current directory and requested target. Read that entry's `launchPath\ENVIRONMENT.md` when present, otherwise its `rootPath\ENVIRONMENT.md`; for legacy entries use the registered `path`. A missing root-level summary does not prove the selected surface lacks one. If multiple entries match and the requested target does not distinguish them, retain the ambiguity rather than using another surface's URL.
-3. Read the matching entry in `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json` for live `running`, `starting`, `stopped`, or `error` status.
-4. Use the assigned URL only while that registry entry is `running` or `starting`.
+3. Read the matching entry in `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json` for live `running`, `starting`, `stopped`, or `error` status. An entry lists one record per run target in `sessions` (Tauri `windows`/`android`, Flutter `windows`/`android`/`chrome`/`web-server`, `web`, `chrome` or `obsidian` otherwise), each with its own `status`, `port`, `portRole`, `startedAtUtc`, logs and `lastEvent`; the entry's top-level fields mirror its primary session only. An entry not started or stopped since targets were introduced has no `sessions` yet: its top-level fields are its single session until its next lifecycle change migrates it. `s status -ProjectPath <path> [-Json]` shows the same per-target view.
+4. Use the assigned URL only while the session of the requested target is `running` or `starting`.
+
+Starting a target never replaces another one: Flutter and single-target surfaces run their targets side by side, and a second Tauri target refuses to start until the operator chooses `-Frontend shared` (attach to the running frontend), `-Frontend own` (its own port) or `-Replace`. Pass the target (`-TauriDevice`, `-FlutterDevice`) to `stop`, `restart`, `reload`, `logs` and `open`; without it they act on every target. A replaced or cascaded target keeps the reason in its `lastEvent`.
 
 The matching entry's current `status` is the live-state authority. Retained
 PIDs, daemon IDs, `flutterStartupState`, timestamps and earlier observations
@@ -78,12 +81,23 @@ the registry must not start the CLI or an application.
 
 Do not derive the URL from `package.json`, framework defaults such as Astro/Vite `4321`, a remembered port, or another project. `.shipglows.env` remains the optional committed runtime-policy file; it is not the environment summary or live-state authority.
 
-For startup diagnostics, read the matching entry's `logPath` and `errorLogPath`
-(plus `setup.log` in the same folder). Each surface writes under
-`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<name>-<path-hash>\`, so two
-surfaces with the same display name (for example `site`) never share logs; a
-folder named after the bare display name belongs to an older session and may
-mix projects. A web readiness timeout is configured through `.shipglows.env`
+For startup diagnostics, read the target session's `logPath` and `errorLogPath`
+(plus `setupLogPath`). Each launch writes under
+`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<name>-<path-hash>\<target>\<yyyyMMdd-HHmmss>-<id>\`
+(the five latest launches per target are kept), so two targets or two launches
+never overwrite each other's logs; files directly under `<name>-<path-hash>\`
+or a folder named after the bare display name belong to older sessions. A
+Flutter session writes its live logs only to the supervisor's
+`flutter.stdout.log` / `flutter.stderr.log` under
+`%LOCALAPPDATA%\ShipGlows\DevServer\flutter-launch\<runId>\`; while that
+directory exists, `s status -ProjectPath <path> [-Json]` and `s logs` point
+there (`-Json`: `logPath`, `errorLogPath`, `logDirectory`), and the session's
+durable `stdout.log` / `stderr.log` only receive one post-mortem copy at stop.
+A running Flutter session (debug or profile) also carries `vmServiceUri`,
+`devToolsUri` and `dtdUri`, shown as `VM service` / `DevTools` lines by
+`s status`; use them to attach DevTools or a VM service client instead of
+searching the disk. They embed the VM service auth code: never copy them into
+a commit, document or fixture. A web readiness timeout is configured through `.shipglows.env`
 (`SHIPGLOWS_READY_TIMEOUT_SECONDS`, see `project-runtime-policy.md`).
 
 Report runtime capabilities from the global file before attempting tool discovery:
@@ -138,7 +152,7 @@ Firebase Device Streaming authentication, project selection, billing, and device
 and must never be automated. Report the recorded Firebase state and exact next
 action without claiming a hosted device is callable until the current turn proves it.
 
-`FLUTTER-LIVE-DEVELOPMENT`: ordinary Flutter implementation and debugging use the managed `flutter run` session for the selected target. It is the normal development loop because it keeps logs and reload available. On Android, honor an explicitly configured connected device; otherwise reuse a ready Android emulator or start the provisioned `ShipGlows_API_36` AVD and wait for Flutter device readiness. Do not create a release build merely to expose an iterative correction. For performance measurement with Flutter attached, use the managed profile session (`s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile`; the registry records `flutterMode`, profile sessions support neither hot reload nor hot restart, so `s restart … -FlutterMode profile` rebuilds them) instead of a hand-run `flutter run --profile` or `flutter drive --profile`; debug-mode numbers are not performance evidence and no managed session uses `--release`. Use a standalone build only for an explicit release checkpoint or targeted proof that depends on packaging, native plugins or DLLs, installation, production-mode behavior, or startup without Flutter attached.
+`FLUTTER-LIVE-DEVELOPMENT`: ordinary Flutter implementation and debugging use the managed `flutter run` session for the selected target. It is the normal development loop because it keeps logs and reload available. On Android, honor an explicitly configured connected device; otherwise reuse a ready Android emulator or start the provisioned `ShipGlows_API_36` AVD and wait for Flutter device readiness. A first Android build (Gradle distribution, dependencies, SDK components) can take well over 10 minutes; `s start` announces it and keeps waiting while Gradle writes output (cut after 10 minutes without any write, 30-minute cap), so do not restart or kill the session on a `Running Gradle task 'assembleDebug'` progress line, and read a `Flutter Android build stalled` or `timed out` error as the build's own failure, not as a supervisor bug. `s start` also checks before the build that Flutter's effective JDK can run the project's Gradle (Flutter prefers the Android Studio JBR over `JAVA_HOME`; only `flutter config --jdk-dir` wins over it) and pins the ShipGlows JDK itself under auto-repair; a `Gradle X runs on Java A-B, but Flutter would build with Java N` error names the exact `flutter config --jdk-dir` command, so run that command rather than editing `JAVA_HOME` or upgrading the project's Gradle. It also refuses to build when the Android SDK lacks the platform (`compileSdk`) or NDK (`ndkVersion`) the project asks for; an `Android SDK at <sdk> lacks what the Gradle build needs` error carries the exact `sdkmanager "platforms;android-N" "ndk;X"` command, which needs the operator's license consent, so run it (or hand it to the operator) instead of letting Gradle download inside a build. Do not create a release build merely to expose an iterative correction. For performance measurement with Flutter attached, use the managed profile session (`s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile`; the registry records `flutterMode`, profile sessions support neither hot reload nor hot restart, so `s restart … -FlutterMode profile` rebuilds them) instead of a hand-run `flutter run --profile` or `flutter drive --profile`; debug-mode numbers are not performance evidence and no managed session uses `--release`. Use a standalone build only for an explicit release checkpoint or targeted proof that depends on packaging, native plugins or DLLs, installation, production-mode behavior, or startup without Flutter attached.
 
 `FLUTTER-CONFIGURED-LAUNCH`: a short request such as "lance l'app Windows en mode dev" or "lance le build web" includes the project's declared authentication and service configuration. Resolve target and mode from durable evidence; use the project recipe and its declared Doppler scope without asking the operator to repeat technical setup. The Windows manager reads `.shipglows.flutter.json`, runs its allowlisted public configuration resolver through Doppler, transfers frontend parameters to Dart and native parameters to Gradle, and revalidates the configuration fingerprint before reusing a session. Missing configuration blocks before replacing a running session. Never replace the recipe with a bare Flutter command, a bypass or an older artifact. The project's build entrypoints must use the same resolver. See `cli/windows/ShipGlows.FlutterConfiguration.ps1` and `shipglows_data/technical/flutter-configured-launch.md` for the bounded recipe contract. Distinguish configuration checked, process running, interactive login verified and protected API access verified; compilation or `app.started` alone proves neither login nor product access.
 

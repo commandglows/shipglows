@@ -18,6 +18,7 @@ while [ -L "$SCRIPT_SOURCE" ]; do
     esac
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+source "$SCRIPT_DIR/python-runtime.sh"
 
 # Self-update is deliberately independent from the legacy DevServer bootstrap.
 # `s u` remains the package-update menu action; `shipglows update` owns only
@@ -31,8 +32,8 @@ fi
 # without bootstrapping the DevServer menu or its local prerequisites.
 if [ "${1:-}" = "skills" ]; then
     shift
-    if ! command -v python3 >/dev/null 2>&1; then
-        echo "ShipGlows skill commands require Python 3." >&2
+    if ! shipglows_python3_ready; then
+        shipglows_python3_diagnose "ShipGlows skill commands"
         exit 2
     fi
     exec python3 "$SCRIPT_DIR/shipglows_skills.py" "$@"
@@ -43,8 +44,8 @@ fi
 # create setup markers or require Flox, PM2, Caddy, Gum, or fzf.
 if [ "${1:-}" = "env" ]; then
     shift
-    if ! command -v python3 >/dev/null 2>&1; then
-        echo "ShipGlows environment commands require Python 3." >&2
+    if ! shipglows_python3_ready; then
+        shipglows_python3_diagnose "ShipGlows environment commands"
         exit 2
     fi
     exec python3 "$SCRIPT_DIR/environment/shipglows_environment.py" "$@"
@@ -54,8 +55,8 @@ fi
 # agent context. This control plane has no menu/bootstrap side effects.
 if [ "${1:-}" = "private-data" ]; then
     shift
-    if ! command -v python3 >/dev/null 2>&1; then
-        echo "ShipGlows private-data commands require Python 3." >&2
+    if ! shipglows_python3_ready; then
+        shipglows_python3_diagnose "ShipGlows private-data commands"
         exit 2
     fi
     exec python3 "$SCRIPT_DIR/private_data.py" "$@"
@@ -65,7 +66,8 @@ fi
 # interactive DevServer bootstrap and accepts no shell command fragments.
 if [ "${1:-}" = "project" ]; then
     shift
-    if ! command -v python3 >/dev/null 2>&1; then
+    if ! shipglows_python3_ready; then
+        shipglows_python3_diagnose "ShipGlows project commands"
         echo '{"status":"unavailable","code":"pythonUnavailable"}' >&2
         exit 2
     fi

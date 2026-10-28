@@ -56,8 +56,17 @@ they do not choose the owner or grant authority.
 | `#local` | proportional local proof to be permitted | does not force a build or test |
 | `#nolocal` | static inspection and edits without local/application/validation workloads | result stays unverified where runtime proof is deferred |
 | `#ci` | executable proof deferred to existing CI | implies `#nolocal`; does not authorize push or CI dispatch |
+| `#build` / `#nobuild` | builds and release artifacts allowed or forbidden | one command only |
+| `#test` / `#notest` | tests, lint, analyze, type checks allowed or forbidden | one command only |
+| `#server` / `#noserver` | managed dev server and browser proof allowed or forbidden | one command only |
+| `#commit` / `#nocommit` | exact-scope local commits allowed or forbidden | never authorizes push |
+| `#noci` | CI never named or planned as proof | opposite of `#ci` |
 
-`#local` conflicts with `#nolocal` and `#ci`. `#nolocal #ci` is valid. Use
+`#local` conflicts with `#nolocal` and `#ci`. `#nolocal #ci` is valid. Each
+granular tag conflicts with its `#no…` pair; `#nolocal` implies `#nobuild
+#notest #noserver #nocommit`. Without a tag, each workload follows the saved
+default execution profile; `shipglows profile` shows or changes it, while a tag
+is a one-off exception. Use
 `shipglows <objective> #nolocal`; the older `shipglows nolocal <objective>`
 form is compatibility syntax only. `shipglows blitz` already implies
 `#nolocal`, accepts `#ci`, and rejects `#local`.
@@ -68,6 +77,8 @@ Examples:
 sg-development feature onboarding #local
 sg-bug fix callback #nolocal
 sg-engineering verify checkout #ci
+sg-development fix login #notest
+shipglows auto seo #nobuild
 shipglows blitz #ci until=18:00
 ```
 

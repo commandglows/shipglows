@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.31.0"
+artifact_version: "1.38.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-16"
+updated: "2026-10-24"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,12 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21 mis en veille, la session Flutter Android passait à stopped mais `s start` répondait « Already running with verified Flutter configuration » puis « unexpected status: stopped », et `s restart` voyait « Application finished » pendant le build ; `s start` relance depuis une session stopped/error dont le superviseur survit, et `s stop`/`s restart` attendent que l'app soit éteinte sur le téléphone (am force-stop + pidof) avant de relancer."
+  - "Le 2026-10-24 sur CommandGlows, `s start -FlutterDevice android` lançait le build alors que la plateforme Android demandée par compileSdk n'était pas installée ; Gradle la téléchargeait pendant le build jusqu'au délai. `s start` vérifie depuis compileSdk et ndkVersion contre `platforms/` et `ndk/` du SDK et refuse le lancement avec la commande sdkmanager exacte."
+  - "Le 2026-10-24 sur CommandGlows, Gradle 8.14 refusait le build Android (« Java 25.0.3 incompatible with Gradle 8.14 ») : Flutter prenait le JBR 25 d'Android Studio avant le JDK 17 de ShipGlows, car seul `flutter config --jdk-dir` passe devant ce JBR ; l'installeur épingle depuis ce réglage et `s start` vérifie la compatibilité Gradle/JDK avant le build."
+  - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21, `s start -FlutterDevice android` abandonnait après 10 minutes (« Flutter supervisor timed out before app.started ») alors que le premier build Gradle à froid progressait encore ; Android suit depuis la même fenêtre sensible à la progression que Windows (coupure après 10 min sans écriture Gradle, plafond 30 min) et annonce qu'un premier build Android peut être long."
+  - "Le 2026-10-24 sur commandglows_app, une session profile Windows laissait vides le stdout.log et le stderr.log annoncés par `s status`, et cachait le VM service et DevTools dans flutter-launch ; `s status` affiche depuis ces URI et les journaux réellement écrits."
+  - "Le 2026-10-23 sur CommunityGlows, un `tauri android dev` lancé par une autre session a remplacé sans message la session Tauri Windows et écrasé son stderr.log ; chaque cible a depuis sa propre session, ses logs par lancement, et un second Tauri exige un choix explicite."
   - "Le replay du 2026-09-04 confirme que `shipglows update status` s'exécute dans le PowerShell géré et que `shipglows update runtime` reste accepté comme forme de compatibilité sans verrouiller `s.exe`."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
@@ -239,7 +245,9 @@ ne sont pas requis par le parcours Shadow PC.
    automatiquement Gum dans le runtime ShipGlows pour le menu interactif,
    puis installe Git, GitHub CLI, Node LTS, pnpm, uv et un commit Flutter résolu.
    Les installations Flutter/Dart, JDK 17 et Android SDK externes valides sont
-   réutilisées sans remplacer leurs variables ni le `PATH`. Sinon JDK 17 est
+   réutilisées sans remplacer leurs variables ni le `PATH` ; dans tous les cas
+   le JDK retenu est épinglé pour Flutter par `flutter config --jdk-dir`, car
+   Flutter préfère sinon le JBR d'Android Studio. Sinon JDK 17 est
    installé dans le profil utilisateur avant la présentation des conditions
    Android; les archives ZIP sont vérifiées et les packages ciblent Android 36.
    La question émulateur n'est posée que si
@@ -424,6 +432,28 @@ telle quelle : après un changement de recette, utiliser `s restart`.
 }
 ```
 
+#### Recette Doppler pour une API Python/FastAPI
+
+Sans recette, `s start` cherche `app/main.py` puis `main.py` et lance uvicorn sans
+secrets. Un fichier optionnel `.shipglows.python.json` (schéma
+`shipglows.python-recipe.v1`) à la racine de la surface déclare la cible uvicorn
+`app` (module `a.b:objet`, dont le fichier doit exister dans le projet) et le
+scope Doppler. `s start` lance alors `doppler run --project … --config …
+--no-fallback -- <python ou uv> -m uvicorn <app> --host 127.0.0.1 --port <port>` :
+toute la config de dev entre dans le processus de l'API. Seules les configs
+`dev`, `stg` ou `staging` (suffixe `_…` facultatif) sont acceptées, jamais une
+config de production ; `"doppler": "NONE"` déclare une API sans Doppler. Sans
+Doppler installé, le lancement est refusé. Après un changement de recette,
+utiliser `s restart`.
+
+```json
+{
+  "schemaVersion": "shipglows.python-recipe.v1",
+  "doppler": { "project": "contentglows_app", "config": "dev" },
+  "app": "api.main:app"
+}
+```
+
 ### Monorepos, registre et Flutter Web
 
 Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
@@ -504,8 +534,13 @@ par Flutter. Le registre ne passe à `running` qu'après les événements machin
 `app.start` puis `app.started` ; une réponse HTTP ou TCP seule ne prouve pas que
 l'application a exécuté `main()`. Pendant un build Flutter Windows actif, le
 démarrage n'est interrompu qu'après 5 minutes sans écriture dans `build/windows`
-(build bloqué) ou au plafond de 30 minutes ; un premier build à froid qui
-progresse n'est donc plus coupé. L'action Open remplace cette session headless
+ou `.dart_tool/flutter_build` (build bloqué) ou au plafond de 30 minutes ; un
+premier build à froid qui progresse n'est donc plus coupé. Un build Flutter
+Android actif suit la même règle avec une fenêtre de 10 minutes sans écriture
+Gradle (sortie `build/`, `android/.gradle`, journaux du superviseur, et dans le
+Gradle user home `caches/modules-2`, `daemon` et `wrapper/dists` parcouru en
+surface), car le téléchargement de la distribution Gradle est un seul gros
+fichier. L'action Open remplace cette session headless
 par un Chrome visible toujours contrôlé par Flutter, afin de conserver le hot
 reload. Start et Restart restent silencieux et recréent une session headless
 gérée ; aucun navigateur ne s'ouvre avant l'action explicite Open.
@@ -521,12 +556,33 @@ n'ouvre ni ne recommande l'alias `localhost` pour cette session.
 Un petit superviseur persistant conserve le canal machine Flutter après la fin
 de la commande CLI. Les modifications `*.dart` sous `lib/` sont regroupées sur
 une fenêtre calme de 500 ms puis déclenchent `app.restart` en mode hot reload.
-Le canal local n'accepte que reload, stop et open, avec l'identité secrète du
+`s reload -ProjectPath <chemin> -Full` envoie à la place un hot restart
+(`fullRestart: true`, quelques secondes) : l'état repart de `main()`, ce qui prend
+en compte une table de routes ou un initialiseur modifié sans relancer la session.
+Le canal local n'accepte que reload, restart, stop et open, avec l'identité secrète du
 lancement, une taille et des délais bornés ; il n'exécute aucune commande libre.
+Une session lancée avant une mise à jour garde l'ancien superviseur : relancez-la
+une fois avec `s restart` pour obtenir `-Full`.
 
 Chaque lancement Chrome reçoit un profil ShipGlows unique. Stop et Restart ne
 recherchent un éventuel navigateur orphelin qu'avec le chemin exact de ce profil
-et ne terminent jamais Chrome par son seul nom. Pour Windows desktop, le registre
+et ne terminent jamais Chrome par son seul nom. Si le superviseur ne répond pas
+à l'ordre stop, Stop et Restart terminent tous les processus dont la ligne de
+commande cite le dossier de lancement privé de la session (superviseur, outil
+Flutter, profil Chrome) ; la session n'est marquée `stopped` qu'une fois tous ces
+processus disparus. Si le job de processus de la session a déjà disparu (le
+superviseur qui a accepté l'arrêt ferme son job pendant que le port se libère,
+ou la session date d'un runtime antérieur), Stop et Restart ne refusent plus
+(« refusing an unverified stop ») : ils terminent seulement les processus vérifiés
+de la session et exigent toujours la preuve d'extinction. Un port désormais servi
+par une autre cible vivante du même projet (par exemple `web-server` après une
+session `chrome` morte) n'est ni attendu ni fouillé à l'arrêt. Sans `-FlutterDevice`,
+`s start` reprend la session vivante, sinon la dernière cible utilisée (si
+`.shipglows.env` ne fixe pas `SHIPGLOWS_FLUTTER_DEVICE`), plutôt que la cible par
+défaut. Le `pubspec.lock` du projet que `flutter pub get` réécrit après une
+modification d'un paquet `path:` est enregistré comme résultat de l'installation,
+et non plus signalé « Dependency inputs changed during setup ». Une erreur
+inattendue de `s` affiche son message et sa pile d'appels. Pour Windows desktop, le registre
 exige aussi l'état `running` du superviseur ; Stop et les échecs de démarrage ne
 terminent que le runner Debug exact déclaré par le projet. Une défaillance
 transitoire du lecteur de journaux ou de la connexion Debug reçoit au plus un
@@ -544,11 +600,122 @@ Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `and
 
 Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev. Une fois le build enregistré testé, la sortie brute du checkout (`build\windows\x64\runner\Release`, `build\app\outputs`) est supprimée : le cache conserve déjà les deux dernières générations validées.
 
+### Plusieurs cibles d'un même projet
+
+Chaque cible d'une surface est une session distincte du registre : Tauri
+`windows` et `android`, Flutter `windows`, `android`, `chrome` et `web-server`,
+et une cible unique (`web`, `chrome`, `obsidian`) pour Astro, Vite, Python, les
+extensions et les plugins Obsidian. Démarrer une cible ne remplace jamais une
+autre cible : `s start -ProjectPath <app> -FlutterDevice chrome` démarre à côté
+d'une session `windows` déjà active, avec son propre port si le port de la
+surface est déjà pris. Sans cible explicite, `s start` et le raccourci Dev
+réutilisent la cible déjà active au lieu d'en lancer une autre.
+
+Deux cibles Tauri se disputent le port `devUrl` du frontend. La seconde refuse
+donc de démarrer tant que l'opératrice n'a pas choisi :
+
+- `-Frontend shared` : la cible se branche sur le serveur Vite déjà lancé par
+  l'autre (Tauri reçoit une configuration de session sans `beforeDevCommand`) ;
+  les deux apps rechargent à chaud. Arrêter la cible qui sert le frontend arrête
+  aussi celles qui y sont branchées, avec un message et un `lastEvent`.
+- `-Frontend own` : la cible lance son propre frontend sur un port libre
+  (`devUrl` surchargé, variable `PORT`) ; le frontend du projet doit lire `PORT`.
+  Ce port secondaire n'écrase jamais l'URL durable d'`ENVIRONMENT.md`.
+- `-Replace` : l'autre cible est arrêtée explicitement, et la raison reste
+  visible dans son `lastEvent`.
+
+`s status -ProjectPath <app>` liste chaque cible avec son état, son port (propre
+ou partagé), son heure de démarrage, son PID, son appareil et son dossier de
+logs ; `-Json` donne la même vue aux agents. Une cible Flutter en cours
+d'exécution (debug ou profile) affiche aussi ses lignes `VM service` (`wsUri`
+de `app.debugPort`) et `DevTools` (`app.devTools`) ; `-Json` expose
+`vmServiceUri`, `devToolsUri` et `dtdUri` (`app.dtd`). Le superviseur les lit
+dans le flux `flutter run --machine`, les écrit dans son `state.json`, et la
+réconciliation du statut les recopie dans la session du registre ; l'arrêt les
+efface. Ces URI contiennent le code d'authentification du VM service : ne les
+copiez jamais dans un commit, une doc ou une fixture. `stop`, `restart`, `reload`, `logs`
+et `open` acceptent `-TauriDevice` ou `-FlutterDevice` pour viser une cible, et
+agissent sur toutes les cibles sinon. Les cibles d'une surface partagent son
+backend, arrêté avec la dernière cible active, et leur installation de
+dépendances, qui s'exécute une seule fois à la fois.
+
 ### Flutter Android en développement
 
 `SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
 
+Flutter choisit le JDK du build Gradle dans cet ordre : `flutter config
+--jdk-dir`, puis le JBR embarqué d'Android Studio, puis `JAVA_HOME`. Le JBR
+d'Android Studio dépasse régulièrement ce que le Gradle du projet accepte (JBR 25
+contre Gradle 8.14, qui s'arrête à Java 24) ; `JAVA_HOME` seul ne protège donc
+jamais le build. L'installeur épingle le JDK 17 de ShipGlows via `flutter config
+--jdk-dir` juste après l'avoir validé (idempotent, message « Flutter Android
+builds now use JDK 17 … »). Avant chaque build Android, `s start` lit sans
+sous-processus le `distributionUrl` de `android/gradle/wrapper/gradle-wrapper.properties`,
+la table de compatibilité Gradle → Java (8.5→21, 8.8→22, 8.10→23, 8.14→24,
+9.1→25 ; Gradle 9 exige Java 17) et le JDK effectif de Flutter (`jdk-dir` du
+fichier `.flutter_settings`, sinon JBR d'Android Studio, sinon `JAVA_HOME`, version
+lue dans son fichier `release`). En cas d'incompatibilité, avec
+`SHIPGLOWS_AUTO_REPAIR` (défaut `true`) il épingle lui-même le JDK ShipGlows ou
+un `JAVA_HOME` compatible et le dit ; sinon il refuse le lancement avec la
+commande exacte `flutter config --jdk-dir "<jdk>"`. Un projet sans wrapper
+Gradle n'est pas jugé.
+
+Quand le téléphone s'endort ou que le câble USB est débranché, Flutter signale
+`app.stop` : la session passe à `stopped` (ou `error`) alors que le processus
+superviseur peut survivre quelques instants ou rester vivant. `s start` ne
+confond plus cette session avec une session active : si l'état Flutter dit
+`stopped` ou `error`, il l'arrête (« Previous android session … ended as
+'stopped' while its supervisor was still alive … stopping it before relaunch »)
+puis relance normalement, au lieu de répondre « Already running » et d'échouer
+sur « unexpected status: stopped ». `s stop` d'une session Flutter Android éteint
+aussi l'app sur le téléphone (`adb shell am force-stop <applicationId>`, lu dans
+`android/app/build.gradle(.kts)`) et attend que `pidof` ne la trouve plus ;
+`s restart` et un changement de configuration refusent de relancer tant que
+l'app précédente tourne encore sur l'appareil, car le nouveau build la verrait
+sinon se terminer (« Application finished ») en pleine installation. Un téléphone
+absent ne bloque pas l'arrêt : il est seulement signalé.
+
+Toujours avant le build, `s start` vérifie que le SDK Android installé contient
+déjà ce que le build Gradle va demander : la plateforme `platforms/android-<compileSdk>`
+et le NDK `ndk/<ndkVersion>`. `compileSdk` et `ndkVersion` sont lus dans
+`android/app/build.gradle.kts` (ou `build.gradle`) ; les valeurs
+`flutter.compileSdkVersion` et `flutter.ndkVersion` sont résolues dans le
+`FlutterExtension.kt` du SDK Flutter du projet (`flutter.sdk` de
+`android/local.properties`, sinon le `flutter` de la commande). Le SDK Android est
+celui de `sdk.dir` dans `android/local.properties`, sinon `ANDROID_HOME`,
+`ANDROID_SDK_ROOT`, puis `%LOCALAPPDATA%\Android\Sdk`. S'il manque un paquet,
+le lancement est refusé avec son origine et la commande exacte, par exemple
+`"<sdk>\cmdline-tools\latest\bin\sdkmanager.bat" "platforms;android-36" "ndk;28.2.13676358"`,
+car Gradle le téléchargerait sinon pendant le build (un NDK pèse plus d'un Go)
+et le démarrage paraîtrait bloqué. Rien n'est installé automatiquement : les
+paquets SDK exigent l'acceptation de leurs licences.
+
+Le premier build Android d'un projet est long : Gradle télécharge sa
+distribution (`gradle-8.x-all.zip`), les dépendances et parfois des composants
+du SDK Android, souvent bien plus de 10 minutes. `s start` l'annonce avant
+d'attendre quand `build/app` manque ou que la distribution nommée par
+`android/gradle/wrapper/gradle-wrapper.properties` n'est pas encore dans le
+Gradle user home, puis attend tant que Gradle écrit : la session ne passe à
+`error` qu'après 10 minutes sans aucune écriture (« Flutter Android build
+stalled ») ou au plafond de 30 minutes (« Flutter Android build timed out after
+1800 seconds »), chaque message rappelant la cause probable et `s status` pour
+les journaux. Le 2026-10-24, un Galaxy S21 sur CommandGlows était coupé après
+10 minutes alors que « Running Gradle task 'assembleDebug' » progressait encore.
+
 Les APK et AAB restent des sorties de release ou de validation autonome ciblée : installation, permissions, notifications, services, plugins natifs et comportement sans Flutter attaché. Ils ne remplacent pas la boucle de développement live.
+
+### Tauri Android en développement
+
+`s start -ProjectPath <app> -TauriDevice android` (ou `SHIPGLOWS_TAURI_DEVICE=android` dans `.shipglows.env`) lance `tauri android dev --host 127.0.0.1` sur un téléphone branché en USB ; jamais de build release. `-TauriDeviceId <serial adb>` (ou `SHIPGLOWS_TAURI_DEVICE_ID`) choisit l'appareil ; sinon un téléphone physique passe avant un émulateur, et aucun émulateur n'est démarré. Avec plusieurs appareils, ShipGlows transmet à Tauri le nom qu'il reconnaît (nom Bluetooth d'un téléphone, nom d'AVD d'un émulateur) et refuse deux appareils de même nom.
+
+Le téléphone joint le serveur Vite local par `adb reverse tcp:<port>`. Au démarrage, l'app est arrêtée sur le téléphone, puis la session devient `running` quand la nouvelle version y tourne (délai de compilation jusqu'à 30 min). Si l'app est installée mais ne tourne toujours pas 90 s plus tard, le démarrage échoue tout de suite, avec un renvoi vers `adb logcat` : elle plante probablement au lancement. `s open` rétablit `adb reverse` après un rebranchement du câble et le confirme ; si le téléphone est absent, il échoue avec un message clair. `s stop` retire `adb reverse` et arrête l'app sur le téléphone. Une session Android ne reçoit pas de raccourci Bureau.
+
+Particularités du lancement Android :
+
+- La surcouche `src-tauri/tauri.dev.conf.json` du desktop n'est pas appliquée : elle renomme l'identifiant, auquel le projet Android généré est lié.
+- Le build Gradle rappelle `pnpm tauri android android-studio-script`. Sous un parent Corepack, ce `pnpm` imbriqué refuse de passer à la version épinglée (`ERR_PNPM_BAD_PM_VERSION`) : ShipGlows lance donc `pnpm` directement, qui choisit lui-même la version de `packageManager`.
+- Une session `-Frontend shared` n'a pas de port de service propre, mais `s stop` retire quand même `adb reverse` sur le port du frontend partagé.
+- Pour inspecter l'app sur le téléphone : `adb forward tcp:9333 localabstract:webview_devtools_remote_<pid>` (pid donné par `adb shell pidof <identifier>`), puis DevTools/CDP sur la page dont l'URL contient `tauri.localhost` ; chaque WebView native de réseau apparaît aussi comme une page distincte.
 
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
@@ -611,11 +778,23 @@ son `.shipglows.env` avec `SHIPGLOWS_READY_TIMEOUT_SECONDS=<30-1800>` ; une
 valeur hors de cette plage est refusée. Les sessions Flutter gardent leur propre
 supervision.
 
-Les journaux de chaque surface vont dans
-`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<nom>-<empreinte>\`, l'empreinte étant
-dérivée du chemin du projet : deux surfaces nommées `site` dans deux dépôts ne
-partagent plus leurs fichiers `stdout.log`, `stderr.log` et `setup.log`. Le
-registre garde le chemin exact (`logPath`, `errorLogPath`) de la dernière session.
+Les journaux de chaque lancement vont dans
+`%LOCALAPPDATA%\ShipGlows\DevServer\logs\<nom>-<empreinte>\<cible>\<date-heure>-<id>\`,
+l'empreinte étant dérivée du chemin du projet : deux surfaces nommées `site`,
+deux cibles d'une même surface ou deux lancements successifs ne partagent plus
+leurs fichiers `stdout.log`, `stderr.log` et `setup.log`. Les cinq derniers
+lancements de chaque cible sont conservés. Chaque session du registre garde le
+chemin exact de ses journaux (`logPath`, `errorLogPath`, `setupLogPath`).
+
+Une session Flutter a une seule source de vérité pour ses journaux en direct :
+les fichiers `flutter.stdout.log` et `flutter.stderr.log` que le superviseur
+écrit dans `%LOCALAPPDATA%\ShipGlows\DevServer\flutter-launch\<runId>\`, au fil
+du flux `--machine`. Tant que ce dossier existe, `s status`, `s logs` et
+`-Json` (`logPath`, `errorLogPath`, `logDirectory`) pointent vers lui. Le
+dossier de lancement étant supprimé à l'arrêt, sa fin de journal (256 Kio
+au plus, secrets masqués) et le résumé de `state.json` sont copiés une seule
+fois dans le `stdout.log` / `stderr.log` durables : ce sont des journaux
+post-mortem, jamais dupliqués pendant l'exécution.
 
 Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
 

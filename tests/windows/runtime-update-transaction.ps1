@@ -32,10 +32,11 @@ try {
     foreach ($source in @(Get-BootstrapFunctionSources $bootstrap @('Test-SgManagedRelativePath','Get-SgRuntimeUpdateOperation','Invoke-SgRuntimePayloadTransaction'))) { Invoke-Expression $source }
     $runtime = Join-Path $fixture 'runtime'
     $payload = Join-Path $fixture 'payload'
-    New-Item -ItemType Directory -Path (Join-Path $runtime 'cli\windows'),(Join-Path $runtime 'cli\environment'),(Join-Path $payload 'cli\windows'),(Join-Path $payload 'cli\environment') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $runtime 'cli\windows'),(Join-Path $runtime 'cli\environment'),(Join-Path $runtime 'bin'),(Join-Path $payload 'cli\windows'),(Join-Path $payload 'cli\environment') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $runtime 'cli\windows\current.ps1'),'old')
     [IO.File]::WriteAllText((Join-Path $runtime 'cli\windows\stale.ps1'),'stale')
-    [IO.File]::WriteAllText((Join-Path $runtime '.shipglows-runtime-files.json'),'["cli/windows/current.ps1","cli/windows/stale.ps1"]')
+    [IO.File]::WriteAllText((Join-Path $runtime 'bin\s.exe'),'previous managed native launcher')
+    [IO.File]::WriteAllText((Join-Path $runtime '.shipglows-runtime-files.json'),'["cli/windows/current.ps1","cli/windows/stale.ps1","bin/s.exe"]')
     [IO.File]::WriteAllText((Join-Path $payload 'cli\windows\current.ps1'),'new')
     [IO.File]::WriteAllText((Join-Path $payload 'cli\environment\new.py'),'new')
     $managed = @('cli/windows/current.ps1','cli/environment/new.py')
@@ -45,6 +46,7 @@ try {
     Invoke-SgRuntimePayloadTransaction -PayloadRoot $payload -RuntimeRoot $runtime -ManagedRelativePaths $managed -Action { }
     if ([IO.File]::ReadAllText((Join-Path $runtime 'cli\windows\current.ps1')) -cne 'new') { throw 'Upgrade did not activate the new payload.' }
     if (Test-Path -LiteralPath (Join-Path $runtime 'cli\windows\stale.ps1')) { throw 'Upgrade retained a stale managed file.' }
+    if (Test-Path -LiteralPath (Join-Path $runtime 'bin\s.exe')) { throw 'Upgrade retained the retired managed s.exe launcher.' }
     if (-not (Test-Path -LiteralPath (Join-Path $runtime 'cli\environment\new.py'))) { throw 'Upgrade omitted a new managed file.' }
     [IO.File]::WriteAllText((Join-Path $runtime '.shipglows-install.json'),('{"sourceCommit":"' + ('b' * 40) + '"}'))
     if ((Get-SgRuntimeUpdateOperation -RuntimeRoot $runtime -PayloadRoot $payload -ManagedRelativePaths $managed -SourceCommit ('a' * 40)) -ne 'update') { throw 'Different source commit must classify as update.' }

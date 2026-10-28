@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-10-20"
+updated: "2026-10-24"
 status: active
 source_skill: 010-sg-technical
 scope: performance-audit-playbook
@@ -99,7 +99,7 @@ Keep the boundary explicit: stay in `010-sg-technical performance` when performa
 
 Label every claim as `static` (code reading), `dev-session` (diagnostic only), `profile` (Flutter managed profile session), `hosted` (Vercel preview/production), or `production`. Never present a static guess as a measured bottleneck; never optimize without a before/after measurement at the same evidence level.
 
-- **Flutter**: measurements come from the managed profile session: `s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile` (the registry records `flutterMode: profile`; `s reload` is refused because Flutter supports neither hot reload nor hot restart in profile, `s restart … -FlutterMode profile` rebuilds; `s stop` is unchanged). Profile compiles like release (AOT, no asserts) while keeping the VM service and DevTools attached, so jank, raster, memory and timeline figures are representative. Debug-mode figures are never performance evidence, release has no attached tooling, and a hand-run `flutter run --profile` or `flutter drive --profile` outside the managed surface is not an accepted measurement path. Prefer a floor device (low-end Android via the provisioned emulator only for relative comparisons; a physical device for absolute frame budgets). Budget: ≤16 ms per frame at 60 Hz, ≤8 ms at 120 Hz, on BOTH the UI and the raster thread. "Track widget rebuilds" runs in debug and is a diagnostic for rebuild counts, not timing evidence.
+- **Flutter**: measurements come from the managed profile session: `s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile` (the registry records `flutterMode: profile`; `s reload` is refused because Flutter supports neither hot reload nor hot restart in profile, `s restart … -FlutterMode profile` rebuilds; `s stop` is unchanged). Profile compiles like release (AOT, no asserts) while keeping the VM service and DevTools attached, so jank, raster, memory and timeline figures are representative. Take the DevTools and VM service URIs from `s status -ProjectPath <p>` (`VM service` / `DevTools` lines; `vmServiceUri`, `devToolsUri`, `dtdUri` with `-Json`), never from the launch logs, and keep them out of reports since they embed the VM service auth code. Debug-mode figures are never performance evidence, release has no attached tooling, and a hand-run `flutter run --profile` or `flutter drive --profile` outside the managed surface is not an accepted measurement path. Prefer a floor device (low-end Android via the provisioned emulator only for relative comparisons; a physical device for absolute frame budgets). Budget: ≤16 ms per frame at 60 Hz, ≤8 ms at 120 Hz, on BOTH the UI and the raster thread. "Track widget rebuilds" runs in debug and is a diagnostic for rebuild counts, not timing evidence.
 - **Flutter Web download size, Astro production output, Tauri release startup/binary size**: each requires a build. Builds run only on explicit operator request; otherwise report these items as `static` readiness with the exact command the operator can approve. Hosted Vercel previews are the preferred real-measurement surface for Flutter Web and Astro (Lighthouse/PageSpeed or Vercel Speed Insights on the hosted URL).
 - **Astro dev server** serves unbundled Vite modules: never use it for CWV, weight or TTFB figures.
 - **Tauri dev session** runs a debug Rust host and the Vite dev server: valid for IPC call counts and interaction diagnostics, never for startup time, CPU cost of Rust code or binary size.

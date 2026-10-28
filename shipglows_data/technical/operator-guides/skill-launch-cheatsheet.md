@@ -67,6 +67,9 @@ One global workflow mode and three transversal execution tags refine that
 default. A mode says what workflow owns the work; a tag says where and how
 executable proof may run.
 
+- `shipglows profile` shows or changes the default execution profile (build,
+  test, server, commit, CI); granular tags `#build/#nobuild`, `#test/#notest`,
+  `#server/#noserver`, `#commit/#nocommit`, `#noci` override it per command.
 - `shipglows auto [focus]` works alone to improve the whole business (product,
   technical, SEO, UX, content, marketing) with local proof and milestone
   commits, no push; it asks only when truly blocked.

@@ -1,11 +1,12 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-18"
-updated: "2026-08-18"
-status: active
+updated: "2026-10-27"
+status: superseded
+superseded_by: "skills/202-sg-emailing/references/postmark-first-platform-standard.md"
 source_skill: 202-sg-emailing
 scope: resend-first-email-platform-standard
 owner: Diane
@@ -35,6 +36,8 @@ next_step: "/103-sg-verify Resend-first provider standard"
 ---
 
 # Resend-first Email Platform Standard
+
+> **Superseded on 2026-10-27.** The operator decided that Postmark becomes the portfolio-wide email transport and that all product email goes through the central CommandGlows email service. The current standard is `postmark-first-platform-standard.md` in this folder; use it for every provider or routing decision. Resend is now a legacy flow to migrate under that standard's rules. The text below is kept as history: it describes the superseded Resend-first position and is not active policy, and its exception matrix does not open any exception today.
 
 ## Purpose
 

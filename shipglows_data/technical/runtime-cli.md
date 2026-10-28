@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.44.1"
+artifact_version: "1.47.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-19"
+updated: "2026-10-28"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -42,6 +42,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "2026-10-24: a commandglows_app profile session hid its VM service and DevTools URIs in flutter-launch while s status announced empty logs; the supervisor now records them and s status points to the live flutter.*.log files."
   - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows focused-launcher replay 2026-09-04: `shipglows.cmd` enters the managed PowerShell runtime directly or through an explicit secure bootstrap route, and the compatibility form `shipglows update runtime` normalizes to the canonical updater without locking `s.exe`."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
@@ -118,9 +119,36 @@ per-surface `.shipglows.backend.json` contract in `ShipGlows.Backend.ps1`.
 `Start-SgProjectCore` remains the internal application/authentication implementation.
 Backend validation and readiness precede registry reconciliation, registration,
 port reservation and any replacement stop. Menu and CLI restart request the same
-transaction rather than stopping first. A per-project named mutex serializes
-start, stop and backend-supervisor actions. Existing manifests are never inferred
-or generated; a justified `none` mode is the only no-backend exception.
+transaction rather than stopping first. A per-project named mutex orders backend
+preparation, backend-supervisor checks and stops; it stays held for the whole
+launch only when the backend is `local`, whose supervisor watches the application
+state. Otherwise each target start holds its own per-target mutex, so the targets
+of one surface start side by side. The surface backend is shared by its targets:
+a changed backend fingerprint refuses while another target still runs on the
+previous one, and the backend stops with the last live target. Existing manifests
+are never inferred or generated; a justified `none` mode is the only no-backend exception.
+
+## Windows target sessions
+
+Each registry surface keeps one session per run target in `sessions`: Tauri
+`windows`/`android`, Flutter `windows`/`android`/`chrome`/`web-server`, and one
+target (`web`, `chrome`, `obsidian`) for the other kinds. A session owns its
+status, port and `portRole` (`primary`, `secondary`, `shared`, `none`), process
+identity, `startedAtUtc`, `stoppedAtUtc`, `lastEvent` and per-launch logs under
+`logs\<surface>\<target>\<launch>\`. The surface-level fields mirror the primary
+session for older readers; only a `primary` session moves the surface's durable
+port. Starting a target never replaces another: without an explicit target, start
+reuses the live one; a Flutter surface with no live session and no
+`SHIPGLOWS_FLUTTER_DEVICE` in `.shipglows.env` restarts its most recently used
+target (a `web-server` session that ended in error comes back as `web-server`, not
+as the built-in `windows`/`chrome` default). Two Tauri targets compete for the `devUrl` frontend port, so
+the second requires `-Frontend shared` (a generated session config drops
+`beforeDevCommand`), `-Frontend own` (its own port through `PORT` and an
+overridden `devUrl`) or `-Replace`. Stopping a frontend owner stops the targets
+attached to it. A status read reconciles pre-target surfaces in place without
+migrating them, adopts surface-level writes of an older CLI on migrated surfaces,
+and skips the registry write when nothing changed; the first lifecycle mutation
+migrates a surface. Focused proof: `tests/windows/devserver-multi-target.ps1`.
 
 `ShipGlows.BackendSupervisor.ps1` owns the declared local command within the detached
 Windows Job and checks readiness after the application is attached. Loss of local
@@ -253,7 +281,7 @@ analytics must not be sent to public research providers.
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Menu frontends that render the root menu and grouped submenus | Keep frontend behavior equivalent; update both variants together |
 | `cli/windows/install-devserver.ps1`, `cli/windows/shipglows-devserver.ps1`, `cli/windows/shipglows.ps1` | Native Windows dependency bootstrap, DevServer frontend, and focused ShipGlows commands | Install the pinned checksum-verified Gum binary into the user runtime, prefer it for interactive choices, preserve the plain PowerShell fallback, and keep `rename rio` isolated from Codex state |
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
-| `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
+| `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry with per-target sessions, process lifecycle, ports, and per-launch logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
 | `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
@@ -649,6 +677,18 @@ directory collisions fail closed. Neither command reloads an existing agent's
 context. The launcher must itself be deployed before these routes are available
 through an older installed command.
 
+`registry.lock` serializes registry read/merge/write only; slow reconciliation
+probes run before it is taken. The holder records its pid, operation and command
+in `registry.lock.owner.json`, and a waiter that times out after 15 s names it.
+`s doctor [-Json]` classifies every managed PowerShell process against the
+registry: each running session owns a job supervisor (plus a Flutter supervisor
+for Flutter) and a detached WMI-created exit watcher that records an unrequested
+exit. Only a supervisor no running session owns, or a watcher whose process has
+already exited, is an orphan; it is stopped with its tree only after an interactive
+confirmation. A process still recorded by an ended session is `stale`: doctor
+names the `s stop -ProjectPath` command instead of killing it. `s unlock` names the lock holder and stops it only after
+confirmation. Both list without stopping anything in a non-interactive console.
+
 Windows exposes a separate global developer-tool surface through
 `shipglows tools status|update` and `s tools status|update`. Status is read-only:
 it shows the declared ShipGlows-owned scope, asks WinGet for its available
@@ -766,17 +806,33 @@ stalled build) or after a 1800-second hard cap; other devices keep the
 600-second build window. `s reload -ProjectPath <path>` dispatches an authenticated
 hot reload only to a running managed Flutter session whose registered process,
 supervisor state, daemon and app identity still match; it never substitutes stop/start
-or a native rebuild. `s open` restarts that managed Flutter session with visible
+or a native rebuild. `s reload -Full` sends a hot restart (`fullRestart: true`)
+through the same checks, rebuilding app state from `main()` when routes or
+initializers change. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
 and stdout after the CLI exits. It records the last protocol event, Flutter exit
 code and exit reason, and registry reconciliation requires its `running` state
-instead of trusting a live wrapper alone. State readers allow delete sharing,
+instead of trusting a live wrapper alone. It also records the loopback-only
+VM service (`app.debugPort` `wsUri`), DevTools (`app.devTools`) and DTD
+(`app.dtd`) URIs of its own app, cleared on `app.stop` or exit; reconciliation
+mirrors them into the session's `vmServiceUri`, `devToolsUri` and `dtdUri`, and
+`s status` prints `VM service` / `DevTools` lines for a running target. Its
+`flutter.stdout.log` / `flutter.stderr.log` are the single live log source:
+`s status`, `s logs` and `-Json` point to them while the launch directory
+exists, and the durable session logs receive one post-mortem copy at stop. State readers allow delete sharing,
 while atomic publication retries only transient Windows sharing violations for
 a bounded interval and propagates persistent or unrelated I/O failures. On Windows desktop, cleanup recognizes
 only the exact current-project Debug runner declared by `BINARY_NAME`; transient
 debug-connection failures receive one retry only after verified extinction.
+When the supervisor does not acknowledge the authenticated stop, the stop kills
+the tree of every process whose command line names the session's private launch
+directory (supervisor, Flutter tool, Chrome profile) before the Job; extinction,
+and therefore the `stopped` registry write, requires those processes and the
+browser profile to be gone, with one forced pass before the registry is left
+untouched. `ShipGlows.MobileToolchain.psm1` keeps its start-time-checked
+`Stop-SgProcessTree` module-private so it cannot shadow DevServer's helper.
 The ordinary attachment deadline remains bounded, while an explicit active
 Flutter build receives a separate ten-minute ceiling so a healthy cold Windows
 compile is not terminated at the ninety-second attachment boundary. Supervisor

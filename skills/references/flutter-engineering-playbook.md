@@ -67,7 +67,7 @@ Where the pack and this playbook differ, see "Pack Deviations" at the end.
 
 ## 0. Operator Gates (All Areas)
 
-- **FE-OPS-1** Run apps only through the managed dev server: `s start -ProjectPath <p> -FlutterDevice windows|android|chrome|web-server`, `s reload -ProjectPath <p>` for hot reload, `s stop -ProjectPath <p>`. Never a hand-run `flutter run` or `npm run dev`.
+- **FE-OPS-1** Run apps only through the managed dev server: `s start -ProjectPath <p> -FlutterDevice windows|android|chrome|web-server`, `s reload -ProjectPath <p>` for hot reload (`-Full` for a hot restart when routes or initializers change), `s stop -ProjectPath <p>`. Never a hand-run `flutter run` or `npm run dev`.
 - **FE-OPS-2** Performance evidence comes only from the managed profile session: `s start ... -FlutterMode profile`, rebuilt with `s restart ... -FlutterMode profile`. Profile sessions do not hot-reload. Debug-mode numbers are not evidence.
 - **FE-OPS-3** No builds (`flutter build`, APK, AAB, `--release`, `tauri build`) unless the operator explicitly asks. Code generation is not a build (see FE-GEN-2).
 - **FE-OPS-4** No lint, analyze or test run as a gate. Run `flutter analyze`, `dart analyze`, `flutter test` or format checks only when the operator asks or a bug is confirmed, and name the check as the proof.

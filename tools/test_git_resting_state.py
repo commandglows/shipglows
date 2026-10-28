@@ -64,6 +64,24 @@ class GitRestingStateTests(unittest.TestCase):
             found = {item["name"]: item["disposition"] for item in resting_state(repo, pull_requests=False)["items"]}
             self.assertEqual(found["squashed-topic"], "auto")
 
+    def test_branch_folded_into_broader_squash_counts_as_integrated(self) -> None:
+        with TemporaryDirectory() as temporary:
+            repo = self._repo(Path(temporary))
+            for branch, names in (("folded-topic", ("c.txt", "d.txt")), ("open-topic", ("f.txt",))):
+                _git(repo, "switch", "-c", branch, "main")
+                for name in names:
+                    (repo / name).write_text(name, encoding="utf-8")
+                    _git(repo, "add", name)
+                    _git(repo, "commit", "-m", f"add {name}")
+            _git(repo, "switch", "main")
+            _git(repo, "merge", "--squash", "folded-topic")
+            (repo / "other.txt").write_text("other work", encoding="utf-8")
+            _git(repo, "add", "other.txt")
+            _git(repo, "commit", "-m", "broad squash (#1)", "-m", "* add c.txt\n\n* add d.txt\n\n* other work")
+            found = {item["name"]: item["disposition"] for item in resting_state(repo, pull_requests=False)["items"]}
+            self.assertEqual(found["folded-topic"], "auto")
+            self.assertEqual(found["open-topic"], "merge")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,7 +17,8 @@ Each deviation gets a suggested disposition:
   consolidated operator proposal instead of leaving it silent.
 
 Integration is proven by ancestry against the local or remote integration
-branch, or by content containment (squash and rebase merges).
+branch, by content containment (squash and rebase merges), or by every branch
+commit subject being listed in a broader squash message on the target.
 """
 
 from __future__ import annotations
@@ -121,6 +122,29 @@ def _patch_contained(repo: Path, rev: str, targets: list[str]) -> bool:
     return bool(commits) and commits <= applied
 
 
+_LISTED: dict[tuple[str, str, tuple[str, ...]], set[str]] = {}
+
+
+def _listed_subjects(repo: Path, base: str, targets: list[str]) -> set[str]:
+    """Commit subjects quoted as ``* subject`` bullets in squash messages applied since ``base``."""
+    key = (str(repo), base, tuple(targets))
+    if key not in _LISTED:
+        bodies = _git(repo, "log", "--no-merges", "--format=%b", *targets, f"^{base}", check=False)
+        _LISTED[key] = {line.strip()[2:].strip() for line in bodies.splitlines()
+                        if line.strip()[:2] in ("* ", "- ")}
+    return _LISTED[key]
+
+
+def _squash_listed(repo: Path, rev: str, targets: list[str]) -> bool:
+    """Broad squash merge: every commit of the branch is listed by subject in a squash
+    message on a target, though the squash also carries other work (so no patch matches)."""
+    base = _git(repo, "merge-base", targets[0], rev, check=False)
+    if not base:
+        return False
+    subjects = set(_lines(_git(repo, "log", "--no-merges", "--format=%s", f"{base}..{rev}", check=False)))
+    return bool(subjects) and subjects <= _listed_subjects(repo, base, targets)
+
+
 _INTEGRATED: dict[tuple[str, str, tuple[str, ...]], str | None] = {}
 
 
@@ -147,7 +171,7 @@ def _find_integration(repo: Path, rev: str, targets: list[str]) -> str | None:
             tree = merged.stdout.decode("utf-8", "replace").splitlines()[0].strip() if merged.stdout else ""
             if tree and tree == _git(repo, "rev-parse", f"{target}^{{tree}}", check=False):
                 return target
-    if _patch_contained(repo, rev, targets):
+    if _patch_contained(repo, rev, targets) or _squash_listed(repo, rev, targets):
         return targets[0]
     return None
 

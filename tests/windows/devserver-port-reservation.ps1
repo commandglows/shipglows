@@ -39,7 +39,7 @@ try {
     # A concurrent reconciliation clearing the token must not fail the launch that owns the live process.
     $startTime = '2026-10-14T08:00:00.0000000Z'
     $module = Get-Module ShipGlows.DevServer
-    & $module { param($c,$p,$t) Invoke-SgRegistryMutation $c { param($data); $item=@($data.projects|Where-Object{$_.path-eq$p})[0]; $item.status='starting'; $item.pid=4242; $item|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $t -Force; $item.reservationToken=$null; $item.reservationTimeUtc=$null } | Out-Null } $config $one $startTime
+    & $module { param($c,$p,$t) Invoke-SgRegistryMutation $c { param($data); $item=@($data.projects|Where-Object{$_.path-eq$p})[0]; foreach($state in @($item)+@($item.sessions)){$state.status='starting'; $state.pid=4242; $state|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $t -Force; $state.reservationToken=$null; $state.reservationTimeUtc=$null} } | Out-Null } $config $one $startTime
     Set-SgReservationState $config $one $native.Token 'running' ([pscustomobject]@{ pid=4242; startTimeUtc=$startTime })
     $committed = (Read-SgRegistry $config).projects | Where-Object path -eq $one | Select-Object -First 1
     if ($committed.status -ne 'running' -or $committed.pid -ne 4242) { throw 'A launch whose token was cleared by reconciliation was not committed by process identity.' }
@@ -48,7 +48,7 @@ try {
     if (-not $foreign) { throw 'A launch with a different process identity reclaimed a lost reservation.' }
 
     # Reconciliation keeps the token of a live launch that is still starting.
-    & $module { param($c,$p) Invoke-SgRegistryMutation $c { param($data); $item=@($data.projects|Where-Object{$_.path-eq$p})[0]; $item.kind='flutter-web'; $item|Add-Member -NotePropertyName flutterDeviceId -NotePropertyValue 'windows' -Force; $item.status='starting'; $item.reservationToken='live-start-token'; $item.reservationTimeUtc=[DateTime]::UtcNow.AddMinutes(-20).ToString('o') } | Out-Null } $config $one
+    & $module { param($c,$p) Invoke-SgRegistryMutation $c { param($data); $item=@($data.projects|Where-Object{$_.path-eq$p})[0]; $item.kind='flutter-web'; foreach($state in @($item)+@($item.sessions)){$state|Add-Member -NotePropertyName flutterDeviceId -NotePropertyValue 'windows' -Force; $state.status='starting'; $state.reservationToken='live-start-token'; $state.reservationTimeUtc=[DateTime]::UtcNow.AddMinutes(-20).ToString('o')} } | Out-Null } $config $one
     & $module {
         param($c)
         function Get-SgProcessSnapshotMap { @{} }

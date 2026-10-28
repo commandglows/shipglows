@@ -1,0 +1,31 @@
+# Local SearXNG for shipglows-search: JSON API on, bot limiter off (loopback only).
+use_default_settings: true
+
+general:
+  instance_name: ShipGlows local search
+
+server:
+  limiter: false
+  public_instance: false
+  image_proxy: false
+
+search:
+  safe_search: 0
+  formats:
+    - html
+    - json
+
+outgoing:
+  # Scraped engines answer slower than APIs; the default 3 s drops them.
+  request_timeout: 6.0
+
+# Spread queries over many engines so no single one sees enough traffic to block this IP.
+# Tested 2026-10-25: Google results come from the default "google cse" engine; direct
+# google and qwant answer "access denied", yahoo fails to parse, so they stay off.
+engines:
+  - name: bing
+    disabled: false
+  - name: mojeek
+    disabled: false
+  - name: swisscows
+    disabled: false

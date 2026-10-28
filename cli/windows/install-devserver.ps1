@@ -339,15 +339,11 @@ call exit /b %%errorlevel%%
     Add-SgRuntimeToUserPath
 
     $shortCommand = Join-Path $runtimeDir 's.cmd'
-    $shortExecutable = Join-Path $runtimeDir 's.exe'
     $existing = Get-Command s -ErrorAction SilentlyContinue | Select-Object -First 1
     $canUseShortCommand = -not $existing
     if ($existing -and $existing.Source) {
         try {
-            $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -in @(
-                [IO.Path]::GetFullPath($shortCommand),
-                [IO.Path]::GetFullPath($shortExecutable)
-            )
+            $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortCommand)
         } catch { }
     }
     if ($canUseShortCommand) {
@@ -375,14 +371,7 @@ call exit /b %%errorlevel%%
         foreach ($nativeCommand in @('shipglows-dev.exe','sg.exe')) {
             Copy-Item -LiteralPath $compiledLauncher -Destination (Join-Path $runtimeDir $nativeCommand) -Force
         }
-        if ($canUseShortCommand) {
-            try {
-                Copy-Item -LiteralPath $compiledLauncher -Destination $shortExecutable -Force
-                Write-Host 'Native short commands installed: s, sg' -ForegroundColor Green
-            } catch [IO.IOException] {
-                Write-SgInstallerWarning "The running s.exe launcher is locked. Run 'shipglows update runtime' outside s to refresh the native launcher."
-            }
-        }
+        Write-Host 'Native commands installed: shipglows-dev, sg' -ForegroundColor Green
     } finally {
         Remove-Item -LiteralPath $compiledLauncher -Force -ErrorAction SilentlyContinue
     }
@@ -423,6 +412,38 @@ call exit /b %%errorlevel%%
         Write-SgInstallerWarning "The command 'shipglows' is already used by $($existingShipglows.Source). ShipGlows preserved it."
     }
 
+}
+
+function Install-SgWebResearchCommands {
+    # The research tools live in the ShipGlows checkout, not in the runtime payload.
+    $toolsDir = Join-Path (Join-Path $Workspace 'shipglows') 'tools'
+    if (-not (Test-Path -LiteralPath (Join-Path $toolsDir 'shipglows_search.py') -PathType Leaf)) {
+        Write-SgInstallerWarning "Web research commands skipped: no ShipGlows checkout at $toolsDir."
+        return
+    }
+    foreach ($tool in @('search','parallel','fetch','scraping')) {
+        $script = Join-Path $toolsDir "shipglows_$tool.py"
+        if (-not (Test-Path -LiteralPath $script -PathType Leaf)) { continue }
+        Set-SgLauncherContent (Join-Path $runtimeDir "shipglows-$tool.cmd") "@echo off`r`npython `"$script`" %*`r`nexit /b %errorlevel%`r`n"
+    }
+    Write-Host 'Web research commands installed: shipglows-search, shipglows-parallel, shipglows-fetch, shipglows-scraping' -ForegroundColor Green
+
+    # Free local SearXNG + Crawl4AI: start it when Docker already runs, never install Docker here.
+    if (-not (Get-Command docker -CommandType Application -ErrorAction SilentlyContinue)) {
+        Write-SgInstallerWarning 'Local search stack not started: Docker Desktop is missing (winget install Docker.DockerDesktop), then run: shipglows-scraping up'
+        return
+    }
+    $python = Get-SgToolPath 'python'
+    if (-not $python) {
+        Write-SgInstallerWarning 'Local search stack not started: python is missing. Run later: shipglows-scraping up'
+        return
+    }
+    $result = Invoke-SgBoundedProcess -File $python -Arguments @((Join-Path $toolsDir 'shipglows_scraping.py'), 'up') -TimeoutSeconds 1800
+    if ($result.TimedOut -or $result.ExitCode -ne 0) {
+        Write-SgInstallerWarning 'Local search stack not ready (is Docker Desktop running?). Run later: shipglows-scraping up'
+    } else {
+        Write-Host 'Local search stack ready: SearXNG 127.0.0.1:8888, Crawl4AI 127.0.0.1:11235' -ForegroundColor Green
+    }
 }
 
 function Test-SgTool([string]$Name, [string[]]$KnownPaths = @()) {
@@ -1377,12 +1398,29 @@ function Get-SgHypervisorEvidence {
     } catch { return $false }
 }
 
+# Flutter prefers the Android Studio bundled JBR over JAVA_HOME, and that JBR regularly runs ahead
+# of what the project's Gradle accepts (JBR 25 vs Gradle 8.14). Pinning `flutter config --jdk-dir`
+# to the validated JDK is the only setting Flutter honours first; it is idempotent.
+function Set-SgFlutterJdkDir([string]$FlutterPath, [string]$JdkHome) {
+    if (-not $FlutterPath -or -not (Test-Path -LiteralPath $FlutterPath -PathType Leaf)) { Write-SgInstallerWarning 'Flutter JDK pinning is pending: no Flutter executable is available yet.'; return $false }
+    if (-not $JdkHome -or -not (Test-Path -LiteralPath (Join-Path $JdkHome 'bin\java.exe') -PathType Leaf)) { Write-SgInstallerWarning "Flutter JDK pinning is pending: JDK home is not usable: $JdkHome"; return $false }
+    $jdkHomeFull = [IO.Path]::GetFullPath($JdkHome)
+    $current = Get-SgFlutterConfiguredJdkDir
+    if ($current -and ([IO.Path]::GetFullPath($current)).Equals($jdkHomeFull,[StringComparison]::OrdinalIgnoreCase)) { Write-Host "Flutter already builds Android with the validated JDK: $jdkHomeFull" -ForegroundColor Green; return $true }
+    $result = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.jdk-dir' -Label 'Pinning the validated JDK for Flutter Android builds' -File $FlutterPath -Arguments @('config','--jdk-dir',$jdkHomeFull) -TimeoutSeconds 90
+    if ($result.TimedOut -or $result.ExitCode -ne 0) { Write-SgInstallerWarning "Flutter JDK pinning failed; run: flutter config --jdk-dir `"$jdkHomeFull`""; return $false }
+    $jbr = Get-SgAndroidStudioJbrHome
+    Write-Host "Flutter Android builds now use JDK $(Get-SgJdkMajorVersion $jdkHomeFull) at $jdkHomeFull$(if($jbr){" instead of the Android Studio JBR (Java $(Get-SgJdkMajorVersion $jbr))"})." -ForegroundColor Green
+    return $true
+}
+
 function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths, [bool]$TauriRequired = $false) {
     if (-not $FlutterReady -and -not $TauriRequired) { Write-SgInstallerWarning 'Android setup is pending because no Flutter or Tauri Android consumer was detected.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false; SdkRoot=''; NdkReady=$false } }
     if (-not (Test-SgSupportedAndroidArchitecture)) { Write-SgInstallerWarning 'Android setup is pending: automatic Windows provisioning currently requires an x64 operating system. No Android package was downloaded.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
     $interactive = -not [Console]::IsInputRedirected
     $java = Install-SgJdk17
     if (-not $java) { return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    [void](Set-SgFlutterJdkDir -FlutterPath (Get-SgToolPath 'flutter.bat' $FlutterPaths) -JdkHome (Split-Path (Split-Path $java -Parent) -Parent))
     $managedSdkRoot = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
     $existingSdk = Resolve-SgExistingAndroidSdk -CandidateRoots @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,$managedSdkRoot) -SdkManagerCommand (Get-SgToolPath 'sdkmanager.bat' @())
     $managedSdk = -not $existingSdk.Ready -or ($existingSdk.Root -and $existingSdk.Root.Equals($managedSdkRoot,[StringComparison]::OrdinalIgnoreCase))
@@ -1880,7 +1918,10 @@ function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
     $result = Invoke-SgBoundedProcess $NpmPath @('view',$PackageName,'version','--json','--registry=https://registry.npmjs.org/') 45
     if ($result.TimedOut -or $result.ExitCode -ne 0) { throw "Exact version resolution failed for $PackageName." }
     try {
-        $resolved = @($result.Output | ConvertFrom-Json)
+        # npm writes config warnings (e.g. a project .npmrc carrying pnpm keys) to stderr,
+        # which the bounded runner merges into Output; only the JSON payload is parsed.
+        $payload = (@(([string]$result.Output) -split "`r?`n" | Where-Object { $_ -notmatch '^npm (warn|WARN|notice|NOTICE)\b' }) -join "`n").Trim()
+        $resolved = @($payload | ConvertFrom-Json)
         $version = if ($resolved.Count -eq 1) { [string]$resolved[0] } else { '' }
     } catch { $version = '' }
     if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "Exact version resolution failed for $PackageName." }
@@ -1989,7 +2030,7 @@ Remove-SgObsoleteProfileCommand
 Import-Module (Join-Path $runtimeDir 'ShipGlows.PowerShellRuntime.psm1') -Force -DisableNameChecking
 $env:SHIPGLOWS_MANAGED_PWSH = Resolve-SgManagedPowerShell
 # Never rewrite the batch launcher while it is waiting for this updater.
-if (-not $UpdateDeveloperTools) { Install-SgCommandWrappers }
+if (-not $UpdateDeveloperTools) { Install-SgCommandWrappers; Install-SgWebResearchCommands }
 [void](Install-SgGum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')

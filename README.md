@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.30.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-10-19"
+updated: "2026-10-28"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -440,7 +440,9 @@ names are explicit workspace-relative launch paths, and navigation selects by
 canonical launch identity rather than by a potentially ambiguous label.
 
 Port selection and reservation share one inter-process registry lock, preventing
-concurrent starts from assigning the same port to different surfaces. Existing
+concurrent starts from assigning the same port to different surfaces. `s doctor`
+lists managed processes and the lock holder and stops orphans after confirmation;
+`s unlock` releases a stuck lock the same way. Existing
 single-surface registry entries are migrated by runnable path while preserving
 verified live process metadata. Flutter runs through a small persistent
 machine-protocol supervisor with managed logs. Iterative development uses the
@@ -800,7 +802,7 @@ does not patch project workflows automatically from this menu.
 Notes:
 - `shipglows-gsc` is the ShipGlows-owned, read-only Google Search Console CLI. Its source is `tools/shipglows_gsc.py`; `cli/shipglows-gsc.sh` is the repository launcher. It uses an operator-supplied Google OAuth desktop-client JSON and keeps authorization files in the user's local configuration directory, outside the repository. POSIX mode bits are requested; on Windows verify the effective ACL because `chmod` alone does not secure files. It does not enable a third-party GSC MCP or ChatGPT app, or submit sitemaps. See `shipglows_data/technical/google-search-console-cli.md` for setup, commands, and limits.
 - `shipglows-serp` is a separate one-query Google SERP lookup through SerpApi. It uses `SERPAPI_API_KEY` only from the current process environment, returns localized organic result snapshots, and does not collect GSC impressions or persist credentials. See `shipglows_data/technical/serpapi-google-serp-cli.md` for setup, quota, and limitations.
-- `shipglows-search` is the default web search: it tries Firecrawl (`FIRECRAWL_API_KEY`), then Parallel (`PARALLEL_API_KEY`), and exits 3 when every provider fails so the agent falls back to its native web search. See `skills/references/web-research-fallback.md`.
+- `shipglows-search` is the default web search: it tries the local SearXNG of `local/scraping/` (free, `SHIPGLOWS_SEARXNG_URL`, `off` disables it), then DeepSeek (`DEEPSEEK_API_KEY`, $0.75 per 1,000 requests), then Firecrawl (`FIRECRAWL_API_KEY`), then Parallel (`PARALLEL_API_KEY`), and exits 3 when every provider fails so the agent falls back to its native web search. `shipglows-fetch <url>` reads pages as Markdown: plain HTTP first (a YouTube video page yields its title, channel, date, duration and description from the embedded player data), the local Crawl4AI browser only for JavaScript pages, HTTP errors or non-HTML answers, then DeepSeek, Firecrawl and Parallel. `shipglows-scraping up|status|down` manages the local stack. See `skills/references/web-research-fallback.md` and `local/scraping/README.md`.
 - `shipglows-parallel` provides Search with source/date/location filters, Extract for selected page content, asynchronous cited research tasks, and scheduled web monitors. It uses `PARALLEL_API_KEY` from the process environment. Search relevance is not a Google SERP position. See `shipglows_data/technical/parallel-web-search-cli.md` for commands, usage, and limits.
 - `dataforseo` is configured but disabled by default in Codex unless
   `SHIPGLOWS_ENABLE_DATAFORSEO_MCP=1` and credentials are available.
@@ -954,10 +956,16 @@ Execution posture composes with those routes and every public métier command:
 sg-development feature checkout #local
 sg-bug fix payment callback #nolocal
 sg-engineering verify checkout #ci
+sg-development fix login #notest
+shipglows auto seo
 shipglows blitz #ci until=18:00
 ```
 
-`#ci` implies `#nolocal` and only identifies deferred proof; it does not
+Granular tags `#build`/`#nobuild`, `#test`/`#notest`, `#server`/`#noserver`,
+`#commit`/`#nocommit`, and `#noci` control one workload each; without a tag the
+saved default execution profile applies (`shipglows profile`). `shipglows auto`
+keeps improving the whole business autonomously with local proof and milestone
+commits, never pushing. `#ci` implies `#nolocal` and only identifies deferred proof; it does not
 authorize push or workflow dispatch. `shipglows blitz` always implies
 `#nolocal` and rejects `#local`. The older `shipglows nolocal <objective>` form
 remains accepted as a compatibility alias. These are agent-invocation tags,
@@ -1425,7 +1433,9 @@ shipglows/
 - `cli/install.sh` — installation and machine setup
 - `cli/shipglows-gsc.sh` — installed launcher for the read-only Google Search Console CLI
 - `cli/shipglows-serp.sh` — installed launcher for the one-query SerpApi Google SERP CLI
-- `cli/shipglows-search.sh` — installed launcher for the Firecrawl → Parallel search fallback (`tools/shipglows_search.py`)
+- `cli/shipglows-search.sh` — installed launcher for the local SearXNG → DeepSeek → Firecrawl → Parallel search fallback (`tools/shipglows_search.py`)
+- `cli/shipglows-fetch.sh` — installed launcher for the HTTP → Crawl4AI → DeepSeek → Firecrawl → Parallel page reader (`tools/shipglows_fetch.py`)
+- `cli/shipglows-scraping.sh` — installed launcher for the local SearXNG + Crawl4AI Docker stack (`tools/shipglows_scraping.py`, [`local/scraping/README.md`](local/scraping/README.md))
 - `cli/shipglows-parallel.sh` — installed launcher for the Parallel Web Search CLI
 - `shipglows readwise` / `shipglows-readwise` — official Readwise/Reader commands with ShipGlows browser OAuth on a dynamic loopback port; [setup, commands and verification limits](shipglows_data/technical/readwise-cli.md)
 - `install-shipglows.sh` — remote/bootstrap install helper

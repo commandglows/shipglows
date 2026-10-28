@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-07"
-updated: "2026-09-05"
+updated: "2026-10-27"
 status: active
 source_skill: 202-sg-emailing
 scope: cross-skill-email-routing
@@ -53,8 +53,8 @@ All paths resolve from `$SHIPGLOWS_ROOT/skills/202-sg-emailing/references/`.
 | Draft, sequence, campaign, transactional copy, subject, preview, CTA, localization, content audit | `accessible-email-writing-playbook.md` |
 | HTML/template/component, responsive rendering, client compatibility, plain text, technical accessibility | `accessible-email-technical-playbook.md` |
 | Sending domain, SPF, DKIM, DMARC, reputation, consent, unsubscribe, suppressions, bounces, complaints, delivery webhooks | `email-deliverability-and-authentication-playbook.md` |
-| Resend plugin, MCP, CLI, API, agent inbox, logs, contacts, segments, broadcasts, templates, or agent-triggered sends | `resend-agent-integration-playbook.md` plus the task-specific reference above |
 | Postmark setup, API adapter, streams, webhooks, sandbox, migration or sends | `postmark-agent-integration-playbook.md` plus the task-specific reference above |
+| Legacy Resend plugin, MCP, CLI, API, contacts, broadcasts or templates, inventory or migration only | `resend-agent-integration-playbook.md` plus the task-specific reference above |
 | Newsletter signup, confirmation, preferences, server proxy or operator preview/approval | `newsletter-components-playbook.md` |
 
 For central email integration or a task connecting consent, identity and product
@@ -67,9 +67,9 @@ Load more than one only when the task crosses layers:
 - password reset implementation: writing + technical; add deliverability only
   when provider/domain or real delivery is in scope
 - newsletter campaign: writing + deliverability; add technical for an HTML
-  template and Resend integration only when Resend tools are used
+  template only; the central service renders the HTML.
 - DMARC audit: deliverability only
-- Resend MCP connection: integration only until a concrete email action
+- Legacy Resend inventory: integration only until a migration action
   activates another layer
 - Postmark newsletter implementation: central boundary + newsletter + technical +
   deliverability + Postmark; add writing when authoring copy. Auth0 loads only if
@@ -94,8 +94,9 @@ Load more than one only when the task crosses layers:
 Drafting, static inspection, and read-only diagnostics do not authorize an
 external mutation. Before sending or scheduling mail, changing recipients,
 contacts, segments, suppressions, domains, DNS, webhooks, or credentials, load
-`resend-agent-integration-playbook.md` when Resend is involved and require its
-bounded authorization. Apply the same authorization principle elsewhere.
+`postmark-first-platform-standard.md` and `postmark-agent-integration-playbook.md`
+and require bounded authorization; `resend-agent-integration-playbook.md` only for
+legacy migration. Apply the same principle elsewhere.
 
 ## Completion Gate
 

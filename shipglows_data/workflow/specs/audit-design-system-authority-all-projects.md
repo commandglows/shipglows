@@ -193,9 +193,9 @@ The first audit creates or updates a central ShipGlows workflow audit report. It
   - Validate with: `python3 tools/shipglows_metadata_lint.py shipglows_data/workflow/specs/audit-design-system-authority-all-projects.md`
 
 - [x] Task 2: Run read-only project inventory.
-  - File: `shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md`
+  - File: `shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md` (report removed 2026-10-24; recover it from git history)
   - Action: Record each project, UI evidence, authority status, token/theme candidates, dirty-state note, and remediation priority.
-  - Validate with: `python3 tools/shipglows_metadata_lint.py shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md`
+  - Validate with: `python3 tools/shipglows_metadata_lint.py shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md` (report removed 2026-10-24; recover it from git history)
 
 - [x] Task 3: Run mechanical drift checks where practical.
   - Files: product project source trees, read-only.
@@ -203,7 +203,7 @@ The first audit creates or updates a central ShipGlows workflow audit report. It
   - Validate with: report includes command status or explicit exception per project.
 
 - [x] Task 4: Prioritize remediation.
-  - File: `shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md`
+  - File: `shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md` (report removed 2026-10-24; recover it from git history)
   - Action: Rank projects by missing authority, existing token source confidence, monorepo complexity, and likely UI drift risk.
   - Validate with: every missing-authority project has a concrete next owner route.
 
@@ -229,7 +229,7 @@ The first audit creates or updates a central ShipGlows workflow audit report. It
 - `python3 tools/design_system_drift_check.py --changed --format markdown --warn-only`
 - `git status --short` before and after inventory to prove only ShipGlows audit artifacts changed.
 - Focused project discovery command listing `.git`, `shipglows_data`, UI markers, authority files, and token/theme candidates.
-- `python3 tools/shipglows_metadata_lint.py shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md`
+- `python3 tools/shipglows_metadata_lint.py shipglows_data/workflow/audits/2026-06-11-design-system-authority-all-projects.md` (report removed 2026-10-24; recover it from git history)
 
 ## Risks
 

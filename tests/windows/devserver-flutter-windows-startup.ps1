@@ -59,7 +59,8 @@ try{
             [IO.File]::WriteAllText($statePath,'{"status":"building","appId":"app-build","daemonPid":42,"progressActive":true}')
             function Test-SgProcessIdentity {$true}
             $clock=[Diagnostics.Stopwatch]::StartNew();$buildTimeout=Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1;$clock.Stop()
-            if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'build timed out'){throw 'Active Flutter build progress did not receive its dedicated startup window.'}
+            if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'^Flutter build timed out after 1 seconds'){throw "Active Flutter build progress did not receive its dedicated startup window or an unlabelled message: $($buildTimeout.Error)"}
+            if((Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1 -BuildLabel 'web').Error-notmatch'^Flutter web build timed out'){throw 'A Flutter web build timeout was not labelled with its own target.'}
             $transitionAt=[datetime]'2026-09-04T20:00:00Z';$timing=Update-SgFlutterReadinessWindow $true $false $transitionAt.AddMinutes(-1) 90 $transitionAt
             if($timing.ActiveProgress-or$timing.Deadline-ne$transitionAt.AddSeconds(90)){throw 'Flutter debug attachment did not receive a fresh deadline after a long build completed.'}
             $buildRoot=Join-Path $stateRoot 'build\windows';New-Item -ItemType Directory -Path $buildRoot -Force|Out-Null;[IO.File]::WriteAllText((Join-Path $buildRoot 'old.obj'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $buildRoot 'old.obj'),[datetime]::UtcNow.AddHours(-1))
@@ -72,6 +73,19 @@ try{
             if((Get-SgLatestWriteUtc (Join-Path $stateRoot 'missing'))-ne[datetime]::MinValue){throw 'A missing build directory did not report the minimum write time.'}
             $dartRoot=Join-Path $stateRoot '.dart_tool\flutter_build';New-Item -ItemType Directory -Path $dartRoot -Force|Out-Null;$freshAt=[datetime]::UtcNow.AddSeconds(-5);[IO.File]::WriteAllText((Join-Path $dartRoot 'app.dill'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $dartRoot 'app.dill'),$freshAt)
             if((Get-SgLatestWriteUtc @($buildRoot,$dartRoot,(Join-Path $stateRoot 'missing')))-ne$freshAt){throw 'Dart kernel output under .dart_tool did not count as Flutter Windows build activity.'}
+            $distRoot=Join-Path $stateRoot 'wrapper\dists';$deepDir=Join-Path $distRoot 'gradle-8.14-all\abc\gradle-8.14\lib';New-Item -ItemType Directory -Path $deepDir -Force|Out-Null;$shallowAt=[datetime]::UtcNow.AddSeconds(-3);$deepAt=[datetime]::UtcNow.AddSeconds(-1)
+            [IO.File]::WriteAllText((Join-Path $distRoot 'gradle-8.14-all\abc\gradle-8.14-all.zip.part'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $distRoot 'gradle-8.14-all\abc\gradle-8.14-all.zip.part'),$shallowAt);[IO.File]::WriteAllText((Join-Path $deepDir 'deep.jar'),'x');[IO.File]::SetLastWriteTimeUtc((Join-Path $deepDir 'deep.jar'),$deepAt)
+            foreach($dir in @($distRoot,(Join-Path $distRoot 'gradle-8.14-all'),(Join-Path $distRoot 'gradle-8.14-all\abc'),(Join-Path $distRoot 'gradle-8.14-all\abc\gradle-8.14'),$deepDir)){[IO.Directory]::SetLastWriteTimeUtc($dir,$shallowAt.AddSeconds(-1))}
+            if((Get-SgLatestWriteUtc @() @($distRoot) 2)-ne$shallowAt){throw 'Shallow Gradle distribution scan did not stop at the requested depth.'}
+            if((Get-SgLatestWriteUtc @() @($distRoot) 4)-ne$deepAt){throw 'Shallow Gradle distribution scan ignored a file within the requested depth.'}
+            $androidTimeout=Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1 -BuildLabel 'Android' -BuildHint 'Hint.'
+            if($androidTimeout.Error-notmatch'^Flutter Android build timed out after 1 seconds before app\.started\. Hint\.$'){throw "Android build timeout message was not labelled and hinted: $($androidTimeout.Error)"}
+            $androidProject=Join-Path $stateRoot 'android-app';New-Item -ItemType Directory -Path (Join-Path $androidProject 'android\gradle\wrapper') -Force|Out-Null
+            if((Get-SgFlutterAndroidColdBuildReason $androidProject)-notmatch'build\\app'){throw 'A project without Gradle output was not reported as a cold Android build.'}
+            New-Item -ItemType Directory -Path (Join-Path $androidProject 'build\app') -Force|Out-Null;[IO.File]::WriteAllText((Join-Path $androidProject 'android\gradle\wrapper\gradle-wrapper.properties'),"distributionUrl=https\://services.gradle.org/distributions/gradle-0.0-sg-missing-all.zip`n")
+            if((Get-SgFlutterAndroidColdBuildReason $androidProject)-notmatch'gradle-0\.0-sg-missing-all'){throw 'A missing Gradle wrapper distribution was not reported as a cold Android build.'}
+            $androidActivity=Get-SgFlutterAndroidBuildActivity $androidProject (Join-Path $stateRoot 'launch')
+            if(@($androidActivity.Path|Where-Object{$_-eq(Join-Path $androidProject 'build')}).Count-ne1-or@($androidActivity.ShallowPath|Where-Object{$_-like'*wrapper\dists'}).Count-ne1){throw 'Android build activity paths do not cover Gradle output and the wrapper distributions.'}
             function Test-SgProcessIdentity {$false}
             $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
             if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}
