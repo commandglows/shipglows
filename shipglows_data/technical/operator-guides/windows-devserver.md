@@ -597,7 +597,7 @@ Une surface Flutter lancée en `-FlutterDevice web-server` qui contient un dossi
 - Méthode : `cli/windows/ShipGlows.ApiProxy.cjs`, un proxy Node sans dépendance. Les handlers Vercel `module.exports = async function handler(req, res)` reçoivent les helpers Vercel (`req.query`, `req.cookies`, `req.body`, `res.status`, `res.json`, `res.send`, `res.redirect`) ; le routage suit les fichiers Vercel (`[id].js`, `[...slug].js`, `index.js`).
 - Env : le scope Doppler déclaré dans `.shipglows.flutter.json` est injecté au proxy, sans jamais afficher de valeur. Les defines publics de l'origine web locale (par exemple `REPLAYGLOWS_APP_URL`) sont appliqués après injection.
 - Rechargement : les handlers CommonJS sont relus à chaque requête ; un changement de dépendance hors `api/` demande `s restart`.
-- Journal : les requêtes `/api` sont tracées dans les logs de session (`[api] METHOD path status durée`).
+- Journal : chaque requête `/api` est tracée dans `api.log` du dossier de lancement de la session (`[api] METHOD path status durée`), sans valeur d'environnement.
 - Registre : la session porte `apiProxy: active` et `flutterWebPort` (port du web-server Flutter interne).
 - Limites : `vercel.json` (rewrites, routes, runtimes) n'est pas interprété ; seuls les fichiers `.js`, `.cjs` et `.mjs` sous `api/` sont routés ; `chrome` n'est pas routé par l'API.
 

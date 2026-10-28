@@ -88,7 +88,7 @@ function Start-SgApiProxy([int]$ProxyPort,[int]$FlutterPort,[string]$ProjectRoot
     if(-not(Test-Path -LiteralPath $script -PathType Leaf)){throw 'ShipGlows API proxy is missing.'}
     $node=Get-Command node -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if(-not $node){throw 'Node.js is required for the local API proxy; it is not on PATH.'}
-    $proxyArguments=@($script,'--listen',"127.0.0.1:$ProxyPort",'--flutter',"127.0.0.1:$FlutterPort",'--root',(Join-Path $ProjectRoot 'api'))
+    $proxyArguments=@($script,'--listen',"127.0.0.1:$ProxyPort",'--flutter',"127.0.0.1:$FlutterPort",'--root',(Join-Path $ProjectRoot 'api'),'--log',(Join-Path $LaunchRoot 'api.log'))
     $file=$node.Source
     $scope=Get-SgApiDopplerScope $ProjectRoot
     if($scope){

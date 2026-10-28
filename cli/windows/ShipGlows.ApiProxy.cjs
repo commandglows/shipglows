@@ -15,6 +15,15 @@ const MAX_BODY_BYTES = 1024 * 1024;
 const PUBLIC_NAME_PATTERN = /^[A-Z][A-Z0-9_]{0,95}$/;
 const HANDLER_EXTENSIONS = ['.js', '.cjs', '.mjs'];
 
+let logFile = null;
+
+// Requests and handler failures go to stdout and, when --log is given, to the session's api.log.
+function report(line) {
+  console.log(line);
+  if (!logFile) return;
+  try { fs.appendFileSync(logFile, `${new Date().toISOString()} ${line}\n`); } catch { /* best effort */ }
+}
+
 function parseOptions(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 2) {
@@ -237,7 +246,7 @@ async function handleApiRequest(req, res, url, root) {
   const handler = match ? await loadHandler(match.file, root) : null;
   if (!handler) {
     sendJson(res, 404, { error: 'NOT_FOUND', message: 'No API handler for this path.' });
-    console.log(`[api] ${req.method} ${url.pathname} 404 ${Date.now() - started}ms`);
+    report(`[api] ${req.method} ${url.pathname} 404 ${Date.now() - started}ms`);
     return;
   }
   let buffer;
@@ -256,10 +265,10 @@ async function handleApiRequest(req, res, url, root) {
   try {
     await handler(req, augmentResponse(res));
   } catch (error) {
-    console.error(`[api] ${req.method} ${url.pathname} handler error: ${error.message}`);
+    report(`[api] ${req.method} ${url.pathname} handler error: ${error.message}`);
     sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'The API handler failed. See the session logs.' });
   }
-  console.log(`[api] ${req.method} ${url.pathname} ${res.statusCode} ${Date.now() - started}ms`);
+  report(`[api] ${req.method} ${url.pathname} ${res.statusCode} ${Date.now() - started}ms`);
 }
 
 function forwardHttp(req, res, flutter) {
@@ -303,13 +312,14 @@ function main() {
   const listen = parseEndpoint(options.listen);
   const flutter = parseEndpoint(options.flutter);
   const root = fs.existsSync(options.root) ? fs.realpathSync(options.root) : path.resolve(options.root);
+  logFile = options.log || null;
   const publicCount = applyPublicEnvironment();
 
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
     if (isApiPath(url.pathname)) {
       handleApiRequest(req, res, url, root).catch((error) => {
-        console.error(`[api] ${req.method} ${url.pathname} proxy error: ${error.message}`);
+        report(`[api] ${req.method} ${url.pathname} proxy error: ${error.message}`);
         sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'The API proxy failed.' });
       });
       return;
@@ -327,12 +337,12 @@ function main() {
   });
 
   server.on('error', (error) => {
-    console.error(`[api] listen failed on ${options.listen}: ${error.message}`);
+    report(`[api] listen failed on ${options.listen}: ${error.message}`);
     process.exit(1);
   });
 
   server.listen(listen.port, listen.host, () => {
-    console.log(`[api] listening on ${options.listen}; flutter ${options.flutter}; api root ${root}; public env ${publicCount}`);
+    report(`[api] listening on ${options.listen}; flutter ${options.flutter}; api root ${root}; public env ${publicCount}`);
   });
 }
 
