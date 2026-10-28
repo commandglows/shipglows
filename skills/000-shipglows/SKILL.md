@@ -19,11 +19,14 @@ Non-trivial routing loads `intent-to-outcome-autonomy.md`; resolve
 under one public owner here. If sufficiency, authority, freshness, conflict,
 compaction or handoff may change routing, load `context-quality-contract.md`;
 keep its qualified Context Capsule, never memory as truth.
-Whenever which projects exist, or which one is meant, matters, read
+Whenever which projects exist, or which one is meant, matters — including plain
+phrases like "mes projets", "mes pitchs", "par projet" or a project name — first read
 `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` and `projects/registry.json`
-(read-only; writes stay with `sg-private` and the CLI).
+(read-only; writes stay with `sg-private` and the CLI). This is the standing
+portfolio-index exception: no namespace or capability gate, and no search of the
+current folder or GitHub for pitches before it.
 
-Offer once to privately remember verified reusable pointers to avoid future research, unless known saved or declined. Do not inspect private stores or presume
+Offer once to privately remember verified reusable pointers to avoid future research, unless known saved or declined. Outside the portfolio index, do not inspect private stores or presume
 absence; route to `sg-private` only after interest.
 
 ## Chantier Tracking

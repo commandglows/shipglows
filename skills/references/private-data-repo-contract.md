@@ -97,6 +97,11 @@ fail closed. A capability grant is limited to that namespace and operation; it
 does not grant access to other private data or authorize writes outside the
 ordinary mutation gate.
 
+One standing exception: the `projects/` portfolio index (`index.md`,
+`registry.json` and per-project pitch files) is ambient read-only context for any
+route whenever the operator's projects or pitches matter, without a named
+namespace or capability run. Writes to `projects/` keep the full gate.
+
 Use the control plane explicitly:
 
 ```text

@@ -27,6 +27,11 @@ The engine owns conditional loaders; do not preload alias tables, domain skills
 or every reference here. For non-trivial outcomes it loads
 `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`.
 
+Exception: when the request mentions the operator's projects or pitches ("mes
+projets", "mes pitchs", "par projet", a project name), read
+`$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` first — the portfolio index is
+standing read-only context, no namespace or capability gate.
+
 ## Validation
 
 Keep one owner, proof and authority limits. Clear bounded requests do not authorize
