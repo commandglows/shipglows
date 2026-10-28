@@ -32,7 +32,7 @@ PARALLEL_OK = {"search_id": "s", "results": [{"url": "https://example.org/", "ti
 
 class SearchFallbackTests(unittest.TestCase):
     def setUp(self):
-        env = patch.dict(os.environ, {"FIRECRAWL_API_KEY": "fc-key", "PARALLEL_API_KEY": "pl-key",
+        env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "FIRECRAWL_API_KEY": "fc-key", "PARALLEL_API_KEY": "pl-key",
                                       search.SEARXNG_URL_ENV: "off"})
         env.start()
         self.addCleanup(env.stop)
@@ -99,7 +99,7 @@ class SearchFallbackTests(unittest.TestCase):
 
 class SearxngProviderTests(unittest.TestCase):
     def setUp(self):
-        env = patch.dict(os.environ, {"FIRECRAWL_API_KEY": "fc-key", "PARALLEL_API_KEY": "",
+        env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "FIRECRAWL_API_KEY": "fc-key", "PARALLEL_API_KEY": "",
                                       search.SEARXNG_URL_ENV: "http://127.0.0.1:8888/"})
         env.start()
         self.addCleanup(env.stop)

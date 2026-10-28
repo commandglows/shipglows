@@ -36,8 +36,8 @@ Load before any external web search or page read made by a skill or agent.
 ## Cascade
 
 1. `doppler run --project dotfiles --config dev -- shipglows-search "<query>"`
-   tries the free local SearXNG (`local/scraping/`), then Firecrawl, then
-   Parallel, and reports each attempt in `attempts`.
+   tries the free local SearXNG (`local/scraping/`), then DeepSeek
+   ($0.75 per 1,000 requests), then Firecrawl, then Parallel, and reports each attempt in `attempts`.
 2. Exit 3 means every CLI provider failed or was skipped: use a discovered
    Firecrawl or Parallel connector that was not already tried.
 3. Then use the agent's native web search and fetch tools.
@@ -62,7 +62,7 @@ provider. Failure reasons name the error type, its cause and the attempt count.
 - Never print, pass or persist provider keys; keys come only from the Doppler
   `dotfiles/dev` scope.
 - To read a page, use `shipglows-fetch <url>` (plain HTTP, then the local
-  Crawl4AI browser for JavaScript pages, then Firecrawl, then Parallel Extract;
+  Crawl4AI browser for JavaScript pages, then DeepSeek, Firecrawl, then Parallel Extract;
   exit 3 means use the native fetch for that URL).
 - `shipglows-parallel` stays the tool for Task research and Monitor;
   `shipglows-search` covers search only.

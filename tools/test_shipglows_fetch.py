@@ -35,7 +35,7 @@ def crawl_result(url, markdown, fit=None, status=200, success=True):
 
 class FetchFallbackTests(unittest.TestCase):
     def setUp(self):
-        env = patch.dict(os.environ, {"CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "fc-key",
+        env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "fc-key",
                                       "PARALLEL_API_KEY": "", fetch.HTTP_ENV: "off"})
         env.start()
         self.addCleanup(env.stop)
@@ -151,7 +151,7 @@ class HtmlResponse:
 
 class HttpFirstTests(unittest.TestCase):
     def setUp(self):
-        env = patch.dict(os.environ, {"CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "", "PARALLEL_API_KEY": ""})
+        env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "", "PARALLEL_API_KEY": ""})
         env.start()
         self.addCleanup(env.stop)
         os.environ.pop(fetch.HTTP_ENV, None)

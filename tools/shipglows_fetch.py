@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read public pages as Markdown with provider fallback: plain HTTP, local Crawl4AI, Firecrawl, then Parallel.
+"""Read public pages as Markdown with provider fallback: plain HTTP, local Crawl4AI, DeepSeek, Firecrawl, then Parallel.
 
 Plain HTTP reads static HTML without a browser in a fraction of a second; a
 JavaScript app shell, an HTTP error or a non-HTML answer moves the URL to the
@@ -37,7 +37,8 @@ from shipglows_parallel import ParallelError, normalize_public_url, request_extr
 from shipglows_scraping import CRAWL4AI_URL, crawl4ai_token  # noqa: E402
 
 FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape"
-PROVIDERS = ("http", "crawl4ai", "firecrawl", "parallel")
+DEEPSEEK_FETCH_URL = "https://api.deepseek.com/v1/tools/fetch"
+PROVIDERS = ("http", "crawl4ai", "deepseek", "firecrawl", "parallel")
 HTTP_ENV = "SHIPGLOWS_FETCH_HTTP"
 HTTP_MAX_TIMEOUT = 15.0
 HTTP_MAX_BYTES = 5_000_000
@@ -195,6 +196,30 @@ def crawl4ai_batch(urls: list[str], args: argparse.Namespace, opener=None) -> di
     return pages
 
 
+def fetch_deepseek(url: str, args: argparse.Namespace, opener=None) -> dict:
+    api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    if not api_key:
+        raise ProviderSkipped("DEEPSEEK_API_KEY is not set")
+    request = Request(
+        DEEPSEEK_FETCH_URL,
+        data=json.dumps({"url": url}).encode("utf-8"),
+        headers={"Accept": "application/json", "Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+        method="POST",
+    )
+    retry_codes = GATEWAY_HTTP_CODES if args.provider == "auto" else RETRYABLE_HTTP_CODES
+    data = send_json(request, provider="DeepSeek", secret=api_key, timeout=args.timeout, opener=opener,
+                     retry_codes=retry_codes,
+                     http_error=lambda code, _body: {402: "DeepSeek HTTP 402: insufficient balance",
+                                                     403: "DeepSeek HTTP 403: rejected by security policy",
+                                                     404: "DeepSeek HTTP 404: no usable page content",
+                                                     429: "DeepSeek HTTP 429: rate limited"}.get(code, f"DeepSeek HTTP {code}"))
+    markdown = require_markdown("DeepSeek", data.get("content"))
+    if args.query and not args.full:
+        markdown = filter_by_query(markdown, args.query)
+    title = data.get("title")
+    return {"title": title if isinstance(title, str) else "", "markdown": markdown}
+
+
 def fetch_firecrawl(url: str, args: argparse.Namespace, opener=None) -> dict:
     api_key = os.environ.get("FIRECRAWL_API_KEY", "").strip()
     if not api_key:
@@ -233,7 +258,7 @@ def fetch_parallel(url: str, args: argparse.Namespace, opener=None) -> dict:
     return {"title": item["title"], "markdown": require_markdown("Parallel", item["full_content"] or "\n\n".join(item["excerpts"]))}
 
 
-FETCHERS = {"firecrawl": fetch_firecrawl, "parallel": fetch_parallel}
+FETCHERS = {"deepseek": fetch_deepseek, "firecrawl": fetch_firecrawl, "parallel": fetch_parallel}
 
 
 def fetch_one(url: str, args: argparse.Namespace, local: dict, opener=None) -> dict:
@@ -264,11 +289,11 @@ def fetch_one(url: str, args: argparse.Namespace, local: dict, opener=None) -> d
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="shipglows-fetch",
-        description="Read public pages as Markdown: plain HTTP first, then the local Crawl4AI browser, then Firecrawl and Parallel. "
+        description="Read public pages as Markdown: plain HTTP first, then the local Crawl4AI browser, then DeepSeek, Firecrawl and Parallel. "
         "Exit 3 means a URL failed every provider: use the agent's native fetch for it.")
     parser.add_argument("url", nargs="+", metavar="URL", help="public http(s) URL; up to ten")
     parser.add_argument("--provider", choices=("auto", *PROVIDERS), default="auto",
-                        help="auto tries HTTP, Crawl4AI, Firecrawl then Parallel (default); naming one disables fallback")
+                        help="auto tries HTTP, Crawl4AI, DeepSeek, Firecrawl then Parallel (default); naming one disables fallback")
     parser.add_argument("--full", action="store_true", help="whole page instead of the main content")
     parser.add_argument("--query", help="keep the passages relevant to this query (term filter over HTTP, Crawl4AI BM25, Parallel objective)")
     parser.add_argument("--max-chars", type=int, default=DEFAULT_MAX_CHARS,

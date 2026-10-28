@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Read-only web search with provider fallback: local SearXNG, Firecrawl, then Parallel.
+"""Read-only web search with provider fallback: local SearXNG, DeepSeek, Firecrawl, then Parallel.
+
+DeepSeek comes first among the paid providers: $0.75 per 1,000 successful
+requests, and empty results are not billed.
 
 Each provider is tried in order; a stopped local service, a missing key,
 exhausted credits, a rate limit, a network error, an empty result set or an
@@ -32,10 +35,12 @@ from shipglows_http import (  # noqa: E402
 from shipglows_parallel import normalize_domain, request_search  # noqa: E402
 
 FIRECRAWL_SEARCH_URL = "https://api.firecrawl.dev/v2/search"
+DEEPSEEK_SEARCH_URL = "https://api.deepseek.com/v1/tools/search"
+DEEPSEEK_MAX_QUERY = 128
 SEARXNG_URL_ENV = "SHIPGLOWS_SEARXNG_URL"
 DEFAULT_SEARXNG_URL = "http://127.0.0.1:8888"
 SEARXNG_MAX_TIMEOUT = 15.0
-PROVIDERS = ("searxng", "firecrawl", "parallel")
+PROVIDERS = ("searxng", "deepseek", "firecrawl", "parallel")
 EXIT_ALL_FAILED = 3
 TIMEOUT_ENV = "SHIPGLOWS_SEARCH_TIMEOUT"
 DEFAULT_TIMEOUT = 30.0
@@ -65,6 +70,21 @@ def firecrawl_error(code: int, body: bytes, api_key: str) -> str:
     except (UnicodeDecodeError, json.JSONDecodeError):
         pass
     return f"Firecrawl HTTP {code}"
+
+
+def deepseek_error(code: int, body: bytes, api_key: str) -> str:
+    if code == 402:
+        return "DeepSeek HTTP 402: insufficient balance"
+    if code == 429:
+        return "DeepSeek HTTP 429: rate limited"
+    try:
+        value = json.loads(body.decode("utf-8"))
+        error = value.get("error") if isinstance(value, dict) else None
+        if isinstance(error, dict) and error.get("message"):
+            return f"DeepSeek HTTP {code}: {safe_message(error['message'], api_key)}"
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        pass
+    return f"DeepSeek HTTP {code}"
 
 
 def search_searxng(args: argparse.Namespace, queries: list[str], opener=None) -> list[dict]:
@@ -111,6 +131,55 @@ def search_searxng(args: argparse.Namespace, queries: list[str], opener=None) ->
             })
     if not results:
         raise ProviderError("SearXNG returned no results (its upstream engines may be blocked).")
+    return results
+
+
+def search_deepseek(args: argparse.Namespace, queries: list[str], opener=None) -> list[dict]:
+    api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    if not api_key:
+        raise ProviderSkipped("DEEPSEEK_API_KEY is not set")
+    if args.location:
+        raise ProviderSkipped("--location is not supported by DeepSeek")
+    full_queries = [firecrawl_query(query, args) + (f" after:{args.after_date}" if args.after_date else "")
+                    for query in queries]
+    if any(len(query) > DEEPSEEK_MAX_QUERY for query in full_queries):
+        raise ProviderSkipped(f"DeepSeek queries are limited to {DEEPSEEK_MAX_QUERY} characters")
+    retry_codes = GATEWAY_HTTP_CODES if args.provider == "auto" else RETRYABLE_HTTP_CODES
+    results: list[dict] = []
+    seen: set[str] = set()
+    for query in full_queries:
+        payload = {"query": query, "count": min(args.max_results or 10, 50)}
+        if args.objective:
+            payload["ori_question"] = args.objective[:DEEPSEEK_MAX_QUERY]
+        request = Request(
+            DEEPSEEK_SEARCH_URL,
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers={"Accept": "application/json", "Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+            method="POST",
+        )
+        data = send_json(
+            request, provider="DeepSeek", secret=api_key, timeout=args.timeout, opener=opener,
+            retry_codes=retry_codes, http_error=lambda code, body: deepseek_error(code, body, api_key),
+        )
+        items = data.get("results")
+        if not isinstance(items, list):
+            raise ProviderError("DeepSeek response did not contain a results list.")
+        for item in items:
+            url = item.get("url") if isinstance(item, dict) else None
+            if not isinstance(url, str) or not url.startswith(("https://", "http://")) or url in seen:
+                continue
+            seen.add(url)
+            excerpt = item.get("summary") or item.get("snippet")
+            published = item.get("date")
+            results.append({
+                "position": len(results) + 1,
+                "title": item.get("title") if isinstance(item.get("title"), str) else "",
+                "url": url,
+                "publish_date": published[:10] if isinstance(published, str) and published else None,
+                "excerpts": [excerpt] if isinstance(excerpt, str) and excerpt else [],
+            })
+    if not results:
+        raise ProviderError("DeepSeek returned no results.")
     return results
 
 
@@ -176,7 +245,8 @@ def search_parallel(args: argparse.Namespace, queries: list[str], opener=None) -
     return results
 
 
-SEARCHERS = {"searxng": search_searxng, "firecrawl": search_firecrawl, "parallel": search_parallel}
+SEARCHERS = {"searxng": search_searxng, "deepseek": search_deepseek, "firecrawl": search_firecrawl,
+             "parallel": search_parallel}
 
 
 def validate(args: argparse.Namespace) -> list[str]:
@@ -204,13 +274,13 @@ def validate(args: argparse.Namespace) -> list[str]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Search the web through local SearXNG, falling back to Firecrawl then Parallel. Exit 3 means "
+        description="Search the web through local SearXNG, falling back to DeepSeek, Firecrawl then Parallel. Exit 3 means "
         "every provider failed: use the agent's native web search.")
     parser.add_argument("terms", nargs="*", metavar="QUERY", help="keyword query (same as --query)")
     parser.add_argument("--query", action="append", help="keyword query; repeat up to five times")
-    parser.add_argument("--objective", help="natural-language research objective (used by Parallel)")
+    parser.add_argument("--objective", help="natural-language research objective (used by DeepSeek and Parallel)")
     parser.add_argument("--provider", choices=("auto", *PROVIDERS), default="auto",
-                        help="auto tries SearXNG, Firecrawl then Parallel (default); naming one disables fallback")
+                        help="auto tries SearXNG, DeepSeek, Firecrawl then Parallel (default); naming one disables fallback")
     policy = parser.add_mutually_exclusive_group()
     policy.add_argument("--include-domain", action="append", type=normalize_domain, help="restrict sources to this domain")
     policy.add_argument("--exclude-domain", action="append", type=normalize_domain, help="exclude this source domain")
