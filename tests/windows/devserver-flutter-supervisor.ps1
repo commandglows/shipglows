@@ -68,7 +68,6 @@ if ($valid.Method -ne 'reload' -or $valid.Id -ne 'cmd-1') { throw 'Valid authent
 foreach ($json in @(
     '{"token":"wrong","id":"cmd-1","method":"reload"}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"../escape","method":"reload"}',
-    '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"restart"}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"status"}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"reload","extra":true}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":1,"method":"reload"}',
@@ -133,6 +132,10 @@ Update-SgFlutterProtocolState $state '{"id":7,"result":{"code":0,"message":"Relo
 if ($state.LastResponseId -ne 7 -or -not $state.LastResponseOk) { throw 'Machine response correlation was not recorded.' }
 Update-SgFlutterProtocolState $state '{"id":8,"error":{"code":-32000,"message":"sensitive detail"}}'
 if ($state.LastResponseId -ne 8 -or $state.LastResponseOk -or $state.LastError -match 'sensitive detail') { throw 'Machine response errors were not redacted and correlated.' }
+Update-SgFlutterProtocolState $state '[{"id":9,"result":{"code":1,"message":"DevFS synchronization failed"}}]'
+if ($state.LastResponseId -ne 9 -or $state.LastResponseOk -or $state.LastError -notmatch 'code 1' -or $state.LastError -match 'DevFS') { throw 'A rejected hot reload (result.code != 0) was reported as success.' }
+Update-SgFlutterProtocolState $state '{"id":10,"result":true}'
+if ($state.LastResponseId -ne 10 -or -not $state.LastResponseOk) { throw 'A boolean machine result was not accepted.' }
 $arrayState=New-SgFlutterProtocolState
 Update-SgFlutterProtocolState $arrayState '[{"event":"daemon.connected","params":{"pid":4321}}]'
 Update-SgFlutterProtocolState $arrayState '[{"event":"app.start","params":{"appId":"app-array"}}]'

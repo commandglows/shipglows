@@ -209,7 +209,8 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
     if ([string]::IsNullOrWhiteSpace($Line) -or $Line.Length -gt 1048576) { return }
     try { $messages = @(ConvertFrom-SgFlutterMachineEnvelope $Line) } catch { $trimmed=$Line.TrimStart();if($trimmed.StartsWith('[{')-or$trimmed.StartsWith('{')){$State.LastProtocolError='Invalid Flutter machine protocol envelope.'};return }
     foreach ($message in $messages) {
-        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'};continue }
+        # app.restart reports a rejected reload (compile errors, DevFS sync) as result.code != 0, not as error.
+        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$message.result-and$message.result-isnot[array]-and$message.result.PSObject.Properties['code']-and($message.result.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError="Flutter rejected the reload (code $($message.result.code -as [int])); compile errors are in flutter.stderr.log."};continue }
         if (-not $message.PSObject.Properties['event'] -or -not $message.PSObject.Properties['params']) { continue }
         $params = $message.params
         $State.LastEvent=[string]$message.event
@@ -271,7 +272,7 @@ function Send-SgFlutterMachineRequest([Diagnostics.Process]$Process, [int]$Id, [
 
 function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[int]$RequestId,[int]$TimeoutSeconds=10) {
     $deadline=(Get-Date).AddSeconds($TimeoutSeconds);$line=$null
-    while((Get-Date)-lt $deadline){Pump-SgFlutterStreams $Pump $Queue $ErrorQueue;if($Process.HasExited){[void](Drain-SgFlutterStreams $Pump $Queue $ErrorQueue 1)};while($Queue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($LogPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $State $line;if($State.LastResponseId -eq $RequestId){if(-not$State.LastResponseOk){throw 'Flutter machine request failed.'};return $true}};if($Process.HasExited){throw 'Flutter exited while waiting for a machine response.'};Start-Sleep -Milliseconds 50}
+    while((Get-Date)-lt $deadline){Pump-SgFlutterStreams $Pump $Queue $ErrorQueue;if($Process.HasExited){[void](Drain-SgFlutterStreams $Pump $Queue $ErrorQueue 1)};while($Queue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($LogPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $State $line;if($State.LastResponseId -eq $RequestId){if(-not$State.LastResponseOk){throw $(if($State.LastError){[string]$State.LastError}else{'Flutter machine request failed.'})};return $true}};if($Process.HasExited){throw 'Flutter exited while waiting for a machine response.'};Start-Sleep -Milliseconds 50}
     throw 'Flutter machine response timed out.'
 }
 

@@ -559,6 +559,9 @@ une fenêtre calme de 500 ms puis déclenchent `app.restart` en mode hot reload.
 `s reload -ProjectPath <chemin> -Full` envoie à la place un hot restart
 (`fullRestart: true`, quelques secondes) : l'état repart de `main()`, ce qui prend
 en compte une table de routes ou un initialiseur modifié sans relancer la session.
+Un reload refusé par Flutter (`result.code` non nul : erreurs de compilation,
+`DevFS synchronization failed`) fait échouer `s reload` avec le code et le chemin
+du `flutter.stderr.log` de la session, au lieu d'annoncer un succès.
 Le canal local n'accepte que reload, restart, stop et open, avec l'identité secrète du
 lancement, une taille et des délais bornés ; il n'exécute aucune commande libre.
 Une session lancée avant une mise à jour garde l'ancien superviseur : relancez-la

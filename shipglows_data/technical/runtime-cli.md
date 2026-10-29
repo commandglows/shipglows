@@ -808,7 +808,10 @@ hot reload only to a running managed Flutter session whose registered process,
 supervisor state, daemon and app identity still match; it never substitutes stop/start
 or a native rebuild. `s reload -Full` sends a hot restart (`fullRestart: true`)
 through the same checks, rebuilding app state from `main()` when routes or
-initializers change. `s open` restarts that managed Flutter session with visible
+initializers change. A reload Flutter rejects (`app.restart` answering
+`result.code != 0`, e.g. compile errors or `DevFS synchronization failed`) fails
+the command with the code and the session's `flutter.stderr.log` path instead of
+reporting success. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
