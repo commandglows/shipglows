@@ -1,5 +1,5 @@
 {
-  "format_version": "2.13",
+  "format_version": "2.14",
   "identity_source": "skills/references/skill-code-index.md",
   "execution_tags": {
     "local": {
@@ -483,6 +483,7 @@
       "runtime_skill": "000-shipglows",
       "modes": [
         "default",
+        "init",
         "context",
         "profile",
         "blitz",

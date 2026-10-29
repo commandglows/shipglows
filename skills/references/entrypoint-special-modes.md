@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-10-16"
+updated: "2026-10-29"
 status: active
 source_skill: 900-shipglows-core
 scope: entrypoint-special-modes
@@ -24,6 +24,11 @@ next_step: none
 ---
 
 # Entrypoint Special Modes
+
+`shipglows init [context|agents|memory]` prepares a workstation through
+`workstation-initialization.md`, loaded directly by the router only for init.
+It persists verified root pointers, native agent instructions and supported memory,
+then refreshes context. Installation and account actions retain their own gates.
 
 Load only for update, context, profile, blitz, auto, hygiene or execution-posture compatibility.
 Apply only the selected mode; this is never an eager bundle.

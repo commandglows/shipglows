@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.34.0"
+artifact_version: "3.35.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-25"
+updated: "2026-10-29"
 status: reviewed
 source_skill: 102-sg-start
 scope: code-docs-map
@@ -93,6 +93,7 @@ Shared files in this map are sequential integration files. Do not assign concurr
 
 | Path pattern | Subsystem | Primary technical doc | Secondary docs | Required validation | Docs update trigger |
 | --- | --- | --- | --- | --- | --- |
+| `skills/references/workstation-initialization.md`, `skills/000-shipglows/SKILL.md` init route | Agent workstation initialization | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `README.md`, `skills/302-sg-help/references/help-modes-catalog.md`, `shipglows_data/workflow/specs/shipglows-workstation-init.md` | Source scenario review and metadata conformity; no tests/lint/build under operator restriction; fresh-machine execution is separate evidence | Root persistence, cache precedence, native global agent files, host memory boundaries or init scope changes |
 | `tools/conditional_skill_routing_linux_environment.py`, `tools/conditional-skill-routing-linux.ps1`, `tools/conditional_skill_routing_evaluator_resume.py` | Offline native Linux subject and evaluator access | `shipglows_data/technical/conditional-skill-routing-linux-environment.md` | `shipglows_data/workflow/reviews/conditional-skill-routing-linux-test-handoff.md` | Exact native ELF/version verification; actual WSL/bwrap separation probes; evaluator import/formula and entrypoint; content-free evaluator resume with exact public receipt; syntax and metadata checks | Installed runtime, disjoint role mounts/state, network/environment boundary, public snapshot hashes or access commands; independent readiness requires its separate exact receipts |
 | `tools/conditional_skill_routing_cli_capture.py` | Codex Linux CLI mock Responses capture under WSL network namespace | `shipglows_data/workflow/reviews/conditional-skill-routing-cli-capture-integration.md` | `shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md`, `shipglows_data/workflow/reviews/conditional-skill-routing-handoff.md` | Explicitly authorized isolated mock execs with exact ELF/provenance, bwrap launch, source and artifact hashes, JSON final output, retry and independent boundary reviews | Consumer/version/provider/profile, namespace/mount/egress boundaries, transport/stream capture, warnings, CLI tools or proof-scope changes; no real provider or model-retention claim |
 | `tools/conditional_skill_routing_cli_continuity.py`, `tools/conditional_skill_routing_cli_continuity_launch.py` | Single-thread CLI fictional-tool callback continuity under mock Responses | `shipglows_data/workflow/reviews/conditional-skill-routing-cli-continuity.md` | `shipglows_data/workflow/specs/conditional-skill-routing-and-minimal-context.md`, `shipglows_data/workflow/reviews/conditional-skill-routing-handoff.md` | Authorized temporary verified ELF; WSL/bwrap mock run in a new proof directory; exact emitted calls, actual command events, callback bytes in subsequent requests, refusal, retry, hashes and independent raw review | Tool/output semantics, CLI sandbox versus OS confinement, snapshot/mount/time bounds, mock stages or continuity scope changes; no retention/AC5 or real-provider claim |

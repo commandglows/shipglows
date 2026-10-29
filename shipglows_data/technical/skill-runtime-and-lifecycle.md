@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.41.2"
+artifact_version: "2.42.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-19"
+updated: "2026-10-29"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -161,6 +161,18 @@ next_step: "/300-sg-docs technical audit skills"
 ## Purpose
 
 This doc covers ShipGlows skills, lifecycle flow, references, templates, model/topology decisions, and documentation gates. Read it before changing `skills/*/SKILL.md`, shared skill references, or `shipglows_data/workflow/playbooks/spec-driven-workflow.md`.
+
+## Workstation Initialization
+
+`$shipglows init [context|agents|memory]` is a public router mode, executed by
+the current agent through `skills/references/workstation-initialization.md`.
+It verifies the canonical root, persists a non-secret machine-local context file
+and bounded native agent instruction blocks, uses permitted host memory, and
+refreshes context. Cached roots remain hints beneath environment/channel authority.
+`context` is read-only; `agents` includes the local pointer file; `memory` includes
+that file plus supported agent memory. Installer, accounts and application starts
+retain separate gates. This skill does not add a shell command or change an
+installation channel. No other router path loads its procedure.
 
 ## Instruction Layering Policy
 

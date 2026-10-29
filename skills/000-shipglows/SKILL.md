@@ -122,6 +122,9 @@ Before selection extract `#local`, `#nolocal`, `#ci` wherever present and load
 `execution-posture-tags.md`; reject conflicts. Preserve ordinary focus tags and
 owner authority; `#ci` implies nolocal and deferred proof, never external-write authority.
 
+For `init [context|agents|memory]`, load only
+`$SHIPGLOWS_ROOT/skills/references/workstation-initialization.md` and execute its
+workstation workflow directly. It is not project scaffolding or a shell command.
 For `update`, `context`/`contexte`/`env`/`environment`, `profile`, `blitz`, `auto`, or legacy `nolocal`, load
 `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`. Apply only the selected mode.
 Context is read-only; update resolves channel first. Explicit Blitz implies nolocal,

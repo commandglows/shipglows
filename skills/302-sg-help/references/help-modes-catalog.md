@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-10-19"
+updated: "2026-10-29"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-catalog
@@ -49,5 +49,5 @@ Return only the lines below for exact `302-sg-help mode`, `302-sg-help modes`, `
 `sg-planning <tasks|backlog|priorities|prio|review|sessions|explore|spec|status|resume> [arguments]` — Organize or recover work context; `prio` aliases `priorities`, `explore` clarifies an idea, and `spec` prepares a substantial work specification.
 `sg-private <memory|data> <instruction>` — Remember private references or work in an explicitly declared durable private-data namespace without copying private content into public Git.
 `sg-help [default|mode|modes|expert] [topic] | mode --expert` — Explain skills and workflows, list public modes, or show internal engines with `mode --expert`.
-`shipglows <request> | context | update | auto [goal] | core <audit [scope|recent [N]|since <commit>]|build <goal>|refresh <skill>|packaging [scope]|help>` — Route work, inspect context, update the installed channel, run Auto under `#nolocal`, or maintain Core; recent audit defaults to 10 integrations and is read-only, and Core itself requires `build` instead of self-`refresh`.
+`shipglows <request> | init [context|agents|memory] | context | update | auto [goal] | core <audit [scope|recent [N]|since <commit>]|build <goal>|refresh <skill>|packaging [scope]|help>` — Route work, initialize this workstation's root pointers/agent context, inspect context, update the installed channel, run Auto under `#nolocal`, or maintain Core; recent audit defaults to 10 integrations and is read-only, and Core itself requires `build` instead of self-`refresh`.
 Execution tags: `#local | #nolocal | #ci` — Compose proof posture with any agent command; `#ci` implies `#nolocal`, conflicts with `#local`, and authorizes no remote action.

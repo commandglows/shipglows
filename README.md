@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.30.0"
+artifact_version: "0.31.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-10-28"
+updated: "2026-10-29"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -384,7 +384,17 @@ block in its native global file: Codex `.codex\AGENTS.md`, Claude
 `.config\kilo\AGENTS.md`, or Gemini `.gemini\GEMINI.md`. Existing instructions outside the block are preserved;
 the block points to `%USERPROFILE%\.shipglows\environment.md` and to
 `$shipglows context` instead of copying a machine-specific tool inventory.
-That environment report records CLI and MCP readiness separately for every
+
+On a new computer, use the agent skill `$shipglows init` (or `/shipglows init`
+where slash invocations are supported). It verifies the installation root, saves
+non-secret local context pointers, updates detected agents' global instructions,
+uses the current host's permitted memory mechanism, and refreshes context.
+Reruns update the same bounded blocks. Optional `context` is read-only; `agents`
+and `memory` narrow persistence. Installation and account steps use the existing
+installer and user confirmations. This is an agent workflow, not a new shell
+command. See [workstation initialization](skills/references/workstation-initialization.md).
+
+The global environment report records CLI and MCP readiness separately for every
 agent, including partial or preserved configurations. Developer Mode remains an
 explicit Windows choice: ShipGlows can open the official settings page but never
 changes the registry. Developer Mode is distinct from emulator acceleration.

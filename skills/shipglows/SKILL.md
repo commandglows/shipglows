@@ -22,6 +22,10 @@ A valid absolute `channel: linked` root containing `skills/000-shipglows/SKILL.m
 wins before the installed default `$HOME/.shipglows/runtime`. Verify root and
 engine, then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`.
 If missing or invalid, stop with a visible error; never fall back to a sibling runtime path or a guessed checkout.
+For explicit `init` with no valid runtime, report the missing root and direct the
+operator to the official bootstrap at `https://shipglows.com/shipglows-script`
+(native Windows: `?format=powershell`); installation mode/execution stay explicit.
+Discussing or implementing init never initializes the current machine implicitly.
 
 The engine owns conditional loaders; do not preload alias tables, domain skills
 or every reference here. For non-trivial outcomes it loads
