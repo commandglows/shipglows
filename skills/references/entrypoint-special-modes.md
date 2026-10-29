@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-09-05"
 updated: "2026-10-29"
@@ -25,10 +25,13 @@ next_step: none
 
 # Entrypoint Special Modes
 
-`shipglows init [context|agents|memory]` prepares a workstation through
+`shipglows init [context|agents|memory|resume]` with optional `role=<local|remote|consult|test>`
+and `lifetime=<persistent|ephemeral>` prepares the selected device/host journey through
 `workstation-initialization.md`, loaded directly by the router only for init.
-It persists verified root pointers, native agent instructions and supported memory,
-then refreshes context. Installation and account actions retain their own gates.
+It reuses root/channel state, the existing native agent updater and environment
+diagnostics, persists supported context/checkpoints/memory, and refreshes context.
+Resume re-observes sources. Browser-only guidance needs no local runtime;
+installation, connection, account and restoration actions retain their own gates.
 
 Load only for update, context, profile, blitz, auto, hygiene or execution-posture compatibility.
 Apply only the selected mode; this is never an eager bundle.

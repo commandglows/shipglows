@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.4.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-20"
+updated: "2026-10-29"
 status: active
 source_skill: 300-sg-docs
 scope: codex-plugin-packaging
@@ -41,6 +41,13 @@ next_step: "/300-sg-docs technical audit codex-plugin-packaging"
 # Codex Plugin Packaging
 
 ## Purpose
+
+The bundled `skills/shipglows/references/workstation-entry.md` serves explicit
+`init [context|agents|memory|resume]` before requiring a local corpus. It guides
+capability-limited consult/remote clients, then hands persistence to the verified
+canonical engine/reference when available. The repository OpenCode entry follows
+the same boundary. No workflow source is copied into a plugin cache by init;
+source distribution changes and fresh installed-session discovery are separate proof.
 
 `/home/claude/plugins/shipglows/` is the lightweight Codex plugin distribution nucleus for ShipGlows. It gives users one primary plugin entrypoint while keeping the complete ShipGlows skill and reference corpus in the GitHub repository instead of packaging the whole repository into the plugin.
 

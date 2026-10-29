@@ -28,7 +28,8 @@ A clear bounded request is authority for its few coherent enumerable actions and
 
 This plugin is the distribution nucleus. It must not assume that the full private ShipGlows source tree exists on the user's machine.
 
-Prefer the local source tree only for development audits:
+Prefer the local source tree for development audits; explicit `init` also hands
+off to an already verified complete corpus without selecting a developer channel:
 
 ```text
 ${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
@@ -87,6 +88,7 @@ never grant mutation, installation, push, workflow-dispatch, deployment, or
 other external-write authority.
 
 - Empty, `help`, `aide`, `métiers`, or `workflows`: answer from the bundled public help catalog and ask for the outcome to route when useful.
+- `init [context|agents|memory|resume]` with optional `role=<local|remote|consult|test>` and `lifetime=<persistent|ephemeral>`: load bundled `references/workstation-entry.md` directly. It handles portable guidance before requiring a local corpus, then hands off to the verified canonical init workflow when available. Do not treat init as project scaffolding, a shell command, or an implicit installation request.
 - `context`, `contexte`, `env`, or `environment`: run the direct runtime-context mode below; do not route it to a generic métier.
 - `resume`, `résume`, or `reprends`: summarize the current conversation state: active outcome, settled decisions, completed work, pending proof, blockers, and the next safe action. This mode is read-only. It never approves a pending plan, installation, mutation, or external action merely because work is being resumed.
 - `auto [focus]`: when the complete corpus is available, route to its canonical autonomous business-improvement workflow. Otherwise report that autonomous execution needs the complete corpus and keep the lightweight plugin read-only.

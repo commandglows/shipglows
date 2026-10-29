@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.32.0"
+artifact_version: "2.33.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-19"
+updated: "2026-10-29"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -227,6 +227,10 @@ sudo ./cli/install.sh
   managed markers fail closed. Dynamic tool facts stay in
   `.shipglows\environment.md`; the instruction block only defines discovery,
   callability, purpose-built-tool preference, and `$shipglows context` recovery.
+  It also points to optional `.shipglows\workstation-context.json` hints for root,
+  device role and init checkpoints. The existing updater remains the sole owner
+  of this managed block; init does not append another doctrine block. Cached
+  pointers never override environment/channel authority or live readiness.
 - Native Windows keeps convenience commands independent from `$PROFILE`.
   `s.cmd` and `shipglows-dev.cmd` launch the DevServer with `-NoProfile` through
   the managed PowerShell bootstrap. `shipglows.cmd` launches its focused command

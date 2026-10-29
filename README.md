@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.31.0"
+artifact_version: "0.32.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-10-29"
@@ -385,14 +385,21 @@ block in its native global file: Codex `.codex\AGENTS.md`, Claude
 the block points to `%USERPROFILE%\.shipglows\environment.md` and to
 `$shipglows context` instead of copying a machine-specific tool inventory.
 
-On a new computer, use the agent skill `$shipglows init` (or `/shipglows init`
-where slash invocations are supported). It verifies the installation root, saves
-non-secret local context pointers, updates detected agents' global instructions,
-uses the current host's permitted memory mechanism, and refreshes context.
-Reruns update the same bounded blocks. Optional `context` is read-only; `agents`
-and `memory` narrow persistence. Installation and account steps use the existing
-installer and user confirmations. This is an agent workflow, not a new shell
-command. See [workstation initialization](skills/references/workstation-initialization.md).
+On a new computer, phone, tablet or VM, use the agent skill `$shipglows init`
+(or `/shipglows init` where slash invocations are supported). It distinguishes
+your device from the agent's execution host and selects local development,
+remote access, consultation or a test-target journey. Optional choices include
+`role=remote` and `lifetime=ephemeral`; a VM is not assumed disposable.
+With a verified corpus and filesystem, it persists root/context pointers and
+workflow checkpoints, reuses the existing native agent-instruction updater and
+environment diagnostics, and uses the host's permitted memory mechanism.
+`$shipglows init resume` re-observes sources before continuing unfinished steps.
+Optional `context` is read-only; `agents` and `memory` narrow persistence.
+The lightweight plugin provides bounded guidance without a runtime; browser-only
+consultation needs no local SDK. No new native iOS runtime is implied. Existing
+installation, connection, account and restoration workflows retain their gates.
+This is an agent workflow, not a new shell command. See
+[workstation initialization](skills/references/workstation-initialization.md).
 
 The global environment report records CLI and MCP readiness separately for every
 agent, including partial or preserved configurations. Developer Mode remains an
