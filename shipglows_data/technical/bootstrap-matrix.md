@@ -65,5 +65,5 @@ Each refusal prints the reason and the next command. The shell bootstrap never f
 
 ## Out of scope (tracked in TASKS)
 
-- Aligning `README.md`, `AGENT.md`, `CONTEXT.md` and `GUIDELINES.md` on this contract.
+- `README.md` and `AGENT.md` follow this contract (commit 21d17160). `CONTEXT.md` and `GUIDELINES.md` do not exist in this repository: create them or drop them from the TASKS item.
 - Verification of the refusal paths on real hosts (no run was done for this document).
