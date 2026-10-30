@@ -5,7 +5,7 @@ artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-10-30"
 updated: "2026-10-30"
-status: reviewed
+status: active
 source_skill: sg-engineering
 scope: project-tree-models
 owner: Diane
@@ -27,7 +27,7 @@ evidence:
   - "Read-only survey on 2026-10-30 of 19 local repositories from shipglows-private/projects/registry.json (temuglowz has no local checkout)."
   - "DevServer registry %LOCALAPPDATA%\\ShipGlows\\DevServer\\registry.json read on 2026-10-30 (71 entries)."
   - "shipglows stack scan code at commit 16a1e51e."
-next_step: "Operator validates the plan, then doctrine, tools and per-project migrations land on main."
+next_step: "Finish the pending migrations listed under Status, one validated project at a time."
 ---
 
 # Project Tree Models Audit
@@ -76,3 +76,20 @@ Per-surface files are consistent: `.shipglows.flutter.json`, `.shipglows.backend
 - A renamed Astro folder changes the Vercel project Root Directory, a production setting outside the repo. Nothing breaks until a push.
 - A deeper or shallower Flutter folder changes relative `path:` dependencies on the engines (gocharbon `app_quiz/flutter_app` to `app`).
 - DevServer registry entries keep old paths until `s refresh`.
+
+## Status (2026-10-30)
+
+Validated by the operator. Done on `main`:
+
+- Doctrine: `skills/references/project-tree-model.md`, with pointers from the topology, stacks, canonical paths and `305-sg-init`.
+- CLI: `stack scan` follows the tool discovery rule and detects Tauri, browser extensions and Obsidian; `extension-inspect` and `extension-lab` select `ext/`; DevServer discovery skips `vendor`, `third_party`, `public` and `build`.
+- Runner (`shipglows_app`): project catalog, context generator and AI readiness read every surface root.
+- beatglows: `app_flutter/` moved to `app/`.
+
+Pending, each waiting for the operator's validation:
+
+- commandglows: `commandglows_app` is also the Dart package, the product id, the native channel prefix and the binary name, so only path forms may change. The Vercel Root Directory is `commandglows_site` (production setting). A running `commandglows_browser_bridge.exe` (Chrome native messaging host from the Debug build) locks the folder.
+- gocharbon: `app_quiz/` is a self-contained sub-project (its own Vercel deployment, CI, Convex, Supabase, scripts); flattening it needs a layout decision, not only a rename.
+- claiire, contentglows, replayglows, communityglows, dreamglows: uncommitted changes in progress.
+- Stray DevServer `ENVIRONMENT.md` files committed in `replayglows/ext/public/`, `shipglows_app/app/vendor/analytics_actions_flutter/` and `contentglows/app/vendor/analytics_actions_flutter/`.
+- Engines (`shipglows-ui-engine`, `shipglows-audio-engine`, `shipglows-window-engine`): `flutter/` to `packages/` changes the `path:` dependencies of every consumer app.
