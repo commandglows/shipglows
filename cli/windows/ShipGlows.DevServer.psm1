@@ -8,6 +8,7 @@ $script:DefaultPortEnd = 3100
 $script:ProjectIndexSchemaVersion = 1
 $script:ProjectScannerVersion = '3'
 $script:ProjectCatalogMaxWorkspaceDepth = 3
+$script:SgPruneDirs = [Collections.Generic.HashSet[string]]::new([string[]]@('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn', 'vendor', 'third_party', 'public', 'build'), [StringComparer]::OrdinalIgnoreCase)
 $script:ProjectIndexTtlMinutes = 5
 $script:ProjectCatalogMemory = @{}
 $script:GitHubRepositoryIdentityMemory = @{}
@@ -1261,7 +1262,6 @@ function Get-SgProjectDescriptors([string]$ProjectPath) {
     $queue = New-Object System.Collections.Generic.Queue[object]
     [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0 })
     # Generated, vendored and public folders are never surfaces (skills/references/project-tree-model.md).
-    $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn', 'vendor', 'third_party', 'public', 'build')
     while ($queue.Count -gt 0) {
         $item = $queue.Dequeue()
         try {
@@ -1272,7 +1272,7 @@ function Get-SgProjectDescriptors([string]$ProjectPath) {
         }
         if ([int]$item.Depth -ge 3) { continue }
         foreach ($dir in @(Get-ChildItem -LiteralPath ([string]$item.Path) -Directory -Force -ErrorAction SilentlyContinue)) {
-            if ($pruneDirs -contains $dir.Name) { continue }
+            if ($script:SgPruneDirs.Contains($dir.Name)) { continue }
             if ($dir.Name -match '^\.' ) { continue }
             if ($dir.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
             [void]$queue.Enqueue([pscustomobject]@{ Path = $dir.FullName; Depth = ([int]$item.Depth + 1) })
@@ -2072,7 +2072,6 @@ function Test-SgProjectCatalogRefreshRequired([object]$Config, [switch]$DiskOnly
 function Find-SgWorkspaceProjectCandidates([object]$Config) {
     $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
     $manifests = @{'package.json'=$true;'pyproject.toml'=$true;'requirements.txt'=$true;'pubspec.yaml'=$true}
-    $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true;'vendor'=$true;'third_party'=$true;'public'=$true;'build'=$true}
     # Keep the workspace depth and hidden-directory boundary identical whether
     # ripgrep or the native walker is available.
     $ripgrep = Get-Command rg -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -2185,7 +2184,7 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
         if ($depth -ge $script:ProjectCatalogMaxWorkspaceDepth) { continue }
         foreach ($directoryPath in $directories) {
             $directoryName = [IO.Path]::GetFileName($directoryPath)
-            if ($directoryName.StartsWith('.') -or $pruneDirs.ContainsKey($directoryName)) { continue }
+            if ($directoryName.StartsWith('.') -or $script:SgPruneDirs.Contains($directoryName)) { continue }
             try { $attributes = [IO.File]::GetAttributes($directoryPath) } catch { continue }
             if ($attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
             $paths.Enqueue($directoryPath); $roots.Enqueue($rootPath); $depths.Enqueue($depth + 1)
@@ -5078,9 +5077,18 @@ function Open-SgProject([object]$Config, [object]$Entry) {
 function Unregister-SgProject([object]$Config, [string]$ProjectPath) {
     # A surface whose folder vanished or whose manifest moved (git mv, deletion) can still be unregistered.
     $path = ConvertTo-SgCanonicalPath $ProjectPath -AllowMissing
-    $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
+    $entry = (Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path } | Select-Object -First 1
     if (-not $entry) { throw "Project is not registered: $path" }
-    $missing = Test-SgProjectSurfaceMissing $entry
+    if ((Test-Path -LiteralPath $path -PathType Container) -and -not (Test-SgProjectCatalogEntry $entry)) {
+        $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { ConvertTo-SgCanonicalPath ([string]$entry.rootPath) } else { '' }
+        $underPrunedDirectory = $false
+        if ($rootPath) {
+            $relativePath = [IO.Path]::GetRelativePath($rootPath, $path)
+            $insideRoot = -not [IO.Path]::IsPathRooted($relativePath) -and $relativePath -ne '..' -and -not $relativePath.StartsWith("..$([IO.Path]::DirectorySeparatorChar)") -and -not $relativePath.StartsWith("..$([IO.Path]::AltDirectorySeparatorChar)")
+            if ($insideRoot) { $underPrunedDirectory = @($relativePath -split '[\\/]+' | Where-Object { $script:SgPruneDirs.Contains($_) }).Count -gt 0 }
+        }
+        if (-not $underPrunedDirectory) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
+    }
     $liveTargets = @(Get-SgLiveSessions $entry | ForEach-Object { [string]$_.target })
     if ($liveTargets.Count -gt 0) { throw "Project is still running: $($entry.name) [$($liveTargets -join ', ')]. Stop it before unregistering." }
     # Ports are reserved by registry entries, so removing the entry releases its port.

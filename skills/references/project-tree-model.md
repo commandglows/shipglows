@@ -82,3 +82,5 @@ This applies to `shipglows stack scan`, `s extension-inspect`, `s extension-lab`
 ## Migration
 
 Rename a non-conforming folder with `git mv`, then update every path reference: configuration, CI, Vercel Root Directory, relative `path:` dependencies, `ENVIRONMENT.md`, documentation and registries. A Dart or npm package name is not a path and keeps its value. Run `s refresh` afterwards: it discovers the new paths and flags registered surfaces whose folder vanished or whose manifest no longer matches the registered type as `missing` (shown so in `s status`), without purging them, since a folder can be briefly absent or in transition. Then run `s unregister -Missing`, or `s unregister -ProjectPath <old path>`, to remove them and free their ports; a surface with a live session is never removed. The audit lists the projects still to migrate.
+
+An existing surface may also be unregistered when its path still exists under a directory excluded from discovery (such as `public`, `vendor`, `third_party`, `build` or `dist`); the live-session safeguard still applies.
