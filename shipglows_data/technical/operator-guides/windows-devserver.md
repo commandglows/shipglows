@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.0"
+artifact_version: "1.38.1"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-24"
+updated: "2026-10-30"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -29,6 +29,7 @@ evidence:
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21, `s start -FlutterDevice android` abandonnait après 10 minutes (« Flutter supervisor timed out before app.started ») alors que le premier build Gradle à froid progressait encore ; Android suit depuis la même fenêtre sensible à la progression que Windows (coupure après 10 min sans écriture Gradle, plafond 30 min) et annonce qu'un premier build Android peut être long."
   - "Le 2026-10-24 sur commandglows_app, une session profile Windows laissait vides le stdout.log et le stderr.log annoncés par `s status`, et cachait le VM service et DevTools dans flutter-launch ; `s status` affiche depuis ces URI et les journaux réellement écrits."
   - "Le 2026-10-23 sur CommunityGlows, un `tauri android dev` lancé par une autre session a remplacé sans message la session Tauri Windows et écrasé son stderr.log ; chaque cible a depuis sa propre session, ses logs par lancement, et un second Tauri exige un choix explicite."
+  - "Le 2026-10-30, `s restart` arrête le binaire Windows Tauri exact déduit de Cargo.toml et ses descendants avant de relancer ; `s status` qualifie le frontend par sa réponse HTTP et garde une grâce de démarrage bornée après une sonde transitoire en erreur."
   - "Le replay du 2026-09-04 confirme que `shipglows update status` s'exécute dans le PowerShell géré et que `shipglows update runtime` reste accepté comme forme de compatibilité sans verrouiller `s.exe`."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
@@ -719,6 +720,21 @@ les journaux. Le 2026-10-24, un Galaxy S21 sur CommandGlows était coupé après
 10 minutes alors que « Running Gradle task 'assembleDebug' » progressait encore.
 
 Les APK et AAB restent des sorties de release ou de validation autonome ciblée : installation, permissions, notifications, services, plugins natifs et comportement sans Flutter attaché. Ils ne remplacent pas la boucle de développement live.
+
+### Tauri Windows en développement
+
+`s stop` et `s restart` arrêtent le Job Windows de la session et vérifient aussi
+le binaire Tauri de ce projet dans `src-tauri\target\debug`, d'après le nom du
+package Cargo dans `src-tauri\Cargo.toml`. Le processus et son arbre,
+dont les enfants WebView2 encore attachés, sont arrêtés avant que l'état soit
+enregistré comme stoppé ou qu'un redémarrage soit relancé. La comparaison porte
+sur le chemin complet : un `app.exe` d'un autre projet n'est pas ciblé.
+
+Pour `s status`, une réponse HTTP du port local configuré suffit à confirmer le
+frontend prêt ; l'inventaire TCP système ne peut pas invalider cette réponse. Une
+sonde initiale indisponible garde la session en `starting` pendant la grâce
+bornée depuis son lancement, même si une première réconciliation l'avait marquée
+`error`. La session reste en erreur après expiration si le frontend ne répond pas.
 
 ### Tauri Android en développement
 

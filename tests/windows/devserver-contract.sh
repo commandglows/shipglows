@@ -68,6 +68,7 @@ for regression in \
   devserver-readiness-logs.ps1 \
   devserver-port-reservation.ps1 \
   devserver-multi-target.ps1 \
+  devserver-tauri-stop-reconcile.ps1 \
   devserver-cli-performance.ps1 \
   native-cli-launcher.ps1 \
   project-environment-schema.ps1 \

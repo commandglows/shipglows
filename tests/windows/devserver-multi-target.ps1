@@ -9,6 +9,11 @@ try {
     New-Item -ItemType Directory -Path (Join-Path $tauri 'src-tauri'),(Join-Path $flutter 'windows'),(Join-Path $flutter 'web'),$runtime,$logs -Force | Out-Null
     Set-Content (Join-Path $tauri '.shipglows.runtime.json') '{"surface":"tauri"}'
     Set-Content (Join-Path $tauri 'src-tauri\tauri.conf.json') '{"identifier":"com.fixture.app","build":{"devUrl":"http://127.0.0.1:32306","beforeDevCommand":"pnpm tauri:dev"}}'
+    Set-Content (Join-Path $tauri 'src-tauri\Cargo.toml') -Value @'
+[package]
+name = "app"
+version = "0.1.0"
+'@
     Set-Content (Join-Path $tauri 'src-tauri\tauri.dev.conf.json') '{"identifier":"com.fixture.dev"}'
     Set-Content (Join-Path $flutter 'pubspec.yaml') "name: test_app`ndependencies:`n  flutter:`n    sdk: flutter`nflutter:`n  uses-material-design: true" -Encoding UTF8
     Import-Module $modulePath -Force -DisableNameChecking

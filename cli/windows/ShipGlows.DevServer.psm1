@@ -3218,7 +3218,7 @@ function Get-SgRuntimeProcessReport([object]$Config) {
 # still owns its readiness wait (bounded by Wait-SgProjectReady's 1800 s cap), so a
 # concurrent status read does not report a slow dev-server boot as an error.
 function Test-SgStartupGraceActive([object]$Entry, [int]$GraceSeconds = 1800) {
-    if (-not $Entry -or [string]$Entry.status -ne 'starting') { return $false }
+    if (-not $Entry -or [string]$Entry.status -notin @('starting','error')) { return $false }
     if (-not $Entry.PSObject.Properties['startTimeUtc'] -or -not $Entry.startTimeUtc) { return $false }
     try { $started = ([DateTimeOffset]::Parse([string]$Entry.startTimeUtc, [Globalization.CultureInfo]::InvariantCulture)).UtcDateTime } catch { return $false }
     return (([datetime]::UtcNow - $started).TotalSeconds -lt $GraceSeconds)
@@ -3656,7 +3656,7 @@ function Test-SgTcpPortListening([int]$Port) {
     try { foreach ($endpoint in [Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners()) { if ($endpoint.Port -eq $Port) { return $true } }; return $false } catch { return $true }
 }
 
-# Reconciliation probes (process scans, ports, HTTP) run once in an unlocked dry pass; the locked pass
+# Reconciliation probes (process scans, HTTP) run once in an unlocked dry pass; the locked pass
 # reuses every result whose inputs did not change, so registry.lock is never held across a probe.
 $script:SgReconcileProbeCache = $null
 function Invoke-SgReconcileProbe([string]$Key, [scriptblock]$Probe) {
@@ -3688,7 +3688,6 @@ $script:SgReconcileMutation = {
         $sessionPids = @($allSessions | ForEach-Object { [int]$_.pid })
         $processSnapshots = Invoke-SgReconcileProbe "snapshot|$(@($sessionPids | Sort-Object) -join ',')|$(@($signaturePids | Sort-Object) -join ',')" { Get-SgProcessSnapshotMap $sessionPids -CommandLinePids $signaturePids }
         if ($null -eq $processSnapshots) { $processSnapshots = @{} }
-        $listeningPorts = Invoke-SgReconcileProbe 'ports' { Get-SgListeningTcpPortSet }
         $byIdentity = @{}
         $normalized = New-Object 'System.Collections.Generic.List[object]'
         $reconciledInPlace = @{}
@@ -3732,7 +3731,7 @@ $script:SgReconcileMutation = {
                 }
                 if ($sessionLive) {
                     $live = $true; $liveSessions += $session
-                    if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Invoke-SgReconcileProbe "native-running|$([string]$flutterState.appId)|$probeKey" {Get-SgOwnedFlutterNativePids $entry}).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(($null -eq $listeningPorts -or $listeningPorts.ContainsKey([int]$entry.port)) -and (Invoke-SgReconcileProbe "http|$([int]$entry.port)" {Test-SgHttpReady ([int]$entry.port)})){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif(Test-SgStartupGraceActive $entry){$entry.status='starting';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $(if($entry.PSObject.Properties['frontendMode']-and[string]$entry.frontendMode-eq'shared'){"The shared frontend of the $([string]$entry.frontendOwner) target on :$([int]$entry.port) is not responding."}else{'Managed process is alive, but its local service port is not responding.'}) -Force}}else{$entry.status = 'running'}
+                    if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;$nativeRequired=($entry.PSObject.Properties['flutterDeviceId']-and[string]$entry.flutterDeviceId-eq'windows');if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId-and(-not$nativeRequired-or@(Invoke-SgReconcileProbe "native-running|$([string]$flutterState.appId)|$probeKey" {Get-SgOwnedFlutterNativePids $entry}).Count-gt0)){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}elseif($flutterState-and$flutterState.status-eq'running'-and$nativeRequired){$entry.status='error';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'error' -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Flutter Windows runner is no longer active.' -Force}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}elseif($entry.kind-in@('astro','vite','browser-extension','tauri')-and[int]$entry.port-gt0){if(Invoke-SgReconcileProbe "http|$([int]$entry.port)" {Test-SgHttpReady ([int]$entry.port)}){$entry.status='running';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif(Test-SgStartupGraceActive $entry){$entry.status='starting';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}else{$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $(if($entry.PSObject.Properties['frontendMode']-and[string]$entry.frontendMode-eq'shared'){"The shared frontend of the $([string]$entry.frontendOwner) target on :$([int]$entry.port) is not responding."}else{'Managed process is alive, but its local service port is not responding.'}) -Force}}else{$entry.status = 'running'}
                     # A live launch that is still starting owns its reservation until Start-SgProjectCore commits it.
                     if ($entry.status -ne 'starting') {
                         if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
@@ -4737,6 +4736,38 @@ function Stop-SgProcessTree([int]$RootPid) {
     foreach ($treePid in @($ids)) { Stop-Process -Id $treePid -Force -ErrorAction SilentlyContinue }
 }
 
+function Get-SgTauriWindowsExecutablePaths([object]$Entry) {
+    if (-not $Entry -or [string]$Entry.kind -ne 'tauri' -or (Get-SgEntryDevice $Entry) -ne 'windows') { return @() }
+    $projectPath = [IO.Path]::GetFullPath($(if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path }))
+    $manifestPath = Join-Path $projectPath 'src-tauri\Cargo.toml'
+    if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw "Cannot verify the Tauri Windows executable without $manifestPath." }
+    $manifest = [IO.File]::ReadAllText($manifestPath).TrimStart([char]0xFEFF)
+    $package = [regex]::Match($manifest, '(?ms)^\[package\]\s*(?<body>.*?)(?=^\[|\z)')
+    $packageName = if ($package.Success) { [regex]::Match($package.Groups['body'].Value, '(?m)^\s*name\s*=\s*"([^"]+)"\s*(?:#.*)?$') } else { $null }
+    if (-not $packageName -or -not $packageName.Success) { throw "Cannot resolve the Tauri Cargo binary name from $manifestPath." }
+    $targetDirectory = Join-Path $projectPath 'src-tauri\target\debug'
+    $binaryName = $packageName.Groups[1].Value.Replace('-', '_')
+    return ,([IO.Path]::GetFullPath((Join-Path $targetDirectory ($binaryName + '.exe'))))
+}
+
+function Get-SgOwnedTauriWindowsPids([object]$Entry) {
+    $expectedPaths = @(Get-SgTauriWindowsExecutablePaths $Entry)
+    if ($expectedPaths.Count -eq 0) { return @() }
+    $owned = New-Object 'System.Collections.Generic.List[int]'
+    foreach ($process in @(Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,ExecutablePath -ErrorAction SilentlyContinue)) {
+        if ([string]::IsNullOrWhiteSpace([string]$process.ExecutablePath)) { continue }
+        try { $actualPath = [IO.Path]::GetFullPath([string]$process.ExecutablePath) } catch { continue }
+        if (@($expectedPaths | Where-Object { $actualPath.Equals([string]$_, [StringComparison]::OrdinalIgnoreCase) }).Count -gt 0) { [void]$owned.Add([int]$process.ProcessId) }
+    }
+    return @($owned | Sort-Object -Unique)
+}
+
+function Stop-SgOwnedTauriWindows([object]$Entry) {
+    $ownedPids = @(Get-SgOwnedTauriWindowsPids $Entry)
+    foreach ($ownedPid in $ownedPids) { Stop-SgProcessTree $ownedPid }
+    return $ownedPids.Count -gt 0
+}
+
 # Every process whose command line names this session's private launch directory (the supervisor and
 # the browser profile inside it) belongs to the session, even after the registered host died.
 function Get-SgOwnedFlutterLaunchPids([object]$Entry) {
@@ -4828,7 +4859,8 @@ function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8, [int
         $nativeGone=$Entry.kind-ne'flutter-web'-or@(Get-SgOwnedFlutterNativePids $Entry).Count-eq0
         # A Flutter session is stopped only once its supervisor tree and browser profile are gone too.
         $launchGone=$Entry.kind-ne'flutter-web'-or(@(Get-SgOwnedFlutterLaunchPids $Entry).Count-eq0-and@(Get-SgOwnedFlutterBrowserPids $Entry).Count-eq0)
-        if ($identityGone -and $serviceGone -and $nativeGone -and $launchGone) { return $true }
+        $tauriGone=$Entry.kind-ne'tauri'-or(Get-SgEntryDevice $Entry)-ne'windows'-or@(Get-SgOwnedTauriWindowsPids $Entry).Count-eq0
+        if ($identityGone -and $serviceGone -and $nativeGone -and $launchGone -and $tauriGone) { return $true }
         if ((Get-Date) -ge $deadline) { return $false }
         Start-Sleep -Milliseconds 100
     } while ($true)
@@ -4856,9 +4888,10 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     $stoppedFlutterListener = (& $stopListener)
     $stoppedFlutterBrowser = Stop-SgOwnedFlutterBrowser $entry
     $stoppedFlutterNative = Stop-SgOwnedFlutterNative $entry
-    $noRuntimeWork = $alreadyStopped -and -not $cleanedFlutterArtifacts -and -not $stoppedBySupervisor -and -not $stoppedFlutterLaunch -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative
+    $stoppedTauriWindows = Stop-SgOwnedTauriWindows $entry
+    $noRuntimeWork = $alreadyStopped -and -not $cleanedFlutterArtifacts -and -not $stoppedBySupervisor -and -not $stoppedFlutterLaunch -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and -not $stoppedFlutterNative -and -not $stoppedTauriWindows
     if ((Test-Path -LiteralPath $path -PathType Container) -and -not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
-    $stopped = $cleanedFlutterArtifacts -or $stoppedBySupervisor -or $stoppedFlutterLaunch -or $stoppedFlutterListener -or $stoppedFlutterBrowser -or $stoppedFlutterNative
+    $stopped = $cleanedFlutterArtifacts -or $stoppedBySupervisor -or $stoppedFlutterLaunch -or $stoppedFlutterListener -or $stoppedFlutterBrowser -or $stoppedFlutterNative -or $stoppedTauriWindows
     $identityLive = Test-SgProcessIdentity $entry
     $serviceLive = $entryPort -gt 0 -and -not (Test-SgPortAvailable $entryPort)
     if (($identityLive -or $serviceLive) -and $entry.PSObject.Properties['jobName'] -and $entry.jobName) {
@@ -4885,8 +4918,11 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
             $jobStopped = $entry.PSObject.Properties['jobName'] -and $entry.jobName -and (Stop-SgManagedJob $entry)
             if (-not $jobStopped -and (Test-SgProcessIdentity $entry)) { Stop-SgProcessTree ([int]$entry.pid) }
             $stopped = $true
+        } elseif ($entry.kind -eq 'tauri' -and (Get-SgEntryDevice $entry) -eq 'windows') {
+            [void](Stop-SgOwnedTauriWindows $entry)
+            $stopped = $true
         }
-        if ($entry.kind -ne 'flutter-web' -or -not (Wait-SgManagedExtinction $entry 8 $entryPort)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
+        if (-not (Wait-SgManagedExtinction $entry 8 $entryPort)) { throw "Could not prove process and service extinction for $label; registry state was preserved." }
     }
     # A shared-frontend session has no service port of its own, but its phone still reverses the frontend port.
     if ($entry.kind -eq 'tauri' -and $target -eq 'android' -and -not $alreadyStopped) { Stop-SgTauriAndroidLink $entry ([int](Get-SgOptionalValue $entry 'port')) }
