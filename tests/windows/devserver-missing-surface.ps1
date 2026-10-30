@@ -12,6 +12,12 @@ function Write-Package([string]$Path) {
     '{"devDependencies":{"vite":"latest"},"scripts":{"dev":"vite"}}' | Set-Content -LiteralPath (Join-Path $Path 'package.json') -Encoding UTF8
 }
 
+function Write-TauriProject([string]$Path) {
+    New-Item -ItemType Directory -Path (Join-Path $Path 'src-tauri') -Force | Out-Null
+    '{"surface":"tauri"}' | Set-Content -LiteralPath (Join-Path $Path '.shipglows.runtime.json') -Encoding UTF8
+    '{"build":{"devUrl":"http://127.0.0.1:3006","beforeDevCommand":"pnpm tauri:dev"}}' | Set-Content -LiteralPath (Join-Path $Path 'src-tauri\tauri.conf.json') -Encoding UTF8
+}
+
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ("sg-missing-surface-{0}" -f [guid]::NewGuid().ToString('N'))
 $workspace = Join-Path $fixture 'workspace'
@@ -35,6 +41,9 @@ try {
     $runningGone = Join-Path $workspace 'alpha\running'
     $kept = Join-Path $workspace 'beta\site'
     foreach ($path in @($moved,$runningGone,$kept)) { Write-Package $path; Register-SgProject $config $path | Out-Null }
+    $manifestMoved = Join-Path $workspace 'gamma\desktop-app'
+    Write-TauriProject $manifestMoved
+    Register-SgProject $config $manifestMoved | Out-Null
 
     # A session that claims to be running with the current process identity counts as live.
     $start = (Get-Process -Id $PID).StartTime.ToUniversalTime().ToString('o')
@@ -52,15 +61,20 @@ try {
     } $config $runningGone $PID $start
 
     Remove-Item -LiteralPath $moved,$runningGone -Recurse -Force
+    New-Item -ItemType Directory -Path (Join-Path $manifestMoved 'desktop') -Force | Out-Null
+    Move-Item -LiteralPath (Join-Path $manifestMoved 'src-tauri') -Destination (Join-Path $manifestMoved 'desktop\src-tauri')
 
     $missing = @(Get-SgMissingProjects $config | ForEach-Object { [string]$_.path })
-    Assert-Sg ($missing -contains $moved -and $missing -contains $runningGone -and $missing -notcontains $kept) 'Missing surfaces were not detected.'
+    Assert-Sg ($missing -contains $moved -and $missing -contains $runningGone -and $missing -contains $manifestMoved -and $missing -notcontains $kept) 'Missing surfaces were not detected.'
     $movedEntry = @((Read-SgRegistry $config).projects | Where-Object { $_.path -eq $moved })[0]
     Assert-Sg ((Format-SgProjectStatus $movedEntry) -like 'missing |*') 'A stopped surface without folder is not shown as missing.'
+    $manifestMovedEntry = @((Read-SgRegistry $config).projects | Where-Object { $_.path -eq $manifestMoved })[0]
+    Assert-Sg ((Format-SgProjectStatus $manifestMovedEntry) -like 'missing |*') 'A surface whose manifest moved is not shown as missing.'
 
     Unregister-SgProject $config $moved
+    Unregister-SgProject $config $manifestMoved
     $paths = @((Read-SgRegistry $config).projects | ForEach-Object { [string]$_.path })
-    Assert-Sg ($paths -notcontains $moved -and $paths -contains $kept) 'Unregister did not remove only the missing surface.'
+    Assert-Sg ($paths -notcontains $moved -and $paths -notcontains $manifestMoved -and $paths -contains $kept) 'Unregister did not remove only the missing surfaces.'
 
     $blocked = $false
     try { Unregister-SgProject $config $runningGone } catch { $blocked = $_.Exception.Message -like 'Project is still running*' }
@@ -77,6 +91,14 @@ try {
         Write-Package $reused; Register-SgProject $config $reused | Out-Null
         $reservation = Reserve-SgProjectPort $config $reused $movedPort $true
         Assert-Sg ($reservation.Port -eq $movedPort) 'The port of the unregistered surface was not released.'
+    }
+    $manifestMovedPort = [int]$manifestMovedEntry.port
+    if ($manifestMovedPort -gt 0) {
+        $reusedTauriPort = Join-Path $workspace 'delta\desktop-app'
+        Write-TauriProject $reusedTauriPort
+        Register-SgProject $config $reusedTauriPort | Out-Null
+        $reservation = Reserve-SgProjectPort $config $reusedTauriPort $manifestMovedPort $true
+        Assert-Sg ($reservation.Port -eq $manifestMovedPort) 'The port of the unregistered moved-manifest surface was not released.'
     }
 
     Write-Host 'devserver-missing-surface: ok'

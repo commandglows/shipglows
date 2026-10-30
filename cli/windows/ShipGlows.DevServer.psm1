@@ -2259,10 +2259,12 @@ function New-SgProjectChoiceMap([object[]]$Items) {
 }
 
 function Test-SgProjectSurfaceMissing([object]$Entry) {
-    # A registered surface whose folder disappeared (moved or deleted) stays visible as missing until s unregister removes it.
+    # A registered surface whose folder disappeared or no longer matches its registered manifest stays visible as missing until s unregister removes it.
     if (-not $Entry) { return $false }
     $path = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } elseif ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '' }
-    return $path -and -not (Test-Path -LiteralPath $path -PathType Container)
+    if (-not $path) { return $false }
+    if (-not (Test-Path -LiteralPath $path -PathType Container)) { return $true }
+    return -not (Test-SgProjectCatalogEntry $Entry)
 }
 
 function Get-SgMissingProjects([object]$Config) {
@@ -5074,12 +5076,11 @@ function Open-SgProject([object]$Config, [object]$Entry) {
 }
 
 function Unregister-SgProject([object]$Config, [string]$ProjectPath) {
-    # A surface whose folder vanished (git mv, deletion) can still be unregistered; its manifest cannot be checked.
+    # A surface whose folder vanished or whose manifest moved (git mv, deletion) can still be unregistered.
     $path = ConvertTo-SgCanonicalPath $ProjectPath -AllowMissing
     $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
     if (-not $entry) { throw "Project is not registered: $path" }
     $missing = Test-SgProjectSurfaceMissing $entry
-    if (-not $missing -and -not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
     $liveTargets = @(Get-SgLiveSessions $entry | ForEach-Object { [string]$_.target })
     if ($liveTargets.Count -gt 0) { throw "Project is still running: $($entry.name) [$($liveTargets -join ', ')]. Stop it before unregistering." }
     # Ports are reserved by registry entries, so removing the entry releases its port.
