@@ -85,10 +85,10 @@ Validated by the operator. Done on `main`:
 - CLI: `stack scan` follows the tool discovery rule and detects Tauri, browser extensions and Obsidian; `extension-inspect` and `extension-lab` select `ext/`; DevServer discovery skips `vendor`, `third_party`, `public` and `build`.
 - Runner (`shipglows_app`): project catalog, context generator and AI readiness read every surface root.
 - beatglows: `app_flutter/` moved to `app/`.
+- commandglows: `commandglows_app/` and `commandglows_site/` moved to `app/` and `site/` (`7711835e`); the Dart package, product id, native channels and binary name keep `commandglows_app`. Left to the operator: the Vercel Root Directory (`commandglows_site` to `site`) before the next push, and the Windows build cache and native messaging host, which still point to the old path.
 
-Pending, each waiting for the operator's validation:
+Pending, one thread per project, each audit waiting for the operator's validation:
 
-- commandglows: `commandglows_app` is also the Dart package, the product id, the native channel prefix and the binary name, so only path forms may change. The Vercel Root Directory is `commandglows_site` (production setting). A running `commandglows_browser_bridge.exe` (Chrome native messaging host from the Debug build) locks the folder.
 - gocharbon: `app_quiz/` is a self-contained sub-project (its own Vercel deployment, CI, Convex, Supabase, scripts); flattening it needs a layout decision, not only a rename.
 - claiire, contentglows, replayglows, communityglows, dreamglows: uncommitted changes in progress.
 - Stray DevServer `ENVIRONMENT.md` files committed in `replayglows/ext/public/`, `shipglows_app/app/vendor/analytics_actions_flutter/` and `contentglows/app/vendor/analytics_actions_flutter/`.
