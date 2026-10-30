@@ -26,6 +26,7 @@ param(
     [switch]$Replace,
     [switch]$Open,
     [switch]$Full,
+    [switch]$Missing,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
     [string]$MenuSessionRequestPath = '',
@@ -155,6 +156,9 @@ function Show-SgShortcutHelp {
     Write-Host '  s m r    Restart a project'
     Write-Host '  s m t    Stop a project'
     Write-Host '  s m w    Unregister a stopped project (files are preserved)'
+    Write-Host '  s refresh                         Rediscover projects; registered surfaces whose folder vanished show as missing'
+    Write-Host '  s unregister -ProjectPath <path>  Unregister a stopped project, even when its folder is missing (frees its port)'
+    Write-Host '  s unregister -Missing             Unregister every stopped surface whose folder is missing'
     Write-Host '  s m o    Stop all projects'
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
@@ -545,6 +549,8 @@ function Show-SgProjectStatus([object]$Entry) {
     Write-Host "Open: $($experience.OpenAction)"
     if ($Entry.status -in @('starting','running')) {
         Write-Host "Next: $($experience.OpenNextAction)"
+    } elseif (Test-SgProjectSurfaceMissing $Entry) {
+        Write-Host "Next: the folder is gone; run s unregister -ProjectPath `"$($Entry.path)`"."
     } else {
         Write-Host "Next: run s start -ProjectPath `"$($Entry.path)`"."
     }
@@ -1178,23 +1184,33 @@ try {
         'dashboard' { Show-SgWindowsDashboard; Start-SgBackgroundUpdateStatusRefresh }
         'status' {
             if ($ProjectPath) {
-                $path = ConvertTo-SgCanonicalPath $ProjectPath
+                $path = ConvertTo-SgCanonicalPath $ProjectPath -AllowMissing
                 $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
                 if (-not $entry) { throw "Project is not registered: $path" }
                 if ($Json) {
                     # Each target reports the log files actually being written (live Flutter supervisor logs while they exist).
                     $targets = @(Get-SgEntrySessions $entry | ForEach-Object { $view = $_ | Select-Object *; $logs = Get-SgSessionLogFiles $_; $view | Add-Member -NotePropertyName logPath -NotePropertyValue $(if ($logs.Out) { $logs.Out } else { $null }) -Force; $view | Add-Member -NotePropertyName errorLogPath -NotePropertyValue $(if ($logs.Err) { $logs.Err } else { $null }) -Force; $view | Add-Member -NotePropertyName logDirectory -NotePropertyValue $(if ($logs.Directory) { $logs.Directory } else { $null }) -Force; $view })
-                    [pscustomobject]@{ name=[string]$entry.name; path=[string]$entry.path; kind=[string]$entry.kind; status=[string]$entry.status; port=[int]$entry.port; targets=$targets } | ConvertTo-Json -Depth 6
+                    [pscustomobject]@{ name=[string]$entry.name; path=[string]$entry.path; kind=[string]$entry.kind; status=$(if (@(Get-SgLiveSessions $entry).Count -eq 0 -and (Test-SgProjectSurfaceMissing $entry)) { 'missing' } else { [string]$entry.status }); port=[int]$entry.port; targets=$targets } | ConvertTo-Json -Depth 6
                 } else { Show-SgProjectStatus $entry }
             } else { Show-SgWindowsDashboard }
         }
-        'refresh' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null; Show-SgWindowsDashboard }
+        'refresh' {
+            Get-SgProjectCatalog $config -ForceRefresh | Out-Null
+            Show-SgWindowsDashboard
+            # Vanished folders are flagged, never purged: a folder can be briefly absent (offline drive, checkout in progress).
+            $missingEntries = @(Get-SgMissingProjects $config)
+            if ($missingEntries.Count -gt 0) {
+                Write-SgWarn "$($missingEntries.Count) registered surface(s) have no folder anymore:"
+                foreach ($item in $missingEntries) { Write-Host "  $($item.path)" }
+                Write-SgInfo 'Next: run s unregister -Missing (or s unregister -ProjectPath <path>) to remove them.'
+            }
+        }
         'clone' { Invoke-Clone }
         'register' {
             $path = if ($ProjectPath) { $ProjectPath } else { Read-SgInput 'Project path' $config.Workspace }
             if ($path) { Invoke-SgRegisterProject $path }
         }
-        'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
+        'unregister' { if ($Missing) { Unregister-SgMissingProjects $config } elseif ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
             # -Open (web Dev shortcuts) starts a visible session and opens it once running.
             $startPath = if ($ProjectPath) { $ProjectPath } else { $entry = Get-SelectedProject 'start'; if ($entry) { $entry.path } else { $null } }

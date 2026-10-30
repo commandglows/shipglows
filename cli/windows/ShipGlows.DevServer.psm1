@@ -49,11 +49,11 @@ function Ensure-SgDirectory([string]$Path) {
     }
 }
 
-function ConvertTo-SgCanonicalPath([string]$Path) {
+function ConvertTo-SgCanonicalPath([string]$Path, [switch]$AllowMissing) {
     if ([string]::IsNullOrWhiteSpace($Path)) { throw 'Project path is required.' }
     $expanded = [Environment]::ExpandEnvironmentVariables($Path)
     $full = [IO.Path]::GetFullPath($expanded)
-    if (-not (Test-Path -LiteralPath $full -PathType Container)) { throw "Project path does not exist: $full" }
+    if (-not $AllowMissing -and -not (Test-Path -LiteralPath $full -PathType Container)) { throw "Project path does not exist: $full" }
     return $full.TrimEnd('\','/')
 }
 
@@ -1241,6 +1241,7 @@ function Format-SgProjectStatus([object]$Entry) {
     $kind = if ($Entry.PSObject.Properties['kind'] -and $Entry.kind) { [string]$Entry.kind } else { 'unknown' }
     $port = if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 }
     $status = if ($Entry.PSObject.Properties['status'] -and $Entry.status) { [string]$Entry.status } else { 'discovered' }
+    if ($activeSessions.Count -eq 0 -and (Test-SgProjectSurfaceMissing $Entry)) { $status = 'missing' }
     $flutterDevice = Get-SgEntryDevice $Entry
     $flutterMode = if ($kind -in @('flutter','flutter-web') -and $Entry.PSObject.Properties['flutterMode']) { [string]$Entry.flutterMode } else { '' }
     $projectPath = if ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '' }
@@ -2255,6 +2256,17 @@ function New-SgProjectChoiceMap([object[]]$Items) {
         $map[$label] = $identity
     }
     return $map
+}
+
+function Test-SgProjectSurfaceMissing([object]$Entry) {
+    # A registered surface whose folder disappeared (moved or deleted) stays visible as missing until s unregister removes it.
+    if (-not $Entry) { return $false }
+    $path = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } elseif ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '' }
+    return $path -and -not (Test-Path -LiteralPath $path -PathType Container)
+}
+
+function Get-SgMissingProjects([object]$Config) {
+    return @((Reconcile-SgRegistry $Config).projects | Where-Object { Test-SgProjectSurfaceMissing $_ })
 }
 
 function Test-SgProjectCatalogEntry([object]$Entry) {
@@ -5062,18 +5074,29 @@ function Open-SgProject([object]$Config, [object]$Entry) {
 }
 
 function Unregister-SgProject([object]$Config, [string]$ProjectPath) {
-    $path = ConvertTo-SgCanonicalPath $ProjectPath
+    # A surface whose folder vanished (git mv, deletion) can still be unregistered; its manifest cannot be checked.
+    $path = ConvertTo-SgCanonicalPath $ProjectPath -AllowMissing
     $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
     if (-not $entry) { throw "Project is not registered: $path" }
-    if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
+    $missing = Test-SgProjectSurfaceMissing $entry
+    if (-not $missing -and -not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
     $liveTargets = @(Get-SgLiveSessions $entry | ForEach-Object { [string]$_.target })
     if ($liveTargets.Count -gt 0) { throw "Project is still running: $($entry.name) [$($liveTargets -join ', ')]. Stop it before unregistering." }
+    # Ports are reserved by registry entries, so removing the entry releases its port.
     Invoke-SgRegistryMutation $Config {
         param($data)
         $data.projects = @($data.projects | Where-Object { $_.path -ne $path })
     } | Out-Null
     Clear-SgProjectCatalogCache $Config
-    Write-SgInfo "Unregistered project without deleting its files: $path"
+    if ($missing) { Write-SgInfo "Unregistered missing project surface: $path" } else { Write-SgInfo "Unregistered project without deleting its files: $path" }
+}
+
+function Unregister-SgMissingProjects([object]$Config) {
+    $missing = @(Get-SgMissingProjects $Config)
+    if ($missing.Count -eq 0) { Write-SgInfo 'No missing project surface is registered.'; return }
+    foreach ($entry in $missing) {
+        try { Unregister-SgProject $Config ([string]$entry.path) } catch { Write-SgWarn $_.Exception.Message }
+    }
 }
 
 function Show-SgDashboard([object]$Config) {
@@ -5087,5 +5110,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Unregister-SgMissingProjects,Get-SgMissingProjects,Test-SgProjectSurfaceMissing,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
