@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
 # Bootstrap ShipGlows without a manual git clone.
 
-set -eu
+# cli/doctor.sh sources this file with SHIPGLOWS_BOOTSTRAP_LIBRARY=1 to reuse
+# the detection functions; in that mode nothing below runs.
+if [ "${SHIPGLOWS_BOOTSTRAP_LIBRARY:-0}" != 1 ]; then
+    set -eu
+fi
 
 REPO_URL="${SHIPGLOWS_REPO_URL:-https://github.com/commandglows/shipglows.git}"
 BRANCH="${SHIPGLOWS_BRANCH:-main}"
@@ -191,6 +195,9 @@ resolve_install_mode() {
 }
 
 INSTALL_MODE=""
+if [ "${SHIPGLOWS_BOOTSTRAP_LIBRARY:-0}" = 1 ]; then
+    return 0
+fi
 detect_platform
 check_platform_support || exit 1
 resolve_install_mode || exit 1

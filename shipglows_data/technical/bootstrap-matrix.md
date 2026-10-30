@@ -61,9 +61,9 @@ Each refusal prints the reason and the next command. The shell bootstrap never f
 - Platform detection and refusals: `install-shipglows.sh` (`detect_platform`, `check_platform_support`, `resolve_install_mode`).
 - Platform detection after the clone: `local/install.sh` (existing branches, same families).
 - Python guard and install hints per platform: `cli/python-runtime.sh`.
+- Read-only prerequisite check: `./cli/doctor.sh` (run from the clone). It sources `install-shipglows.sh` with `SHIPGLOWS_BOOTSTRAP_LIBRARY=1` to reuse the platform detection and refusals, and `cli/python-runtime.sh` for Python. It installs nothing: for each missing `git`, `curl`, `bash` or Python 3.9+, it prints the command for the detected platform (`pkg`, `xcode-select`/`brew`, `apt-get`, or the distribution's package manager). Exit 0 when the `local` prerequisites are present, 1 otherwise or when the platform is refused (Git Bash, unknown OS).
 
 ## Out of scope (tracked in TASKS)
 
-- A single `bootstrap` / `doctor` wrapper.
 - Aligning `README.md`, `AGENT.md`, `CONTEXT.md` and `GUIDELINES.md` on this contract.
 - Verification of the refusal paths on real hosts (no run was done for this document).
