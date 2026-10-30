@@ -156,7 +156,7 @@ function Test-SgStackPath([string]$Root, [string]$Relative, [string]$PathType) {
 function Get-SgStackSurfaceRoots([string]$Root) {
     # The project tree model (skills/references/project-tree-model.md): the repository root, every
     # first-level folder and every packages\* folder. Hidden, generated and vendored folders are skipped.
-    $skipped = @('node_modules', 'build', 'dist', '.output', 'target', 'vendor', 'third_party', 'public')
+    $skipped = @('node_modules', 'build', 'dist', '.output', 'target', 'vendor', 'third_party', 'public', 'shipglows_data')
     $isSurfaceFolder = { param($Directory) $Directory.Name -notmatch '^\.' -and $skipped -notcontains $Directory.Name -and -not ($Directory.Attributes -band [IO.FileAttributes]::ReparsePoint) }
     $roots = New-Object Collections.Generic.List[string]
     $roots.Add($Root)

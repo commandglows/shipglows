@@ -74,7 +74,7 @@ A second Flutter app is allowed only for a distinct product with its own feature
 
 ## Tool Discovery
 
-Tools that read a project's technologies or context read the repository root, every first-level folder, and every `packages/*/` folder. They skip hidden folders and `node_modules`, `build`, `dist`, `.output`, `target`, `vendor`, `third_party` and `public`. They never read deeper.
+Tools that read a project's technologies or context read the repository root, every first-level folder, and every `packages/*/` folder. They skip hidden folders, `shipglows_data` and `node_modules`, `build`, `dist`, `.output`, `target`, `vendor`, `third_party` and `public`. They never read deeper.
 
 This applies to `shipglows stack scan`, `s extension-inspect`, `s extension-lab` and the runner (project catalog, context generator, AI readiness). DevServer surface discovery skips the same folders; it still descends to depth 3 so that layouts not yet migrated stay launchable.
 
