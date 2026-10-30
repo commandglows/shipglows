@@ -85,11 +85,15 @@ Validated by the operator. Done on `main`:
 - CLI: `stack scan` follows the tool discovery rule and detects Tauri, browser extensions and Obsidian; `extension-inspect` and `extension-lab` select `ext/`; DevServer discovery skips `vendor`, `third_party`, `public` and `build`.
 - Runner (`shipglows_app`): project catalog, context generator and AI readiness read every surface root.
 - beatglows: `app_flutter/` moved to `app/`.
-- commandglows: `commandglows_app/` and `commandglows_site/` moved to `app/` and `site/` (`7711835e`); the Dart package, product id, native channels and binary name keep `commandglows_app`. Left to the operator: the Vercel Root Directory (`commandglows_site` to `site`) before the next push, and the Windows build cache and native messaging host, which still point to the old path.
+- commandglows: `commandglows_app/` and `commandglows_site/` moved to `app/` and `site/` (`7711835e`); the Dart package, product id, native channels and binary name keep `commandglows_app`. Vercel Root Directory set to `site`, native messaging host re-registered under `app/build` (`38959c3b`). `mobile/` is not sorted yet.
+- replayglows: Convex backend moved from `backend/packages/backend/` to `backend/`, stray `ENVIRONMENT.md` files removed (`3ca1ae4`).
+- dreamglows: `website/`, `chrome_extension/` and `obsidian_plugin/` moved to `site/`, `ext/` and `obsidian/` (`89fbe14`). The two Flutter apps (`android_app/`, `windows_app/`) remain a separate code project.
+- shipglows_app: stray vendor `ENVIRONMENT.md` removed and tree aligned (`e66cd3c2`).
 
 Pending, one thread per project, each audit waiting for the operator's validation:
 
-- gocharbon: `app_quiz/` is a self-contained sub-project (its own Vercel deployment, CI, Convex, Supabase, scripts); flattening it needs a layout decision, not only a rename.
-- claiire, contentglows, replayglows, communityglows, dreamglows: uncommitted changes in progress.
-- Stray DevServer `ENVIRONMENT.md` files committed in `replayglows/ext/public/`, `shipglows_app/app/vendor/analytics_actions_flutter/` and `contentglows/app/vendor/analytics_actions_flutter/`.
+- gocharbon: `app_quiz/` flattening in progress in its thread, not committed yet.
+- claiire (`app_flutter/` to `app/`), contentglows (`browser_extension/` to `ext/`), communityglows (`flutter/` to `app/`, then splitting Tauri and the extension): audits waiting for validation.
+- Stray DevServer `ENVIRONMENT.md` committed in `contentglows/app/vendor/analytics_actions_flutter/`.
+- DevServer registry: `s unregister` refuses an entry whose folder is gone or whose manifest changed, so old entries of moved surfaces (beatglows, dreamglows, replayglows) stay registered. CLI fix proposed, not applied.
 - Engines (`shipglows-ui-engine`, `shipglows-audio-engine`, `shipglows-window-engine`): `flutter/` to `packages/` changes the `path:` dependencies of every consumer app.
