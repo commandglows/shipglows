@@ -537,9 +537,12 @@ project manifest or lockfile, updates `node_modules`, accepts an SDK licence,
 changes credentials, restarts Windows, or changes the active ShipGlows channel.
 
 The code repository is public, so Git or GitHub credentials are not required
-for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
-selects `full`. In a non-interactive environment, put the mode on the consuming
-shell:
+for this bootstrap. Termux and macOS select `local` without `sudo`; a root shell
+selects `full` only on Debian or Ubuntu. Git Bash, MSYS and Cygwin are refused:
+use `install-shipglows.ps1` on native Windows. Each refusal prints the next
+command. The per-environment matrix lives in
+[`shipglows_data/technical/bootstrap-matrix.md`](./shipglows_data/technical/bootstrap-matrix.md).
+In a non-interactive environment, put the mode on the consuming shell:
 
 ```bash
 curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local sh
@@ -638,8 +641,8 @@ The bootstrap target defaults to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`. 
 ### Install Privilege Model
 
 ShipGlows's complete server installer is intentionally root-level. The public
-bootstrap itself starts without `sudo` so it can route Termux and workstations
-to the user-local installer. Full mode delegates to `sudo ./cli/install.sh`
+bootstrap itself starts without `sudo` so it can route Termux, macOS and
+non-root workstations to the user-local installer. Full mode delegates to `sudo ./cli/install.sh`
 because it manages machine-wide dependencies and service configuration:
 
 - system packages and tools such as Node.js, PM2, Flox, Caddy, GitHub CLI, `jq`, `fuser`, and `ss`

@@ -60,6 +60,7 @@ That research-only configuration does not apply to project execution.
 - Si la tache touche l'extraction d'un blueprint depuis une app existante (creation/maintenance interne ShipGlows), lire `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` puis `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`; la creation d'un blueprint appartient à `900-shipglows-core build`.
 - Si la tache touche le CLI principal, commencer par `cli/shipglows.sh`, `cli/lib.sh`, puis `shipglows_data/technical/context.md`.
 - Si la tache touche le setup serveur ou Codex, lire `cli/install.sh`, `cli/config.sh`, puis `shipglows_data/technical/context.md`.
+- Si la tache touche le bootstrap d'installation (`install-shipglows.sh`, `install-shipglows.ps1`, `local/install.sh`, runtime Python), lire `shipglows_data/technical/bootstrap-matrix.md`, puis `shipglows_data/technical/python-runtime-provisioning.md`.
 - Si la tache touche les tunnels SSH locaux, lire `local/local.sh`, `local/dev-tunnel.sh`, puis `shipglows_data/technical/context-function-tree.md`.
 - Si la tache touche Blacksmith, runners CI, Testboxes, logs CI, APK/AAB Android, SSH Access runner ou debugging de build GitHub Actions, lire `shipglows_data/technical/blacksmith.md`; pour une verification deploy/logs, router via `skills/405-sg-prod/SKILL.md`, et pour une release complete via `skills/004-sg-deploy/SKILL.md`.
 - Si la tache touche les skills, lire `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, puis les `skills/*/SKILL.md` concernes.
