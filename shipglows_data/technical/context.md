@@ -45,6 +45,7 @@ La frontière de dépôt est explicite : `shipglows` contient le système DX (sk
 - `cli/install.sh`: bootstrap serveur et configuration de l'environnement utilisateur.
 - `cli/windows/`: DevServer Windows natif pour Astro, Vite, extensions navigateur, Python/FastAPI et Flutter Web, sans WSL.
 - `install-shipglows.ps1`: bootstrap Windows public, choix tunnel local ou DevServer full.
+- `install-shipglows.sh`: bootstrap Unix/Termux, dispatch par plateforme et refus explicites. Matrice : `shipglows_data/technical/bootstrap-matrix.md`.
 - `local/local.sh`: UX locale des tunnels SSH.
 - `skills/`: workflows AI orientes taches.
 - `#feature:<term>`: indice de navigation technique optionnel pour la recuperation par behavior index; ce n'est pas un langage de commande, et le texte libre reste actif.

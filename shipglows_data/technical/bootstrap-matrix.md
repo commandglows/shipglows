@@ -65,5 +65,5 @@ Each refusal prints the reason and the next command. The shell bootstrap never f
 
 ## Out of scope (tracked in TASKS)
 
-- `README.md` and `AGENT.md` follow this contract (commit 21d17160). `CONTEXT.md` and `GUIDELINES.md` do not exist in this repository: create them or drop them from the TASKS item.
+- `README.md` and `AGENT.md` follow this contract (commit 21d17160). `shipglows_data/technical/context.md` points to this matrix. `shipglows_data/technical/guidelines.md` has no bootstrap section and needs none. Root `CONTEXT.md` and `GUIDELINES.md` are migration leftovers, not sources.
 - Verification of the refusal paths on real hosts (no run was done for this document).
