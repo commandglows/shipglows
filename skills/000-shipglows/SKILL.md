@@ -125,6 +125,12 @@ owner authority; `#ci` implies nolocal and deferred proof, never external-write 
 For `init [context|agents|memory|resume] [role=<local|remote|consult|test>] [lifetime=<persistent|ephemeral>]`, load only
 `$SHIPGLOWS_ROOT/skills/references/workstation-initialization.md` and execute its
 workstation workflow directly. It is not project scaffolding or a shell command.
+Also select init for a current first-person arrival/setup intent addressed to
+ShipGlows, such as « je viens d'arriver sur un nouvel ordi », « j'ai changé de PC »,
+or arriving on a new phone, tablet, VM or host environment, with no more specific outcome.
+Preserve the original instruction/tags; do not infer a role or installation consent.
+Questions, quotations, hypothetical/third-party discussion, new-project onboarding,
+and a concrete app/bug task that merely mentions a new device keep their own route.
 For `update`, `context`/`contexte`/`env`/`environment`, `profile`, `blitz`, `auto`, or legacy `nolocal`, load
 `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`. Apply only the selected mode.
 Context is read-only; update resolves channel first. Explicit Blitz implies nolocal,

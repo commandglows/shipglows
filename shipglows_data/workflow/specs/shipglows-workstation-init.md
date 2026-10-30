@@ -1,10 +1,10 @@
 ---
 artifact: specification
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-10-29"
-updated: "2026-10-29"
+updated: "2026-10-30"
 status: implemented
 source_skill: 900-shipglows-core
 scope: workstation-init-skill
@@ -128,3 +128,25 @@ installed plugin discovery and memory persistence are not operationally verified
 No builds/lint/tests, installer, app launch, authentication or workstation init ran.
 AGENT.md remains applicable; no managed app ENVIRONMENT.md, URL or backend changed.
 README, help, installer/runtime/plugin technical docs and code-doc map are aligned.
+
+## Natural arrival follow-up, 2026-10-30
+
+Operator explicitly approved recognizing « /shipglows je viens d'arriver sur un
+nouvel ordi » as the existing initialization intent. Extend that same semantic
+route to phone, tablet, VM and execution-host/environment arrival, without asking
+for an internal command name. Preserve original arguments, posture and authority.
+No new role inference, installation, authentication or channel authority follows.
+
+Source scenarios: first-person current new-PC/phone/tablet/VM arrival -> init;
+general question or quoted/example/hypothetical/third-party situation -> no init;
+new repo/project or staging/backend/Python virtual environment -> its own route;
+concrete app/bug task mentioning a new device -> existing specialist ownership;
+ambiguous host versus project environment -> read-only clarification before writes.
+
+The local wrapper, canonical engine/reference, plugin router/portable leaf and
+repository OpenCode entry share this boundary. README, help and runtime docs
+describe the natural request. Independent source review identified an overly broad
+local-wrapper trigger; it was narrowed to operator host/device arrival and excludes
+project/repo onboarding before normalization. Source re-review confirmed the correction
+with no remaining material issue. No build, lint, tests or actual init
+executed; installed-session behavior remains separate operational evidence.

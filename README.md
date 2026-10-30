@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.32.0"
+artifact_version: "0.33.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-10-29"
+updated: "2026-10-30"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -386,7 +386,10 @@ the block points to `%USERPROFILE%\.shipglows\environment.md` and to
 `$shipglows context` instead of copying a machine-specific tool inventory.
 
 On a new computer, phone, tablet or VM, use the agent skill `$shipglows init`
-(or `/shipglows init` where slash invocations are supported). It distinguishes
+(or `/shipglows init` where slash invocations are supported).
+An equivalent natural request such as `$shipglows je viens d'arriver sur un nouvel ordi`
+selects the same journey. Questions, quoted examples and concrete project tasks
+that merely mention a new device keep their own route. It distinguishes
 your device from the agent's execution host and selects local development,
 remote access, consultation or a test-target journey. Optional choices include
 `role=remote` and `lifetime=ephemeral`; a VM is not assumed disposable.

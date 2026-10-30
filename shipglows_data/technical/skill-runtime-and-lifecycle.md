@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.43.0"
+artifact_version: "2.44.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-29"
+updated: "2026-10-30"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -163,6 +163,14 @@ next_step: "/300-sg-docs technical audit skills"
 This doc covers ShipGlows skills, lifecycle flow, references, templates, model/topology decisions, and documentation gates. Read it before changing `skills/*/SKILL.md`, shared skill references, or `shipglows_data/workflow/playbooks/spec-driven-workflow.md`.
 
 ## Workstation Initialization
+
+Current first-person host/device arrival requests addressed to ShipGlows, such as
+« je viens d'arriver sur un nouvel ordi », normalize to the same init mode across
+the local public wrapper, canonical router, lightweight plugin and OpenCode entry.
+No more specific task may be displaced. Questions, quotes, hypothetical/third-party
+discussion and project/repo onboarding do not trigger this normalization. Ambiguous
+host versus project environments are clarified before writes. Intent normalization
+preserves constraints/tags and grants no additional installation/auth authority.
 
 `$shipglows init [context|agents|memory|resume]` is a public router mode, executed by
 the current agent through `skills/references/workstation-initialization.md`.

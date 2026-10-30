@@ -1,10 +1,18 @@
 # Workstation entry without a required local runtime
 
-Use only for `shipglows init [context|agents|memory|resume]` with optional
-`role=<local|remote|consult|test>` and `lifetime=<persistent|ephemeral>`. Preserve
+Use for `shipglows init [context|agents|memory|resume]` or the current operator's
+top-level arrival/setup intent without a more specific task (e.g. « je viens
+d'arriver sur un nouvel ordi », new phone/tablet/VM/host environment). Normalize that
+intent to init; questions, quoted/hypothetical examples, third-party situations,
+project onboarding and concrete app/bug requests keep their own route. Arrival
+never implies installation/auth consent, a role or disposable storage. Optional
+choices are `role=<local|remote|consult|test>` and `lifetime=<persistent|ephemeral>`. Preserve
 all arguments, execution-posture tags, language and authority through handoff.
 Implementing/discussing init does not run it. `context` is read-only; `#nolocal`
 and `#ci` defer every write. Reject conflicting/unknown options before action.
+An ambiguous “new environment” requires one read-only scope clarification before
+writes; staging/backend environments, Python virtual environments and new projects
+are not host arrival by themselves.
 
 1. Identify the operator device and agent execution host separately from exposed
    evidence. Do not assume a browser on a phone can write files or execute SSH.

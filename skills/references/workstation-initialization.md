@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-10-29"
-updated: "2026-10-29"
+updated: "2026-10-30"
 status: active
 source_skill: 900-shipglows-core
 scope: workstation-initialization
@@ -23,12 +23,40 @@ next_step: none
 # Workstation initialization
 
 Load only for `$shipglows init [context|agents|memory|resume] [role=<role>] [lifetime=<lifetime>]` or an explicit request to
-initialize ShipGlows on this computer. The router owns this agent-executed workflow
+initialize ShipGlows on this computer, including a current first-person arrival/setup
+intent addressed to the router without a more specific requested outcome.
+The router owns this agent-executed workflow
 directly. It is distinct from project scaffolding (`305-sg-init`) and shell commands.
 Absent scope runs all three plus readiness inventory. `resume` re-observes sources
 then continues the same authorized pointer steps. Role values are `local`, `remote`,
 `consult`, `test`; lifetime values are `persistent`, `ephemeral`. Reject conflicting
 or unknown choices before writes; ordinary natural-language choices are accepted.
+
+## Natural arrival intent
+
+Treat a top-level present arrival/setup statement addressed to ShipGlows as an
+initialization request, not merely as a fact requiring the operator to know `init`.
+Examples: « je viens d'arriver sur un nouvel ordi », « j'ai changé de PC »,
+« je débarque sur une nouvelle VM », « je suis sur un nouveau téléphone »,
+« aide-moi à démarrer sur cette tablette », or “I'm on a new computer”.
+Equivalent wording about this operator's new device/host environment takes the same route.
+Here environment means an execution host/session, not a new staging/backend,
+Python virtual environment or project. If that distinction is unresolved, ask one
+scope question and continue only read-only context observation before writes.
+Normalize the intent to init while preserving original wording, constraints and
+posture tags. Briefly state that the initialization journey is starting, then
+continue its authorized observation and bounded pointer work. Ask only for the
+existing role/user-owned decision when genuinely needed; do not ask the operator
+to confirm an internal command name. Arrival does not imply local development,
+ephemeral storage, installation, auth or a channel change.
+
+This is intent recognition, not a keyword match. General questions (« est-ce que
+ça se lance sur un nouvel ordi ? »), quoted/example prompts, hypothetical or
+third-party situations, and requests to implement/audit init remain explanation
+or their explicitly requested task. « Nouveau projet »/arriving in a repository
+is project onboarding, not a new-host initialization. A concrete request such as
+« sur mon nouveau PC, corrige cette erreur Flutter » retains bug ownership; the
+device is context and never permission to run a separate default init workflow.
 
 ## Device, execution host and role
 

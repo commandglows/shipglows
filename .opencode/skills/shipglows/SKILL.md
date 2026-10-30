@@ -37,6 +37,7 @@ If that path is missing, explain that the repository skill is available but loca
 
 - `help`, `aide`, or empty: explain the public workflow surface.
 - `init [context|agents|memory|resume]` with optional `role=<local|remote|consult|test>` and `lifetime=<persistent|ephemeral>`: use the workstation entry below; preserve arguments and posture tags.
+- A current first-person arrival/setup intent addressed to ShipGlows without a more specific task (e.g. « je viens d'arriver sur un nouvel ordi », new phone/tablet/VM/host environment) selects the same init entry. Preserve original wording/constraints/tags; questions, quotes, hypothetical/third-party discussion, new-project onboarding and concrete app/bug tasks merely mentioning a device keep their own route. Arrival does not infer role, installation or authentication authority. Clarify an ambiguous environment before writes; staging/backend, Python virtual environments and new projects are not host arrival by themselves.
 - `packs`, `catalog`, `modules`, or `capabilities`: summarize the pack catalog.
 - `audit packaging`, `audit packs`, `portability`, or `local ShipGlows packaging`: run the packaging audit when local ShipGlows source exists.
 - `refresh pack`, `update pack`, or `pack maintenance`: explain pack refresh flow and point to the refresh script.

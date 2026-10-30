@@ -16,6 +16,14 @@ The engine selects the smallest safe route and continues in this conversation.
 
 ## Required References
 
+Normalize a current first-person arrival/setup intent on this operator's new
+host/device, addressed to ShipGlows with no more specific outcome (e.g. « je viens
+d'arriver sur un nouvel ordi », new phone/tablet/VM), to init. Questions, quotes,
+hypothetical/third-party discussion, project/repository onboarding and concrete
+app/bug tasks merely mentioning a device do not trigger it. Clarify an ambiguous
+host versus project environment before writes. Preserve constraints/tags and init's
+existing authority limits.
+
 For explicit `init` on a host without filesystem access, establish the device versus
 execution host and consult/remote intent from exposed context; provide available
 guidance and report session-only progress. Finish this portable branch without root
