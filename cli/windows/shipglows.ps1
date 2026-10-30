@@ -153,10 +153,33 @@ function Test-SgStackPath([string]$Root, [string]$Relative, [string]$PathType) {
     return (Test-Path -LiteralPath (Join-Path $Root $Relative) -PathType $PathType)
 }
 
+function Get-SgStackSurfaceRoots([string]$Root) {
+    # The project tree model (skills/references/project-tree-model.md): the repository root, every
+    # first-level folder and every packages\* folder. Hidden, generated and vendored folders are skipped.
+    $skipped = @('node_modules', 'build', 'dist', '.output', 'target', 'vendor', 'third_party', 'public')
+    $isSurfaceFolder = { param($Directory) $Directory.Name -notmatch '^\.' -and $skipped -notcontains $Directory.Name -and -not ($Directory.Attributes -band [IO.FileAttributes]::ReparsePoint) }
+    $roots = New-Object Collections.Generic.List[string]
+    $roots.Add($Root)
+    foreach ($child in @(Get-ChildItem -LiteralPath $Root -Directory -Force -ErrorAction SilentlyContinue | Where-Object { & $isSurfaceFolder $_ } | Sort-Object Name)) {
+        $roots.Add($child.FullName)
+        if ($child.Name -ine 'packages') { continue }
+        foreach ($package in @(Get-ChildItem -LiteralPath $child.FullName -Directory -Force -ErrorAction SilentlyContinue | Where-Object { & $isSurfaceFolder $_ } | Sort-Object Name)) {
+            $roots.Add($package.FullName)
+        }
+    }
+    return $roots
+}
+
 function Get-SgStackDetectedNames([string]$Root) {
-    # Root-level files only. Returns the sorted, unique technology names.
+    # Surface roots only, never deeper. Returns the sorted, unique technology names.
     $found = @{}
-    if (Test-SgStackPath $Root 'pubspec.yaml' 'Leaf') { $found['flutter'] = $true }
+    foreach ($surface in @(Get-SgStackSurfaceRoots -Root $Root)) { Add-SgStackSurfaceNames -Root $surface -Found $found }
+    return @($found.Keys | Sort-Object { [string]$_ })
+}
+
+function Add-SgStackSurfaceNames([string]$Root, [hashtable]$Found) {
+    # Adds the technologies found at one surface root to $Found.
+    if (Test-SgStackPath $Root 'pubspec.yaml' 'Leaf') { $Found['flutter'] = $true }
 
     $packageText = Read-SgStackFileText (Join-Path $Root 'package.json')
     if ($packageText) {
@@ -168,33 +191,41 @@ function Get-SgStackDetectedNames([string]$Root) {
                     $dependencyNames += @($package.$section.PSObject.Properties | ForEach-Object { $_.Name })
                 }
             }
-            foreach ($name in 'astro', 'next', 'react', 'vue', 'svelte', 'convex') {
-                if ($dependencyNames -contains $name) { $found[$name] = $true }
+            foreach ($name in 'astro', 'next', 'react', 'vue', 'svelte', 'convex', 'wxt', 'obsidian') {
+                if ($dependencyNames -contains $name) { $Found[$name] = $true }
             }
+            if (($dependencyNames -contains 'wxt') -or ($dependencyNames -contains '@crxjs/vite-plugin')) { $Found['browser-extension'] = $true }
+            if (($dependencyNames -contains '@tauri-apps/cli') -or ($dependencyNames -contains '@tauri-apps/api')) { $Found['tauri'] = $true }
         }
     }
-    if (Test-SgStackPath $Root 'vercel.json' 'Leaf') { $found['vercel'] = $true }
+    # A static extension keeps manifest.json at its surface root; an Obsidian manifest has no manifest_version.
+    $manifestText = Read-SgStackFileText (Join-Path $Root 'manifest.json')
+    if ($manifestText) {
+        try { $manifest = $manifestText | ConvertFrom-Json } catch { $manifest = $null }
+        if ($manifest -is [pscustomobject] -and $manifest.PSObject.Properties['manifest_version']) { $Found['browser-extension'] = $true }
+    }
+    if (Test-SgStackPath $Root 'vercel.json' 'Leaf') { $Found['vercel'] = $true }
 
     $pythonFiles = @('pyproject.toml', 'requirements.txt') | Where-Object { Test-SgStackPath $Root $_ 'Leaf' }
     if (@($pythonFiles).Count -gt 0) {
-        $found['python'] = $true
+        $Found['python'] = $true
         $pythonText = (@($pythonFiles) | ForEach-Object { Read-SgStackFileText (Join-Path $Root $_) }) -join "`n"
         foreach ($name in 'fastapi', 'django', 'flask') {
-            if ($pythonText -match "(?i)\b$name\b") { $found[$name] = $true }
+            if ($pythonText -match "(?i)\b$name\b") { $Found[$name] = $true }
         }
     }
 
-    if (Test-SgStackPath $Root 'Cargo.toml' 'Leaf') {
-        $found['rust'] = $true
-        if ((Read-SgStackFileText (Join-Path $Root 'Cargo.toml')) -match '(?i)\btauri\b') { $found['tauri'] = $true }
+    # Tauri keeps its Cargo.toml in src-tauri\, next to the frontend package.json.
+    foreach ($cargo in 'Cargo.toml', 'src-tauri\Cargo.toml') {
+        if (-not (Test-SgStackPath $Root $cargo 'Leaf')) { continue }
+        $Found['rust'] = $true
+        if ((Read-SgStackFileText (Join-Path $Root $cargo)) -match '(?i)\btauri\b') { $Found['tauri'] = $true }
     }
-    if (Test-SgStackPath $Root 'go.mod' 'Leaf') { $found['go'] = $true }
+    if (Test-SgStackPath $Root 'go.mod' 'Leaf') { $Found['go'] = $true }
 
-    if ((Test-SgStackPath $Root 'firebase.json' 'Leaf') -or (Test-SgStackPath $Root '.firebaserc' 'Leaf')) { $found['firebase'] = $true }
-    if (Test-SgStackPath $Root 'supabase\config.toml' 'Leaf') { $found['supabase'] = $true }
-    if ((Test-SgStackPath $Root 'convex.json' 'Leaf') -or (Test-SgStackPath $Root 'convex' 'Container')) { $found['convex'] = $true }
-
-    return @($found.Keys | Sort-Object { [string]$_ })
+    if ((Test-SgStackPath $Root 'firebase.json' 'Leaf') -or (Test-SgStackPath $Root '.firebaserc' 'Leaf')) { $Found['firebase'] = $true }
+    if (Test-SgStackPath $Root 'supabase\config.toml' 'Leaf') { $Found['supabase'] = $true }
+    if ((Test-SgStackPath $Root 'convex.json' 'Leaf') -or (Test-SgStackPath $Root 'convex' 'Container')) { $Found['convex'] = $true }
 }
 
 function ConvertTo-SgStackJsonValue($Value) {
@@ -255,7 +286,7 @@ function Get-SgStackDeclaredEntries([string]$StackPath) {
 
 function Invoke-SgStack([string[]]$Arguments) {
     # shipglows stack scan -ProjectPath <path> [-Write]
-    # Detects technologies from the root files of one project. Without -Write nothing is written.
+    # Detects technologies from the surface roots of one project. Without -Write nothing is written.
     if ($Arguments.Count -lt 2 -or $Arguments[1] -ine 'scan') {
         Stop-SgCommand 'expected: shipglows stack scan -ProjectPath <path> [-Write]'
     }

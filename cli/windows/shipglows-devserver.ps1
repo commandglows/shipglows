@@ -266,6 +266,14 @@ function Resolve-SgTargetView([object]$Entry) {
     return $Entry
 }
 
+# A multi-surface repository keeps its browser extension in ext\ (skills/references/project-tree-model.md).
+function Resolve-SgExtensionSurfacePath([string]$Path, [string]$Browser) {
+    if (Get-SgBrowserExtensionDescriptor $Path $Browser) { return $Path }
+    $extension = Join-Path $Path 'ext'
+    if (Test-Path -LiteralPath $extension -PathType Container) { return $extension }
+    return $Path
+}
+
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
     $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','doctor','unlock','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
@@ -1207,14 +1215,14 @@ try {
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { $view = Resolve-SgTargetView $entry; Open-SgManagedProject $view; Open-SgAndroidCompanionSessions $entry $view } }
         'extension-inspect' {
-            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            $path = Resolve-SgExtensionSurfacePath $(if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }) $Browser
             $descriptor = Get-SgBrowserExtensionDescriptor $path $Browser
             if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $path" }
             if ($Json) { $descriptor | ConvertTo-Json -Depth 4 -Compress }
             else { Write-SgInfo "$($descriptor.Name) | $($descriptor.Mode) | Manifest V$($descriptor.ManifestVersion) | $($descriptor.RelativeManifestPath)" }
         }
         'extension-lab' {
-            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            $path = Resolve-SgExtensionSurfacePath $(if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }) $Browser
             Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl -Screenshot:$Screenshot -Browser $Browser -ClickSelector $ClickSelector -VisualSelector $VisualSelector -Config $config
         }
         'obsidian-lab' {

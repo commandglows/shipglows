@@ -445,7 +445,7 @@ function Get-SgBrowserExtensionDescriptor([string]$ProjectPath, [string]$Browser
         }
     }
     $platformCandidates = if ($browserName -eq 'firefox') { @('dist\firefox\manifest.json','build\firefox\manifest.json','output\firefox\manifest.json') } else { @('dist\chrome\manifest.json','build\chrome\manifest.json','output\chrome\manifest.json') }
-    $relativeCandidates = @('manifest.json') + $platformCandidates + @('dist\manifest.json','build\manifest.json','extension\manifest.json')
+    $relativeCandidates = @('manifest.json') + $platformCandidates + @('dist\manifest.json','build\manifest.json')
     $matches = New-Object 'System.Collections.Generic.List[object]'
     foreach ($relative in $relativeCandidates) {
         $manifestPath = Join-Path $root $relative
@@ -1259,7 +1259,8 @@ function Get-SgProjectDescriptors([string]$ProjectPath) {
     $candidates = @()
     $queue = New-Object System.Collections.Generic.Queue[object]
     [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0 })
-    $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn', 'vendor')
+    # Generated, vendored and public folders are never surfaces (skills/references/project-tree-model.md).
+    $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn', 'vendor', 'third_party', 'public', 'build')
     while ($queue.Count -gt 0) {
         $item = $queue.Dequeue()
         try {
@@ -2070,7 +2071,7 @@ function Test-SgProjectCatalogRefreshRequired([object]$Config, [switch]$DiskOnly
 function Find-SgWorkspaceProjectCandidates([object]$Config) {
     $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
     $manifests = @{'package.json'=$true;'pyproject.toml'=$true;'requirements.txt'=$true;'pubspec.yaml'=$true}
-    $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true;'vendor'=$true}
+    $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true;'vendor'=$true;'third_party'=$true;'public'=$true;'build'=$true}
     # Keep the workspace depth and hidden-directory boundary identical whether
     # ripgrep or the native walker is available.
     $ripgrep = Get-Command rg -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -2082,6 +2083,7 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
             '-g','!**/.git/**','-g','!**/node_modules/**','-g','!**/venv/**','-g','!**/.venv/**',
             '-g','!**/__pycache__/**','-g','!**/target/**','-g','!**/.next/**','-g','!**/.nuxt/**',
             '-g','!**/dist/**','-g','!**/.cache/**','-g','!**/.pnpm/**','-g','!**/.yarn/**',
+            '-g','!**/vendor/**','-g','!**/third_party/**','-g','!**/public/**','-g','!**/build/**',
             $workspace
         )
         $manifestPaths = @(& $ripgrep.Source @arguments)

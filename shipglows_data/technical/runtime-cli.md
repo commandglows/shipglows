@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.47.0"
+artifact_version: "1.48.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-28"
+updated: "2026-10-30"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -171,7 +171,7 @@ reservation regressions cover the integration boundaries.
 
 `s.cmd` and `shipglows-dev.cmd` use the installed managed Core executable directly; Windows PowerShell 5.1 is used only for the `ShipGlows.PowerShellBootstrap.ps1` fallback when that executable is absent. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`. The separate collision-safe `shipglows.cmd` also enters that exact managed runtime before routing focused commands through `shipglows.ps1`; when the managed runtime is missing, its bootstrap fallback uses the explicit focused-launcher route instead of bypassing command validation. This surface owns `shipglows rename rio <name>`, `shipglows check`, `shipglows update`, `shipglows update status`, and the compatibility spelling `shipglows update runtime`, which normalizes to the canonical update action. The Rio rename path validates the title and emits exactly one UTF-8 OSC title sequence for the current terminal tab without reading Codex state. `shipglows check` runs the lint and test scripts declared by `package.json` (`npm`, `pnpm` or `yarn` by lockfile) and by `pubspec.yaml` (`flutter analyze`, `flutter test`) in the current directory. It refuses Bun lockfiles, reports placeholder scripts (`echo`, `exit 0`, `true`, `:`) as `NOT CONFIGURED`, and exits non-zero on any missing or failing step; its summary is meant for the pull request.
 
-`shipglows stack scan -ProjectPath <path> [-Write]` detects technologies from the root files of a project and prints the JSON; `-Write` merges it into `shipglows_data/stack.json`, keeping `declared` entries unchanged.
+`shipglows stack scan -ProjectPath <path> [-Write]` detects technologies from the surface roots of a project (the repository root, every first-level folder and every `packages/*` folder, skipping hidden, generated, `vendor`, `third_party` and `public` folders, per `skills/references/project-tree-model.md`) and prints the JSON; `-Write` merges it into `shipglows_data/stack.json`, keeping `declared` entries unchanged. Tauri is read from `src-tauri/Cargo.toml` or the `@tauri-apps` packages; a WXT or CRXJS package, or a `manifest.json` with `manifest_version`, adds `browser-extension`; the `obsidian` package adds `obsidian`.
 
 ### Native Windows interactive menu
 
