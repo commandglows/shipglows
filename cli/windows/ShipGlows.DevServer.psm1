@@ -1259,7 +1259,7 @@ function Get-SgProjectDescriptors([string]$ProjectPath) {
     $candidates = @()
     $queue = New-Object System.Collections.Generic.Queue[object]
     [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0 })
-    $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn')
+    $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn', 'vendor')
     while ($queue.Count -gt 0) {
         $item = $queue.Dequeue()
         try {
@@ -2070,7 +2070,7 @@ function Test-SgProjectCatalogRefreshRequired([object]$Config, [switch]$DiskOnly
 function Find-SgWorkspaceProjectCandidates([object]$Config) {
     $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
     $manifests = @{'package.json'=$true;'pyproject.toml'=$true;'requirements.txt'=$true;'pubspec.yaml'=$true}
-    $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true}
+    $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true;'vendor'=$true}
     # Keep the workspace depth and hidden-directory boundary identical whether
     # ripgrep or the native walker is available.
     $ripgrep = Get-Command rg -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
