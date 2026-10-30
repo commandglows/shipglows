@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-07-23"
+updated: "2026-10-30"
 status: active
 source_skill: 300-sg-docs
 scope: monorepo-governance-topology
@@ -61,13 +61,7 @@ Examples:
 
 ## Monorepo Source Root Rule
 
-Source roots and governance roots are separate concerns. Governance stays at the monorepo root under `shipglows_data/`. Canonical source roots may be flat at the monorepo root when the project uses the public-site + application + backend split:
-
-- `site/`
-- `app/`
-- `backend/`
-- `ext/` — the default single browser/web extension surface
-- `packages/`
+Source roots and governance roots are separate concerns. Governance stays at the monorepo root under `shipglows_data/`. Source roots are flat first-level folders with fixed names (`site/`, `app/`, `ext/`, `obsidian/`, `desktop/`, `backend/`, `packages/<name>/`, named services). Load `skills/references/project-tree-model.md` for the names, the forbidden names, the one-Flutter-app rule and the discovery rule the tools follow; this reference does not restate them.
 
 Browser extension rule:
 

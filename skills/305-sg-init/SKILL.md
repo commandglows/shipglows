@@ -32,7 +32,8 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `references/bootstrap-workflow.md`: bounded bootstrap index; load only the direct operation reference it selects.
 - `$SHIPGLOWS_ROOT/skills/references/project-governance-rules.md`: required when deciding the minimum compliant governed-project shape, especially for monorepos and governance-root expectations.
 - `$SHIPGLOWS_ROOT/skills/references/documentation-governance-rules.md`: required when bootstrapping, auditing, or normalizing documentation architecture, metadata, or canonical placement.
-- `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`: required for greenfield projects before choosing a source-root layout or confirming the stack preset.
+- `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`: required for greenfield projects before confirming the stack preset.
+- `$SHIPGLOWS_ROOT/skills/references/project-tree-model.md`: required before creating, auditing or migrating source folders.
 - `$SHIPGLOWS_ROOT/skills/references/question-contract.md`: required before asking bootstrap, project-intent, target-surface, runtime, or governance-scope questions.
 - `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md`: required when bootstrap depends on operator-owned business, product, audience, or framing truth that cannot be discovered locally.
 - `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`: required when bootstrapping or auditing governance for a project with a UI surface.
@@ -65,7 +66,7 @@ Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skil
 - When bootstrap scope includes the private data repository, resolve its remote from configuration such as `SHIPGLOWS_PRIVATE_DATA_REPO` instead of hardcoding an operator-specific repository URL.
 - Treat `~/.shipglows/data/` as a separate Git working tree for durable private data, not as a subfolder to version inside public repos or `$SHIPGLOWS_ROOT`.
 - Stop and report if the target private data path exists but is not a Git repository, unless the active bootstrap contract explicitly includes migration or repair steps.
-- For monorepos using the Astro plus Flutter plus backend split, prefer flat source roots at the monorepo root (`site/`, `app/`, `backend/`, `ext/`, `packages/`) instead of nested `apps/*` bundles unless the project documents a durable technical exception. Use `ext/` for the default single browser/web extension; only use `extensions/<extension-name>/` after a second independently shipped extension exists.
+- Lay out source folders with `$SHIPGLOWS_ROOT/skills/references/project-tree-model.md`: a single surface at the repository root, otherwise fixed first-level folders (`site/`, `app/`, `ext/`, `obsidian/`, `desktop/`, `backend/`, `packages/<name>/`), one Flutter app for every platform. After creating the surfaces, run `shipglows stack scan -ProjectPath <root> -Write` to seed `shipglows_data/stack.json`.
 
 ## Stop Conditions
 

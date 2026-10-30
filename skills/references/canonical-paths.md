@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-08-27"
+updated: "2026-10-30"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
@@ -57,6 +57,7 @@ Resolve `$SHIPGLOWS_ROOT`; confirm the exact target tool exists and remains bene
 - Runtime/private roots or legacy compatibility -> `canonical-runtime-and-private-roots.md`.
 - Governance placement, migration, workflow families, or destinations -> `canonical-project-governance-placement.md`.
 - Monorepo topology -> `monorepo-governance-topology.md`.
+- Source folders, manifest locations and tool discovery -> `project-tree-model.md`.
 - Ranked discovery -> `resource-discovery.md` before `tools/resource_resolver.py`; recommendations never replace owner, safety, freshness, or project truth.
 
 Load only the required branch. These routes are siblings and never require one another.

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.2"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-10-20"
+updated: "2026-10-30"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -106,10 +106,13 @@ rediscover ShipGlows's habitual stack.
 When the operator accepts the Astro plus Flutter preset with a shared backend, the expected source layout is:
 
 - `site/` for the Astro public/SEO surface
-- `app/` for the Flutter ordering application
+- `app/` for the Flutter application, one app for every platform
 - `backend/` for the shared backend authority
 - `ext/` for the default single browser/web extension, when present
 - `packages/contracts/` when typed cross-surface contracts are versioned separately
+
+`project-tree-model.md` is the authority for these names, the Obsidian and
+Tauri folders, and the discovery rule the tools follow.
 
 Do not create a plural `extensions/` umbrella for a single extension. If a
 second independently shipped extension is added later, migrate to
