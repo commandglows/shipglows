@@ -89,11 +89,12 @@ Validated by the operator. Done on `main`:
 - replayglows: Convex backend moved from `backend/packages/backend/` to `backend/`, stray `ENVIRONMENT.md` files removed (`3ca1ae4`).
 - dreamglows: `website/`, `chrome_extension/` and `obsidian_plugin/` moved to `site/`, `ext/` and `obsidian/` (`89fbe14`). The two Flutter apps (`android_app/`, `windows_app/`) remain a separate code project.
 - shipglows_app: stray vendor `ENVIRONMENT.md` removed and tree aligned (`e66cd3c2`).
+- gocharbon: `app_quiz/` split into `app/` (Flutter), `backend/` (Convex) and `legacy-api/` (FastAPI) (`49a1b5ab`); Vercel Root Directory set to `app`. The Vercel build still fails on the `path:` dependencies to `shipglows-ui-engine`, which live outside the repository.
+- claiire: `app_flutter/` moved to `app/` (`38db5ef`).
 
 Pending, one thread per project, each audit waiting for the operator's validation:
 
-- gocharbon: `app_quiz/` flattening in progress in its thread, not committed yet.
-- claiire (`app_flutter/` to `app/`), contentglows (`browser_extension/` to `ext/`), communityglows (`flutter/` to `app/`, then splitting Tauri and the extension): audits waiting for validation.
+- contentglows (`browser_extension/` to `ext/`), communityglows (`flutter/` to `app/`, then splitting Tauri and the extension): audits waiting for validation.
 - Stray DevServer `ENVIRONMENT.md` committed in `contentglows/app/vendor/analytics_actions_flutter/`.
-- DevServer registry: `s unregister` refuses an entry whose folder is gone or whose manifest changed, so old entries of moved surfaces (beatglows, dreamglows, replayglows) stay registered. CLI fix proposed, not applied.
+- DevServer registry: `s unregister` refuses an entry whose folder is gone or whose manifest changed, so old entries of moved surfaces (beatglows, claiire, dreamglows, replayglows) stay registered. CLI fix proposed, not applied.
 - Engines (`shipglows-ui-engine`, `shipglows-audio-engine`, `shipglows-window-engine`): `flutter/` to `packages/` changes the `path:` dependencies of every consumer app.
