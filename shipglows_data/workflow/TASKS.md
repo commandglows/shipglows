@@ -24,12 +24,12 @@
 
 | Pri | Task | Status |
 |-----|------|--------|
-| 🔴 | Concevoir un bootstrap universel multi-OS (`Linux`, `macOS`, `WSL`, `Windows`) avec comportement explicite selon la plateforme | 📋 todo |
+| 🔴 | Concevoir un bootstrap universel multi-OS (`Linux`, `macOS`, `WSL`, `Windows`) avec comportement explicite selon la plateforme | ✅ done (dispatch : `install-shipglows.sh` `detect_platform` / `check_platform_support` ; matrice : `shipglows_data/technical/bootstrap-matrix.md`; relecture seule, pas de run) |
 | 🔴 | Supprimer l'hypothèse implicite "`python3` déjà installé" hors `sudo ./install.sh` serveur et définir la stratégie officielle de provisioning runtime | ✅ done (règle : `shipglows_data/technical/python-runtime-provisioning.md`, garde : `cli/python-runtime.sh`) |
-| 🟠 | Ajouter un chemin d'installation local sans root quand possible pour les outils docs/metadata qui reposent sur Python | 📋 todo |
+| 🟠 | Ajouter un chemin d'installation local sans root quand possible pour les outils docs/metadata qui reposent sur Python | ✅ done (mode `local` sans root ; Python vérifié par `local/install.sh` avant le plugin Codex ; `uv`/`pyenv` cités comme options sans root) |
 | 🟠 | Faire échouer les scripts avec un diagnostic précis et actionnable quand un runtime requis manque au lieu de dépendre d'erreurs secondaires | 📋 todo |
 | 🟠 | Corriger la configuration Playwright MCP pour pointer le Chromium ARM64 local au lieu de Google Chrome stable absent | 🔄 in progress |
-| 🟠 | Documenter la matrice de bootstrap par environnement : serveur Debian/Ubuntu, poste macOS, poste Linux non-root, Windows/WSL | 📋 todo |
+| 🟠 | Documenter la matrice de bootstrap par environnement : serveur Debian/Ubuntu, poste macOS, poste Linux non-root, Windows/WSL | ✅ done (`shipglows_data/technical/bootstrap-matrix.md`, statut draft ; refus explicites dans `install-shipglows.sh`) |
 | 🟡 | Évaluer s'il faut fournir un wrapper unique (`bootstrap` / `doctor`) pour vérifier et installer les prérequis avant usage | 📋 todo |
 | 🟡 | Vérifier que `README.md`, `AGENT.md`, `CONTEXT.md` et `GUIDELINES.md` racontent le même contrat de bootstrap | 📋 todo |
 

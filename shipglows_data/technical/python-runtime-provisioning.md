@@ -36,6 +36,5 @@ ShipGlows requires **Python 3.9+** as `python3` for its CLI tools (`shipglows-fe
 
 ## Out of scope (tracked separately)
 
-- A non-root local install path for docs and metadata tools (TASKS: 🟠 "chemin d'installation local sans root").
+- The non-root path and the per-environment bootstrap matrix are documented in [bootstrap-matrix.md](bootstrap-matrix.md). `local/install.sh` checks Python before the Codex plugin step.
 - `cli/lib.sh` JSON and pip fallbacks: they already degrade through `jq` and do not need the guard.
-- Documenting the full bootstrap matrix per environment (TASKS: 🟠).

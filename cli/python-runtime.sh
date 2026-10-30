@@ -11,15 +11,31 @@ shipglows_python3_ready() {
     python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >/dev/null 2>&1
 }
 
+# Returns 0 on a Debian or Ubuntu family system (apt is the package manager).
+shipglows_linux_is_debian_family() {
+    [ -r /etc/os-release ] || return 1
+    grep -Eq '^(ID|ID_LIKE)=.*(debian|ubuntu)' /etc/os-release
+}
+
 # Prints the platform-specific install command for Python 3.
+# Each branch names a package manager that exists on that platform; the
+# user-level option (uv, pyenv) needs no root.
 shipglows_python3_install_hint() {
+    if [ -n "${TERMUX_VERSION:-}" ]; then
+        echo "pkg install python (Termux)"
+        return 0
+    fi
     case "$(uname -s 2>/dev/null)" in
         Darwin)
-            echo "brew install python@3.12" ;;
+            echo "brew install python@3.12 (without root: uv python install 3.12)" ;;
         MINGW*|MSYS*|CYGWIN*)
             echo "winget install -e --id Python.Python.3.12 (then reopen the terminal; on Windows, disable the python3 App Execution Alias if it shadows the install)" ;;
         *)
-            echo "sudo apt-get install -y python3 python3-yaml (Debian/Ubuntu server: sudo ./cli/install.sh)" ;;
+            if shipglows_linux_is_debian_family; then
+                echo "sudo apt-get install -y python3 python3-yaml (Debian/Ubuntu server: sudo ./cli/install.sh; without root: uv python install 3.12)"
+            else
+                echo "your distribution's package manager (dnf, pacman, zypper...), or without root: uv python install 3.12"
+            fi ;;
     esac
 }
 

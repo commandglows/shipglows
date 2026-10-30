@@ -15,6 +15,8 @@ source "$SCRIPT_DIR/remote-helpers.sh"
 SSH_CONFIG="$HOME/.ssh/config"
 SHELL_RC="$HOME/.bashrc"
 SHIPGLOWS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+# shellcheck source=../cli/python-runtime.sh
+source "$SHIPGLOWS_ROOT/cli/python-runtime.sh"
 
 install_local_shipglows_commands() {
     local bin_dir="$HOME/.local/bin"
@@ -68,6 +70,10 @@ install_codex_shipglows_plugin() {
     esac
 
     if [ "$install_plugin" = "yes" ]; then
+        if ! shipglows_python3_ready; then
+            shipglows_python3_diagnose "Le plugin Codex ShipGlows"
+            return 1
+        fi
         python3 "$helper" --target-home "$HOME" plugin-install --yes
     fi
 }
