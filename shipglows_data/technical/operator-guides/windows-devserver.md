@@ -602,7 +602,7 @@ Une surface Flutter lancée en `-FlutterDevice web-server` qui contient un dossi
 - Env : le scope Doppler déclaré dans `.shipglows.flutter.json` est injecté au proxy, sans jamais afficher de valeur. Les defines publics de l'origine web locale (par exemple `REPLAYGLOWS_APP_URL`) sont appliqués après injection.
 - Rechargement : les handlers CommonJS sont relus à chaque requête ; un changement de dépendance hors `api/` demande `s restart`.
 - Journal : chaque requête `/api` est tracée dans `api.log` du dossier de lancement de la session (`[api] METHOD path status durée`), sans valeur d'environnement.
-- Registre : la session porte `apiProxy: active` et `flutterWebPort` (port du web-server Flutter interne).
+- Registre : la session porte `apiProxy: active` et `flutterWebPort` (port du web-server Flutter interne). Ce port est réservé comme un port de session : aucune autre surface ne le reçoit tant que la session vit.
 - Limites : `vercel.json` (rewrites, routes, runtimes) n'est pas interprété ; seuls les fichiers `.js`, `.cjs` et `.mjs` sous `api/` sont routés ; `chrome` n'est pas routé par l'API.
 
 Preuve attendue : `curl -i http://127.0.0.1:<port>/api/<route>` renvoie le handler (JSON ou redirection), et `curl -i http://127.0.0.1:<port>/` renvoie toujours l'application Flutter.

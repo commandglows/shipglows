@@ -1359,9 +1359,13 @@ function Get-SgReservedPorts([object[]]$Projects, [string]$OwnerPath = '', [stri
         $own = $OwnerPath -and [string]$project.path -eq $OwnerPath
         if (-not $own -and $project.PSObject.Properties['port'] -and [int]$project.port -gt 0) { $ports.Add([int]$project.port) }
         foreach ($session in @(Get-SgEntrySessions $project)) {
-            if ([int]$session.port -le 0 -or [string]$session.status -notin @('reserved','starting','running') -or [string](Get-SgOptionalValue $session 'portRole') -eq 'none') { continue }
+            if ([string]$session.status -notin @('reserved','starting','running')) { continue }
             if ($own -and $OwnerTarget -and [string]$session.target -eq $OwnerTarget) { continue }
             if ($own -and $VerifySiblings -and -not (Test-SgSessionLive $project $session)) { continue }
+            # The hidden Flutter web server behind an API proxy holds its own port.
+            $flutterWebPort = [int](Get-SgOptionalValue $session 'flutterWebPort')
+            if ($flutterWebPort -gt 0) { $ports.Add($flutterWebPort) }
+            if ([int]$session.port -le 0 -or [string](Get-SgOptionalValue $session 'portRole') -eq 'none') { continue }
             $ports.Add([int]$session.port)
         }
     }
@@ -1373,14 +1377,7 @@ function Get-SgFreePort([object]$Config, [int]$RequestedPort = 0, [string]$Owner
     $candidates = if ($RequestedPort -gt 0) { @($RequestedPort) } else { $Config.PortStart..$Config.PortEnd }
     foreach ($port in $candidates) {
         if ($reserved -contains $port) { continue }
-        $listener = $null
-        if (Get-Command Get-NetTCPConnection -ErrorAction SilentlyContinue) {
-            $listener = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
-        } else {
-            $tcp = New-Object Net.Sockets.TcpClient
-            try { $tcp.Connect('127.0.0.1', $port); $listener = $true } catch { $listener = $null } finally { $tcp.Dispose() }
-        }
-        if (-not $listener) { return $port }
+        if (Test-SgPortAllocatable $port) { return $port }
     }
     throw "No free localhost port is available in the requested range."
 }
@@ -1398,23 +1395,42 @@ function Get-SgApiFlutterPort([object]$Config, [int]$ProxyPort) {
     $reserved = @(Get-SgReservedPorts (Read-SgRegistry $Config).projects)
     foreach ($candidate in $Config.PortStart..$Config.PortEnd) {
         if ($candidate -eq $ProxyPort -or $reserved -contains $candidate) { continue }
-        if (Test-SgPortAvailable $candidate) { return $candidate }
+        if (Test-SgPortAllocatable $candidate) { return $candidate }
     }
     throw 'No free localhost port is available for the Flutter web server behind the API proxy.'
 }
 
+# True when nothing accepts connections on the port. Get-NetTCPConnection can miss live
+# listeners (seen with a Flutter web server on 127.0.0.1), so a short loopback connect
+# confirms; the timeout avoids the Windows retry delay on a refused localhost connect.
 function Test-SgPortAvailable([int]$Port) {
     if (Get-Command Get-NetTCPConnection -ErrorAction SilentlyContinue) {
-        return -not [bool](Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1)
+        if (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1) { return $false }
     }
     $tcp = New-Object Net.Sockets.TcpClient
     try {
-        $tcp.Connect('127.0.0.1', $Port)
-        return $false
+        $pending = $tcp.ConnectAsync([Net.IPAddress]::Loopback, $Port)
+        return -not ($pending.Wait(250) -and $tcp.Connected)
     } catch {
         return $true
     } finally {
         $tcp.Dispose()
+    }
+}
+
+# Allocation also needs the loopback address to be bindable: a socket that already uses the
+# port (for example an outbound connection given it as an ephemeral port) accepts no
+# connection but still makes the dev server's listen fail. Bind only: no listen, no firewall prompt.
+function Test-SgPortAllocatable([int]$Port) {
+    if (-not (Test-SgPortAvailable $Port)) { return $false }
+    $socket = New-Object Net.Sockets.Socket ([Net.Sockets.AddressFamily]::InterNetwork), ([Net.Sockets.SocketType]::Stream), ([Net.Sockets.ProtocolType]::Tcp)
+    try {
+        $socket.Bind((New-Object Net.IPEndPoint ([Net.IPAddress]::Loopback), $Port))
+        return $true
+    } catch {
+        return $false
+    } finally {
+        $socket.Dispose()
     }
 }
 
@@ -1464,7 +1480,7 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
                     }
                     continue
                 }
-                if ($otherPorts -contains $candidate -or -not (Test-SgPortAvailable $candidate)) {
+                if ($otherPorts -contains $candidate -or -not (Test-SgPortAllocatable $candidate)) {
                     if ($Explicit) { throw "Configured port $candidate is already occupied or reserved." }
                     continue
                 }
@@ -3399,7 +3415,7 @@ function Test-SgBrowserExtensionManifest([string]$Path, [DateTime]$FreshSinceUtc
     } catch { return $false }
 }
 
-function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '') {
+function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '', [string]$LogPath = '') {
     $freshSince = [DateTime]::UtcNow.AddSeconds(-2)
     if ($ProcessEntry -and $ProcessEntry.PSObject.Properties['startTimeUtc'] -and $ProcessEntry.startTimeUtc) {
         try { $freshSince = ([DateTimeOffset]::Parse([string]$ProcessEntry.startTimeUtc, [Globalization.CultureInfo]::InvariantCulture)).UtcDateTime.AddSeconds(-2) } catch { }
@@ -3408,6 +3424,13 @@ function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$Ti
     do {
         if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
             return [pscustomobject]@{ Ready=$false; AppId=$null; ManifestPath=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
+        }
+        # Vite moves to the next port when its own is taken; the extension would then miss its HMR server.
+        if ($LogPath -and (Test-Path -LiteralPath $LogPath -PathType Leaf)) {
+            $logTail = try { Get-SgBoundedFileTail $LogPath 65536 } catch { '' }
+            if ($logTail -match "Port $Port is in use") {
+                return [pscustomobject]@{ Ready=$false; AppId=$null; ManifestPath=$null; Error="Port $Port is already used by another process, so the dev server moved to another port and the extension cannot reach its HMR server. Free port $Port or start with another port." }
+            }
         }
         if (-not (Test-SgPortAvailable $Port)) {
             foreach ($manifestPath in @(Get-SgBrowserExtensionManifestPaths $ProjectPath)) {
@@ -4712,7 +4735,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if ($sessionPortRole -in @('primary','none')) { [void](Write-SgProjectEnvironment $entry.path $(if ($sessionPortRole -eq 'primary') { $port } else { 0 }) $kind) }
     $readyTimeout = if ([int]$settings.ReadyTimeoutSeconds -gt 0) { [int]$settings.ReadyTimeoutSeconds } else { 0 }
     $tauriDesktopReadiness = if ($kind -eq 'tauri' -and -not $tauriAndroid -and $frontendMode -eq 'shared') { $launchPath } else { '' }
-    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterStartupReady $flutterLaunchDirectory $launchPath $entryData $resolvedFlutterDevice ([string]$settings.FlutterDevice)}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid -or $tauriDesktopReadiness){1800}else{300}) $entryData $err $tauriAndroid $tauriDesktopReadiness}
+    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterStartupReady $flutterLaunchDirectory $launchPath $entryData $resolvedFlutterDevice ([string]$settings.FlutterDevice)}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err $out}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid -or $tauriDesktopReadiness){1800}else{300}) $entryData $err $tauriAndroid $tauriDesktopReadiness}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         if ($kind -eq 'obsidian-plugin') {
