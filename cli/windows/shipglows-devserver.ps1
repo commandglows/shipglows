@@ -725,7 +725,6 @@ function Invoke-Navigate {
 }
 
 function Get-SgUpdateSource {
-    param([switch]$AllowDirty)
     $statePath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'development-channel.json'
     if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) {
         return [pscustomobject]@{ Channel='stable'; Root=''; Branch='main'; Upstream='origin/main'; Installer=''; Skills='managed' }
@@ -748,9 +747,6 @@ function Get-SgUpdateSource {
     }
     $dirty = @(& $git -C $root status --porcelain)
     if ($LASTEXITCODE -ne 0) { throw 'The linked ShipGlows checkout could not be inspected.' }
-    if ($dirty.Count -gt 0 -and -not $AllowDirty) {
-        throw "The linked ShipGlows checkout has uncommitted changes, so the update stopped to preserve them. Inspect them with: git -C `"$root`" status --short. Commit or deliberately resolve those changes, then retry 's update'. No files were stashed or replaced."
-    }
     $branch = (& $git -C $root branch --show-current).Trim()
     if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'The linked ShipGlows checkout is detached; update stopped before bootstrap.' }
     $upstream = (& $git -C $root rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>$null).Trim()
@@ -759,7 +755,7 @@ function Get-SgUpdateSource {
 }
 
 function Show-SgUpdateStatus {
-    $source = Get-SgUpdateSource -AllowDirty
+    $source = Get-SgUpdateSource
     $dirty = if ($source.PSObject.Properties['Dirty'] -and $source.Dirty) { 'dirty' } else { 'clean' }
     Write-Host "ShipGlows update status: channel=$($source.Channel) branch=$($source.Branch) upstream=$($source.Upstream) skills=$($source.Skills) source=$dirty" -ForegroundColor Cyan
     if ($source.Channel -eq 'linked') { Write-Host 'Linked skills already follow the checkout. Start a new Codex or Claude session after source changes.' -ForegroundColor DarkGray }
@@ -905,8 +901,10 @@ function Invoke-SgDeveloperToolsUpdate {
 }
 
 function Invoke-SgUpdate {
+    # The linked installer archives committed content only, so uncommitted files are never touched.
     $source = Get-SgUpdateSource
     if ($source.Channel -eq 'linked') {
+        if ($source.Dirty) { Write-SgWarn "Uncommitted changes in $($source.Root) are not included; only committed $($source.Branch) is installed." }
         $installerPath = $source.Installer
         # A linked checkout is the maintainer channel, not an ordinary runtime
         # install.  Preserve that surface so its live Codex skills are

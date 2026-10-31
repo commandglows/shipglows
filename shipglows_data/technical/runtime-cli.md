@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.48.0"
+artifact_version: "1.49.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-30"
+updated: "2026-10-31"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -49,6 +49,7 @@ evidence:
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
   - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
+  - "Linked update 2026-10-31: `s update` no longer refuses a dirty linked checkout; the installer archives committed content only, so it warns that uncommitted changes are not included."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
   - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and CRXJS Chrome extensions with exact next actions instead of exposing internal project kinds."
   - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
@@ -645,11 +646,12 @@ a dirty repository or missing upstream and uses only fast-forward pull or
 ordinary push. None of these commands is run by installation, startup, generic
 context discovery, or a skill without an explicit private-data request.
 The explicit Windows DevServer `s u` / `s update` path downloads the public
-bootstrap over HTTPS for the stable channel, or selects the checked clean
-upstream branch of a linked developer checkout. `shipglows update` is the
+bootstrap over HTTPS for the stable channel, or installs the committed
+branch of a linked developer checkout. `shipglows update` is the
 cross-platform canonical entrypoint and `shipglows update status` is read-only;
-on Unix `s u` remains the system-package update action. On Windows, dirty linked
-checkouts fail closed with a focused inspection and retry path, and
+on Unix `s u` remains the system-package update action. On Windows, a linked
+update installs committed content only (`git archive` of the branch), so a dirty
+checkout proceeds with a warning that uncommitted changes are not included, and
 an interactive update attempt exits the menu instead of redrawing the project
 catalog after success or failure. The Windows path resolves
 an immutable source commit, stages and validates the full
