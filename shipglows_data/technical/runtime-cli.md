@@ -458,6 +458,11 @@ identity.
 
 Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A pnpm lockfile keeps pnpm, and an exact `packageManager: pnpm@x.y.z` declaration is executed through Corepack so ShipGlows does not substitute its machine-wide pnpm version. For a nested Node surface, a parent `pnpm-workspace.yaml` with a pnpm lock, or a parent `package.json` `workspaces` list (npm or yarn, with `!` exclusions), is inherited only when it explicitly includes the surface, searching up to five parent levels and stopping at a repository boundary. Its install location, manager and lockfile then govern setup, and a pnpm declaration beside an npm lock without a pnpm lock is refused as a conflict. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
 
+Tauri development resolves its Node package manager against the same discovered
+workspace root as dependency setup. A nested Tauri surface therefore honors the
+workspace lockfile and exact pinned package manager instead of falling back to
+the package-manager default for its subdirectory.
+
 A Node surface is classified as `browser-extension` before generic Vite only
 when it declares `@crxjs/vite-plugin` and an explicit `dev:chrome` script.
 Start runs that script with ShipGlows' reserved loopback HMR port. Readiness

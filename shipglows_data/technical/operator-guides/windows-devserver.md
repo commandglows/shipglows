@@ -725,6 +725,11 @@ Les APK et AAB restent des sorties de release ou de validation autonome ciblée 
 
 ### Tauri Windows en développement
 
+Pour une surface Tauri imbriquée dans un workspace Node, `s start` résout le
+gestionnaire de paquets depuis le même workspace que la préparation des
+dépendances. La déclaration `packageManager` et le lockfile de la racine
+déterminent ainsi la commande Tauri, y compris dans un sous-dossier comme `desktop`.
+
 `s stop` et `s restart` arrêtent le Job Windows de la session et vérifient aussi
 le binaire Tauri de ce projet dans `src-tauri\target\debug`, d'après le nom du
 package Cargo dans `src-tauri\Cargo.toml`. Le processus et son arbre,

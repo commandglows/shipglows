@@ -2912,7 +2912,7 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             [IO.File]::WriteAllText($sessionConfig, ($merged | ConvertTo-Json -Depth 20), (New-Object Text.UTF8Encoding($false)))
             $configArgument = " --config `"$sessionConfig`""
         }
-        $manager = Get-SgNodePackageManager $ProjectPath
+        $manager = Get-SgNodePackageManager $ProjectPath (Get-SgNodeDependencyWorkspace $ProjectPath)
         $prefix = if (@($manager.PrefixArguments).Count) { ' ' + (@($manager.PrefixArguments) -join ' ') } else { '' }
         $cargo = Get-SgCommandPath @('cargo.exe')
         if (-not $cargo) {
