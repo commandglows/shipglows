@@ -1,10 +1,10 @@
 ---
 artifact: competitive_intelligence
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: "ShipGlows"
 created: "2026-05-11"
-updated: "2026-10-28"
+updated: "2026-10-30"
 status: reviewed
 source_skill: 205-sg-veille
 scope: "project-competitors-and-inspirations"
@@ -25,6 +25,7 @@ evidence:
   - "ShipGlows positioning decision SG-BIZ-2026-08-13-01 changes the comparison axis from infrastructure lifecycle control to business-aware outcome ownership."
   - "Operator listed https://sourcegraph.com/ as a raw TODO URL; homepage checked on 2026-10-10 and the entry added to the registry."
   - "Operator flagged https://mailnaptic.com/ as a competitor on 2026-10-28 for its audience-reaction rehearsal idea; homepage read the same day, claims are the page's own."
+  - "2026-10-30: FlutterFlow added as a direct competitor for the FR/EN comparison article drafts; its claims come from the draft and still need verification before publication."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.3.0"
@@ -100,6 +101,7 @@ Il sert a eviter que ces references restent seulement dans une conversation. Une
 | ShipGlows | inspiration | Productboard hierarchy | https://support.productboard.com/hc/en-us/articles/360058212253-Build-your-product-hierarchy | Hierarchical product structure linking products, features, and roadmap context. | Capability inventory and roadmap | Keep the map repository-local and agent-readable instead of adopting a SaaS hierarchy as authority. | 2026-07-26 | Diane | reference | Define stable section IDs |
 | ShipGlows | inspiration | Warp agent notifications | https://docs.warp.dev/agents/capabilities/agent-notifications/ | Alerts when an agent completes work or needs operator attention, so long-running work can stay in the background. | Operator attention and asynchronous agent supervision | Candidate pattern only: preserve ShipGlows' explicit outcome, urgency, and actionable-next-step semantics instead of copying notification behavior. | 2026-08-07 | Diane | candidate | Verify current notification states and assess fit with ShipGlows' existing attention model |
 | ShipGlows | direct competitor | Agentica | https://astarlabshub.com/ | Official landing: AI platform for founder workflows (6 specialized AI agents, startup operating system, full-stack app + landing-page generation, React/FastAPI output, live terminal-style logs, GitHub deploy, Railway/Vercel) with free-to-try onboarding. Listed as a lifetime deal on https://grabltd.com/products/agentica. | Positioning, product workflow scope, onboarding, pricing model validation | Differentiate through governed business truth, useful operator choices, public métier ownership, canonical context refresh, and verified outcomes rather than autonomous startup orchestration alone. | 2026-08-09 | Operator | candidate | Compare business-aware outcome ownership against autonomous startup orchestration; validate pricing tiers after plan-page details update. |
+| ShipGlows | direct competitor | FlutterFlow | https://www.flutterflow.io/ | Builder visuel mature qui produit du code Flutter (web, mobile), avec intégrations Firebase et Supabase, paiements, et export du code selon le plan. Claims repris du brouillon d'article, non revérifiés à cette date. | Positionnement, article comparatif FR/EN (`shipglows-et-flutterflow-deux-facons-de-construire`) | Ils construisent l'interface visuellement ; ShipGlows vise une intention gouvernée entre humains et agents. Son builder visuel est commencé et prévu, non livré : ne pas revendiquer de parité. | 2026-10-30 | Diane | candidate | Vérifier tarifs (https://www.flutterflow.io/pricing) et claims d'export avant publication de l'article. |
 
 | ShipGlows | inspiration | Replit | https://replit.com/ | Operator-supplied inspiration; not analysed in this register entry. | Later product and workflow review | No positioning conclusion recorded. | 2026-08-17 | Operator | candidate | Review only when it informs a concrete decision. |
 | ShipGlows | inspiration | Codefile | https://codefile.io/ | Operator-supplied inspiration; not analysed in this register entry. | Later product and workflow review | No positioning conclusion recorded. | 2026-08-17 | Operator | candidate | Review only when it informs a concrete decision. |
