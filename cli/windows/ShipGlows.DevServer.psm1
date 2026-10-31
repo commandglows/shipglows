@@ -18,7 +18,7 @@ $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< 
 $script:CliCapabilitySchema = 'shipglows.cli-capabilities.v1'
 $script:CliCapabilityMaxBytes = 65536
 # Runtime fields owned by one target session. The surface's top-level copies mirror its primary session.
-$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent','vmServiceUri','devToolsUri','dtdUri','flutterWebPort','apiProxy')
+$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent','vmServiceUri','devToolsUri','dtdUri','flutterWebPort','apiProxy','adbReversePorts')
 $script:SgSessionLogRetention = 5
 $script:SgSessionFieldSet = [Collections.Generic.HashSet[string]]::new([string[]]$script:SgSessionFields, [StringComparer]::OrdinalIgnoreCase)
 # The fields reconciliation can change on a session.
@@ -872,7 +872,7 @@ function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$Flutter
                     Artifact = 'managed Flutter Android session'
                     StartOutcome = 'Managed Flutter Android session ready'
                     StartNextAction = 'Develop with live logs and reload; use the Dev shortcut to reuse this session.'
-                    OpenAction = 'Use the managed Flutter Android device or emulator session.'
+                    OpenAction = 'Restore adb reverse to the local backend ports after a cable replug.'
                     OpenNextAction = 'Validate the app, then run s stop -ProjectPath <path> when finished.'
                 }
             }
@@ -4209,28 +4209,58 @@ function Get-SgAndroidPackageInstallStamp([string]$Adb, [string]$Serial, [string
     return ''
 }
 
-# s open: replugging the cable drops adb reverse and the app can no longer load frontend chunks.
-# The link is restored and confirmed, or the command fails; it never reports a silent success.
-function Restore-SgTauriAndroidLink([object]$Entry) {
-    $serial = [string](Get-SgOptionalValue $Entry 'tauriDeviceId')
-    $port = [int]$Entry.port
-    $path = [string](Get-SgOptionalValue $Entry 'path')
-    if (-not $serial) { throw "android: no phone is recorded for this session; run s restart -ProjectPath `"$path`" -TauriDevice android." }
+# adb reverse makes PC loopback ports reachable from the device; replugging the cable drops it.
+# Each port is linked and confirmed, or the command fails; it never reports a silent success.
+function Restore-SgAndroidReverse([string]$Serial, [int[]]$Ports, [string]$RestartCommand) {
+    if (@($Ports).Count -eq 0) { return }
+    if (-not $Serial) { throw "android: no device is recorded for this session; run $RestartCommand." }
     $adb = Get-SgAdbPath
-    $state = Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'get-state') 15
+    $state = Invoke-SgFlutterAndroidTool $adb @('-s',$Serial,'get-state') 15
     if (-not $state -or [int]$state.ExitCode -ne 0 -or ([string]$state.Output).Trim() -ne 'device') {
-        throw "android ${serial}: phone absent; plug it back in, accept USB debugging, then run s open again."
+        throw "android ${Serial}: device absent; plug it back in, accept USB debugging, then run s open again."
     }
     $linked = {
-        $list = Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'reverse','--list') 15
-        [bool]($list -and [int]$list.ExitCode -eq 0 -and ([string]$list.Output) -match "(?m)\btcp:$port\s+tcp:$port\s*$")
+        param([int]$Port)
+        $list = Invoke-SgFlutterAndroidTool $adb @('-s',$Serial,'reverse','--list') 15
+        [bool]($list -and [int]$list.ExitCode -eq 0 -and ([string]$list.Output) -match "(?m)\btcp:$Port\s+tcp:$Port\s*$")
     }
-    if (& $linked) { Write-SgInfo "android ${serial}: reverse :$port already active."; return }
-    $reverse = Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'reverse',"tcp:$port","tcp:$port") 15
-    if (-not $reverse -or [int]$reverse.ExitCode -ne 0 -or -not (& $linked)) {
-        throw "android ${serial}: adb reverse tcp:$port could not be restored; replug the phone, then run s open again."
+    foreach ($port in @($Ports)) {
+        if (& $linked $port) { Write-SgInfo "android ${Serial}: reverse :$port already active."; continue }
+        $reverse = Invoke-SgFlutterAndroidTool $adb @('-s',$Serial,'reverse',"tcp:$port","tcp:$port") 15
+        if (-not $reverse -or [int]$reverse.ExitCode -ne 0 -or -not (& $linked $port)) {
+            throw "android ${Serial}: adb reverse tcp:$port could not be restored; replug the device, then run s open again."
+        }
+        Write-SgInfo "android ${Serial}: reverse :$port linked to the PC."
     }
-    Write-SgInfo "android ${serial}: reverse :$port restored."
+}
+
+# s open: replugging the cable drops adb reverse and the app can no longer load frontend chunks.
+function Restore-SgTauriAndroidLink([object]$Entry) {
+    $path = [string](Get-SgOptionalValue $Entry 'path')
+    Restore-SgAndroidReverse ([string](Get-SgOptionalValue $Entry 'tauriDeviceId')) @([int]$Entry.port) "s restart -ProjectPath `"$path`" -TauriDevice android"
+}
+
+# On a device, localhost is the device itself: every loopback port the Flutter app is configured to
+# call (public defines such as API_BASE_URL, and the declared backend readiness URL) is reversed to the PC.
+function Get-SgFlutterAndroidReversePorts([string]$ProjectPath, [object]$FlutterConfiguration) {
+    $urls = @()
+    if ($FlutterConfiguration -and $FlutterConfiguration.Defines) { $urls += @($FlutterConfiguration.Defines.Values | ForEach-Object { [string]$_ }) }
+    try {
+        $backendPath = Join-Path $ProjectPath '.shipglows.backend.json'
+        if (Test-Path -LiteralPath $backendPath -PathType Leaf) { $urls += [string]((Get-Content -LiteralPath $backendPath -Raw | ConvertFrom-Json).readiness.url) }
+    } catch { }
+    $ports = foreach ($url in $urls) {
+        $uri = $null
+        if ($url -and [uri]::TryCreate($url,[UriKind]::Absolute,[ref]$uri) -and $uri.Scheme -in @('http','https') -and $uri.IsLoopback -and -not $uri.IsDefaultPort) { [int]$uri.Port }
+    }
+    return @($ports | Sort-Object -Unique)
+}
+
+# Ports reversed for a Flutter Android session; sessions recorded before the field existed fall back to the backend.
+function Get-SgFlutterSessionReversePorts([object]$View) {
+    $recorded = Get-SgOptionalValue $View 'adbReversePorts'
+    if ($null -ne $recorded) { return @($recorded | ForEach-Object { [int]$_ } | Where-Object { $_ -gt 0 }) }
+    return @(Get-SgFlutterAndroidReversePorts ([string](Get-SgOptionalValue $View 'path')) $null)
 }
 
 # s stop: the phone keeps neither the USB link to the stopped dev server nor the app using it.
@@ -4548,6 +4578,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $flutterConfiguration = Get-SgFlutterConfiguration $entry.path $settings $configurationPort
         if ($alreadyRunning) {
             if (-not $Restart -and (Test-SgFlutterSessionConfiguration $view $flutterConfiguration)) {
+                if ((Get-SgEntryDevice $view) -eq 'android') { Restore-SgAndroidReverse ([string](Get-SgOptionalValue $view 'flutterDeviceId')) @(Get-SgFlutterAndroidReversePorts $entry.path $flutterConfiguration) "s restart -ProjectPath `"$($entry.path)`" -FlutterDevice android" }
                 Write-SgInfo "Already running with verified Flutter configuration: $label"
                 return $view
             }
@@ -4613,6 +4644,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
             Protect-SgOwnerOnlyPath $settings.DartDefineFile
         }
     }
+    $flutterReversePorts = $null
     try {
         Invoke-SgDependencySetup $Config $launchPath $kind $setupLog (Get-SgDependencyKindLabel $kind $resolvedFlutterDevice) | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
@@ -4623,6 +4655,10 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
             [void](Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'shell','am','force-stop',$tauriAndroid.AppId) 15)
             $reverse = Invoke-SgFlutterAndroidTool $tauriAndroid.Adb @('-s',$tauriAndroid.Serial,'reverse',"tcp:$port","tcp:$port") 15
             if (-not $reverse -or [int]$reverse.ExitCode -ne 0) { throw "adb reverse tcp:$port failed on $($tauriAndroid.Serial)." }
+        }
+        if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
+            $flutterReversePorts = @(Get-SgFlutterAndroidReversePorts $entry.path $flutterConfiguration)
+            Restore-SgAndroidReverse $resolvedFlutterDevice $flutterReversePorts "s restart -ProjectPath `"$($entry.path)`" -FlutterDevice android"
         }
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
@@ -4650,7 +4686,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         throw
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; target = $target; port = $port; portRole = $sessionPortRole; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; startedAtUtc = [DateTime]::UtcNow.ToString('o'); stoppedAtUtc = $null; lastEvent = $null; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; setupLogPath = $setupLog; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); flutterMode = $(if ($kind -eq 'flutter-web') { $resolvedFlutterMode } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath; frontendMode = $frontendMode; frontendOwner = $frontendOwner; flutterWebPort = $(if ($apiProxy) { $flutterWebPort } else { $null }); apiProxy = $(if ($apiProxy) { 'active' } else { $null }) }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; target = $target; port = $port; portRole = $sessionPortRole; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; startedAtUtc = [DateTime]::UtcNow.ToString('o'); stoppedAtUtc = $null; lastEvent = $null; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; setupLogPath = $setupLog; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); flutterMode = $(if ($kind -eq 'flutter-web') { $resolvedFlutterMode } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath; frontendMode = $frontendMode; frontendOwner = $frontendOwner; flutterWebPort = $(if ($apiProxy) { $flutterWebPort } else { $null }); apiProxy = $(if ($apiProxy) { 'active' } else { $null }); adbReversePorts = $flutterReversePorts }
     if($kind-eq'tauri'){$entryData|Add-Member -NotePropertyName tauriDevice -NotePropertyValue $(if($tauriAndroid){'android'}else{'windows'}) -Force;$entryData|Add-Member -NotePropertyName tauriDeviceId -NotePropertyValue $(if($tauriAndroid){$tauriAndroid.Serial}else{$null}) -Force}
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force;$entryData|Add-Member -NotePropertyName flutterConfigurationFingerprint -NotePropertyValue $flutterConfiguration.Fingerprint -Force}
     $retryFlutterDevice = if ($FlutterDevice) { $FlutterDevice } elseif ($kind -eq 'flutter-web') { $target } else { '' }
@@ -4942,6 +4978,12 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
     if ($entry.kind -eq 'flutter-web' -and -not $alreadyStopped -and (Get-SgEntryDevice $entry) -eq 'android') {
         $appPath = if (Get-SgOptionalValue $entry 'launchPath') { [string]$entry.launchPath } else { $path }
         if (-not (Wait-SgFlutterAndroidAppStopped $entry $appPath)) { Write-SgWarn "The Android app of $label is still running on the device after force-stop; the next start may see it finish mid-build." }
+        $serial = [string](Get-SgOptionalValue $entry 'flutterDeviceId')
+        $reversePorts = @(Get-SgOptionalValue $entry 'adbReversePorts' | Where-Object { [int]$_ -gt 0 })
+        if ($serial -and $reversePorts.Count -gt 0) {
+            try { $adb = Get-SgAdbPath; foreach ($port in $reversePorts) { [void](Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'reverse','--remove',"tcp:$([int]$port)") 15) } }
+            catch { Write-SgWarn "adb reverse cleanup skipped on ${serial}: $($_.Exception.Message)" }
+        }
     }
     Invoke-SgRegistryMutation $Config {
         param($data)
@@ -5063,6 +5105,7 @@ function Open-SgProject([object]$Config, [object]$Entry) {
         return $Entry
     }
     if ($Entry.kind -eq 'flutter-web' -and $Entry.PSObject.Properties['flutterDevice'] -and $Entry.flutterDevice -eq 'android') {
+        Restore-SgAndroidReverse ([string](Get-SgOptionalValue $Entry 'flutterDeviceId')) @(Get-SgFlutterSessionReversePorts $Entry) "s restart -ProjectPath `"$([string]$Entry.path)`" -FlutterDevice android"
         Write-SgInfo 'Flutter is already running in its managed Android app session.'
         return $Entry
     }

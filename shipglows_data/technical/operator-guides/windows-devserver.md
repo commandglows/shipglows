@@ -660,6 +660,8 @@ dépendances, qui s'exécute une seule fois à la fois.
 
 `SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
 
+Sur l'appareil, `localhost` désigne l'appareil lui-même. Avant le build, `s start` relie donc à l'ordinateur, avec `adb reverse tcp:<port>`, chaque port local que l'app appelle : URL locales des variables publiques (par exemple `API_BASE_URL`) et URL de disponibilité de `.shipglows.backend.json` quand elle est locale. La liaison est confirmée, sinon le démarrage échoue ; une session réutilisée la refait aussi. `s open` la rétablit après un rebranchement du câble, et `s stop` la retire.
+
 Flutter choisit le JDK du build Gradle dans cet ordre : `flutter config
 --jdk-dir`, puis le JBR embarqué d'Android Studio, puis `JAVA_HOME`. Le JBR
 d'Android Studio dépasse régulièrement ce que le Gradle du projet accepte (JBR 25
