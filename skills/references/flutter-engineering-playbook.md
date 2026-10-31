@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-10-20"
-updated: "2026-10-20"
+updated: "2026-10-31"
 status: active
 source_skill: 900-shipglows-core
 scope: flutter-engineering-playbook
@@ -34,6 +34,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-ui-engine/flutter/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
   - "2026-10-20: distilled from the Flutter Agent Skills pack SKILL.md bodies (flutter-conventions-index, flutter-architecture, project-structure-and-packages, state-management-riverpod, async-safety, error-handling-typed-results, widget-composition, dart3-idioms-and-coding-standards, naming-conventions, dartdoc-conventions, service-boundary-and-native, persistence-drift, navigation-and-routing, app-startup-and-bootstrap, codegen-and-toolchain, dependency-hygiene, lint-and-style-config). Per-skill reference files were not distilled."
   - "Attribution: Flutter Agent Skills, Copyright (c) 2026 Zakaria Fatahi, MIT License (pack LICENSE). Distilled and re-ordered for ShipGlows; no verbatim reproduction."
   - "Operator decision 2026-10-20: the portfolio uses no React; Flutter is the only application stack, Astro the public-site stack, Tauri a rare desktop exception, Convex the backend."
@@ -54,7 +55,7 @@ Do not load it for Astro public sites, Tauri, or Convex-only work. Do not use it
 Stack facts this playbook assumes:
 
 - Flutter is the single application codebase for Web, Android, iOS, Windows, macOS and Linux (`preferred-stacks.md`).
-- Identity is Firebase Auth through FlutterFire. Linux uses a REST/OIDC adapter behind the same interface, because `firebase_auth` does not list Linux.
+- Identity is Clerk through `shipglows_clerk_auth`: hosted sign-in with OIDC Authorization Code + PKCE on every target (app-scheme redirect on mobile, loopback on desktop). The beta Clerk Flutter SDK is not used.
 - Data is Convex over its HTTP API. Rust is added only behind a measured native-engine requirement.
 
 Precedence, highest first:
@@ -267,7 +268,7 @@ A cohesive overrun is acceptable when the summary justifies it. A single state m
 - **FE-SVC-5** Fakes are hand-written, `implements` the interface, and make the failure path reachable. Do not use a mock framework for a boundary; `mocktail` is acceptable only for a one-off stub.
 - **FE-SVC-6** All `MethodChannel` code lives in `lib/services/native/`. A cross-language format is a versioned contract, edited on both sides in one commit and proven by an `integration_test` round trip.
 - **FE-SVC-7** A service that mutates durable state feeds the single write path: persist, then publish.
-- **FE-SVC-8** Identity is one `AuthService`-style interface over Firebase Auth. The router's redirect is driven by its state (section 12). Linux implements the same interface through the REST/OIDC adapter. No bypass implementation exists, not even in debug.
+- **FE-SVC-8** Identity is one `AuthService`-style interface over `shipglows_clerk_auth`. The router's redirect is driven by its state (section 12). Every target uses the same hosted OIDC + PKCE flow. No bypass implementation exists, not even in debug.
 - **FE-SVC-9** Convex is called over HTTP only from repository implementations under `lib/data/`. Calls carry timeouts and bounded retries with backoff. A widget never calls Convex directly.
 - **FE-SVC-10** Before a plugin is accepted, check its platform list against all six targets. A missing target becomes an explicit adapter behind the interface, never a silent gap.
 - **FE-SVC-11** Application zoom uses the pinned `shipglows_flutter_zoom` package through `FlutterZoomViewport` (`flutter-app-zoom.md`). Never copy its pointer or viewport logic into an application.

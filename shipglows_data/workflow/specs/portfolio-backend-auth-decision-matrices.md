@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-11"
+updated: "2026-10-31"
 status: ready
 source_skill: 900-shipglows-core
 scope: portfolio-backend-auth-decision-matrices
@@ -28,10 +28,16 @@ evidence:
   - "Official Auth0 pricing, Flutter SDK, tenant, and Convex integration documentation reviewed 2026-08-11."
   - "Operator decision 2026-08-11: Auth0 is a strong OIDC alternative but rejected as the default for a free multi-product portfolio."
 next_review: "2026-09-11"
-next_step: "Prove the first Linux Firebase Auth adapter and signed desktop release paths."
+next_step: "Superseded on identity by the 2026-10-26 Clerk decision; keep the backend/data matrix."
 ---
 
 # Portfolio Backend And Auth Decision Matrices
+
+> Identity superseded 2026-10-26: Clerk is the single identity provider for every
+> Diane-operated product (one application per product, hosted OIDC + PKCE for
+> Flutter); Firebase Auth and Auth0 are retired (suite auth lot 8). The
+> backend/data matrix below still applies. Canonical decision:
+> `commandglows/shipglows_data/workflow/docs/technical/suite-authentication.md`.
 
 ## Outcome
 

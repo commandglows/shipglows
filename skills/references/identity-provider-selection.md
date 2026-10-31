@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.1"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-09-05"
+updated: "2026-10-31"
 status: active
 source_skill: 109-sg-auth-debug
 scope: flutter-identity-provider-selection
@@ -22,6 +22,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-ui-engine/flutter/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
   - "Official Clerk Android documentation reviewed 2026-08-02."
   - "Official Firebase Flutter platform support reviewed 2026-08-02."
   - "Official Clerk, Firebase, and Supabase pricing reviewed 2026-08-02."
@@ -33,7 +34,7 @@ evidence:
   - "Official Auth0 Flutter SDK, pricing, tenant, and Convex integration documentation reviewed 2026-08-11."
   - "Operator decision 2026-08-11: Auth0 is a strong OIDC alternative but not the free-portfolio default; Clerk is inherited proof to migrate progressively."
 next_review: "2026-09-11"
-next_step: "Refresh provider maturity and package versions before the next Flutter identity-provider decision."
+next_step: "Record Linux and macOS proof of the Clerk hosted OIDC path before the first launch on those targets."
 ---
 
 # Flutter Identity Provider Selection
@@ -44,11 +45,17 @@ selection. The active development, engineering or auth owner loads
 `auth0-integration-playbook.md` directly for that implementation; this matrix
 does not change a project's provider or claim that Auth0 is deployed globally.
 
-Use this matrix before implementing or changing identity. Firebase Auth is the
-portfolio default. Clerk remains an inherited existing-product exception with
-proved flows and a progressive migration expectation. Auth0 is a strong OIDC
-alternative, not the free-portfolio default.
-Identity selection never selects Firestore implicitly.
+Use this matrix before implementing or changing identity. Clerk is the
+portfolio default (operator decision 2026-10-26): Clerk, one application per product. Native Flutter targets sign in through Clerk's hosted pages with
+OIDC Authorization Code + PKCE (public client, system browser; app-scheme redirect on mobile,
+loopback redirect on desktop) via `shipglows-ui-engine/flutter/shipglows_clerk_auth`; the beta
+Clerk Flutter SDK is not used.
+Backends verify the Clerk id_token (issuer, and audience = the native client id).
+Firebase Auth and Auth0 are retired for Diane-operated products (suite auth lot
+8) and are not selected for new ones; a client project keeps its own provider
+(BestFriedChicken: Supabase Auth). Canonical decision:
+`commandglows/shipglows_data/workflow/docs/technical/suite-authentication.md`.
+Identity selection never selects the data backend implicitly.
 
 ## Evidence vocabulary
 
@@ -60,7 +67,12 @@ Identity selection never selects Firestore implicitly.
   signed-target spike before it becomes a launch dependency.
 - **Unproven**: no ShipGlows release-device proof exists yet.
 
-## Current matrix — reviewed 2026-08-11
+## Historical matrix — reviewed 2026-08-11
+
+Kept for history. The Clerk column predates the hosted OIDC + PKCE path, proved
+from 2026-10-26 to 2026-10-30 on Android (Galaxy S21), Windows and web across
+CommandGlows, ShipGlows, GoCharbon, ReplayGlows and ContentGlows; Linux, macOS and
+iOS remain unproven for that path.
 
 | Criterion | Clerk | Firebase Auth |
 | --- | --- | --- |
@@ -87,18 +99,20 @@ Identity selection never selects Firestore implicitly.
 
 ## Default decisions
 
-1. **Greenfield universal Flutter:** choose Firebase Auth for Web, Android, iOS,
-   Windows, macOS, and Linux; use official SDKs where listed and REST/OIDC on Linux.
-2. **Windows or macOS launch:** require a signed spike proving Google sign-in,
-   restore, sign-out, backend-token propagation, and installer behavior.
-3. **Linux launch:** prove PKCE, callback ownership, secure token storage,
-   restore, revocation, sign-out, and Firebase-token propagation to Convex.
-4. **Existing proved Clerk product:** preserve Clerk unless migration has an
-   explicit identity-linking, rollback, and release-proof contract. Migrate
-   progressively rather than copying Clerk into new products.
-5. **Auth0 exception:** select Auth0 only when OIDC/enterprise fit outweighs its
-   Linux adapter, Windows credential-store, tenant-isolation, and paid-plan
-   consequences. Official Convex integration does not override portfolio cost.
+1. **Greenfield universal Flutter:** choose Clerk, one application per product,
+   through `shipglows_clerk_auth` (hosted OIDC Authorization Code + PKCE) on every
+   target, and plug the product into the suite entitlement ledger as
+   `<product>_clerk`.
+2. **Windows or macOS launch:** require a signed spike proving sign-in, restore,
+   sign-out, backend-token propagation, loopback redirect, and installer behavior.
+3. **Linux launch:** prove the loopback callback, secure token storage, restore,
+   revocation, sign-out, and Clerk-token propagation to Convex.
+4. **Existing Firebase Auth, Auth0 or Convex Auth product:** migrate to Clerk with
+   an explicit identity-linking, rollback, and release-proof contract; never
+   extend the legacy provider.
+5. **Exception:** another provider only for a client project or a documented
+   enterprise requirement (Auth0's Linux adapter, Windows credential-store,
+   tenant-isolation, and paid-plan consequences still apply).
 
 ## Launch availability gate
 
@@ -184,7 +198,7 @@ release-device proof on every targeted platform.
 Before implementation, record:
 
 ```text
-identity_owner: clerk | firebase
+identity_owner: clerk | <client-project provider>
 backend_data_owner: convex | firestore | supabase | other
 targets_at_launch: web | android | windows | macos | ios
 desktop_expectation: pwa | native
@@ -197,8 +211,8 @@ provider_versions_checked: <exact relevant package/SDK versions>
 release_spike_required: yes | no
 release_spike_scope: <platform flows or not required>
 auth0_exception: <enterprise/OIDC justification or not applicable>
-linux_adapter: rest_oidc | not_applicable
-backend_token_audience_and_issuer: <Firebase/Convex verification contract>
+native_sign_in: clerk_hosted_oidc_pkce | not_applicable
+backend_token_audience_and_issuer: <Clerk/Convex verification contract>
 ```
 
 Use the official provider documentation and package pages at the time of the

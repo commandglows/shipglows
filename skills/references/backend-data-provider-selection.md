@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-11"
+updated: "2026-10-31"
 status: active
 source_skill: 900-shipglows-core
 scope: backend-data-provider-selection
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-ui-engine/flutter/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
   - "Official Convex pricing, limits, project, HTTP API, and authentication documentation reviewed 2026-08-11."
   - "Official Firebase project, Firestore quota, pricing, and FlutterFire package documentation reviewed 2026-08-11."
   - "Official Supabase pricing and organization billing documentation reviewed 2026-08-11."
@@ -33,8 +34,8 @@ next_step: "Refresh dynamic quotas and SDK maturity before the next provider com
 # Backend And Data Provider Selection
 
 Use this matrix after the product surfaces and identity owner are known. Auth
-and data are separate decisions: Firebase Auth does not require Firestore, and
-Clerk does not require Convex.
+and data are separate decisions: Clerk (the portfolio identity provider since
+2026-10-26) does not require Convex.
 
 ## Current matrix - reviewed 2026-08-11
 
@@ -58,9 +59,9 @@ may be increased by Google; never promise an exact permanent project count.
 1. **Canonical portfolio default:** use Convex for backend/data and server functions. Keep each
    product isolated and monitor pooled team usage. Use its official HTTP API
    from every Flutter target until an official or approved realtime client exists.
-   Verify Firebase ID tokens server-side; a client user ID is not authentication.
-2. **Flutter with native Windows:** prefer Firebase Auth as identity candidate,
-   but keep Convex as backend/data unless the product independently satisfies
+   Verify Clerk id_tokens server-side; a client user ID is not authentication.
+2. **Flutter with native Windows:** Clerk hosted OIDC + PKCE is the identity
+   path; keep Convex as backend/data unless the product independently satisfies
    the Firestore decision below.
 3. **Firestore exception:** choose Firestore when the portfolio contains only a
    bounded number of projects and official Flutter offline/realtime behavior is
