@@ -3,7 +3,7 @@
 > **Priority:** 🔴 P0 blocker · 🟠 P1 high · 🟡 P2 normal · 🟢 P3 low · ⚪ deferred
 > **Status:** 📋 todo · 🔄 in progress · ✅ done · ⛔ blocked · 💤 deferred
 > **Priority last updated:** 2026-06-27 UTC · criteria: balanced (`impact`, `blockers`, `risk`, `high-roi`)
-> **Recommended next execution target:** remediate the Astro production advisory (`GHSA-j687-52p2-xcff`) through the planned migration
+> **Recommended next execution target:** verify the Astro production advisory (`GHSA-j687-52p2-xcff`) against the resolved Astro 7.x version; the site already declares `astro ^7.3.5`, so no astro@6 migration is needed
 
 ---
 
@@ -93,7 +93,7 @@
 | 🟡 | Corriger la détection de commande dev quand un projet Flutter contient un `package.json` uniquement Convex (`BUG-2026-05-04-004`) | 🔄 in progress |
 | 🟡 | Empêcher ShipGlows de créer des symlinks `TASKS.md` dans les projets et garder le tracking dans `shipglows_data` (`BUG-2026-05-05-001`) | 🔄 in progress |
 | 🟠 | Split `lib.sh` hotspots around environment lifecycle, publishing, dashboard, inspector, and metadata helpers to reduce the 5,900+ line blast radius | 📋 todo |
-| 🟡 | Resolve the `site` production dependency advisory for Astro (`GHSA-j687-52p2-xcff`) through a planned Astro upgrade/migration | 📋 todo |
+| 🟡 | Verify the `site` production dependency advisory for Astro (`GHSA-j687-52p2-xcff`) against the resolved Astro 7.x version; the site already declares `astro ^7.3.5`, so no astro@6 migration is needed | 📋 todo |
 | 🟡 | Fix `tests/cli/json-error-handling.sh` so the PM2 jq parsing fixture passes or is explicitly skipped with an accurate reason | 📋 todo |
 
 ### Audit: Perf (2026-04-29) — Score: B
@@ -106,5 +106,5 @@
 
 ### Audit: Deps
 
-🟠 [ShipGlows] task: Remediate the site Astro advisory with the planned major upgrade path | status: todo | area: site-deps | next: /010-sg-technical migrate astro@6
+🟠 [ShipGlows] task: Verify the site Astro advisory (`GHSA-j687-52p2-xcff`) against the resolved Astro 7.x version; the site already declares `astro ^7.3.5`, so no astro@6 migration is needed | status: todo | area: site-deps | next: check the resolved astro version in the lockfile against the advisory range
 🟡 [ShipGlows] task: Add a committed lockfile and pin the tui toolchain for reproducible dependency audits | status: todo | area: tui-deps | next: bun install --lockfile-only
