@@ -106,13 +106,18 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
     $defines = [ordered]@{}
     $publicEnvironment = [ordered]@{}
     $sourceHash = ''
+    $backendEnvironment = if ($Settings.PSObject.Properties['FlutterEnvironment'] -and [string]$Settings.FlutterEnvironment) { [string]$Settings.FlutterEnvironment } else { 'dev' }
+    if ($backendEnvironment -notin @('dev','prd')) { throw 'Flutter backend environment must be dev or prd.' }
+    if ($backendEnvironment -eq 'prd' -and -not $recipe) { throw 'A production-backend Flutter session requires a declared .shipglows.flutter.json recipe whose script resolves --environment prd.' }
     if ($recipe) {
         $python = Get-SgCommandPath @('python.exe','python3.exe')
         if (-not $python) { throw 'The declared Flutter recipe requires Python. No unauthenticated fallback is allowed.' }
         $resolverTarget = if ($target -in @('chrome','web-server')) { 'web' } elseif ($target -eq 'windows') { 'windows' } else { 'android' }
         $arguments = @()
         $runnerFile = $python
-        if ($recipe.doppler -cne 'NONE') {
+        # A production-backend session receives only the public values the recipe script declares for
+        # prd: it never runs Doppler, so no production secret scope reaches a development session.
+        if ($recipe.doppler -cne 'NONE' -and $backendEnvironment -ne 'prd') {
             $doppler = Get-SgCommandPath @('doppler.exe')
             if (-not $doppler) { throw 'The declared Flutter recipe requires Doppler. No unauthenticated fallback is allowed.' }
             $arguments += @('run','--project',[string]$recipe.doppler.project,'--config',[string]$recipe.doppler.config,'--no-fallback','--no-check-version')
@@ -122,6 +127,7 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
         }
         # Python is the runner without Doppler; never pass it again as its own script.
         $arguments += @($recipe.ScriptPath,'--configuration-json','--target',$resolverTarget)
+        if ($backendEnvironment -eq 'prd') { $arguments += @('--environment','prd') }
         if ($origin) { $arguments += @('--web-origin',$origin) }
         if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgPublicFlutterResolver $File $Arguments } }
         $saved = @{}
@@ -156,7 +162,7 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
     foreach ($key in $defines.Keys) {
         if ($key -notin @('BUILD_TIMESTAMP','BUILD_AT_UTC','BUILD_AT_PARIS')) { $stableDefines[$key] = $defines[$key] }
     }
-    $identity = [ordered]@{ target=$target; deviceId=[string]$Settings.FlutterDeviceId; mode=$mode; origin=$origin; source=$sourceHash; dartDefines=$stableDefines; environment=$publicEnvironment }
+    $identity = [ordered]@{ target=$target; deviceId=[string]$Settings.FlutterDeviceId; mode=$mode; backend=$backendEnvironment; origin=$origin; source=$sourceHash; dartDefines=$stableDefines; environment=$publicEnvironment }
     $sha = [Security.Cryptography.SHA256]::Create()
     try { $fingerprint = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($identity | ConvertTo-Json -Depth 8 -Compress))))).Replace('-','').ToLowerInvariant() } finally { $sha.Dispose() }
     return [pscustomobject]@{ Fingerprint=$fingerprint; Defines=$defines; Environment=$publicEnvironment; HasRecipe=($null -ne $recipe) }

@@ -164,7 +164,7 @@ function Initialize-SgBackend($Config, $Plan, $Existing) {
     } catch { if ($created) { Stop-SgBackend $state }; throw }
 }
 
-function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort=0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice='', [string]$FlutterDeviceId='', [ValidateSet('','debug','profile')][string]$FlutterMode='', [ValidateSet('','windows','android')][string]$TauriDevice='', [string]$TauriDeviceId='', [switch]$Restart, [ValidateSet('','own','shared')][string]$Frontend='', [switch]$Replace) {
+function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort=0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice='', [string]$FlutterDeviceId='', [ValidateSet('','debug','profile')][string]$FlutterMode='', [ValidateSet('','dev','prd')][string]$FlutterEnvironment='', [ValidateSet('','windows','android')][string]$TauriDevice='', [string]$TauriDeviceId='', [switch]$Restart, [ValidateSet('','own','shared')][string]$Frontend='', [switch]$Replace) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     if (-not (Test-SgProjectPath $path $Config.Workspace)) { throw 'Project must be inside the ShipGlows workspace before backend launch.' }
     $existing = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
@@ -198,7 +198,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         # supervisor under the project lock. Other backends release it and let targets start side by side.
         if ($backend.mode -ne 'local') { $mutex.ReleaseMutex(); $locked = $false }
         $result = Invoke-SgNamedMutex (Get-SgSessionMutexName $Config $path $target) "A start of the $target target of this project is already in progress." {
-            Start-SgProjectCore $Config $path $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup:$RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Frontend $Frontend -Replace:$Replace
+            Start-SgProjectCore $Config $path $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup:$RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -FlutterEnvironment $FlutterEnvironment -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Frontend $Frontend -Replace:$Replace
         } 30000
         if ($result.status -eq 'running') {
             if (($backend.process -and -not (Test-SgProcessIdentity $backend.process)) -or ($backend.mode -ne 'none' -and -not (Test-SgBackendReady $plan.Manifest.readiness))) { [void](Stop-SgProject $Config $path -Target ([string]$result.target)); throw 'Backend lost readiness during application startup.' }
