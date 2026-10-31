@@ -2882,7 +2882,7 @@ function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
     Move-Item -LiteralPath $Path -Destination $rotated -Force
 }
 
-function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$FlutterMode = 'debug', [string]$TauriDevice = '', [string]$TauriDeviceName = '', [ValidateSet('','own','shared')][string]$TauriFrontend = '', [string]$TauriSessionDirectory = '', [int]$ApiProxyPort = 0) {
+function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$FlutterMode = 'debug', [string]$TauriDevice = '', [string]$TauriDeviceName = '', [ValidateSet('','own','shared')][string]$TauriFrontend = '', [string]$TauriSessionDirectory = '', [int]$ApiProxyPort = 0, [int[]]$AndroidReversePorts = @()) {
     if ($Kind -eq 'tauri') {
         $android = $TauriDevice -eq 'android'
         $tauri = Get-Content -LiteralPath (Join-Path $ProjectPath 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
@@ -3026,6 +3026,9 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         $args += @('-Device',$FlutterDevice,'-LaunchIdentity',$FlutterLaunchIdentity,'-Mode',$FlutterMode)
         if ($FlutterDevice -eq 'chrome') { $args += @('-ProfilePath',"`"$FlutterProfilePath`""); if ($FlutterVisible) { $args += '-Visible' } }
         if ($DartDefineFile) { $args += @('-DartDefineFile',"`"$DartDefineFile`"") }
+        # The supervisor keeps these ports reversed onto the device while the session lives.
+        $reversePorts = @($AndroidReversePorts | Where-Object { $_ -gt 0 })
+        if ($reversePorts.Count -gt 0) { $args += @('-AdbPath',"`"$(Get-SgAdbPath)`"",'-ReversePorts',($reversePorts -join ',')) }
         $signature = $FlutterLaunchIdentity
     }
     if (-not $file) { throw "Launch tool missing for $Kind." }
@@ -4644,11 +4647,11 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
             Protect-SgOwnerOnlyPath $settings.DartDefineFile
         }
     }
-    $flutterReversePorts = $null
+    $flutterReversePorts = $(if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') { ,@(Get-SgFlutterAndroidReversePorts $entry.path $flutterConfiguration) } else { $null })
     try {
         Invoke-SgDependencySetup $Config $launchPath $kind $setupLog (Get-SgDependencyKindLabel $kind $resolvedFlutterDevice) | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
-        $launch = Get-SgLaunchSpec $launchPath $kind $(if ($apiProxy) { $flutterWebPort } else { $port }) ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' }) $(if ($kind -eq 'tauri') { [string]$frontendMode } else { '' }) $logDir $(if ($apiProxy) { $port } else { 0 })
+        $launch = Get-SgLaunchSpec $launchPath $kind $(if ($apiProxy) { $flutterWebPort } else { $port }) ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' }) $(if ($kind -eq 'tauri') { [string]$frontendMode } else { '' }) $logDir $(if ($apiProxy) { $port } else { 0 }) -AndroidReversePorts $flutterReversePorts
         # A previous copy left running on the phone would satisfy readiness before the new build lands.
         if ($tauriAndroid) {
             $tauriAndroid | Add-Member -NotePropertyName InstallStamp -NotePropertyValue (Get-SgAndroidPackageInstallStamp $tauriAndroid.Adb $tauriAndroid.Serial $tauriAndroid.AppId) -Force
@@ -4657,7 +4660,6 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
             if (-not $reverse -or [int]$reverse.ExitCode -ne 0) { throw "adb reverse tcp:$port failed on $($tauriAndroid.Serial)." }
         }
         if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
-            $flutterReversePorts = @(Get-SgFlutterAndroidReversePorts $entry.path $flutterConfiguration)
             Restore-SgAndroidReverse $resolvedFlutterDevice $flutterReversePorts "s restart -ProjectPath `"$($entry.path)`" -FlutterDevice android"
         }
     } catch {

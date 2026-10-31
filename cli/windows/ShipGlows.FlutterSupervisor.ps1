@@ -11,7 +11,10 @@ param(
     [string]$DartDefineFile = '',
     [ValidateSet('debug','profile')][string]$Mode = 'debug',
     # Public port of a web-server surface with API routes; the Flutter web server then listens on $Port.
-    [int]$ApiProxyPort = 0
+    [int]$ApiProxyPort = 0,
+    # Android: comma-separated PC loopback ports kept reversed onto device $Device with $AdbPath.
+    [string]$AdbPath = '',
+    [string]$ReversePorts = ''
 )
 
 Set-StrictMode -Version Latest
@@ -176,7 +179,7 @@ function Pump-SgFlutterChanges([object]$Watcher,[object]$DebounceState,[int]$Max
 
 function New-SgFlutterProtocolState {
     $now=[datetime]::UtcNow.ToString('o')
-    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastEvent=$null; LastProtocolError=$null; FlutterExitCode=$null; ExitReason=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; VmServiceUri=$null; DevToolsUri=$null; DtdUri=$null; UpdatedAtUtc=$now }
+    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastEvent=$null; LastProtocolError=$null; FlutterExitCode=$null; ExitReason=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; VmServiceUri=$null; DevToolsUri=$null; DtdUri=$null; AdbReverseRestoredAtUtc=$null; AdbReverseError=$null; UpdatedAtUtc=$now }
 }
 
 # Debug endpoints are only ever loopback URIs announced by flutter run --machine; anything else is ignored.
@@ -186,6 +189,36 @@ function ConvertTo-SgFlutterLoopbackUri([object]$Params,[string]$Name,[string[]]
     $uri=$null;if(-not[Uri]::TryCreate($value,[UriKind]::Absolute,[ref]$uri)){return $null}
     if($uri.Scheme-notin$Schemes-or$uri.Host-notin@('127.0.0.1','localhost','[::1]','::1')){return $null}
     return $value
+}
+
+function ConvertTo-SgFlutterReversePorts([string]$Value) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return @() }
+    return @($Value -split ',' | ForEach-Object { $port=0; if (-not [int]::TryParse($_.Trim(),[ref]$port) -or $port -lt 1 -or $port -gt 65535) { throw 'Invalid adb reverse port.' }; $port })
+}
+
+function Invoke-SgFlutterAdb([string]$AdbPath, [string[]]$Arguments, [int]$TimeoutMilliseconds = 5000) {
+    $psi=New-Object Diagnostics.ProcessStartInfo
+    $psi.FileName=$AdbPath; $psi.Arguments=(@($Arguments | ForEach-Object { ConvertTo-SgWindowsArgument $_ }) -join ' ')
+    $psi.UseShellExecute=$false; $psi.CreateNoWindow=$true; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true
+    $process=[Diagnostics.Process]::Start($psi)
+    try {
+        $output=$process.StandardOutput.ReadToEndAsync(); [void]$process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit($TimeoutMilliseconds)) { try { $process.Kill() } catch { }; return $null }
+        return [pscustomobject]@{ ExitCode=$process.ExitCode; Output=$output.GetAwaiter().GetResult() }
+    } finally { $process.Dispose() }
+}
+
+# A cable replug or an adb server restart drops adb reverse, and the app then loses the local backend.
+# While the session lives, missing ports are re-linked; an absent device is retried on the next pass.
+function Sync-SgFlutterAdbReverse([string]$AdbPath, [string]$Serial, [int[]]$Ports, [object]$State) {
+    $list=Invoke-SgFlutterAdb $AdbPath @('-s',$Serial,'reverse','--list')
+    if (-not $list -or $list.ExitCode -ne 0) { return }
+    foreach ($port in $Ports) {
+        if ([string]$list.Output -match "(?m)\btcp:$port\s+tcp:$port\s*$") { continue }
+        $result=Invoke-SgFlutterAdb $AdbPath @('-s',$Serial,'reverse',"tcp:$port","tcp:$port")
+        if ($result -and $result.ExitCode -eq 0) { $State.AdbReverseRestoredAtUtc=[datetime]::UtcNow.ToString('o'); $State.AdbReverseError=$null }
+        else { $State.AdbReverseError="adb reverse tcp:$port could not be restored on $Serial." }
+    }
 }
 
 function Test-SgFlutterEventApp([object]$State,[object]$Params) {
@@ -279,6 +312,12 @@ function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pu
 function Invoke-SgFlutterSupervisor {
     foreach ($item in @(@($LaunchDirectory,'launch directory'),@($ProjectPath,'project path'),@($FlutterPath,'Flutter path'),@($LaunchIdentity,'launch identity'))) { Assert-SgFlutterSafeValue ([string]$item[0]) ([string]$item[1]) }
     if ($Device -in @('chrome','web-server') -and ($Port -lt 1024 -or $Port -gt 65535)) { throw 'Invalid Flutter web port.' }
+    $reversePortList=@(ConvertTo-SgFlutterReversePorts $ReversePorts)
+    if ($reversePortList.Count -gt 0) {
+        Assert-SgFlutterSafeValue $AdbPath 'adb path'
+        if ($Device -in @('windows','chrome','web-server') -or $Device -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'adb reverse requires an Android device serial.' }
+        if (-not (Test-Path -LiteralPath $AdbPath -PathType Leaf)) { throw 'adb is unavailable for the Android reverse watch.' }
+    }
     $token = [string]$env:SHIPGLOWS_SUPERVISOR_TOKEN
     if ($token -notmatch '^[a-f0-9]{64}$') { throw 'Missing or invalid supervisor token.' }
     Remove-Item Env:SHIPGLOWS_SUPERVISOR_TOKEN -ErrorAction SilentlyContinue
@@ -315,7 +354,7 @@ function Invoke-SgFlutterSupervisor {
     if ($Mode -ne 'profile' -and (Test-Path -LiteralPath $lib -PathType Container)) { $watcher=New-SgFlutterChangeWatcher $lib }
     $apiProcess=$null
     if($ApiProxyPort -gt 0){try{$apiProcess=Start-SgApiProxy $ApiProxyPort $Port $projectRoot $publicEnvironment $launchRoot}catch{if(-not$process.HasExited){$process.Kill()};throw}}
-    $requestId=1000; $stopRequested=$false
+    $requestId=1000; $stopRequested=$false; $nextReverseCheckUtc=[datetime]::UtcNow.AddSeconds(5)
     try {
         while (-not $process.HasExited) {
             $line=$null
@@ -324,6 +363,12 @@ function Invoke-SgFlutterSupervisor {
             while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)}
             if($watcher){[void](Pump-SgFlutterChanges $watcher $changes 64)}
             $nowUtc = [datetime]::UtcNow
+            if($reversePortList.Count -gt 0 -and $nowUtc -ge $nextReverseCheckUtc){
+                $before="$($state.AdbReverseRestoredAtUtc)|$($state.AdbReverseError)"
+                try{Sync-SgFlutterAdbReverse $AdbPath $Device $reversePortList $state}catch{$state.AdbReverseError=$_.Exception.Message}
+                if("$($state.AdbReverseRestoredAtUtc)|$($state.AdbReverseError)" -ne $before){Write-SgFlutterJsonAtomic $statePath $state}
+                $nextReverseCheckUtc=[datetime]::UtcNow.AddSeconds(5)
+            }
             if($state.Ready -and (Test-SgFlutterDebounceReady $changes $nowUtc)){ $requestId++;try{Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)}catch{$state.LastError=$_.Exception.Message};Complete-SgFlutterDebounce $changes;Write-SgFlutterJsonAtomic $statePath $state }
             foreach($commandFile in @(Get-ChildItem -LiteralPath $commandDir -Filter '*.json' -File -ErrorAction SilentlyContinue | Sort-Object Name)){
                 $claimedPath=Claim-SgFlutterCommandFile $commandFile
