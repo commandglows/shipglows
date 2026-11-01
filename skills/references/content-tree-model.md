@@ -188,7 +188,7 @@ Move content with `git mv` into `articles/<locale>/`, derive `topic` from the ol
 | Site | Observed 2026-11-01 | Main work |
 | --- | --- | --- |
 | `contentglows/site` | migrated 2026-11-01 (commit 1e6a1146) | reference implementation; rewrite `tests/blog-content.test.mjs` |
-| `shipglows_app/site` | `articles/<locale>/`, `articleKey` | rename identity to `translationKey`, add taxonomy |
+| `shipglows_app/site` | migrated 2026-11-01 (commit aadc50fe) | rename identity to `translationKey`, add taxonomy |
 | `gocharbon/site` | ~2,400 posts in `src/data/`, 4 folder levels, frontmatter `slug` | flatten, folders become taxonomy, redirects for changed URLs |
 | `claiire/site` | `sante/`, `violence/` folders, Obsidian vault inside `src/content` | flatten, restore links as wikilinks |
 | `commandglows/site` | `blog/<locale>/`, legacy `src/content/config.ts` | rename to `articles`, move registry to `src/content.config.ts` |
