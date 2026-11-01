@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-10-06"
+updated: "2026-11-01"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -28,6 +28,7 @@ linked_systems:
   - "shipglows_data/technical/platforms/hetzner.md"
   - "skills/references/schemas/source-analysis-v1.schema.json"
   - "shipglows_data/technical/decisions/provider-agnostic-source-ingestion-with-readwise-reader-pilot.md"
+  - "shipglows_data/technical/decisions/toolchain-and-agent-capability-policy.md"
 external_dependencies:
   - "Flox"
   - "PM2"
@@ -51,6 +52,7 @@ invariants:
 security_impact: yes
 docs_impact: yes
 evidence:
+  - "Operator decision 2026-11-01 retains native tool managers below ShipGlows capability policy and separates discovery, trusted resolution, installation, project activation, authentication and fresh observation."
   - "Core files and function tree extracted from the repo"
   - "CLAUDE.md documents PM2 caching, port allocation, idempotence, and validation rules"
   - "2026-05-11 decision record project-governance-layout formalizes root-vs-shipglows_data placement."
@@ -99,6 +101,8 @@ This `shipglows` repository is the ShipGlows DX system: skills and doctrine, CLI
 ShipGlows currently separates its Hetzner compute into two logical roles. `sg-runtime-01` retains lightweight public and API runtime continuity. `sg-workspaces-01` is the execution plane for managed project workspaces; its isolation, shared-toolchain, and queued-concurrency runtime is planned but not yet implemented. Public product deployments remain provider-specific and are not implied by workspace presence. This repository records only public-safe role boundaries; machine identity, capacity, access, security posture, cost, and recovery details live in the private operator inventory.
 
 ### Reproducible environment control plane
+
+The accepted [toolchain and agent capability policy](decisions/toolchain-and-agent-capability-policy.md) places native managers and MCP metadata sources beneath ShipGlows policy. Machine provisioning, project version selection, agent activation and authentication have separate ownership and evidence. The decision records the current pilot boundaries and future convergence without claiming a unified inventory or additional executable backends.
 
 `cli/environment/` is a thin, Python-standard-library control plane above native environment engines. It owns the ShipGlows capability vocabulary and keeps three truths distinct:
 
