@@ -34,7 +34,7 @@ from shipglows_http import (  # noqa: E402
     send_json,
 )
 from shipglows_parallel import ParallelError, normalize_public_url, request_extract  # noqa: E402
-from shipglows_scraping import CRAWL4AI_URL, crawl4ai_token  # noqa: E402
+from shipglows_scraping import CRAWL4AI_URL, autostart_in_background, crawl4ai_token  # noqa: E402
 
 FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape"
 DEEPSEEK_FETCH_URL = "https://api.deepseek.com/v1/tools/fetch"
@@ -184,6 +184,9 @@ def crawl4ai_batch(urls: list[str], args: argparse.Namespace, opener=None) -> di
                          http_error=lambda code, body: f"Crawl4AI HTTP {code}: "
                                                        f"{safe_message(body[:200].decode('utf-8', 'replace'), token)}")
     except ProviderError as error:
+        # An unreachable local service is restarted for the next fetch; this one moves on.
+        if opener is None and "network request failed" in str(error):
+            error = ProviderError(f"{error} {autostart_in_background()}.")
         return dict.fromkeys(urls, error)
     items = {item.get("url"): item for item in data.get("results") or [] if isinstance(item, dict)}
     pages: dict = {}

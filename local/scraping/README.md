@@ -10,7 +10,7 @@ Stack Docker locale, écoutant uniquement sur `127.0.0.1`, pour éviter les appe
 ## Commandes
 
 ```bash
-shipglows-scraping up        # installe/démarre : token, conteneurs, attente de disponibilité
+shipglows-scraping up        # installe/démarre : Docker Desktop si arrêté, token, conteneurs, attente de disponibilité
 shipglows-scraping status    # Docker, conteneurs, santé des deux services (exit 1 si pas prêt)
 shipglows-scraping logs crawl4ai
 shipglows-scraping down      # arrête et supprime les conteneurs
@@ -33,6 +33,7 @@ Pas de mode furtif ni de contournement anti-bot : les sites protégés passent p
 ## Réglages
 
 - `SHIPGLOWS_SEARXNG_URL`, `SHIPGLOWS_CRAWL4AI_URL` : autre adresse ; `off` désactive le fournisseur local.
+- Stack injoignable : `shipglows-search`/`shipglows-fetch` la relancent en arrière-plan (Docker Desktop compris) et passent au fournisseur suivant pour la requête en cours. `SHIPGLOWS_SCRAPING_AUTOSTART=off` désactive ce redémarrage.
 - `SHIPGLOWS_FETCH_HTTP=off` : désactive la lecture HTTP simple (tout passe par le navigateur).
 - Un service arrêté ou une réponse vide passe au fournisseur suivant après une seule tentative. `--after-date` et `--location` sautent SearXNG.
 

@@ -33,6 +33,7 @@ from shipglows_http import (  # noqa: E402
     send_json,
 )
 from shipglows_parallel import normalize_domain, request_search  # noqa: E402
+from shipglows_scraping import autostart_in_background  # noqa: E402
 
 FIRECRAWL_SEARCH_URL = "https://api.firecrawl.dev/v2/search"
 DEEPSEEK_SEARCH_URL = "https://api.deepseek.com/v1/tools/search"
@@ -104,10 +105,16 @@ def search_searxng(args: argparse.Namespace, queries: list[str], opener=None) ->
             f"{base_url}/search?{urlencode({'q': firecrawl_query(query, args), 'format': 'json'})}",
             headers={"Accept": "application/json"},
         )
-        data = send_json(
-            request, provider="SearXNG", secret="", timeout=timeout, opener=opener, retry=False,
-            http_error=lambda code, _body: f"SearXNG HTTP {code}",
-        )
+        try:
+            data = send_json(
+                request, provider="SearXNG", secret="", timeout=timeout, opener=opener, retry=False,
+                http_error=lambda code, _body: f"SearXNG HTTP {code}",
+            )
+        except ProviderError as error:
+            # An unreachable local service is restarted for the next search; this one moves on.
+            if opener is None and "network request failed" in str(error):
+                raise ProviderError(f"{error} {autostart_in_background()}.") from None
+            raise
         items = data.get("results")
         if not isinstance(items, list):
             raise ProviderError("SearXNG response did not contain a results list.")

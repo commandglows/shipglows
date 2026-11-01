@@ -48,8 +48,10 @@ never a final answer. Report the provider that served the results only when it
 matters to the answer.
 
 A stopped local stack, an empty SearXNG answer, `--after-date` or `--location`
-move to Firecrawl after one attempt; `SHIPGLOWS_SEARXNG_URL` (default
-`http://127.0.0.1:8888`, `off` disables) points at the instance.
+move to DeepSeek after one attempt; `SHIPGLOWS_SEARXNG_URL` (default
+`http://127.0.0.1:8888`, `off` disables) points at the instance. An unreachable
+local stack is restarted in the background (Docker Desktop included) so the
+next request finds it; `SHIPGLOWS_SCRAPING_AUTOSTART=off` disables that.
 
 All providers share one transport (`tools/shipglows_http.py`): network errors
 and HTTP 502/503/504 get up to 3 attempts with backoff; in `auto` mode

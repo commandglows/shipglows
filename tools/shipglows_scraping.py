@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Install and run the local search/scraping stack (SearXNG + Crawl4AI).
 
-`up` is the one command a new computer needs: it checks Docker, creates the
-git-ignored Crawl4AI token once, starts the loopback containers and waits until
-both answer. The containers restart with Docker afterwards.
+`up` is the one command a new computer needs: it starts Docker Desktop when the
+daemon is stopped, creates the git-ignored Crawl4AI token once, starts the
+loopback containers and waits until both answer. The containers restart with
+Docker afterwards. shipglows-search and shipglows-fetch call
+`autostart_in_background()` when the stack is unreachable, so the next request
+finds it running.
 """
 
 from __future__ import annotations
@@ -16,6 +19,7 @@ import secrets
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from urllib.error import URLError
 from urllib.request import Request, urlopen
@@ -27,6 +31,11 @@ TOKEN_NAME = "CRAWL4AI_API_TOKEN"
 SEARXNG_URL = os.environ.get("SHIPGLOWS_SEARXNG_URL", "http://127.0.0.1:8888").rstrip("/")
 CRAWL4AI_URL = os.environ.get("SHIPGLOWS_CRAWL4AI_URL", "http://127.0.0.1:11235").rstrip("/")
 READY_TIMEOUT = 120.0
+DOCKER_START_TIMEOUT = 180
+AUTOSTART_ENV = "SHIPGLOWS_SCRAPING_AUTOSTART"
+AUTOSTART_STAMP = Path(tempfile.gettempdir()) / "shipglows-scraping-autostart.stamp"
+# One background start covers Docker Desktop boot plus container readiness.
+AUTOSTART_COOLDOWN = DOCKER_START_TIMEOUT + READY_TIMEOUT
 
 
 class StackError(RuntimeError):
@@ -65,6 +74,43 @@ def docker_ready() -> tuple[bool, str]:
     return True, probe.stdout.strip()
 
 
+def start_docker() -> tuple[bool, str]:
+    """Start Docker Desktop when installed but stopped, waiting until the daemon answers."""
+    ok, detail = docker_ready()
+    if ok or not shutil.which("docker"):
+        return ok, detail
+    print("shipglows-scraping: starting Docker Desktop...", file=sys.stderr)
+    subprocess.run(["docker", "desktop", "start", "--timeout", str(DOCKER_START_TIMEOUT)], capture_output=True,
+                   timeout=DOCKER_START_TIMEOUT + 30)
+    return docker_ready()
+
+
+def autostart_in_background() -> str:
+    """Run `up` in a detached process, at most once per cooldown; return a short note for the caller."""
+    if os.environ.get(AUTOSTART_ENV, "").strip().lower() == "off":
+        return f"{AUTOSTART_ENV} is off; run `shipglows-scraping up`"
+    if not shutil.which("docker"):
+        return "Docker is not installed; local stack not started"
+    try:
+        if time.time() - AUTOSTART_STAMP.stat().st_mtime < AUTOSTART_COOLDOWN:
+            return "local stack start already in progress"
+    except OSError:
+        pass
+    AUTOSTART_STAMP.touch()
+    command = [sys.executable, str(Path(__file__).resolve()), "up"]
+    options = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
+    if os.name == "nt":
+        flags = subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
+        try:
+            # Outlive the calling agent's job object when it allows breakaway.
+            subprocess.Popen(command, creationflags=flags | subprocess.CREATE_BREAKAWAY_FROM_JOB, **options)
+        except OSError:
+            subprocess.Popen(command, creationflags=flags, **options)
+    else:
+        subprocess.Popen(command, start_new_session=True, **options)
+    return "starting the local stack in the background (shipglows-scraping up)"
+
+
 def compose(*args: str, capture: bool = False) -> subprocess.CompletedProcess:
     return subprocess.run(["docker", "compose", "-f", str(COMPOSE_FILE), *args],
                           capture_output=capture, text=True, encoding="utf-8", errors="replace", timeout=1800)
@@ -97,7 +143,7 @@ def wait_ready(deadline: float) -> dict:
 
 
 def command_up(_args) -> int:
-    ok, detail = docker_ready()
+    ok, detail = start_docker()
     if not ok:
         raise StackError(detail)
     if ensure_token():
