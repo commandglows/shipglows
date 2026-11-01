@@ -192,7 +192,7 @@ Move content with `git mv` into `articles/<locale>/`, derive `topic` from the ol
 | `gocharbon/site` | ~2,400 posts in `src/data/`, 4 folder levels, frontmatter `slug` | flatten, folders become taxonomy, redirects for changed URLs |
 | `claiire/site` | `sante/`, `violence/` folders, Obsidian vault inside `src/content` | flatten, restore links as wikilinks |
 | `commandglows/site` | `blog/<locale>/`, legacy `src/content/config.ts` | rename to `articles`, move registry to `src/content.config.ts` |
-| `communityglows/site` | flat `blog/` | rename to `articles`, add locale folder and taxonomy |
+| `communityglows/site` | migrated 2026-11-01 (commit e38ccd53) | six pillars, bilingual `translationKey` pairs, wikilinks, 64 redirects in `redirects.json` and `vercel.json` |
 | `replayglows/site` | migrated 2026-11-01 (commit 501aa1fc) | reference for flat `blog/` sites: taxonomy with four pillars, wikilinks, `redirects.json` |
 | `dreamglows/site` | `guides/` | rename to `articles` |
 | `beatglows`, `bestfriedchicken`, `dianedefores`, `notefinderz` sites | no articles yet | adopt the model when the first article ships |
