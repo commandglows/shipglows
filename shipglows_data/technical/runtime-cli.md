@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.49.0"
+artifact_version: "1.49.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-31"
+updated: "2026-11-01"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -286,7 +286,7 @@ analytics must not be sent to public research providers.
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry with per-target sessions, process lifecycle, ports, and per-launch logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
-| `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
+| `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions; MCP package/endpoint identities and machine CLI npm packages for Firebase, Convex, Vercel and Clerk come from the shared catalog | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 The Windows launcher also owns the profile-independent shortcut paths that

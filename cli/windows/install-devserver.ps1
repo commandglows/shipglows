@@ -1720,13 +1720,13 @@ function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterP
 
 function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$NpmPath, [string]$NpxPath) {
     if (-not $AnyAgentReady -or -not $NpmPath -or -not $NpxPath) { return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
-    try { $version = Resolve-SgNpmVersion $NpmPath '@playwright/mcp' }
+    try { $playwrightPackage = [string](Get-SgMcpCatalogServer 'playwright' -RequiredField package).package; $version = Resolve-SgNpmVersion $NpmPath $playwrightPackage }
     catch { Write-SgInstallerWarning 'Playwright MCP exact version resolution failed; no agent config was changed.'; return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
     $managedRoot = Join-Path $env:LOCALAPPDATA "ShipGlows\node-tools\playwright-mcp-$version"
     $packageJson = Join-Path $managedRoot 'node_modules\@playwright\mcp\package.json'
     if (-not (Test-Path $packageJson -PathType Leaf)) {
         New-Item -ItemType Directory -Path $managedRoot -Force | Out-Null
-        $packageInstall = Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.mcp' -Label "Installing Playwright MCP $version" -File $NpmPath -Arguments @('install','--prefix',$managedRoot,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"@playwright/mcp@$version") -TimeoutSeconds 600
+        $packageInstall = Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.mcp' -Label "Installing Playwright MCP $version" -File $NpmPath -Arguments @('install','--prefix',$managedRoot,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"$playwrightPackage@$version") -TimeoutSeconds 600
         if ($packageInstall.TimedOut -or $packageInstall.ExitCode -ne 0) { Write-SgInstallerWarning 'Playwright MCP exact package installation failed.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
     }
     $playwrightCommand = Join-Path $managedRoot 'node_modules\.bin\playwright.cmd'
@@ -1825,6 +1825,18 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     $results=@{}
     foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$results[$agentName]=[pscustomobject]@{Installed=[bool]$AgentReady[$agentName];McpSummary=if($AgentReady[$agentName]){'pending'}else{'not applicable'};ReadyServers=@();PendingServers=@()}}
     if(-not $DartPath -or -not $NpxPath){Write-SgInstallerWarning 'Project MCP setup is pending because validated Dart or npx is unavailable.';return $results}
+    # Resolve every project before cleanup or writes so an invalid catalog cannot
+    # remove global entries or discard previously recorded project ownership.
+    $projectServers=@{}
+    try {
+        foreach($projectPath in @($ProjectPaths|Where-Object{$_}|Select-Object -Unique)){
+            $needs=Get-SgProjectServiceNeeds -Workspace $projectPath
+            $projectServers[$projectPath]=@(Get-SgProjectMcpDefinitions -Needs $needs -Versions $ServiceVersions -DartPath $DartPath -NpxPath $NpxPath -Playwright $Playwright)
+        }
+    } catch {
+        Write-SgInstallerWarning 'Project MCP definitions could not be resolved; setup remains pending and existing configurations and ownership state were preserved.'
+        return $results
+    }
     if($ReplaceExistingAgentConfigs){Remove-SgMaintainerGlobalMcpConfigs $AgentReady}
     $statePath=Join-Path $env:LOCALAPPDATA 'ShipGlows\agent-mcp-project-state.json'
     $state=Read-SgProjectMcpState $statePath
@@ -1832,8 +1844,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     $readyByAgent=@{};$pendingByAgent=@{}
     foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$readyByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase);$pendingByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)}
     foreach($projectPath in @($ProjectPaths|Where-Object{$_}|Select-Object -Unique)){
-        $needs=Get-SgProjectServiceNeeds -Workspace $projectPath
-        $servers=@(Get-SgProjectMcpDefinitions -Needs $needs -Versions $ServiceVersions -DartPath $DartPath -NpxPath $NpxPath -Playwright $Playwright)
+        $servers=@($projectServers[$projectPath])
         foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){
             if(-not [bool]$AgentReady[$agentName]){continue}
             $configPlan=Get-SgProjectAgentMcpConfigPlan -Agent $agentName -ProjectPath $projectPath -Servers $servers
@@ -1942,12 +1953,12 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
         Write-SgInstallerWarning 'Machine CLI toolbox pending: the trusted mise executable is unavailable.'
     } else {
         foreach ($definition in @(
-            @{ Need='Firebase'; Package='firebase-tools' },
-            @{ Need='Convex'; Package='convex' },
-            @{ Need='Vercel'; Package='vercel' },
-            @{ Need='Clerk'; Package='clerk' }
+            @{ Need='Firebase'; CatalogId='firebase' },
+            @{ Need='Convex'; CatalogId='convex' },
+            @{ Need='Vercel'; CatalogId='vercel' },
+            @{ Need='Clerk'; CatalogId='clerk' }
         )) {
-            try { $versions[$definition.Need] = Resolve-SgNpmVersion $NpmPath $definition.Package; $resolvedNeeds.($definition.Need) = $true }
+            try { $package = [string](Get-SgMcpCatalogServer $definition.CatalogId -RequiredField cliPackage).cliPackage; $versions[$definition.Need] = Resolve-SgNpmVersion $NpmPath $package; $resolvedNeeds.($definition.Need) = $true }
             catch { Write-SgInstallerWarning "$($definition.Need) exact-version resolution failed; its machine CLI remains pending." }
         }
         foreach ($definition in @(

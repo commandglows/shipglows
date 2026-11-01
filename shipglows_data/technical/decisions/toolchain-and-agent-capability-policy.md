@@ -1,7 +1,7 @@
 ---
 artifact: decision_record
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-11-01"
 updated: "2026-11-01"
@@ -78,7 +78,7 @@ Commands should make their effective runtime path, channel and version/source re
 
 - The Windows installer already uses native acquisition routes and a managed mise machine toolbox, and generates agent MCP configurations from project needs. These paths remain separate from the project environment engine.
 - The documented executable project environment pilot covers Windows mise with locked Node 24 and pnpm 10. Other capabilities and backends must retain their existing refusal boundaries until implemented and verified.
-- MCP definitions are currently curated in `ShipGlows.MobileToolchain.psm1`; there is no general official-registry integration in that path. Google Cloud CLI provisioning does not establish a managed Google Cloud MCP activation.
+- MCP package and endpoint identities are curated in `cli/windows/ShipGlows.McpCatalog.json`, read by `ShipGlows.MobileToolchain.psm1` and by the installer for the machine CLI npm packages (`cliPackage`). Argv, activation, authentication and read-only policy remain code-owned; the catalog never authorizes execution. There is no general official-registry integration in that path. Google Cloud CLI provisioning does not establish a managed Google Cloud MCP activation.
 - The shared inventory, broader backend coverage and consistent runtime provenance display are incremental implementation directions, not delivery claims or an authorized migration in this record.
 
 ## References

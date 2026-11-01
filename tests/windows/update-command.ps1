@@ -125,7 +125,7 @@ Assert-Sg ($installerText.Contains("`$pnpmUpdated = (Get-SgInstalledCommandVersi
 Assert-Sg ($installerText.Contains("PostInstall='install.cjs'")) 'Claude updates must recover the package-declared native postinstall when npm leaves its executable stub active.'
 Assert-Sg ($installerText.Contains("PostInstall='postinstall.mjs'")) 'OpenCode updates must recover the package-declared native postinstall when npm leaves its executable stub active.'
 Assert-Sg ($installerText.Contains('failed final executable verification')) 'Confirmed agent updates must stop rather than report success when the final executable is unusable.'
-Assert-Sg ($installerText.Contains("Resolve-SgNpmVersion `$NpmPath '@playwright/mcp'")) 'Playwright MCP resolution must share npm 12 singleton-array handling.'
+Assert-Sg ($installerText.Contains("Resolve-SgNpmVersion `$NpmPath `$playwrightPackage")) 'Playwright MCP resolution must share npm 12 singleton-array handling.'
 Assert-Sg ($installerText.Contains('developer-tool updates do not run SDK, licence, emulator, or IDE convergence')) 'Developer-tool updates must preserve recorded mobile state instead of mutating SDKs, licences, emulators, or IDEs.'
 Assert-Sg ($installerText.Contains("`$tauriState = [pscustomobject]@{ IsTauri=`$false; Status='preserved'")) 'Developer-tool updates must initialize a non-mutating Tauri handoff state under strict mode.'
 Assert-Sg ($installerText.Contains('Developer tool updates completed; normal ShipGlows convergence will now verify managed wrappers and CLIs.')) 'The installer must separate package preparation from normal final convergence.'

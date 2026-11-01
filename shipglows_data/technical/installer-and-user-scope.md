@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.33.0"
+artifact_version: "2.33.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-29"
+updated: "2026-11-01"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -102,6 +102,12 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 The native full installer inspects WSL without launching a distribution. WSL is optional: an interactive operator may approve the fixed elevated Ubuntu installation, while refusal or non-interactive execution leaves ShipGlows native Windows available. Restart and Ubuntu username/password initialization remain user-owned.
 
 Turso Cloud is a separate consumer offered only after an initialized non-root Ubuntu user is observed. The bundled installer selects the official v1.0.32 Linux x86_64/arm64 archive, verifies its pinned SHA-256 and binary version, then atomically updates `~/.local/bin/turso`. It never starts authentication, creates a database or token, opens a shell, or performs a migration.
+
+## Shared MCP And CLI Identity Catalog
+
+`cli/windows/ShipGlows.McpCatalog.json` supplies the MCP package/endpoint identities and the Firebase, Convex, Vercel and Clerk npm CLI package identities to the Windows toolchain and installer. Fixed argument construction, project selection, authentication and read-only policy remain in code. Consumers require their identity field and reject missing, malformed or duplicated entries and unsupported policy flags.
+
+Project MCP definitions are resolved before global cleanup or project writes. Resolution failure leaves setup pending and preserves existing configuration and ownership state. The catalog ships beside the module in both `cli/windows` and `bin`; both copies belong to the update transaction. This extraction does not change the Python environment pilot or synchronize an official registry.
 
 ## Owned Files
 
