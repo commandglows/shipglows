@@ -66,6 +66,7 @@ A second Flutter app is allowed only for a distinct product with its own feature
 ## Inner Layouts
 
 - Astro: `astro-site-playbook.md`.
+- Editorial content of a site (articles, taxonomy, URLs, links, graph): `content-tree-model.md`.
 - Flutter: `flutter-engineering-playbook.md`.
 - Browser extensions and Obsidian plugins: `preferred-stacks.md`.
 

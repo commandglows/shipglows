@@ -104,7 +104,8 @@ site/
   tsconfig.json              # extends astro/tsconfigs/strict
   src/
     content.config.ts        # the ONLY collection registry (Astro 5+ location)
-    content/<collection>/    # Markdown/MDX entries; one folder per collection
+    content/articles/<locale>/<slug>.md  # editorial content; layout fixed by content-tree-model.md
+    content/<collection>/    # other structured collections (docs, catalogues)
     pages/                   # routes; locale folders mirror routing policy
     layouts/                 # one BaseLayout owns head, metadata, skip link, CSP-compatible scripts
     components/              # presentational .astro components; islands only where justified
@@ -141,13 +142,15 @@ Rules:
 
 Astro 7 uses the Content Layer. Collections load through loaders and validate through Zod.
 
+Editorial articles follow `skills/references/content-tree-model.md`: the `articles` collection, `taxonomy.yaml`, required and forbidden fields, URLs, wikilinks and the content graph. That reference wins over the generic rules below where they differ.
+
 - Define every collection in `src/content.config.ts` with `defineCollection({ loader, schema })`. Export one `collections` object.
 - Loaders: `glob({ pattern, base })` for folders of Markdown or MDX; `file()` for one JSON or YAML list. Use the narrowest pattern that excludes drafts folders you do not want loaded, and prefer schema-level `draft` filtering for files that must stay in the repo.
 - Import Zod from `astro/zod` (Zod 4). Do not install a separate Zod for content schemas.
 - Use `reference()` for cross-collection links (for example, a skill page pointing at related skills) instead of free-text slugs. Free-text slugs are allowed only when the target is external to the collection set.
 - Use one canonical date field per collection, for example `publishDate` for articles and `lastUpdated` as optional. Reject alias fields (`pubDate`, `date`, `publishDate` at once) in the schema. The observed `contentglows` schema accepts several aliases and maps them through a transform; that is a drift risk and not the ShipGlows pattern for new collections.
 - Required fields are the minimum truthful set: title, description or summary, date, locale (where multilingual), stable identity (`translationKey` or equivalent), and status (`draft` boolean). Optional fields need a documented consumer.
-- Stable identity: every multilingual pair shares one `translationKey` (observed `contentglows` naming). The observed `shipglows_app` articles use `articleKey` and `alternateSlug`. Both express identity; new collections use `translationKey`. Migrate an existing project only when the operator approves it.
+- Stable identity: every multilingual pair shares one `translationKey` (observed `contentglows` naming). The observed `shipglows_app` articles use `articleKey` and `alternateSlug`. Both express identity; new collections use `translationKey`. The 2026-11-01 content-tree decision approves migrating `articleKey` to `translationKey` as part of each site's content migration.
 - Drafts: a `draft: true` entry must be filtered explicitly in every listing, sitemap, feed, tag page, related-content query and RSS output. The schema flag alone hides nothing.
 - Sorting: `getCollection()` order is not guaranteed. Sort in code by the canonical date with an explicit tiebreaker (slug).
 - Rendering: use `render(entry)` for Markdown/MDX bodies. Static routes use `getStaticPaths()` for dynamic segments. Do not call `getEntry()` in a loop from a listing page; query once and filter.

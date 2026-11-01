@@ -58,6 +58,7 @@ Resolve `$SHIPGLOWS_ROOT`; confirm the exact target tool exists and remains bene
 - Governance placement, migration, workflow families, or destinations -> `canonical-project-governance-placement.md`.
 - Monorepo topology -> `monorepo-governance-topology.md`.
 - Source folders, manifest locations and tool discovery -> `project-tree-model.md`.
+- Site editorial content (articles, taxonomy, URLs, wikilinks, content graph) -> `content-tree-model.md`.
 - Ranked discovery -> `resource-discovery.md` before `tools/resource_resolver.py`; recommendations never replace owner, safety, freshness, or project truth.
 
 Load only the required branch. These routes are siblings and never require one another.
