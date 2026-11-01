@@ -144,6 +144,7 @@ shipglows-devserver.ps1
      -> Reconcile-SgRegistry (live-state authority; probes run in an unlocked dry pass, the locked pass reuses them)
      -> Invoke-SgRegistryMutation (registry.lock held only to read/merge/write; holder recorded in registry.lock.owner.json)
      -> Get-SgRuntimeProcessReport / Get-SgRegistryLockState (s doctor, s unlock: classify managed pwsh processes, stop orphans after confirmation)
+     -> Get-SgExcludedPortRanges / Get-SgPortExclusion / Get-SgPortExclusionReport (Windows-excluded TCP ranges: Test-SgPortAllocatable rejects them, Reserve-SgProjectPort reassigns, s doctor lists them)
      -> registry/process lifecycle functions
 ```
 

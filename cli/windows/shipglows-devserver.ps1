@@ -815,8 +815,17 @@ function Format-SgRuntimeProcessRow([object]$Row) {
 # s doctor lists every managed PowerShell process and offers to stop only the orphans.
 function Invoke-SgDoctor {
     $report = Get-SgRuntimeProcessReport $config
-    if ($Json) { $report | ConvertTo-Json -Depth 4; return }
+    $portReport = Get-SgPortExclusionReport $config
+    if ($Json) { $report | Add-Member -NotePropertyName Ports -NotePropertyValue $portReport -PassThru | ConvertTo-Json -Depth 5; return }
     Write-SgRegistryLockState $report.Lock
+    Write-Host ''
+    Write-Host 'Windows-excluded TCP port ranges' -ForegroundColor Cyan
+    if (-not $portReport.Ranges.Count) { Write-Host '  none' }
+    else { Write-Host ('  ' + (($portReport.Ranges | ForEach-Object { "$($_.Start)-$($_.End)" }) -join ', ')) -ForegroundColor Gray }
+    if ($portReport.Affected.Count) {
+        Write-SgWarn "$($portReport.Affected.Count) registered port(s) fall inside a Windows-excluded range and cannot be bound; the next s start reassigns a free port automatically."
+        foreach ($item in $portReport.Affected) { Write-Host ('  {0,-6} {1,-40} {2} (range {3})' -f $item.Port, $item.Name, $item.Status, $item.Range) -ForegroundColor Yellow }
+    } else { Write-SgInfo 'No registered port is inside a Windows-excluded range.' }
     Write-Host ''
     Write-Host 'Managed PowerShell processes' -ForegroundColor Cyan
     if (-not $report.Processes.Count) { Write-Host '  none' }

@@ -1400,6 +1400,49 @@ function Get-SgApiFlutterPort([object]$Config, [int]$ProxyPort) {
     throw 'No free localhost port is available for the Flutter web server behind the API proxy.'
 }
 
+# Windows (Hyper-V, WSL, Docker, WinNAT) reserves TCP port ranges that no process can bind, even though
+# nothing listens there. The ranges change across reboots, so they are read live and cached for a few seconds.
+$script:SgExcludedPortCache = $null
+$script:SgExcludedPortCacheTicks = 0
+function Get-SgExcludedPortRanges([switch]$Refresh) {
+    $now = [Environment]::TickCount64
+    if (-not $Refresh -and $null -ne $script:SgExcludedPortCache -and ($now - $script:SgExcludedPortCacheTicks) -lt 5000) { return @($script:SgExcludedPortCache) }
+    $ranges = New-Object 'System.Collections.Generic.List[object]'
+    try {
+        # Locale-independent: only the lines made of two integers are range rows.
+        foreach ($line in @(& netsh.exe int ipv4 show excludedportrange protocol=tcp 2>$null)) {
+            if ([string]$line -match '^\s*(\d+)\s+(\d+)\s*\*?\s*$') {
+                $ranges.Add([pscustomobject]@{ Start = [int]$Matches[1]; End = [int]$Matches[2] })
+            }
+        }
+    } catch { $ranges.Clear() }
+    $script:SgExcludedPortCache = $ranges.ToArray()
+    $script:SgExcludedPortCacheTicks = $now
+    return @($script:SgExcludedPortCache)
+}
+
+# The Windows-excluded range containing the port, or $null.
+function Get-SgPortExclusion([int]$Port) {
+    foreach ($range in @(Get-SgExcludedPortRanges)) { if ($Port -ge $range.Start -and $Port -le $range.End) { return $range } }
+    return $null
+}
+
+# Registered ports (surface and sessions) that Windows currently refuses to bind.
+function Get-SgPortExclusionReport([object]$Config) {
+    $ranges = @(Get-SgExcludedPortRanges -Refresh)
+    $affected = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($project in @((Read-SgRegistry $Config).projects)) {
+        $ports = @()
+        if ($project.PSObject.Properties['port'] -and [int]$project.port -gt 0) { $ports += [int]$project.port }
+        foreach ($session in @(Get-SgEntrySessions $project)) { if ([int]$session.port -gt 0) { $ports += [int]$session.port } }
+        foreach ($port in @($ports | Sort-Object -Unique)) {
+            $range = Get-SgPortExclusion $port
+            if ($range) { $affected.Add([pscustomobject]@{ Name = [string]$project.name; Path = [string]$project.path; Port = $port; Range = "$($range.Start)-$($range.End)"; Status = [string]$project.status }) }
+        }
+    }
+    return [pscustomobject]@{ Ranges = $ranges; Affected = $affected.ToArray(); PortStart = $Config.PortStart; PortEnd = $Config.PortEnd }
+}
+
 # True when nothing accepts connections on the port. Get-NetTCPConnection can miss live
 # listeners (seen with a Flutter web server on 127.0.0.1), so a short loopback connect
 # confirms; the timeout avoids the Windows retry delay on a refused localhost connect.
@@ -1422,6 +1465,7 @@ function Test-SgPortAvailable([int]$Port) {
 # port (for example an outbound connection given it as an ephemeral port) accepts no
 # connection but still makes the dev server's listen fail. Bind only: no listen, no firewall prompt.
 function Test-SgPortAllocatable([int]$Port) {
+    if (Get-SgPortExclusion $Port) { return $false }
     if (-not (Test-SgPortAvailable $Port)) { return $false }
     $socket = New-Object Net.Sockets.Socket ([Net.Sockets.AddressFamily]::InterNetwork), ([Net.Sockets.SocketType]::Stream), ([Net.Sockets.ProtocolType]::Tcp)
     try {
@@ -1472,6 +1516,15 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
             } else {
                 @($Config.PortStart..$Config.PortEnd)
             }
+            # A port inside a Windows-excluded range can never be bound: move to a free port instead of failing.
+            if ($RequestedPort -gt 0) {
+                $excludedRange = Get-SgPortExclusion $RequestedPort
+                if ($excludedRange) {
+                    Write-SgWarn "Port $RequestedPort is reserved by Windows (excluded range $($excludedRange.Start)-$($excludedRange.End)); assigning a free port outside the excluded ranges."
+                    $Explicit = $false
+                    $candidates = @($Config.PortStart..$Config.PortEnd)
+                }
+            }
             foreach ($candidate in $candidates) {
                 if ($siblingPorts -contains $candidate) {
                     if ($Explicit) {
@@ -1481,7 +1534,12 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
                     continue
                 }
                 if ($otherPorts -contains $candidate -or -not (Test-SgPortAllocatable $candidate)) {
-                    if ($Explicit) { throw "Configured port $candidate is already occupied or reserved." }
+                    if ($Explicit) {
+                        $reason = if ($otherPorts -contains $candidate) { 'reserved by another registered surface' }
+                            elseif (-not (Test-SgPortAvailable $candidate)) { 'in use by a listening process' }
+                            else { 'not bindable on 127.0.0.1' }
+                        throw "Configured port $candidate is unavailable: $reason."
+                    }
                     continue
                 }
                 $selected = $candidate
@@ -4642,6 +4700,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if ($kind -eq 'obsidian-plugin') { Write-SgInfo 'Obsidian plugin watch has no HTTP port.' }
     elseif ($flutterNative) { Write-SgInfo "Flutter $($settings.FlutterDevice) target needs no HTTP port reservation." }
     elseif ($sharedPort -gt 0) { Write-SgInfo "Sharing frontend port: $port" }
+    elseif ($explicitPort -and $port -ne $configuredPort) { Write-SgInfo "Assigned port: $port (configured port $configuredPort is unavailable on Windows)" }
     elseif ($explicitPort) { Write-SgInfo "Using configured port: $port" }
     elseif ($previousPort -gt 0 -and $previousPort -eq $port) { Write-SgInfo "Reusing persistent port: $port" }
     else { Write-SgInfo "Assigned port: $port" }
@@ -5193,5 +5252,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Unregister-SgMissingProjects,Get-SgMissingProjects,Test-SgProjectSurfaceMissing,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Get-SgPortExclusionReport,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Unregister-SgMissingProjects,Get-SgMissingProjects,Test-SgProjectSurfaceMissing,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

@@ -698,6 +698,17 @@ confirmation. A process still recorded by an ended session is `stale`: doctor
 names the `s stop -ProjectPath` command instead of killing it. `s unlock` names the lock holder and stops it only after
 confirmation. Both list without stopping anything in a non-interactive console.
 
+Windows reserves TCP port ranges (Hyper-V, WSL, Docker, WinNAT; see
+`netsh int ipv4 show excludedportrange protocol=tcp`) that change across
+reboots and cannot be bound even when nothing listens. `Get-SgExcludedPortRanges`
+reads them live (5 s cache); `Test-SgPortAllocatable` rejects any port inside a
+range, and `Reserve-SgProjectPort` reassigns a free port outside the ranges, with
+a warning, when a configured or persisted port falls inside one instead of failing.
+The new port rewrites the surface `ENVIRONMENT.md` through the usual primary-port
+write. A port that is truly in use, held by another surface, or otherwise not
+bindable still fails with an explicit reason. `s doctor [-Json]` also lists the
+excluded ranges and the registered ports inside them.
+
 Windows exposes a separate global developer-tool surface through
 `shipglows tools status|update` and `s tools status|update`. Status is read-only:
 it shows the declared ShipGlows-owned scope, asks WinGet for its available
