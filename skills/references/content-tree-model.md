@@ -167,9 +167,12 @@ A project may add fields for its own domain (for example gocharbon's tool rating
   "locales": ["fr", "en"],
   "defaultLocale": "fr",
   "prefixDefaultLocale": false,
+  "trailingSlash": "never",
   "sourceLocale": "fr"
 }
 ```
+
+`trailingSlash` (`never` by default, or `always`) must equal the Astro `trailingSlash` setting of the site: the model appends the slash to every article, hub and wikilink URL it emits, so internal links never depend on a redirect.
 
 A site without this file does not follow the model. Tools report it as non-conforming instead of guessing.
 
