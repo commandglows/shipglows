@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-11-01"
 updated: "2026-11-01"
@@ -35,8 +35,9 @@ evidence:
   - "Google breadcrumb structured data (updated 2026-09-08): breadcrumbs should represent a typical user path rather than mirror the URL."
   - "John Mueller (Google), reported by SEJ 2026-06-15 and patrickstox.com 2026-06-25: URL structure is a weak ranking factor, artificially flat URLs bring no benefit, URL stability is the real risk; internal linking is one of the biggest levers."
   - "Astro docs (content collections, content loader API): glob loader with generateId, reference() between collections, retainBody false for large collections; the Content Layer targets tens of thousands of entries."
+  - "Astro 7.3.5 local check 2026-11-01: the default Sätteri Markdown processor parses [[wikilinks]] with features.wikilinks and accepts mdast plugins; contentglows/site migrated and served on the managed dev server (routes, 301s, hreflang, wikilinks, graph)."
 next_review: "2027-02-01"
-next_step: "Implement the shared content module in @shipglows/astro-engine, then migrate sites in the order of the Migration table."
+next_step: "Extract contentglows/site/src/lib/content-model into @shipglows/astro-engine/content, then migrate the next site of the Migration table."
 ---
 
 # Content Tree Model
@@ -64,7 +65,7 @@ site/
         <locale>/
           <slug>.md                # one article; the file name is its slug
       taxonomy.yaml                # the subject tree (pillars and sub-nodes)
-      redirects.yaml               # every moved URL, kept forever
+      redirects.json               # every moved URL, kept forever
     assets/
       articles/<translationKey>/   # images of one article, shared by its locales
 ```
@@ -73,7 +74,8 @@ Rules:
 
 - `articles/<locale>/` holds files directly. No subfolder below the locale folder.
 - The file name is the slug: lowercase, hyphen-separated, ASCII, no date. It is unique within its locale, across articles and taxonomy node slugs.
-- A file whose name starts with `_` is not loaded. Use it for templates only; drafts use `draft: true`.
+- A file whose name starts with `_` is not loaded. Use it for templates or archived notes only; drafts use `draft: true`.
+- A `hubFor` article is the one exception to slug uniqueness: its file name must equal the slug of its taxonomy node, and it renders at the hub URL, never as an article.
 - The collection is named `articles` on every site, whatever the site calls it publicly ("guides", "encyclopédie", "ressources").
 - Other structured collections (product documentation, skill catalogue, quiz paths) may exist in `src/content/<collection>/`. They are not editorial articles and never replace `articles/`. Legal and static pages stay in `src/pages/`.
 
@@ -96,7 +98,7 @@ Rules:
 - A node without `parent` is a pillar. Depth is at most 4 levels, pillar included.
 - Every node has a label for every site locale. A node is a real hub page: it needs a title and a useful description.
 - No catch-all node (`autres`, `divers`, `misc`, `other`). An article that fits no node reveals a missing node or an off-topic article.
-- Moving a branch edits one `parent`. Moving a branch to another pillar changes URLs and requires `redirects.yaml` entries (see URLs).
+- Moving a branch edits one `parent`. Moving a branch to another pillar changes URLs and requires `redirects.json` entries (see URLs).
 
 ## Article Frontmatter
 
@@ -129,7 +131,7 @@ A project may add fields for its own domain (for example gocharbon's tool rating
 - Article: `[/<locale>]/<pillar-slug>/<slug>`. The locale prefix follows the site's i18n policy declared in the manifest.
 - Hub page of any taxonomy node: `[/<locale>]/<pillar-slug>` for a pillar, `[/<locale>]/<pillar-slug>/<node-slug>` below it.
 - Exactly one directory level: the pillar. Sub-levels appear in breadcrumbs and hubs, never in article URLs. Reclassifying an article inside its pillar never changes its URL.
-- Changing an article's pillar, renaming its file or moving a branch across pillars appends `{ from, to, date }` to `redirects.yaml`. The site turns that file into permanent redirects. Entries are never deleted.
+- Changing an article's pillar, renaming its file or moving a branch across pillars appends `{ "from", "to", "date" }` to `redirects.json`. JSON keeps it readable by `astro.config.mjs` and every tool without a parser dependency. The site turns that file into permanent redirects. Entries are never deleted.
 - Tag pages, if any, are `noindex` unless they carry real editorial content.
 
 ## Breadcrumbs And Hubs
@@ -139,9 +141,10 @@ A project may add fields for its own domain (for example gocharbon's tool rating
 
 ## Links And Graph
 
-- Internal links between articles use wikilinks: `[[slug]]`, `[[slug|text]]`, `[[slug#heading]]`. They resolve within the same locale, to an article or a taxonomy node. They survive every reclassification because they never contain a path.
+- Internal links between articles use wikilinks: `[[slug]]`, `[[slug|text]]`, `[[slug#heading]]`. They resolve within the same locale, to an article or a taxonomy node. They survive every reclassification because they never contain a path. `[[slug]]` without text displays the target title.
+- Astro 7: enable `features.wikilinks` on the Sätteri processor (`@astrojs/markdown-satteri`) and resolve slugs with an mdast plugin; `[[...]]` inside code is never a link.
 - Obsidian setting for a content vault: wikilinks on, new link format "shortest path when possible".
-- A wikilink to a missing slug is an error, not a silent plain text.
+- A wikilink to a missing slug is an error on a published page, not a silent plain text. In a draft it is a warning.
 - The site serves `/content-graph.json`, prerendered, without drafts:
 
 ```json
@@ -172,7 +175,7 @@ A site without this file does not follow the model. Tools report it as non-confo
 
 ## Shared Implementation
 
-The collection schema, the `taxonomy.yaml` loader, the wikilink resolver, breadcrumbs, `redirects.yaml` loading and the graph endpoint live once in `@shipglows/astro-engine` (`/content`). Sites import them; they keep their own HTML and styling. Until the module ships, a site implements the same contract locally.
+The collection schema, the `taxonomy.yaml` loader, the wikilink resolver, breadcrumbs, `redirects.json` loading and the graph endpoint will live once in `@shipglows/astro-engine` (`/content`). Sites import them; they keep their own HTML and styling. The reference implementation is `contentglows/site/src/lib/content-model/` (`model.mjs` for Node and `astro.config.mjs`, `site.ts` for pages); copy it until the engine module ships.
 
 ## Proof
 
@@ -180,11 +183,11 @@ Content changes follow the Content Proof section of `astro-site-playbook.md`: sc
 
 ## Migration
 
-Move content with `git mv` into `articles/<locale>/`, derive `topic` from the old folder or category, remove forbidden fields, write `taxonomy.yaml`, and add a `redirects.yaml` entry for every URL that changes. Commit one site at a time.
+Move content with `git mv` into `articles/<locale>/`, derive `topic` from the old folder or category, remove forbidden fields, write `taxonomy.yaml`, convert internal links to wikilinks, and add a `redirects.json` entry for every published URL that changes. Commit one site at a time.
 
 | Site | Observed 2026-11-01 | Main work |
 | --- | --- | --- |
-| `contentglows/site` | 7 thematic collections, locale in frontmatter | merge into `articles`, collections become pillars |
+| `contentglows/site` | migrated 2026-11-01 (commit 1e6a1146) | reference implementation; rewrite `tests/blog-content.test.mjs` |
 | `shipglows_app/site` | `articles/<locale>/`, `articleKey` | rename identity to `translationKey`, add taxonomy |
 | `gocharbon/site` | ~2,400 posts in `src/data/`, 4 folder levels, frontmatter `slug` | flatten, folders become taxonomy, redirects for changed URLs |
 | `claiire/site` | `sante/`, `violence/` folders, Obsidian vault inside `src/content` | flatten, restore links as wikilinks |
