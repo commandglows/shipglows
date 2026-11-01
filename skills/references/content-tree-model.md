@@ -194,6 +194,6 @@ Move content with `git mv` into `articles/<locale>/`, derive `topic` from the ol
 | `commandglows/site` | `blog/<locale>/`, legacy `src/content/config.ts` | rename to `articles`, move registry to `src/content.config.ts` |
 | `communityglows/site` | migrated 2026-11-01 (commit e38ccd53) | six pillars, bilingual `translationKey` pairs, wikilinks, 64 redirects in `redirects.json` and `vercel.json` |
 | `replayglows/site` | migrated 2026-11-01 (commit 501aa1fc) | reference for flat `blog/` sites: taxonomy with four pillars, wikilinks, `redirects.json` |
-| `dreamglows/site` | `guides/` | rename to `articles` |
+| `dreamglows/site` | migrated 2026-11-01 (commit b8a77d1) | four pillars, flat `articles/fr/`, 11 wikilinked articles, 11 redirects from `/guides/` |
 | `beatglows`, `bestfriedchicken`, `dianedefores`, `notefinderz` sites | no articles yet | adopt the model when the first article ships |
 | `jarretelacoke` | site at repository root, not in `site/` | apply `project-tree-model.md` first |
