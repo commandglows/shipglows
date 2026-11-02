@@ -134,7 +134,7 @@ function Get-SgInstallerDiagnosticExcerpt {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-foreach ($launcherModule in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ApiProxy.cjs','ShipGlows.Backend.ps1','ShipGlows.BackendSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
+foreach ($launcherModule in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ApiProxy.cjs','ShipGlows.Backend.ps1','ShipGlows.BackendSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ToolCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -497,11 +497,13 @@ function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName
 
     $nodeRustActivation = if ($Name -in @('npm','npx','corepack','pnpm')) { @'
 @if exist "%~dp0cargo.cmd" if exist "%USERPROFILE%\.cargo\bin\cargo.exe" (
-  @set "RUSTUP_TOOLCHAIN=1.97.1"
+  @set "RUSTUP_TOOLCHAIN=__SHIPGLOWS_RUST_VERSION__"
   @set "CARGO=%USERPROFILE%\.cargo\bin\cargo.exe"
   @set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
 )
 '@ } else { '' }
+    # The shim's Rust coordinate comes from the shared tool catalog, not a second literal.
+    $nodeRustActivation = $nodeRustActivation.Replace('__SHIPGLOWS_RUST_VERSION__', [string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version)
     $wrapper = @"
 @echo off
 @setlocal DisableDelayedExpansion
@@ -858,7 +860,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
 }
 
 function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$EnvironmentDirectory) {
-    $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','versions.py','windows_tauri_backend.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
+    $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','tool_catalog.py','versions.py','windows_tauri_backend.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
     # Windows PowerShell 5.1 removes embedded double quotes while rebuilding a
     # native argv. Python accepts single-quoted literals, which survive that
     # boundary and keep the -c program intact.
@@ -1546,7 +1548,8 @@ function Install-SgOfficialMise {
     if ($mise) { return $mise }
     $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $winget) { Write-SgInstallerWarning 'ShipGlows toolbox pending: WinGet is unavailable, so the official mise package cannot be acquired.'; return '' }
-    $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise' -Label 'Installing the official mise tool manager' -File $winget.Source -Arguments @('install','--id','jdx.mise','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
+    $miseWingetId = [string](Get-SgToolCatalogEntry 'mise' -RequiredField wingetPackageId).wingetPackageId
+    $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise' -Label 'Installing the official mise tool manager' -File $winget.Source -Arguments @('install','--id',$miseWingetId,'--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
     Update-SgProcessPath
     $mise = Resolve-SgTrustedMisePath
     if (-not $mise) {
@@ -2096,7 +2099,7 @@ if ($UpdateDeveloperTools) {
         [pscustomobject]@{Key='git';Name='Git';Command='git.exe';PackageId='Git.Git';Paths=$gitPaths},
         [pscustomobject]@{Key='github';Name='GitHub CLI';Command='gh.exe';PackageId='GitHub.cli';Paths=$ghPaths},
         [pscustomobject]@{Key='node';Name='Node.js LTS';Command='node.exe';PackageId='OpenJS.NodeJS.LTS';Paths=$nodePaths},
-        [pscustomobject]@{Key='mise';Name='mise';Command='mise.exe';PackageId='jdx.mise';Paths=@($misePath)},
+        [pscustomobject]@{Key='mise';Name='mise';Command='mise.exe';PackageId=[string](Get-SgToolCatalogEntry 'mise' -RequiredField wingetPackageId).wingetPackageId;Paths=@($misePath)},
         [pscustomobject]@{Key='gcloud';Name='Google Cloud CLI';Command='gcloud.cmd';PackageId='Google.CloudSDK';Paths=$gcloudPaths},
         [pscustomobject]@{Key='doppler';Name='Doppler CLI';Command='doppler.exe';PackageId='Doppler.Doppler';Paths=$dopplerPaths},
         [pscustomobject]@{Key='uv';Name='uv';Command='uv.exe';PackageId='astral-sh.uv';Paths=$uvPaths}

@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.33.1"
+artifact_version: "2.33.2"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-11-01"
+updated: "2026-11-02"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -105,9 +105,11 @@ Turso Cloud is a separate consumer offered only after an initialized non-root Ub
 
 ## Shared MCP And CLI Identity Catalog
 
-`cli/windows/ShipGlows.McpCatalog.json` supplies the MCP package/endpoint identities and the Firebase, Convex, Vercel and Clerk npm CLI package identities to the Windows toolchain and installer. Fixed argument construction, project selection, authentication and read-only policy remain in code. Consumers require their identity field and reject missing, malformed or duplicated entries and unsupported policy flags.
+`cli/windows/ShipGlows.McpCatalog.json` supplies the MCP package/endpoint identities and the Firebase, Convex, Vercel and Clerk npm CLI package identities to the Windows toolchain and installer. Fixed argument construction, project selection, authentication and read-only policy remain in code. Consumers require their identity field and reject missing, malformed or duplicated entries and unsupported policy flags. `cli/windows/ShipGlows.ToolCatalog.json` is the separate non-MCP tool catalog: it supplies the `jdx.mise` WinGet id and provenance and the Rust 1.97.1 and Tauri CLI 2.11.4 baselines to `cli/environment/tool_catalog.py` (read by the mise and Tauri backends) and to `Get-SgToolCatalogEntry`. It is data only. The bootstrap archive check, the managed payload manifests and the launcher copy lists include both catalogs and `tool_catalog.py`.
 
 Project MCP definitions are resolved before global cleanup or project writes. Resolution failure leaves setup pending and preserves existing configuration and ownership state. The catalog ships beside the module in both `cli/windows` and `bin`; both copies belong to the update transaction. This extraction does not change the Python environment pilot or synchronize an official registry.
+
+The current `shipglows update` command invokes full installer convergence; its `update runtime` alias uses the same path. This can compile native launchers and acquire missing developer tools. It is not a payload-only synchronization command, so review explicit no-build or no-install constraints before invoking it.
 
 ## Owned Files
 

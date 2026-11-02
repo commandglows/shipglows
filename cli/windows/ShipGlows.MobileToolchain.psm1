@@ -21,9 +21,9 @@ function Get-SgTauriAndroidBaseline {
     [pscustomobject]@{
         Schema = 'shipglows.tauri-android-baseline/v1'
         ValidatedAt = '2026-08-17'
-        RustToolchainVersion = '1.97.1'
+        RustToolchainVersion = [string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version
         RustTargets = @('aarch64-linux-android','armv7-linux-androideabi','i686-linux-android','x86_64-linux-android')
-        TauriCliVersion = '2.11.4'
+        TauriCliVersion = [string](Get-SgToolCatalogEntry 'tauri-cli' -RequiredField version).version
         TauriApiVersion = '2.11.1'
         TauriRustVersion = '2.11.5'
         TauriBuildVersion = '2.6.3'
@@ -536,6 +536,39 @@ function Get-SgMcpCatalogServer {
     return $server
 }
 
+function Get-SgToolCatalogEntry {
+    param(
+        [Parameter(Mandatory=$true)][string]$Id,
+        [Parameter(Mandatory=$true)][ValidateSet('owner','version','wingetPackageId','provenance')][string]$RequiredField
+    )
+    # ShipGlows.ToolCatalog.json ships beside this module in the source checkout and the
+    # installed runtime. It is data only: versions and identities for the Rust, Tauri CLI
+    # and mise baselines. Argv, mise coordinates and backend activation stay in code.
+    $path = Join-Path $PSScriptRoot 'ShipGlows.ToolCatalog.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "ShipGlows tool catalog is missing: $path" }
+    try { $catalog = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "ShipGlows tool catalog is malformed: $path" }
+    $policyNames = @($catalog.policy.PSObject.Properties.Name | Sort-Object)
+    if ($catalog.schema -cne 'shipglows.tool-catalog/v1' -or -not $catalog.tools -or -not $catalog.policy -or ($policyNames -join ',') -cne 'activatesBackend,argvAuthority,executionAuthority') { throw 'ShipGlows tool catalog schema or policy is unsupported.' }
+    foreach ($flag in @('executionAuthority','activatesBackend','argvAuthority')) {
+        if ($catalog.policy.$flag -isnot [bool] -or $catalog.policy.$flag) { throw 'ShipGlows tool catalog must disable execution, activation and argv authority.' }
+    }
+    $candidates = @($catalog.tools | Where-Object { [string]$_.id -ceq $Id })
+    if ($candidates.Count -ne 1) { throw "ShipGlows tool catalog entry is missing or duplicated: $Id" }
+    $tool = $candidates[0]
+    $allowedFields = @('id','kind','owner','version','wingetPackageId','provenance')
+    if (@($tool.PSObject.Properties.Name | Where-Object { $_ -cnotin $allowedFields }).Count -gt 0 -or $tool.kind -cnotin @('manager','toolchain','cli') -or $tool.owner -isnot [string] -or [string]::IsNullOrWhiteSpace($tool.owner)) { throw "ShipGlows tool catalog entry $Id has an unsupported shape." }
+    $required = $tool.PSObject.Properties[$RequiredField]
+    if (-not $required -or $required.Value -isnot [string] -or [string]::IsNullOrWhiteSpace($required.Value)) { throw "ShipGlows tool catalog entry $Id requires $RequiredField." }
+    if ($RequiredField -eq 'version' -and [string]$required.Value -notmatch '^\d{1,4}\.\d{1,4}\.\d{1,4}$') { throw "ShipGlows tool catalog entry $Id has an inexact version." }
+    if ($RequiredField -eq 'wingetPackageId' -and [string]$required.Value -notmatch '^[A-Za-z0-9][A-Za-z0-9-]{0,63}(\.[A-Za-z0-9][A-Za-z0-9-]{0,63}){1,7}$') { throw "ShipGlows tool catalog entry $Id has an invalid WinGet package id." }
+    if ($RequiredField -eq 'provenance') {
+        $uri = $null
+        if ([string]$required.Value -match '[\s\\]' -or -not [Uri]::TryCreate([string]$required.Value,[UriKind]::Absolute,[ref]$uri) -or $uri.Scheme -cne 'https' -or -not $uri.Host -or $uri.UserInfo) { throw "ShipGlows tool catalog entry $Id has an invalid provenance URL." }
+    }
+    return $tool
+}
+
 function Get-SgServiceCliPlan {
     param($Needs, [hashtable]$Versions)
     $plan = New-Object Collections.Generic.List[object]
@@ -851,7 +884,7 @@ function Get-SgTauriRustWrapperContent {
         [Parameter(Mandatory=$true)][string]$MisePath,
         [Parameter(Mandatory=$true)][string]$ToolchainRoot,
         [ValidateSet('cargo','rustc','rustup')][string]$Command,
-        [string]$RustVersion='1.97.1'
+        [string]$RustVersion=[string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version
     )
     if (-not (Test-SgExactVersionCoordinate $RustVersion)) { throw 'Tauri Rust wrapper version must be exact.' }
     $mise = ConvertTo-SgBatchQuotedPath $MisePath 'mise executable'
@@ -888,7 +921,7 @@ function Get-SgTauriRustTargetAddArguments {
 }
 
 function Get-SgTauriDesktopBaseline {
-    [pscustomobject]@{ RustToolchainVersion='1.97.1'; TauriCliVersion='2.11.4' }
+    [pscustomobject]@{ RustToolchainVersion=[string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version; TauriCliVersion=[string](Get-SgToolCatalogEntry 'tauri-cli' -RequiredField version).version }
 }
 
 function Get-SgTauriDesktopMiseConfig {
@@ -1613,6 +1646,7 @@ function Get-SgFlutterAndroidDiagnostic {
 
 Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgTauriDesktopBaseline,Get-SgTauriDesktopMiseConfig,Resolve-SgTrustedMisePath,Invoke-SgIsolatedTauriMise,Test-SgTauriDesktopRustToolchain,Test-SgTauriDesktopRustWrappers,Install-SgTauriDesktopRustToolchain,Get-SgWindowsWebView2State,Get-SgTauriWindowsEnvironmentObservation,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
 Export-ModuleMember -Function Get-SgMcpCatalogServer
+Export-ModuleMember -Function Get-SgToolCatalogEntry
 Export-ModuleMember -Function Resolve-SgTrustedWingetIdentity
 Export-ModuleMember -Function Get-SgAndroidSdkRoot,Get-SgFlutterSdkRoot,Get-SgFlutterGradleDefaults,Get-SgFlutterAndroidBuildRequirements,Get-SgFlutterAndroidSdkVerdict
 Export-ModuleMember -Function Get-SgShipGlowsJdkHome,Get-SgFlutterSettingsPath,Get-SgFlutterConfiguredJdkDir,Get-SgJdkMajorVersion,Get-SgAndroidStudioJbrHome,Resolve-SgFlutterEffectiveJdk,Get-SgGradleWrapperVersion,Get-SgGradleJavaSupport,Test-SgGradleJdkCompatible,Get-SgFlutterAndroidJdkVerdict

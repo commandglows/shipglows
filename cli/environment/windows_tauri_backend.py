@@ -15,11 +15,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Protocol, Sequence
 
+from .tool_catalog import tool_field
 from .versions import evaluate_version_constraint
 
 
-RUST_VERSION = "1.97.1"
-TAURI_CLI_VERSION = "2.11.4"
+# ShipGlows-validated Rust and Tauri CLI baselines come from the shared tool catalog.
+RUST_VERSION = tool_field("rust", "version")
+TAURI_CLI_VERSION = tool_field("tauri-cli", "version")
 OWNED_IDS = {"cargo", "rustc", "rustup", "tauri-cli", "msvc", "windows-sdk", "webview2", "tauri", "tauri-windows"}
 ACTIONS = {"acquire_mise", "install_rust"}
 PROVIDER_SENSITIVE_REASON = re.compile(

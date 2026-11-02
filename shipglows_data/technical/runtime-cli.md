@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.49.1"
+artifact_version: "1.49.2"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-11-01"
+updated: "2026-11-02"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -24,6 +24,8 @@ linked_systems:
   - cli/windows/install-devserver.ps1
   - cli/environment/core.py
   - cli/environment/mise_backend.py
+  - cli/environment/tool_catalog.py
+  - cli/environment/windows_tauri_backend.py
   - cli/environment/shipglows_environment.py
   - cli/environment/schemas/shipglows-environment-v1.schema.json
   - tools/shipglows_gsc.py
@@ -97,7 +99,7 @@ evidence:
   - "Linux Flox discovery now records environment_root and launch_path separately, respects nested Flox boundaries, migrates the legacy registry idempotently, and rejects ambiguous launch targets."
   - "SHIPGLOWS_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
   - "The environment control-plane foundation exposes strict inspect/plan/verify/status commands in source checkouts and refuses apply until an executable backend exists."
-  - "The Windows pilot executes only approval-digest-bound jdx.mise acquisition or locked project-local Node 24 and pnpm 10 operations through fixed structured argv; the Best Fried Chicken smoke proved the real provider cycle."
+  - "The Windows mise pilot executes only approval-digest-bound jdx.mise acquisition or locked project-local Node 24 and pnpm 10 operations through fixed structured argv; the separate Tauri adapter may additionally apply the closed `install_rust` action through the provider bridge. The Best Fried Chicken smoke proved the real provider cycle."
   - "Independent Task 5 verification binds canonical external mise/WinGet executable paths and SHA-256 identities into approved plans, revalidates them before runner use, and treats those hashes as approved identity evidence rather than official provenance."
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
@@ -241,6 +243,8 @@ The managed PowerShell frontend accepts the equivalent form `s env <command> -Pr
 
 Without an explicit ShipGlows manifest, Windows also infers Node and pnpm constraints from `package.json#engines.node` and `package.json#packageManager`. A detected `src-tauri/Cargo.toml` or `@tauri-apps/cli` adds Cargo and Tauri requirements; they remain blocked with Rust setup guidance until their toolchain is observable, and no install is started by inspect, plan, verify, or status. A native `.flox/env/manifest.toml` is retained as source evidence but reported incompatible on Windows instead of becoming a capability owner. `verify` and `status` return code `4` for an inferred or explicit project whose observed state is not `ready`; a genuinely unmanaged project remains a valid zero-exit inspection target.
 
+The Windows Tauri adapter (`windows_tauri_backend.py`) is separate from the mise pilot. It reads the Rust 1.97.1 and Tauri CLI 2.11.4 baselines from `ShipGlows.ToolCatalog.json`, observes `rustc`, `cargo`, `rustup`, the local `tauri-cli` and the MSVC, Windows SDK and WebView2 prerequisites through the injected provider bridge, and applies only the closed `acquire_mise` and `install_rust` actions. Missing provider, PowerShell or module identities block planning; a malformed catalog fails closed when the adapter is loaded.
+
 The pilot requires root `mise.toml` to contain only `[tools] node = "24"` and `pnpm = "10"`, rejects alternate local/early mise configuration, and requires `mise.lock` to pin one exact `core:node` entry and one exact `aqua:pnpm/pnpm` entry. Each Windows artifact URL must match the exact version, architecture and official Node or pnpm release authority/path, with a checksum value in the supported format. If `package.json#packageManager` exists, it must equal `pnpm@<exact locked version>`; its absence remains valid because the ShipGlows manifest and mise lock already declare ownership. Injected fixtures remain synthetic; the approved Best Fried Chicken smoke additionally acquired mise 2026.8.2 and converged Node 24.19.0 plus pnpm 10.34.5 from their locked official release coordinates without installing application dependencies. `--offline` maps to `MISE_OFFLINE=1`: already installed exact mise-managed tools are ready, while any missing install blocks because mise documents downloaded archives as an unsupported offline cache and recommends retaining the installs directory. Existing global Node, pnpm and persistent `PATH` remain outside this owner. A `mise.exe` or `winget.exe` resolved from inside the repository or outside the adapter's canonical package-manager roots is never invoked; executable path and SHA-256 identity are approval-bound and revalidated before apply runner use.
 
 Current official authorities checked for this pilot are mise's [Windows installation](https://mise.jdx.dev/installing-mise.html#windows-winget), [`mise exec`](https://mise.jdx.dev/cli/exec.html), [`mise.lock`](https://mise.jdx.dev/dev-tools/mise-lock.html), [direct Node plus pnpm project configuration](https://mise.jdx.dev/demo), [configuration cascade and overrides](https://mise.jdx.dev/configuration.html), [safe mode](https://mise.jdx.dev/continuous-integration.html#running-against-untrusted-config-safe-mode), and [offline/cache settings](https://mise.jdx.dev/configuration/settings.html#offline).
@@ -286,7 +290,7 @@ analytics must not be sent to public research providers.
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry with per-target sessions, process lifecycle, ports, and per-launch logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
-| `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions; MCP package/endpoint identities and machine CLI npm packages for Firebase, Convex, Vercel and Clerk come from the shared catalog | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
+| `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json`, `cli/windows/ShipGlows.ToolCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions; MCP package/endpoint identities and machine CLI npm packages for Firebase, Convex, Vercel and Clerk come from the MCP catalog, while the `jdx.mise` WinGet id and Rust/Tauri CLI baselines come from the tool catalog | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 The Windows launcher also owns the profile-independent shortcut paths that

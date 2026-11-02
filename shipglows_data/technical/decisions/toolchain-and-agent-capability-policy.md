@@ -1,10 +1,10 @@
 ---
 artifact: decision_record
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: "shipglows"
 created: "2026-11-01"
-updated: "2026-11-01"
+updated: "2026-11-02"
 status: reviewed
 source_skill: sg-docs
 scope: "toolchain-and-agent-capability-policy"
@@ -20,6 +20,10 @@ linked_systems:
   - cli/environment/
   - cli/windows/install-devserver.ps1
   - cli/windows/ShipGlows.MobileToolchain.psm1
+  - cli/windows/ShipGlows.McpCatalog.json
+  - cli/windows/ShipGlows.ToolCatalog.json
+  - cli/environment/tool_catalog.py
+  - cli/environment/windows_tauri_backend.py
   - shipglows_data/technical/architecture.md
   - shipglows_data/technical/installer-and-user-scope.md
   - skills/references/canonical-paths.md
@@ -77,9 +81,11 @@ Commands should make their effective runtime path, channel and version/source re
 ## Implementation Status At Adoption
 
 - The Windows installer already uses native acquisition routes and a managed mise machine toolbox, and generates agent MCP configurations from project needs. These paths remain separate from the project environment engine.
-- The documented executable project environment pilot covers Windows mise with locked Node 24 and pnpm 10. Other capabilities and backends must retain their existing refusal boundaries until implemented and verified.
-- MCP package and endpoint identities are curated in `cli/windows/ShipGlows.McpCatalog.json`, read by `ShipGlows.MobileToolchain.psm1` and by the installer for the machine CLI npm packages (`cliPackage`). Argv, activation, authentication and read-only policy remain code-owned; the catalog never authorizes execution. There is no general official-registry integration in that path. Google Cloud CLI provisioning does not establish a managed Google Cloud MCP activation.
-- The shared inventory, broader backend coverage and consistent runtime provenance display are incremental implementation directions, not delivery claims or an authorized migration in this record.
+- The documented executable project environment pilot covers Windows mise with locked Node 24 and pnpm 10 (`mise_backend.py`). A separate bounded Windows Tauri adapter (`windows_tauri_backend.py`) observes and plans Rust 1.97.1 (`rustc`, `cargo`, `rustup`), the local Tauri CLI 2.11.4 and the MSVC, Windows SDK and WebView2 host prerequisites through the injected provider bridge. Its only executable actions are the closed `acquire_mise` and `install_rust`. Other capabilities and backends must retain their existing refusal boundaries until implemented and verified.
+- MCP package and endpoint identities are curated in `cli/windows/ShipGlows.McpCatalog.json`, read by `ShipGlows.MobileToolchain.psm1`, `ShipGlows.Auth.psm1` (the `@playwright/mcp` package only) and the installer for the machine CLI npm packages (`cliPackage`). There is no general official-registry integration in that path. Google Cloud CLI provisioning does not establish a managed Google Cloud MCP activation.
+- Non-MCP tool metadata lives in a separate `cli/windows/ShipGlows.ToolCatalog.json`: the `jdx.mise` WinGet id and official provenance, plus the ShipGlows Rust 1.97.1 and Tauri CLI 2.11.4 baselines. Python reads it through `cli/environment/tool_catalog.py` and PowerShell through `Get-SgToolCatalogEntry`. Both catalogs are data only. The tool catalog requires `executionAuthority`, `activatesBackend` and `argvAuthority` to be `false`; the MCP catalog retains its separate no-execution-authority, no-auto-authentication and no-auto-Google-Cloud policy flags. A malformed, duplicated or incomplete entry fails closed; the Python loader fails when a Windows backend is imported. Argv, activation, authentication, read-only policy, trusted executable roots and the closed action set remain code-owned.
+- Deliberately retained literals: the WinGet install-root suffix in `Resolve-SgTrustedMisePath` (a trusted-path guard, not an identity); the `playwright` library package in the Playwright runtime plan (no catalog entry); the Codex Playwright TOML argv template, which the installer matches by marker and which keeps the module free of a catalog dependency; the device-tool allowlist in `shipglows-devserver.ps1`, printed before its toolchain module import; mise documentation URLs that are not trust identities; and literal expected values in `tests/`, which act as independent oracles.
+- Shared metadata is implemented for the identities and baselines described above. Broader backend coverage and consistent runtime provenance display remain separate implementation directions; this catalog does not activate them.
 
 ## References
 
