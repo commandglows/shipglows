@@ -194,7 +194,7 @@ Move content with `git mv` into `articles/<locale>/`, derive `topic` from the ol
 | `shipglows_app/site` | migrated 2026-11-01 (commit aadc50fe) | rename identity to `translationKey`, add taxonomy |
 | `gocharbon/site` | ~2,400 posts in `src/data/`, 4 folder levels, frontmatter `slug` | flatten, folders become taxonomy, redirects for changed URLs |
 | `claiire/site` | migrated 2026-11-01 (commit 55b091b) | two pillars, 26 sub-nodes, 286 articles, 1858 wikilinks, Obsidian vault kept outside the collection |
-| `commandglows/site` | `blog/<locale>/`, legacy `src/content/config.ts` | rename to `articles`, move registry to `src/content.config.ts` |
+| `commandglows/site` | migrated 2026-11-02 (commit 0141e59e) | six pillars, EN/FR `translationKey` pairs, wikilinks, 50 redirects in `redirects.json`; unified processor kept with a wikilink mdast plugin instead of Sätteri; `trailingSlash` left at the Astro default |
 | `communityglows/site` | migrated 2026-11-01 (commit e38ccd53) | six pillars, bilingual `translationKey` pairs, wikilinks, 64 redirects in `redirects.json` and `vercel.json` |
 | `replayglows/site` | migrated 2026-11-01 (commit 501aa1fc) | reference for flat `blog/` sites: taxonomy with four pillars, wikilinks, `redirects.json` |
 | `dreamglows/site` | migrated 2026-11-01 (commit b8a77d1) | four pillars, flat `articles/fr/`, 11 wikilinked articles, 11 redirects from `/guides/` |
