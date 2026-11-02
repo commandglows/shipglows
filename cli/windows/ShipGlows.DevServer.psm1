@@ -417,12 +417,33 @@ function Get-SgObsidianPluginDescriptor([string]$ProjectPath) {
     }
 }
 
+$script:SgManifestReadTimeoutMs = 2000
+$script:SgManifestReadRetryMs = 200
 function Read-SgBrowserExtensionManifest([string]$ManifestPath) {
     if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { return $null }
     $item = Get-Item -LiteralPath $ManifestPath -Force -ErrorAction Stop
     if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $item.Length -gt 1048576) { throw "Unsafe browser extension manifest: $ManifestPath" }
-    try { $manifest = [IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json -ErrorAction Stop }
-    catch { throw "Invalid browser extension manifest '$ManifestPath': $($_.Exception.Message)" }
+    # A dev bundler (CRXJS/Vite, WXT) rewrites manifest.json while it runs: read with write sharing and
+    # retry briefly on a sharing violation or on an empty/truncated document before calling it invalid.
+    $deadline = [DateTime]::UtcNow.AddMilliseconds($script:SgManifestReadTimeoutMs)
+    $manifest = $null
+    while ($true) {
+        try {
+            $stream = [IO.File]::Open($ManifestPath, [IO.FileMode]::Open, [IO.FileAccess]::Read, ([IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete))
+            try { $reader = New-Object IO.StreamReader ($stream, [Text.Encoding]::UTF8, $true); $text = $reader.ReadToEnd() } finally { $stream.Dispose() }
+            if ([string]::IsNullOrWhiteSpace($text)) {
+                # Still empty after the retry window: not a manifest (a bundler mid-write would have filled it by now).
+                if ([DateTime]::UtcNow -ge $deadline) { return $null }
+                Start-Sleep -Milliseconds $script:SgManifestReadRetryMs
+                continue
+            }
+            $manifest = $text | ConvertFrom-Json -ErrorAction Stop
+            break
+        } catch {
+            if ([DateTime]::UtcNow -ge $deadline) { throw "Invalid browser extension manifest '$ManifestPath': $($_.Exception.Message)" }
+            Start-Sleep -Milliseconds $script:SgManifestReadRetryMs
+        }
+    }
     # An empty or non-object manifest.json is not a browser extension manifest.
     if ($manifest -isnot [pscustomobject] -or -not $manifest.PSObject.Properties['manifest_version']) { return $null }
     if ([int]$manifest.manifest_version -notin @(2,3) -or [string]::IsNullOrWhiteSpace([string]$manifest.name) -or [string]::IsNullOrWhiteSpace([string]$manifest.version)) { throw "Invalid browser extension manifest '$ManifestPath': name, version, and manifest_version 2 or 3 are required." }
@@ -1478,6 +1499,37 @@ function Test-SgPortAllocatable([int]$Port) {
     }
 }
 
+# A restarted surface releases its own port asynchronously (old process exiting, bundler relaunching).
+# Wait a bounded time until the port is allocatable again. Runs outside the registry lock; it never
+# reuses a port, it only delays the reservation until the previous owner has let go.
+$script:SgPortReleaseTimeoutMs = 10000
+$script:SgPortReleaseIntervalMs = 250
+function Wait-SgPortReleased([int]$Port) {
+    $deadline = [DateTime]::UtcNow.AddMilliseconds($script:SgPortReleaseTimeoutMs)
+    while ($true) {
+        if (Test-SgPortAllocatable $Port) { return $true }
+        if ([DateTime]::UtcNow -ge $deadline) { return $false }
+        Start-Sleep -Milliseconds $script:SgPortReleaseIntervalMs
+    }
+}
+
+# Best-effort description of the process listening on a port, for error messages.
+function Get-SgPortHolderLabel([int]$Port) {
+    try {
+        $ownerPid = 0
+        $listener = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($listener) { $ownerPid = [int]$listener.OwningProcess }
+        else {
+            # Get-NetTCPConnection can miss live listeners; netstat sees them.
+            $line = @(& netstat.exe -ano -p TCP 2>$null | Where-Object { $_ -match "^\s*TCP\s+\S+:$Port\s+\S+\s+LISTENING\s+\d+\s*$" }) | Select-Object -First 1
+            if ($line -and $line -match '(\d+)\s*$') { $ownerPid = [int]$Matches[1] }
+        }
+        if ($ownerPid -le 0) { return '' }
+        $process = Get-Process -Id $ownerPid -ErrorAction SilentlyContinue
+        return " (held by $(if ($process) { $process.ProcessName } else { 'a process' }) pid $ownerPid)"
+    } catch { return '' }
+}
+
 function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false, [switch]$NoPort, [switch]$PreservePort, [string]$Target = '', [int]$SharedPort = 0, [string]$PortRole = '') {
     if ($RequestedPort -ne 0 -and ($RequestedPort -lt 1024 -or $RequestedPort -gt 65535)) { throw 'Requested port must be 0 or between 1024 and 65535.' }
     $token = [guid]::NewGuid().ToString('N')
@@ -1538,7 +1590,7 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
                         $reason = if ($otherPorts -contains $candidate) { 'reserved by another registered surface' }
                             elseif (-not (Test-SgPortAvailable $candidate)) { 'in use by a listening process' }
                             else { 'not bindable on 127.0.0.1' }
-                        throw "Configured port $candidate is unavailable: $reason."
+                        throw "Configured port $candidate is unavailable: $reason$(Get-SgPortHolderLabel $candidate)."
                     }
                     continue
                 }
@@ -4550,7 +4602,8 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     $session = Get-SgEntrySession $entry $target
     $view = Get-SgSessionView $entry $session $target
     $alreadyRunning = [bool]($session -and (Test-SgProcessIdentity $view))
-    $label = "$($entry.name) [$target]"
+    $alreadyRunningBeforeStop = $alreadyRunning
+    $label ="$($entry.name) [$target]"
     # A Flutter supervisor can outlive its application (phone asleep, USB unplugged, app.stop):
     # the registry says stopped or error while the process is alive. That is not a running
     # session to reuse; it is stopped first, then relaunched like any ended session.
@@ -4690,6 +4743,13 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     $previousPort = [int]$entry.port
     $flutterNative = $kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')
     $noPort = $kind -eq 'obsidian-plugin' -or $flutterNative
+    # The configured port of the surface we just restarted may still be draining (old process exiting,
+    # bundler relaunching). Only this target's own previous port is awaited; a port held by another
+    # surface or process keeps failing fast in the reservation.
+    $restartedPort = if ($session -and $alreadyRunningBeforeStop -and $view.PSObject.Properties['port']) { [int]$view.port } else { 0 }
+    if ($explicitPort -and -not $noPort -and $sharedPort -le 0 -and $restartedPort -gt 0 -and $restartedPort -eq $configuredPort) {
+        if (-not (Wait-SgPortReleased $configuredPort)) { Write-SgWarn "Port $configuredPort was not released within $([int]($script:SgPortReleaseTimeoutMs / 1000)) s after the restart." }
+    }
     $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort -NoPort:$noPort -PreservePort:$flutterNative -Target $target -SharedPort $sharedPort -PortRole $portRole
     $port = $reservation.Port
     $reservationToken = $reservation.Token

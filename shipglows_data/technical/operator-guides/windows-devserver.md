@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Les 2026-10-31 et 2026-11-02 sur l'extension CommunityGlows (CRXJS + Vite 8, port 3010), `s restart` échouait par intermittence (« Configured port 3010 is … unavailable ») alors que le port se libérait, et `s start` échouait en lisant `dist\\chrome\\manifest.json` pendant que Vite l'écrivait ; `s restart` attend la libération du port de la surface (10 s) et la lecture du manifeste réessaie sur verrou ou JSON incomplet (2 s)."
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21 mis en veille, la session Flutter Android passait à stopped mais `s start` répondait « Already running with verified Flutter configuration » puis « unexpected status: stopped », et `s restart` voyait « Application finished » pendant le build ; `s start` relance depuis une session stopped/error dont le superviseur survit, et `s stop`/`s restart` attendent que l'app soit éteinte sur le téléphone (am force-stop + pidof) avant de relancer."
   - "Le 2026-10-24 sur CommandGlows, `s start -FlutterDevice android` lançait le build alors que la plateforme Android demandée par compileSdk n'était pas installée ; Gradle la téléchargeait pendant le build jusqu'au délai. `s start` vérifie depuis compileSdk et ndkVersion contre `platforms/` et `ndk/` du SDK et refuse le lancement avec la commande sdkmanager exacte."
   - "Le 2026-10-24 sur CommandGlows, Gradle 8.14 refusait le build Android (« Java 25.0.3 incompatible with Gradle 8.14 ») : Flutter prenait le JBR 25 d'Android Studio avant le JDK 17 de ShipGlows, car seul `flutter config --jdk-dir` passe devant ce JBR ; l'installeur épingle depuis ce réglage et `s start` vérifie la compatibilité Gradle/JDK avant le build."
@@ -387,6 +388,18 @@ les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
 dans votre profil personnel. La détection automatique actuelle couvre les
 projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
+
+Deux tolérances bornées évitent de faux échecs pendant que le bundler travaille :
+
+- `manifest.json` est lu avec partage en écriture. Un fichier verrouillé, vide ou
+  tronqué par une écriture en cours est relu toutes les 200 ms pendant 2 s au plus
+  avant d'être déclaré invalide ; les contrôles reparse point, taille (1 Mo) et
+  `manifest_version`/`name`/`version` restent inchangés.
+- `s restart` sur un port configuré attend, pendant 10 s au plus (sonde toutes les
+  250 ms), que l'ancien processus de la même surface libère son propre port avant
+  de le réserver. Un port tenu par une autre surface ou un autre processus n'est
+  jamais repris : au-delà du délai, l'erreur « Configured port N is unavailable »
+  indique le processus qui le détient (nom et pid) quand il est connu.
 
 #### Variables publiques Doppler pour une surface Node
 

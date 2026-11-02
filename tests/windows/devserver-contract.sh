@@ -67,6 +67,7 @@ for regression in \
   devserver-display-name.ps1 \
   devserver-readiness-logs.ps1 \
   devserver-port-reservation.ps1 \
+  devserver-restart-port-manifest.ps1 \
   devserver-multi-target.ps1 \
   devserver-tauri-stop-reconcile.ps1 \
   devserver-cli-performance.ps1 \
