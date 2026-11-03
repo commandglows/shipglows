@@ -38,7 +38,7 @@ build/run instruction for this repository. Be concise and preserve unrelated wor
 External web research keeps its dedicated environment: use
 `doppler run --project dotfiles --config dev -- shipglows-search "..."`, which
 tries local SearXNG, then DeepSeek, then Firecrawl, then Parallel, and `shipglows-fetch <url>` to read
-a page (plain HTTP, then the local Crawl4AI browser for JavaScript pages);
+a page (plain HTTP, then agent-browser, then the local Crawl4AI browser for JavaScript pages);
 `shipglows-scraping up` starts the free local stack; on exit 3 use the agent's native web search
 (`skills/references/web-research-fallback.md`).
 That research-only configuration does not apply to project execution.

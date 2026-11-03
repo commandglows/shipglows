@@ -36,7 +36,7 @@ def crawl_result(url, markdown, fit=None, status=200, success=True):
 class FetchFallbackTests(unittest.TestCase):
     def setUp(self):
         env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "fc-key",
-                                      "PARALLEL_API_KEY": "", fetch.HTTP_ENV: "off"})
+                                      "PARALLEL_API_KEY": "", fetch.HTTP_ENV: "off", fetch.BROWSER_ENV: "off"})
         env.start()
         self.addCleanup(env.stop)
         os.environ.pop(fetch.TIMEOUT_ENV, None)
@@ -80,7 +80,7 @@ class FetchFallbackTests(unittest.TestCase):
         result = crawl_result("https://example.com/", "Just a moment", status=403, success=False)
         _, output, _ = self.run_fetch(["https://example.com/"], result)
         self.assertEqual(output["pages"][0]["provider"], "firecrawl")
-        self.assertIn("HTTP 403", output["pages"][0]["attempts"][0]["reason"])
+        self.assertIn("HTTP 403", next(a for a in output["pages"][0]["attempts"] if a["provider"] == "crawl4ai")["reason"])
 
     def test_urls_share_one_crawl4ai_call(self):
         result = {"results": [*crawl_result("https://b.example/", "B")["results"],
@@ -151,7 +151,8 @@ class HtmlResponse:
 
 class HttpFirstTests(unittest.TestCase):
     def setUp(self):
-        env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "", "PARALLEL_API_KEY": ""})
+        env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "", "PARALLEL_API_KEY": "",
+                                      fetch.BROWSER_ENV: "off"})
         env.start()
         self.addCleanup(env.stop)
         os.environ.pop(fetch.HTTP_ENV, None)
@@ -193,6 +194,75 @@ class HttpFirstTests(unittest.TestCase):
         self.assertEqual(output["pages"][0]["provider"], "crawl4ai")
 
 
+class AgentBrowserTierTests(unittest.TestCase):
+    """agent-browser sits between plain HTTP and Crawl4AI; it is skipped when the CLI is absent."""
+
+    def setUp(self):
+        env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "CRAWL4AI_API_TOKEN": "c4-token", "FIRECRAWL_API_KEY": "",
+                                      "PARALLEL_API_KEY": "", fetch.HTTP_ENV: "off"})
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop(fetch.BROWSER_ENV, None)
+        os.environ.pop(fetch.TIMEOUT_ENV, None)
+        self.commands = []
+
+    def run_fetch(self, argv, binary="agent-browser.exe", content="Rendered by agent-browser", fail=None):
+        def runner(bin_path, session, command, timeout):
+            self.commands.append((session, command))
+            if fail and command[0] == fail:
+                raise fetch.ProviderError("agent-browser failed: boom")
+            return {"title": "Rendered"} if command[0] == "open" else {"content": content} if command[0] == "read" else {}
+
+        def opener(request, timeout):
+            return FakeResponse(crawl_result("https://app.example/", "# Crawl4AI"))
+
+        out = io.StringIO()
+        with patch.object(fetch.shutil, "which", return_value=binary), patch.object(fetch, "agent_browser_run", runner),                 redirect_stdout(out), redirect_stderr(io.StringIO()):
+            status = fetch.main(argv, opener=opener)
+        return status, json.loads(out.getvalue())
+
+    def test_renders_before_crawl4ai_and_closes_the_session(self):
+        status, output = self.run_fetch(["https://app.example/"])
+        page = output["pages"][0]
+        self.assertEqual((status, page["provider"], page["title"]), (0, "agent-browser", "Rendered"))
+        self.assertEqual([command[0] for _, command in self.commands], ["open", "read", "close"])
+        self.assertEqual(len({session for session, _ in self.commands}), 1)
+
+    def test_missing_cli_is_skipped_for_crawl4ai(self):
+        _, output = self.run_fetch(["https://app.example/"], binary=None)
+        page = output["pages"][0]
+        self.assertEqual(page["provider"], "crawl4ai")
+        self.assertEqual(page["attempts"][1], {"provider": "agent-browser", "status": "skipped",
+                                               "reason": page["attempts"][1]["reason"]})
+        self.assertIn("not installed", page["attempts"][1]["reason"])
+
+    def test_browser_failure_still_closes_and_falls_back(self):
+        _, output = self.run_fetch(["https://app.example/"], fail="read")
+        page = output["pages"][0]
+        self.assertEqual(page["provider"], "crawl4ai")
+        self.assertEqual(self.commands[-1][1][0], "close")
+
+    def test_empty_render_falls_back(self):
+        _, output = self.run_fetch(["https://app.example/"], content="  ")
+        self.assertEqual(output["pages"][0]["provider"], "crawl4ai")
+
+    def test_static_page_never_starts_the_browser(self):
+        def opener(request, timeout):
+            return HtmlResponse(STATIC_PAGE)
+        with patch.object(fetch, "agent_browser_run") as run, redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()):
+            os.environ.pop(fetch.HTTP_ENV, None)
+            fetch.main(["https://app.example/"], opener=opener)
+        run.assert_not_called()
+        self.assertEqual(json.loads(out.getvalue())["pages"][0]["provider"], "http")
+
+    def test_query_filters_rendered_text(self):
+        content = "# Intro\n\nWelcome.\n\n## Tarifs\n\nLe prix demarre a 9 euros.\n\n## Contact\n\nEcrivez-nous."
+        _, output = self.run_fetch(["https://app.example/", "--query", "prix"], content=content)
+        markdown = output["pages"][0]["markdown"]
+        self.assertIn("Tarifs", markdown)
+        self.assertNotIn("Ecrivez-nous", markdown)
+
+
 class HtmlConversionTests(unittest.TestCase):
     def test_short_static_page_is_not_a_shell(self):
         html = "<html><body><h1>Example</h1><p>This domain is for documentation examples only.</p></body></html>"
@@ -200,20 +270,8 @@ class HtmlConversionTests(unittest.TestCase):
         self.assertFalse(shipglows_html.looks_like_js_shell(html, markdown))
 
     def test_query_keeps_matching_blocks_with_their_heading(self):
-        markdown = "# Intro
-
-Welcome.
-
-## Tarifs
-
-Le prix démarre à 9 €.
-
-## Équipe
-
-Nous sommes dix."
-        self.assertEqual(shipglows_html.filter_by_query(markdown, "prix"), "## Tarifs
-
-Le prix démarre à 9 €.")
+        markdown = "# Intro\n\nWelcome.\n\n## Tarifs\n\nLe prix démarre à 9 €.\n\n## Équipe\n\nNous sommes dix."
+        self.assertEqual(shipglows_html.filter_by_query(markdown, "prix"), "## Tarifs\n\nLe prix démarre à 9 €.")
 
 
 if __name__ == "__main__":

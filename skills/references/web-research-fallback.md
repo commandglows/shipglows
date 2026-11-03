@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - tools/shipglows_search.py
   - tools/shipglows_fetch.py
+  - tools/shipglows_browse.py
   - tools/shipglows_scraping.py
   - cli/shipglows-search.sh
   - local/scraping/README.md
@@ -63,9 +64,11 @@ provider. Failure reasons name the error type, its cause and the attempt count.
 
 - Never print, pass or persist provider keys; keys come only from the Doppler
   `dotfiles/dev` scope.
-- To read a page, use `shipglows-fetch <url>` (plain HTTP, then the local
-  Crawl4AI browser for JavaScript pages, then DeepSeek, Firecrawl, then Parallel Extract;
+- To read a page, use `shipglows-fetch <url>` (plain HTTP, then the
+  agent-browser Chrome, then the local Crawl4AI browser for JavaScript pages, then DeepSeek, Firecrawl, then Parallel Extract;
   exit 3 means use the native fetch for that URL).
+- `shipglows-browse <agent-browser command>` drives a real browser (snapshot, click, fill,
+  screenshot, a11y) with safe defaults; it does not replace `s extension-lab` for extensions.
 - `shipglows-parallel` stays the tool for Task research and Monitor;
   `shipglows-search` covers search only.
 - `shipglows-scraping status` shows whether the free local stack runs;

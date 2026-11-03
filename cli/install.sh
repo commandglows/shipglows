@@ -2245,6 +2245,7 @@ configure_command_wrappers() {
     local parallel_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-parallel.sh"
     local search_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-search.sh"
     local fetch_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-fetch.sh"
+    local browse_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-browse.sh"
     local scraping_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-scraping.sh"
     local readwise_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-readwise.sh"
     local turso_login_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-login.sh"
@@ -2269,6 +2270,9 @@ configure_command_wrappers() {
     if [ -f "$fetch_target" ]; then
         ln -sf "$fetch_target" "$bin_dir/shipglows-fetch"
     fi
+    if [ -f "$browse_target" ]; then
+        ln -sf "$browse_target" "$bin_dir/shipglows-browse"
+    fi
     if [ -f "$scraping_target" ]; then
         ln -sf "$scraping_target" "$bin_dir/shipglows-scraping"
     fi
@@ -2284,7 +2288,7 @@ configure_command_wrappers() {
         ln -sf "$turso_ssh_target" "$bin_dir/shipglows-turso-ssh"
         ln -sf "$turso_ssh_target" "$bin_dir/turso-ssh"
     fi
-    chmod +x "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-serp" "$bin_dir/shipglows-parallel" "$bin_dir/shipglows-search" "$bin_dir/shipglows-fetch" "$bin_dir/shipglows-scraping" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
+    chmod +x "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-serp" "$bin_dir/shipglows-parallel" "$bin_dir/shipglows-search" "$bin_dir/shipglows-fetch" "$bin_dir/shipglows-browse" "$bin_dir/shipglows-scraping" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
 
     if [ -x "$bin_dir/shipglows" ] && [ -x "$bin_dir/sg" ]; then
         echo -e "  ${GREEN}✅ Commandes système disponibles :${NC} /usr/local/bin/shipglows et /usr/local/bin/sg"
@@ -2310,7 +2314,13 @@ configure_command_wrappers() {
         echo -e "  ${GREEN}✅ Commande recherche web (SearXNG local → DeepSeek → Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-search"
     fi
     if [ -x "$bin_dir/shipglows-fetch" ]; then
-        echo -e "  ${GREEN}✅ Lecture de pages (HTTP → Crawl4AI local → DeepSeek → Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-fetch (stack : shipglows-scraping up)"
+        echo -e "  ${GREEN}✅ Lecture de pages (HTTP → agent-browser → Crawl4AI local → DeepSeek → Firecrawl → Parallel) disponible :${NC} /usr/local/bin/shipglows-fetch (stack : shipglows-scraping up)"
+    fi
+    if [ -x "$bin_dir/shipglows-browse" ]; then
+        echo -e "  ${GREEN}✅ Navigateur pilotable (agent-browser) disponible :${NC} /usr/local/bin/shipglows-browse"
+        if ! command -v agent-browser >/dev/null 2>&1; then
+            echo -e "  ${YELLOW}ℹ️  agent-browser absent : npm i -g agent-browser && agent-browser install (télécharge Chrome, ~200 Mo)${NC}"
+        fi
     fi
     if [ -x "$bin_dir/shipglows-readwise" ]; then
         echo -e "  ${GREEN}✅ Commande Readwise / Reader disponible :${NC} shipglows readwise · shipglows-readwise"

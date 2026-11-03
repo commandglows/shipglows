@@ -421,12 +421,15 @@ function Install-SgWebResearchCommands {
         Write-SgInstallerWarning "Web research commands skipped: no ShipGlows checkout at $toolsDir."
         return
     }
-    foreach ($tool in @('search','parallel','fetch','scraping')) {
+    foreach ($tool in @('search','parallel','fetch','browse','scraping')) {
         $script = Join-Path $toolsDir "shipglows_$tool.py"
         if (-not (Test-Path -LiteralPath $script -PathType Leaf)) { continue }
         Set-SgLauncherContent (Join-Path $runtimeDir "shipglows-$tool.cmd") "@echo off`r`npython `"$script`" %*`r`nexit /b %errorlevel%`r`n"
     }
-    Write-Host 'Web research commands installed: shipglows-search, shipglows-parallel, shipglows-fetch, shipglows-scraping' -ForegroundColor Green
+    Write-Host 'Web research commands installed: shipglows-search, shipglows-parallel, shipglows-fetch, shipglows-browse, shipglows-scraping' -ForegroundColor Green
+    if (-not (Get-Command agent-browser -CommandType Application -ErrorAction SilentlyContinue)) {
+        Write-Host 'agent-browser not found: run `npm i -g agent-browser` then `agent-browser install` (downloads Chrome, ~200 MB) to enable shipglows-browse and the shipglows-fetch browser tier.' -ForegroundColor Yellow
+    }
 
     # Free local SearXNG + Crawl4AI: start it when Docker already runs, never install Docker here.
     if (-not (Get-Command docker -CommandType Application -ErrorAction SilentlyContinue)) {
