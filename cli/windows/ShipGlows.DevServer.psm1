@@ -4652,6 +4652,10 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         if (Test-SgProcessIdentity $view) { throw "Cannot relaunch $label while its previous supervisor is still active." }
         $alreadyRunning = $false
     }
+    if ($alreadyRunning -and -not $Restart -and $kind -eq 'tauri' -and $TauriEnvironment) {
+        $liveTauriEnvironment = if (Get-SgOptionalValue $session 'tauriEnvironment') { [string]$session.tauriEnvironment } else { 'dev' }
+        if ($liveTauriEnvironment -ne $TauriEnvironment) { throw "$label is running with the $liveTauriEnvironment environment, not $TauriEnvironment. Use s restart -ProjectPath `"$($entry.path)`" -TauriEnvironment $TauriEnvironment to switch it." }
+    }
     if ($alreadyRunning -and -not $Restart -and $kind -ne 'flutter-web') {
         Write-SgInfo "Already running: $label on $(Get-SgSessionPortLabel $view)"
         return $view
@@ -4714,6 +4718,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         }
         if ($holder) {
             if ($Frontend -eq 'shared') {
+                if ([string](Get-SgOptionalValue $holder 'tauriEnvironment') -eq 'prd') { throw "The $([string]$holder.target) target of $($entry.name) serves a production-backend frontend; $target cannot share it." }
                 $frontendMode = 'shared'
                 $frontendOwner = [string]$holder.target
                 $sharedPort = $devUrlPort
