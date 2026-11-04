@@ -18,7 +18,7 @@ $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< 
 $script:CliCapabilitySchema = 'shipglows.cli-capabilities.v1'
 $script:CliCapabilityMaxBytes = 65536
 # Runtime fields owned by one target session. The surface's top-level copies mirror its primary session.
-$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','flutterEnvironment','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent','vmServiceUri','devToolsUri','dtdUri','flutterWebPort','apiProxy','adbReversePorts')
+$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','flutterEnvironment','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','tauriEnvironment','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent','vmServiceUri','devToolsUri','dtdUri','flutterWebPort','apiProxy','adbReversePorts')
 $script:SgSessionLogRetention = 5
 $script:SgSessionFieldSet = [Collections.Generic.HashSet[string]]::new([string[]]$script:SgSessionFields, [StringComparer]::OrdinalIgnoreCase)
 # The fields reconciliation can change on a session.
@@ -1255,7 +1255,7 @@ function Format-SgProjectStatus([object]$Entry) {
         $kind = [string]$Entry.kind
         $status = [string](Select-SgPrimarySession $activeSessions).status
         $labels = @($activeSessions | Sort-Object -Property @{Expression={ [string]$_.target }} | ForEach-Object {
-            $experience = Get-SgProjectExperience $kind ([int]$_.port) ([string]$_.target) $((@($(if ($_.PSObject.Properties['flutterMode']) { [string]$_.flutterMode }), $(if ($_.PSObject.Properties['flutterEnvironment'] -and [string]$_.flutterEnvironment -eq 'prd') { 'prd backend' })) | Where-Object { $_ }) -join ' | ') ([string]$Entry.path)
+            $experience = Get-SgProjectExperience $kind ([int]$_.port) ([string]$_.target) $((@($(if ($_.PSObject.Properties['flutterMode']) { [string]$_.flutterMode }), $(if (($_.PSObject.Properties['flutterEnvironment'] -and [string]$_.flutterEnvironment -eq 'prd') -or ($_.PSObject.Properties['tauriEnvironment'] -and [string]$_.tauriEnvironment -eq 'prd')) { 'prd backend' })) | Where-Object { $_ }) -join ' | ') ([string]$Entry.path)
             "$($experience.Label) $(Get-SgSessionPortLabel $_)"
         })
         return "$status | $($labels -join ' + ')"
@@ -1325,7 +1325,7 @@ function Get-SgProjectLogKey([object]$Entry) {
 
 function Get-SgRuntimeSettings([string]$ProjectPath) {
     $defaultFlutterDevice = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container) { 'windows' } else { 'chrome' }
-    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceDeclared = $false; FlutterDeviceId = $null; FlutterMode = 'debug'; FlutterEnvironment = 'dev'; TauriDevice = 'windows'; TauriDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy'; ReadyTimeoutSeconds = 0 }
+    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceDeclared = $false; FlutterDeviceId = $null; FlutterMode = 'debug'; FlutterEnvironment = 'dev'; TauriEnvironment = 'dev'; TauriDevice = 'windows'; TauriDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy'; ReadyTimeoutSeconds = 0 }
     $file = Join-Path $ProjectPath '.shipglows.env'
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $settings }
     foreach ($rawLine in @(Get-Content -LiteralPath $file)) {
@@ -3008,7 +3008,28 @@ function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
     Move-Item -LiteralPath $Path -Destination $rotated -Force
 }
 
-function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$FlutterMode = 'debug', [string]$TauriDevice = '', [string]$TauriDeviceName = '', [ValidateSet('','own','shared')][string]$TauriFrontend = '', [string]$TauriSessionDirectory = '', [int]$ApiProxyPort = 0, [int[]]$AndroidReversePorts = @()) {
+# A production-backend Tauri desktop session never runs Doppler: the project declares, in
+# .shipglows.tauri.json, a Doppler-free frontend command and the public values for prd.
+function Read-SgTauriRecipe([string]$ProjectPath) {
+    $file = Join-Path $ProjectPath '.shipglows.tauri.json'
+    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw 'A production-backend Tauri session requires a declared .shipglows.tauri.json with a prd section (beforeDevCommand and publicEnv).' }
+    try { $document = Get-Content -LiteralPath $file -Raw | ConvertFrom-Json -AsHashtable } catch { throw "Invalid .shipglows.tauri.json: $($_.Exception.Message)" }
+    if ($document['schemaVersion'] -ne 1 -or $document['prd'] -isnot [System.Collections.IDictionary]) { throw '.shipglows.tauri.json needs schemaVersion 1 and a prd object.' }
+    $prd = $document['prd']
+    $command = [string]$prd['beforeDevCommand']
+    if (-not $command -or $command -match '(?i)\bdoppler\b') { throw '.shipglows.tauri.json prd.beforeDevCommand must be a frontend command that never uses Doppler.' }
+    $public = $prd['publicEnv']
+    if ($public -isnot [System.Collections.IDictionary] -or $public.Count -eq 0) { throw '.shipglows.tauri.json prd.publicEnv must declare the public values of the production backend.' }
+    $values = [ordered]@{}
+    foreach ($key in $public.Keys) {
+        if ([string]$key -cnotmatch '^VITE_[A-Z0-9_]{1,80}$') { throw "Production Tauri value $key must be a public VITE_ name." }
+        if ([string]$public[$key] -notmatch '^[A-Za-z0-9:/._-]{1,300}$') { throw "Production Tauri value $key must be a plain public value (letters, digits, : / . _ -)." }
+        $values[[string]$key] = [string]$public[$key]
+    }
+    return [pscustomobject]@{ BeforeDevCommand = $command; PublicEnv = $values }
+}
+
+function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$FlutterMode = 'debug', [string]$TauriDevice = '', [string]$TauriDeviceName = '', [ValidateSet('','own','shared')][string]$TauriFrontend = '', [string]$TauriSessionDirectory = '', [int]$ApiProxyPort = 0, [int[]]$AndroidReversePorts = @(), [ValidateSet('dev','prd')][string]$TauriEnvironment = 'dev') {
     if ($Kind -eq 'tauri') {
         $android = $TauriDevice -eq 'android'
         $tauri = Get-Content -LiteralPath (Join-Path $ProjectPath 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
@@ -3028,6 +3049,16 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         } elseif ($devUrl.Port -ne $Port) { throw "Tauri devUrl must use the assigned local port $Port." }
         $devConfig = Join-Path $ProjectPath 'src-tauri\tauri.dev.conf.json'
         $configArgument = if (-not $android -and (Test-Path -LiteralPath $devConfig -PathType Leaf)) { ' --config "src-tauri\tauri.dev.conf.json"' } else { '' }
+        $recipePrefix = ''
+        if ($TauriEnvironment -eq 'prd') {
+            if ($android) { throw 'A production-backend Tauri session supports the desktop target only.' }
+            if ($TauriFrontend -eq 'shared') { throw 'A production-backend Tauri session needs its own frontend; it cannot attach to a frontend started with the dev configuration.' }
+            $recipe = Read-SgTauriRecipe $ProjectPath
+            if (-not $frontendPatch) { $frontendPatch = [ordered]@{} }
+            if (-not $frontendPatch.Contains('build')) { $frontendPatch['build'] = [ordered]@{} }
+            $frontendPatch['build']['beforeDevCommand'] = $recipe.BeforeDevCommand
+            $recipePrefix = (@($recipe.PublicEnv.GetEnumerator() | ForEach-Object { 'set "' + $_.Key + '=' + $_.Value + '" && ' }) -join '')
+        }
         if ($frontendPatch) {
             if (-not $TauriSessionDirectory) { throw 'A Tauri frontend override requires its session directory.' }
             # Tauri reads one merged override: the desktop dev overlay first, then the frontend patch.
@@ -3072,7 +3103,7 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             $command = "set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call $runner exec tauri android dev --host 127.0.0.1$configArgument$deviceArgument"
             return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri android dev'; Interactive=$false; FlutterSdkRoot=$null }
         }
-        $command ="set `"PATH=$cargoDirectory;%PATH%`" && ${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri dev$configArgument"
+        $command ="set `"PATH=$cargoDirectory;%PATH%`" && ${recipePrefix}${toolchainPrefix}call `"$($manager.Manager)`"$prefix exec tauri dev$configArgument"
         return [pscustomobject]@{ FilePath=$env:ComSpec; Arguments=@('/d','/s','/c',"`"$command`""); Signature='tauri dev'; Interactive=$false; FlutterSdkRoot=$null }
     }
     $signature = Get-SgCommandSignature $ProjectPath $Kind $Port
@@ -4546,7 +4577,7 @@ function Format-SgTauriFrontendConflict([object]$Entry, [object]$Holder, [string
     ) -join [Environment]::NewLine
 }
 
-function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '', [ValidateSet('','debug','profile')][string]$FlutterMode = '', [ValidateSet('','dev','prd')][string]$FlutterEnvironment = '', [ValidateSet('','windows','android')][string]$TauriDevice = '', [string]$TauriDeviceId = '', [switch]$Restart, [ValidateSet('','own','shared')][string]$Frontend = '', [switch]$Replace) {
+function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '', [string]$FlutterDeviceId = '', [ValidateSet('','debug','profile')][string]$FlutterMode = '', [ValidateSet('','dev','prd')][string]$FlutterEnvironment = '', [ValidateSet('','windows','android')][string]$TauriDevice = '', [string]$TauriDeviceId = '', [ValidateSet('','dev','prd')][string]$TauriEnvironment = '', [switch]$Restart, [ValidateSet('','own','shared')][string]$Frontend = '', [switch]$Replace) {
     $requestedPath = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Reconcile-SgRegistry $Config).projects | Where-Object { $_.path -eq $requestedPath }) | Select-Object -First 1
     if (-not $entry) {
@@ -4580,6 +4611,10 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         if ($kind -ne 'flutter-web') { throw 'Flutter environment selection requires a Flutter project.' }
         $settings.FlutterEnvironment=$FlutterEnvironment
     }
+    if ($TauriEnvironment) {
+        if ($kind -ne 'tauri') { throw 'Tauri environment selection requires a Tauri project.' }
+        $settings.TauriEnvironment = $TauriEnvironment
+    }
     if (($Frontend -or $Replace) -and $kind -ne 'tauri') { throw 'The -Frontend and -Replace choices apply to Tauri targets; the targets of other projects run side by side.' }
     if ($Frontend -and $Replace) { throw 'Choose either -Frontend or -Replace, not both.' }
 
@@ -4590,7 +4625,10 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $reused = Select-SgReusableSession $entry $settings
         if ($reused) {
             $target = [string]$reused.target
-            if ($kind -eq 'tauri') { $settings.TauriDevice = $target; $settings.TauriDeviceId = Get-SgOptionalValue $reused 'tauriDeviceId' }
+            if ($kind -eq 'tauri') {
+                $settings.TauriDevice = $target; $settings.TauriDeviceId = Get-SgOptionalValue $reused 'tauriDeviceId'
+                if (-not $TauriEnvironment -and (Get-SgOptionalValue $reused 'tauriEnvironment')) { $settings.TauriEnvironment = [string]$reused.tauriEnvironment }
+            }
             if ($kind -eq 'flutter-web') {
                 $settings.FlutterDevice = $target
                 $settings.FlutterDeviceId = $(if (Get-SgOptionalValue $reused 'flutterDeviceId') { [string]$reused.flutterDeviceId } else { $target })
@@ -4636,6 +4674,11 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     $resolvedFlutterDevice = [string]$settings.FlutterDevice
     $resolvedFlutterMode = if ([string]$settings.FlutterMode) { [string]$settings.FlutterMode } else { 'debug' }
     $resolvedFlutterEnvironment = if ([string]$settings.FlutterEnvironment) { [string]$settings.FlutterEnvironment } else { 'dev' }
+    $resolvedTauriEnvironment = if ([string]$settings.TauriEnvironment) { [string]$settings.TauriEnvironment } else { 'dev' }
+    if ($kind -eq 'tauri' -and $resolvedTauriEnvironment -eq 'prd') {
+        if ($settings.TauriDevice -eq 'android') { throw 'A production-backend Tauri session supports the desktop target only.' }
+        [void](Read-SgTauriRecipe $launchPath)
+    }
     if ($kind -eq 'flutter-web') {
         Assert-SgFlutterSymlinkSupport $launchPath (Get-SgDependencyKindLabel 'flutter-web' $resolvedFlutterDevice)
     }
@@ -4799,7 +4842,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     try {
         Invoke-SgDependencySetup $Config $launchPath $kind $setupLog (Get-SgDependencyKindLabel $kind $resolvedFlutterDevice) | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
-        $launch = Get-SgLaunchSpec $launchPath $kind $(if ($apiProxy) { $flutterWebPort } else { $port }) ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' }) $(if ($kind -eq 'tauri') { [string]$frontendMode } else { '' }) $logDir $(if ($apiProxy) { $port } else { 0 }) -AndroidReversePorts $flutterReversePorts
+        $launch = Get-SgLaunchSpec $launchPath $kind $(if ($apiProxy) { $flutterWebPort } else { $port }) ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode $(if ($tauriAndroid) { 'android' } else { '' }) $(if ($tauriAndroid) { $tauriAndroid.Name } else { '' }) $(if ($kind -eq 'tauri') { [string]$frontendMode } else { '' }) $logDir $(if ($apiProxy) { $port } else { 0 }) -AndroidReversePorts $flutterReversePorts -TauriEnvironment $resolvedTauriEnvironment
         # A previous copy left running on the phone would satisfy readiness before the new build lands.
         if ($tauriAndroid) {
             $tauriAndroid | Add-Member -NotePropertyName InstallStamp -NotePropertyValue (Get-SgAndroidPackageInstallStamp $tauriAndroid.Adb $tauriAndroid.Serial $tauriAndroid.AppId) -Force
@@ -4836,7 +4879,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         throw
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; target = $target; port = $port; portRole = $sessionPortRole; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; startedAtUtc = [DateTime]::UtcNow.ToString('o'); stoppedAtUtc = $null; lastEvent = $null; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; setupLogPath = $setupLog; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); flutterMode = $(if ($kind -eq 'flutter-web') { $resolvedFlutterMode } else { $null }); flutterEnvironment = $(if ($kind -eq 'flutter-web') { $resolvedFlutterEnvironment } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath; frontendMode = $frontendMode; frontendOwner = $frontendOwner; flutterWebPort = $(if ($apiProxy) { $flutterWebPort } else { $null }); apiProxy = $(if ($apiProxy) { 'active' } else { $null }); adbReversePorts = $flutterReversePorts }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; target = $target; port = $port; portRole = $sessionPortRole; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; startedAtUtc = [DateTime]::UtcNow.ToString('o'); stoppedAtUtc = $null; lastEvent = $null; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; setupLogPath = $setupLog; lastError = $null; surfaceState = $(if($kind-eq'obsidian-plugin'){'starting'}else{$null}); pluginId = $(if($obsidianDescriptor){[string]$obsidianDescriptor.PluginId}else{$null}); validationState = $(if($kind-eq'obsidian-plugin'){'validation-unavailable'}else{$null}); flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); flutterMode = $(if ($kind -eq 'flutter-web') { $resolvedFlutterMode } else { $null }); flutterEnvironment = $(if ($kind -eq 'flutter-web') { $resolvedFlutterEnvironment } else { $null }); tauriEnvironment = $(if ($kind -eq 'tauri') { $resolvedTauriEnvironment } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath; frontendMode = $frontendMode; frontendOwner = $frontendOwner; flutterWebPort = $(if ($apiProxy) { $flutterWebPort } else { $null }); apiProxy = $(if ($apiProxy) { 'active' } else { $null }); adbReversePorts = $flutterReversePorts }
     if($kind-eq'tauri'){$entryData|Add-Member -NotePropertyName tauriDevice -NotePropertyValue $(if($tauriAndroid){'android'}else{'windows'}) -Force;$entryData|Add-Member -NotePropertyName tauriDeviceId -NotePropertyValue $(if($tauriAndroid){$tauriAndroid.Serial}else{$null}) -Force}
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force;$entryData|Add-Member -NotePropertyName flutterConfigurationFingerprint -NotePropertyValue $flutterConfiguration.Fingerprint -Force}
     $retryFlutterDevice = if ($FlutterDevice) { $FlutterDevice } elseif ($kind -eq 'flutter-web') { $target } else { '' }
@@ -4882,7 +4925,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         }
         try { Start-SgManagedProcessExitMonitor $Config $entry.path ([int]$snapshot.Pid) ([string]$snapshot.StartTimeUtc) } catch { Write-SgWarn "Process exit monitoring could not start: $($_.Exception.Message)" }
         # The Desktop shortcut relaunches the desktop dev target, so phone and production-backend sessions never get one.
-        if (-not $tauriAndroid -and $resolvedFlutterEnvironment -ne 'prd') { try { [void](Install-SgDevShortcut $entryData) } catch { Write-SgWarn "Dev shortcut skipped: $($_.Exception.Message)" } }
+        if (-not $tauriAndroid -and $resolvedFlutterEnvironment -ne 'prd' -and $resolvedTauriEnvironment -ne 'prd') { try { [void](Install-SgDevShortcut $entryData) } catch { Write-SgWarn "Dev shortcut skipped: $($_.Exception.Message)" } }
     } else {
         $entryData.status = 'error'
         if($kind-eq'flutter-web'){$entryData.flutterStartupState='error'}

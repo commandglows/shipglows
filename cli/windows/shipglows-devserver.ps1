@@ -21,6 +21,7 @@ param(
     [string]$FlutterDeviceId = '',
     [ValidateSet('','debug','profile')][string]$FlutterMode = '',
     [ValidateSet('','dev','prd')][string]$FlutterEnvironment = '',
+    [ValidateSet('','dev','prd')][string]$TauriEnvironment = '',
     [ValidateSet('','windows','android')][string]$TauriDevice = '',
     [string]$TauriDeviceId = '',
     [ValidateSet('','own','shared')][string]$Frontend = '',
@@ -141,6 +142,7 @@ function Show-SgShortcutHelp {
     Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>] [-FlutterMode debug|profile] [-Open]'
     Write-Host '    -FlutterMode profile runs flutter run --profile for performance measurement (never --release); profile sessions cannot hot reload or hot restart, use s restart to rebuild.' -ForegroundColor DarkGray
     Write-Host '    -FlutterEnvironment prd runs the debug/profile session against the production backend declared by the project recipe (--environment prd, public values only, Doppler never used, no Desktop shortcut).' -ForegroundColor DarkGray
+    Write-Host '    [-TauriEnvironment dev|prd] -TauriEnvironment prd runs the Tauri desktop dev session against the production backend declared in the project .shipglows.tauri.json (public values only, Doppler never used, no Desktop shortcut).' -ForegroundColor DarkGray
     Write-Host '    -FlutterDevice web-server with an api/ directory (or vercel.json functions): /api/* is served on the surface port by a local Node proxy; Flutter moves behind it.' -ForegroundColor DarkGray
     Write-Host '    Handlers get the Doppler scope of .shipglows.flutter.json plus the public defines of the web origin; the registry shows apiProxy=active. chrome is not API-routed.' -ForegroundColor DarkGray
     Write-Host '    [-TauriDevice windows|android] [-TauriDeviceId <adb serial>]'
@@ -215,7 +217,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
     $results = New-Object 'System.Collections.Generic.List[object]'
     # Restarting every target of a project passes each target's own selection; a one-shot start uses the command line.
     foreach ($name in @($Overrides.Keys)) { Set-Variable -Name $name -Value $Overrides[$name] -Scope Local }
-    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -FlutterEnvironment $FlutterEnvironment -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Frontend $Frontend -Replace:$Replace | ForEach-Object {
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -FlutterEnvironment $FlutterEnvironment -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -TauriEnvironment $TauriEnvironment -Frontend $Frontend -Replace:$Replace | ForEach-Object {
         $item = $_
         if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
             [void]$results.Add($item)
@@ -249,6 +251,7 @@ function Invoke-SgRestart([string]$Path) {
         if ($kind -eq 'tauri') {
             $overrides.TauriDevice = $target
             $overrides.TauriDeviceId = $(if ($target -eq 'android' -and $session.PSObject.Properties['tauriDeviceId'] -and $session.tauriDeviceId) { [string]$session.tauriDeviceId } else { '' })
+            if (-not $TauriEnvironment -and $session.PSObject.Properties['tauriEnvironment'] -and $session.tauriEnvironment) { $overrides.TauriEnvironment = [string]$session.tauriEnvironment }
         } elseif ($kind -eq 'flutter-web') {
             $overrides.FlutterDevice = $target
             $overrides.FlutterDeviceId = $(if ($target -eq 'android' -and $session.PSObject.Properties['flutterDeviceId'] -and $session.flutterDeviceId) { [string]$session.flutterDeviceId } else { '' })
