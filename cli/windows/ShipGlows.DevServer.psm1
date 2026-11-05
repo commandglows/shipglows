@@ -18,11 +18,11 @@ $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< 
 $script:CliCapabilitySchema = 'shipglows.cli-capabilities.v1'
 $script:CliCapabilityMaxBytes = 65536
 # Runtime fields owned by one target session. The surface's top-level copies mirror its primary session.
-$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','flutterEnvironment','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','tauriEnvironment','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent','vmServiceUri','devToolsUri','dtdUri','flutterWebPort','apiProxy','adbReversePorts')
+$script:SgSessionFields = @('target','status','port','portRole','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','setupLogPath','lastError','reservationToken','reservationTimeUtc','reservationOwner','surfaceState','validationState','pluginId','flutterStartupState','flutterAppId','flutterDaemonPid','flutterHeadless','flutterDevice','flutterDeviceId','flutterMode','flutterEnvironment','browserProfilePath','flutterLaunchDirectory','flutterTokenPath','flutterSdkRoot','flutterConfigurationFingerprint','tauriDevice','tauriDeviceId','tauriEnvironment','obsidianPluginPath','obsidianArtifactPaths','frontendMode','frontendOwner','startedAtUtc','stoppedAtUtc','lastEvent','vmServiceUri','devToolsUri','dtdUri','flutterWebPort','apiProxy','adbReversePorts')
 $script:SgSessionLogRetention = 5
 $script:SgSessionFieldSet = [Collections.Generic.HashSet[string]]::new([string[]]$script:SgSessionFields, [StringComparer]::OrdinalIgnoreCase)
 # The fields reconciliation can change on a session.
-$script:SgLiveStateFields = @('status','pid','startTimeUtc','lastError','reservationToken','reservationTimeUtc','flutterStartupState','flutterAppId','flutterDaemonPid','vmServiceUri','devToolsUri','dtdUri','stoppedAtUtc')
+$script:SgLiveStateFields = @('status','pid','startTimeUtc','lastError','reservationToken','reservationTimeUtc','reservationOwner','flutterStartupState','flutterAppId','flutterDaemonPid','vmServiceUri','devToolsUri','dtdUri','stoppedAtUtc')
 
 function Write-SgInfo([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Cyan }
 function Write-SgWarn([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Yellow }
@@ -1123,15 +1123,21 @@ function Update-SgSurfaceProjection([object]$Entry) {
     }
 }
 
-function Test-SgReservationFresh([object]$State, [int]$Minutes = 5) {
+function Test-SgReservationFresh([object]$State, [int]$Minutes = 5, [hashtable]$SnapshotByPid = $null) {
     if (-not $State -or -not $State.PSObject.Properties['reservationTimeUtc'] -or -not $State.reservationTimeUtc) { return $false }
+    # Dependency setup can outlast the grace period before any server PID exists.
+    # PID plus start time proves that the CLI that reserved this target still owns the launch.
+    $owner = Get-SgOptionalValue $State 'reservationOwner'
+    if ($owner -and (Get-SgOptionalValue $State 'reservationToken') -and (Get-SgOptionalValue $owner 'startTimeUtc')) {
+        try { if (Test-SgProcessIdentity $owner $SnapshotByPid) { return $true } } catch { }
+    }
     try { return (([datetime]::UtcNow - [datetime]::Parse([string]$State.reservationTimeUtc).ToUniversalTime()).TotalMinutes -lt $Minutes) } catch { return $false }
 }
 
 function Test-SgSessionLive([object]$Entry, [object]$Session, [hashtable]$SnapshotByPid = $null) {
     if (-not $Session) { return $false }
     if ([int]$Session.pid -gt 0 -and (Test-SgProcessIdentity (Get-SgSessionView $Entry $Session) $SnapshotByPid)) { return $true }
-    return [string]$Session.status -in @('reserved','starting') -and (Test-SgReservationFresh $Session)
+    return [string]$Session.status -in @('reserved','starting') -and (Test-SgReservationFresh $Session -SnapshotByPid $SnapshotByPid)
 }
 
 function Get-SgLiveSessions([object]$Entry) {
@@ -1533,6 +1539,8 @@ function Get-SgPortHolderLabel([int]$Port) {
 function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false, [switch]$NoPort, [switch]$PreservePort, [string]$Target = '', [int]$SharedPort = 0, [string]$PortRole = '') {
     if ($RequestedPort -ne 0 -and ($RequestedPort -lt 1024 -or $RequestedPort -gt 65535)) { throw 'Requested port must be 0 or between 1024 and 65535.' }
     $token = [guid]::NewGuid().ToString('N')
+    $ownerProcess = Get-Process -Id $PID -ErrorAction Stop
+    $reservationOwner = [pscustomobject]@{ pid=$PID; startTimeUtc=$ownerProcess.StartTime.ToUniversalTime().ToString('o'); executablePath=$null; commandSignature=$null }
     $result = Invoke-SgRegistryMutation $Config {
         param($data)
         $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
@@ -1546,6 +1554,7 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
                     $session.status = 'stopped'
                     $session | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
                     $session | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+                    Set-SgNoteProperty $session 'reservationOwner' $null
                 }
             }
         }
@@ -1606,6 +1615,7 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
         $session.status = 'reserved'
         $session.reservationToken = $token
         $session.reservationTimeUtc = (Get-Date).ToUniversalTime().ToString('o')
+        Set-SgNoteProperty $session 'reservationOwner' $reservationOwner
         Set-SgEntrySession $entry $session
         # Obsidian keeps no surface port; native Flutter targets keep the surface port for a later Web launch.
         if ($NoPort -and -not $PreservePort -and $SharedPort -le 0) { $entry.port = 0 }
@@ -1642,6 +1652,7 @@ function Set-SgReservationState([object]$Config, [string]$ProjectPath, [string]$
         if ($Status -notin @('reserved','starting')) {
             $session | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
             $session | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+            Set-SgNoteProperty $session 'reservationOwner' $null
         }
     } | Out-Null
 }
@@ -1653,7 +1664,7 @@ function Release-SgProjectPort([object]$Config, [string]$ProjectPath, [string]$T
         $session = Find-SgReservedSession $entry $Token
         if (-not $session) { return }
         $session.status = 'error'
-        foreach ($pair in @(@('lastError',$ErrorMessage),@('pid',0),@('startTimeUtc',$null),@('reservationToken',$null),@('reservationTimeUtc',$null),@('stoppedAtUtc',[DateTime]::UtcNow.ToString('o')))) {
+        foreach ($pair in @(@('lastError',$ErrorMessage),@('pid',0),@('startTimeUtc',$null),@('reservationToken',$null),@('reservationTimeUtc',$null),@('reservationOwner',$null),@('stoppedAtUtc',[DateTime]::UtcNow.ToString('o')))) {
             $session | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
         }
     } | Out-Null
@@ -3297,7 +3308,7 @@ function Complete-SgManagedProcessExit([object]$Config, [string]$ProjectPath, [i
         if ($session.status -in @('starting', 'running')) {
             $now = [DateTime]::UtcNow
             $session.status = 'error'
-            foreach ($pair in @(@('pid',0),@('startTimeUtc',$null),@('reservationToken',$null),@('reservationTimeUtc',$null),@('stoppedAtUtc',$now.ToString('o')),@('lastEvent','exited unexpectedly'),@('lastError','Managed application process exited unexpectedly. Inspect the project logs before restarting.'))) {
+            foreach ($pair in @(@('pid',0),@('startTimeUtc',$null),@('reservationToken',$null),@('reservationTimeUtc',$null),@('reservationOwner',$null),@('stoppedAtUtc',$now.ToString('o')),@('lastEvent','exited unexpectedly'),@('lastError','Managed application process exited unexpectedly. Inspect the project logs before restarting.'))) {
                 $session | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
             }
             foreach ($dependent in @(Get-SgSessionDependents $entry ([string]$session.target) | Where-Object { [string]$_.status -in @('starting','running') })) {
@@ -3865,7 +3876,7 @@ $script:SgReconcileMutation = {
         foreach ($project in @($registry.projects)) { if ($project.PSObject.Properties['sessions']) { ConvertTo-SgSessionEntry $project } }
         $allSessions = @(foreach ($project in @($registry.projects)) { if ($project.PSObject.Properties['sessions']) { @($project.sessions) } else { $project } })
         $signaturePids = @($allSessions | Where-Object { $_.PSObject.Properties['commandSignature'] -and $_.commandSignature } | ForEach-Object { [int]$_.pid })
-        $sessionPids = @($allSessions | ForEach-Object { [int]$_.pid })
+        $sessionPids = @($allSessions | ForEach-Object { [int]$_.pid; $owner = Get-SgOptionalValue $_ 'reservationOwner'; if ($owner) { [int]$owner.pid } })
         $processSnapshots = Invoke-SgReconcileProbe "snapshot|$(@($sessionPids | Sort-Object) -join ',')|$(@($signaturePids | Sort-Object) -join ',')" { Get-SgProcessSnapshotMap $sessionPids -CommandLinePids $signaturePids }
         if ($null -eq $processSnapshots) { $processSnapshots = @{} }
         $byIdentity = @{}
@@ -3902,12 +3913,8 @@ $script:SgReconcileMutation = {
                 $wasActive = $entry.status -in @('reserved','starting','running')
                 $sessionLive = Test-SgProcessIdentity $entry $processSnapshots
                 $freshReservation = $false
-                if (-not $sessionLive -and $entry.status -in @('reserved','starting') -and $entry.PSObject.Properties['reservationTimeUtc'] -and $entry.reservationTimeUtc) {
-                    try {
-                        $freshReservation = (((Get-Date).ToUniversalTime() - [datetime]::Parse([string]$entry.reservationTimeUtc).ToUniversalTime()).TotalMinutes -lt 5)
-                    } catch {
-                        $freshReservation = $false
-                    }
+                if (-not $sessionLive -and $entry.status -in @('reserved','starting')) {
+                    $freshReservation = Test-SgReservationFresh $entry -SnapshotByPid $processSnapshots
                 }
                 if ($sessionLive) {
                     $live = $true; $liveSessions += $session
@@ -3916,6 +3923,7 @@ $script:SgReconcileMutation = {
                     if ($entry.status -ne 'starting') {
                         if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
                         if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+                        Set-SgNoteProperty $entry 'reservationOwner' $null
                     }
                 } elseif (-not $freshReservation) {
                     $flutterResidual=$entry.kind-eq'flutter-web'-and(@(Invoke-SgReconcileProbe "native|$probeKey" {Get-SgOwnedFlutterNativePids $entry}).Count-gt0-or@(Invoke-SgReconcileProbe "listener|$probeKey" {Get-SgOwnedFlutterListenerPids $entry}).Count-gt0-or@(Invoke-SgReconcileProbe "browser|$probeKey" {Get-SgOwnedFlutterBrowserPids $entry}).Count-gt0)
@@ -3924,6 +3932,7 @@ $script:SgReconcileMutation = {
                     if(-not$flutterResidual){$entry.pid=0;$entry|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $null -Force}
                     if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
                     if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+                    Set-SgNoteProperty $entry 'reservationOwner' $null
                 }
                 if($entry.kind-eq'flutter-web'){Set-SgFlutterDebugEndpoints $entry $(if($sessionLive-and$entry.status-eq'running'){Get-SgFlutterSupervisorState $entry}else{$null})}
                 if ($legacySurface) { continue }
@@ -3960,7 +3969,7 @@ $script:SgReconcileMutation = {
             }
             $winner = $kept.Entry
             $reconciledInPlace.Remove($identity)
-            foreach ($property in @('name','kind','port','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','lastError','reservationToken','reservationTimeUtc')) {
+            foreach ($property in @('name','kind','port','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','lastError','reservationToken','reservationTimeUtc','reservationOwner')) {
                 $winnerValue = if ($winner.PSObject.Properties[$property]) { $winner.$property } else { $null }
                 $candidateValue = if ($mergeSource.PSObject.Properties[$property]) { $mergeSource.$property } else { $null }
                 $winnerMissing = $null -eq $winnerValue -or $winnerValue -eq '' -or (($property -in @('port','pid')) -and [int]$winnerValue -eq 0)
@@ -4145,7 +4154,7 @@ function Register-SgProject([object]$Config, [string]$ProjectPath) {
                     name = $name; path = $launchPath; rootPath = $root; launchPath = $launchPath; kind = $descriptor.Kind
                     port = $initialPort; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null
                     commandSignature = $null; logPath = $null; errorLogPath = $null; lastError = $null
-                    reservationToken = $null; reservationTimeUtc = $null
+                    reservationToken = $null; reservationTimeUtc = $null; reservationOwner = $null
                 }
                 if ($descriptor.Kind -eq 'obsidian-plugin') {
                     $plugin = Get-SgObsidianPluginDescriptor $launchPath
@@ -5190,7 +5199,7 @@ function Stop-SgSessionCore([object]$Config, [object]$Entry, [object]$Session, [
         if (-not $foundSession) { return }
         # A newer launch of this target may own the record by now; it is never marked stopped.
         if (([int]$foundSession.pid -gt 0 -and [int]$foundSession.pid -ne [int]$entry.pid) -or ((Get-SgOptionalValue $foundSession 'reservationToken') -and [string]$foundSession.reservationToken -ne [string](Get-SgOptionalValue $entry 'reservationToken'))) { return }
-        foreach ($pair in @(@('status','stopped'),@('pid',0),@('startTimeUtc',$null),@('lastError',$null),@('reservationToken',$null),@('reservationTimeUtc',$null))) {
+        foreach ($pair in @(@('status','stopped'),@('pid',0),@('startTimeUtc',$null),@('lastError',$null),@('reservationToken',$null),@('reservationTimeUtc',$null),@('reservationOwner',$null))) {
             $foundSession | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
         }
         if ($found.kind -eq 'flutter-web') { $foundSession | Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force; Set-SgFlutterDebugEndpoints $foundSession $null }

@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.49.2"
+artifact_version: "1.49.3"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-11-02"
+updated: "2026-11-05"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -132,6 +132,15 @@ previous one, and the backend stops with the last live target. Existing manifest
 are never inferred or generated; a justified `none` mode is the only no-backend exception.
 
 ## Windows target sessions
+
+Port reservations record their CLI owner's PID and process start time. Before a
+server PID exists, reconciliation and sibling-target reservation cleanup retain
+the lease while that owner is verified, including dependency installation lasting
+more than five minutes. A dead owner or reused PID falls back to the original
+five-minute grace period; legacy records without an owner use the same grace.
+Completion, failure and stop clear the owner together with the reservation token.
+`tests/windows/devserver-install-reservation.ps1` exercises concurrent status,
+launch continuation, abandoned ownership, PID reuse and legacy grace in isolation.
 
 Each registry surface keeps one session per run target in `sessions`: Tauri
 `windows`/`android`, Flutter `windows`/`android`/`chrome`/`web-server`, and one

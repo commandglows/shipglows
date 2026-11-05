@@ -21,7 +21,7 @@ try {
     Import-Module $modulePath -Force -DisableNameChecking
     $twoEntry = (Read-SgRegistry $config).projects | Where-Object path -eq $two | Select-Object -First 1
     $collision = $false
-    try { Reserve-SgProjectPort $config $one $twoEntry.port $true | Out-Null } catch { $collision = $_.Exception.Message -like '*occupied or reserved*' }
+    try { Reserve-SgProjectPort $config $one $twoEntry.port $true | Out-Null } catch { $collision = $_.Exception.Message -like 'Configured port * is unavailable: reserved by another registered surface*' }
     if (-not $collision) { throw 'An explicit reserved-port collision did not fail.' }
     $oneEntry = (Read-SgRegistry $config).projects | Where-Object path -eq $one | Select-Object -First 1
     Release-SgProjectPort $config $one $oneEntry.reservationToken 'setup failed'

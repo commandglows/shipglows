@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.1"
+artifact_version: "1.38.2"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-30"
+updated: "2026-11-05"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -512,6 +512,16 @@ que l'écriture du registre. Deux démarrages concurrents ne peuvent donc pas
 réserver le même port pour deux surfaces. La migration d'une ancienne entrée
 racine vers sa surface se fait par chemin exécutable et préserve les métadonnées
 d'un processus dont l'identité est encore vérifiée.
+
+Pendant l'installation des dépendances, aucun PID serveur n'est encore enregistré.
+La réservation conserve donc l'identité de la CLI propriétaire (PID et heure de
+démarrage) : tant que ce processus est vérifié, `s status` et les réservations
+d'autres cibles préservent le bail, même au-delà de cinq minutes. Une CLI disparue
+ou un PID réutilisé ne prolonge pas ce bail ; le délai historique de cinq minutes
+depuis la réservation reste le repli, notamment pour les anciens registres sans
+propriétaire. Le propriétaire est effacé avec le jeton après succès, échec ou arrêt.
+La fixture `tests/windows/devserver-install-reservation.ps1` reproduit cette
+concurrence entre processus avec un bail antidaté, sans installation npm réelle.
 
 Lors de l'enregistrement, un port valide déjà présent dans `ENVIRONMENT.md` est
 hydraté directement dans le registre s'il n'appartient à aucune autre surface ;
