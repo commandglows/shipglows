@@ -74,6 +74,13 @@
 | 🟢 | Étudier Alpic comme inspiration pour packager, déployer, monitorer et distribuer des MCP servers / ChatGPT Apps liés aux skills ShipGlows | 💤 deferred |
 | 🟢 | Idée à cadrer : créer une brique partagée de journaux opérationnels append-only (`OPERATIONS_LOG.md` / `DEPENDENCY_LOG.md`) pour tracer les runs importants sans remplacer `specs/`, `shipglows_data/workflow/bugs/`, `TASKS.md` ni `CHANGELOG.md` | 💤 deferred |
 | 🟢 | Cadrer plus tard le mécanisme de synchronisation `project repo -> master` pour `shipglows_data` (symlink, copie, index généré, ingestion web app ou autre) dans une spec dédiée | 💤 deferred |
+| 🟠 | DevServer Windows : `Get-SgAndroidPackageInstallStamp` renvoie `''` quand adb échoue, ce qui compte à tort comme une installation et coupe le build avec « installed but not running after 90 s » (observé le 2026-11-05) | 📋 todo |
+| 🟠 | DevServer Windows : après un échec d'installation Android, le suivi de `s start` est resté bloqué 30 min, service local muet ; établir si le blocage vient de la CLI ou de l'enveloppe de suivi | 📋 todo |
+| 🟡 | DevServer Windows : signaler l'instabilité du lien adb (pertes répétées du téléphone pendant Gradle) au lieu d'une erreur de build ou d'installation sans cause | 📋 todo |
+| 🟡 | DevServer Windows : remonter l'erreur « No application found » d'un projet Flutter sans dossier android au lieu de « Flutter supervisor timed out » | 📋 todo |
+| 🟡 | DevServer Windows : `s update` ne rend pas la main de façon fiable (tué après 15 min alors que la mise à jour était installée) | 📋 todo |
+| 🟡 | DevServer Windows : `s restart`/`s stop` affichent « Managed process job is unavailable » et passent à un arrêt forcé ; établir pourquoi le job est perdu | 📋 todo |
+| 🟢 | `audit_project_governance_topology.py` : ne pas signaler `AGENTS.md` quand git le suit en lien (mode 120000) sous `core.symlinks=false`, ni les dossiers ignorés `.csr-*` et les fixtures de test | 📋 todo |
 
 🟢 [ShipGlows] task: Évaluer models.dev comme registre externe optionnel pour `sg-model` | status: deferred | area: model-routing | source: veille utilisateur https://models.dev/ 2026-06-10
 🟢 [ShipGlows] task: Évaluer OpenPostern comme pattern pour enrichir `sg-veille`, `010-sg-technical deps`, `010-sg-technical audit` et les skills de codage avec scoring vendor-risk et signaux sécurité actionnables | status: deferred | area: tech-watch-security-skills | source: veille utilisateur https://betalist.com/startups/openpostern et https://openpostern.com/ 2026-06-10
