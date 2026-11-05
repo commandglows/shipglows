@@ -28,14 +28,19 @@ and grants no CI trigger, push, or external-write authority.
 
 ## Frozen project root
 
-At activation, resolve and freeze the current project root, using the current
-Git top-level when available and otherwise the already resolved managed project
-root. This is the sole work root for the full run. The parent and every
-subagent must receive it explicitly and may discover, claim, or edit project
-work only below it. Resolve every owned path canonically; reject `..` traversal
-and any symlink whose real target leaves the frozen root. Do not switch to a sibling repository, clone another
-repository, create or enter another worktree, or follow roadmap references into
-another project to find more work.
+At activation, resolve and freeze the chantier and its roots: the current
+project root, using the current Git top-level when available and otherwise the
+already resolved managed project root, plus the repositories the operator names
+or the chantier requires (for example a shared package and its consumers).
+These are the only work roots for the full run; claims are kept per root. The
+parent and every subagent must receive them explicitly and may discover, claim,
+or edit project work only below them. A cross-repository chantier may move
+between its roots. Resolve every owned path canonically; reject `..` traversal
+and any symlink whose real target leaves the frozen roots. Never change
+chantier, switch to an unrelated sibling repository, clone another repository,
+create or enter another worktree, or follow roadmap references into another
+project to find more work. Add a root after activation only when it is a direct
+dependency of the original chantier and the operator approves it.
 
 Canonical ShipGlows contracts and current official sources may be read outside
 the work root when required, but they never expand the project scope and no

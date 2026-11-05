@@ -124,11 +124,11 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
 
     def test_parent_and_subagents_are_confined_to_frozen_launch_root(self) -> None:
         self.assertIn("Frozen project root", self.auto)
-        self.assertIn("sole work root", self.auto_flat)
-        self.assertIn("symlink whose real target leaves the frozen root", self.auto_flat)
+        self.assertIn("only work roots for the full run", self.auto_flat)
+        self.assertIn("symlink whose real target leaves the frozen roots", self.auto_flat)
         for boundary in ("sibling repository", "clone another repository", "another worktree"):
             self.assertIn(boundary, self.auto_flat)
-        self.assertIn("every subagent must receive it explicitly", self.auto_flat)
+        self.assertIn("every subagent must receive them explicitly", self.auto_flat)
         self.assertIn("captured_git_root", self.coordination_flat)
 
     def test_fast_is_observed_but_never_self_assigned(self) -> None:

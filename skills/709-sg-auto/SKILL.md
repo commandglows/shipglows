@@ -26,14 +26,18 @@ manufacture work, reasoning, agents or output.
 
 ## Frozen project root
 
-At activation, resolve and freeze the current project root (Git top-level when
-available, otherwise the resolved managed root). The parent and every subagent
-receive it explicitly and may discover, claim, edit, run, and commit only below
-it. Reject `..` traversal and symlinks leaving the root. Never switch to a
-sibling repository, clone another repository, create or enter a branch or
-worktree, or follow references into another project to find more work.
+At activation, resolve and freeze the chantier and its roots: the current
+project root (Git top-level when available, otherwise the resolved managed
+root), plus the repositories the operator names or the chantier requires (for
+example a shared package and its consumers). The parent and every subagent
+receive the frozen roots explicitly and may discover, claim, edit, run, and
+commit only below them. A cross-repository chantier may move between its roots.
+Reject `..` traversal and symlinks leaving the roots. Never change chantier,
+look for unrelated work in another project, clone another repository, or create
+or enter a branch or worktree. Add a root after activation only when it is a
+direct dependency of the original chantier and the operator approves it.
 Canonical ShipGlows contracts and current external sources may be read outside
-the root; they never expand the project scope.
+the roots; they never expand the scope.
 
 ## Authority and ownership
 
