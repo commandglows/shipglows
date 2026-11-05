@@ -140,6 +140,10 @@ Authority covers only the clear bounded actions and targets contained in the req
 
 Routine implementation details inside the approved scope do not require repeated approval. Destructive, privileged, production, credential, billing, publication, and irreversible actions keep their stricter existing gates in addition to this one.
 
+## Approved chantier continuation
+
+Once a `🧭 PLAN À VALIDER` is approved, or a chantier is otherwise explicitly authorized, the approval covers every remaining phase of that plan (implementation slices, milestone commits, local proof, fixes of failures it causes, docs updates, closure). Run them to the end without a per-phase "ok", progress question, recap-then-wait, or "shall I continue?". Resolve ordinary obstacles autonomously (retry, alternative within scope, root-cause fix); stop only for (1) an action only the operator can do (console click, secret, test login), (2) a material expansion per the Approval boundary above, (3) a stricter dedicated gate (push unless requested, force, production, billing, irreversible data step without a prior backup). Batch every operator-only action at the end, one at a time. A progress report is never a stopping point: end the turn only on completion or on one of those three stops.
+
 ## Small changes
 
 Apply clear bounded-request authority first. A qualifying file edit, deterministic micro-bug fix, commit, ordinary push, or small explicit sequence executes directly from the operator's request without a validation prompt. A small-looking request that expands beyond enumerable actions or requires a material direction uses the full plan. Use fast validation for bounded agent-proposed actions or almost-clear intent, not as a duplicate confirmation of an already clear request.
