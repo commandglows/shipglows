@@ -199,7 +199,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if ($backend.mode -ne 'local') { $mutex.ReleaseMutex(); $locked = $false }
         $result = Invoke-SgNamedMutex (Get-SgSessionMutexName $Config $path $target) "A start of the $target target of this project is already in progress." {
             Start-SgProjectCore $Config $path $RequestedPort -FlutterVisible:$FlutterVisible -RetryingFlutterStartup:$RetryingFlutterStartup -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -FlutterEnvironment $FlutterEnvironment -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -TauriEnvironment $TauriEnvironment -Frontend $Frontend -Replace:$Replace
-        } 30000
+        } 30000 (Get-SgSessionMutexOwnerPath $Config $path $target)
         if ($result.status -eq 'running') {
             if (($backend.process -and -not (Test-SgProcessIdentity $backend.process)) -or ($backend.mode -ne 'none' -and -not (Test-SgBackendReady $plan.Manifest.readiness))) { [void](Stop-SgProject $Config $path -Target ([string]$result.target)); throw 'Backend lost readiness during application startup.' }
             $result | Add-Member -NotePropertyName backend -NotePropertyValue $backend -Force

@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.49.3"
+artifact_version: "1.49.4"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-11-05"
+updated: "2026-11-06"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -719,7 +719,10 @@ range, and `Reserve-SgProjectPort` reassigns a free port outside the ranges, wit
 a warning, when a configured or persisted port falls inside one instead of failing.
 The new port rewrites the surface `ENVIRONMENT.md` through the usual primary-port
 write. A port that is truly in use, held by another surface, or otherwise not
-bindable still fails with an explicit reason. `s doctor [-Json]` also lists the
+bindable still fails with an explicit reason; a listening holder is named with its
+PID, start time and redacted command line, or reported as no longer running. A start
+refused because the target lock is busy names the holder recorded in the runtime
+directory's `target-*.lock.owner.json`. `s doctor [-Json]` also lists the
 excluded ranges and the registered ports inside them.
 
 Windows exposes a separate global developer-tool surface through
@@ -842,9 +845,17 @@ supervisor state, daemon and app identity still match; it never substitutes stop
 or a native rebuild. `s reload -Full` sends a hot restart (`fullRestart: true`)
 through the same checks, rebuilding app state from `main()` when routes or
 initializers change. A reload Flutter rejects (`app.restart` answering
-`result.code != 0`, e.g. compile errors or `DevFS synchronization failed`) fails
-the command with the code and the session's `flutter.stderr.log` path instead of
-reporting success. `s open` restarts that managed Flutter session with visible
+`result.code != 0`, e.g. compile errors, `DevFS synchronization failed` or a debug
+service timeout) fails the command with the code, the first line of Flutter's
+message (bounded and redacted) and the session's `flutter.stderr.log` path instead of
+reporting success. The supervisor waits 30 s for a reload or hot restart response,
+because Flutter's debug service alone waits 10 s for connected browsers on top of
+the recompile, and the CLI 40 s; meanwhile its loop handles no other command, so a
+`s stop` arriving then can use the verified forced stop. Each reload, from `s reload`
+or from the source watcher, is recorded in `flutter.reload.log` (time, id, source,
+kind, outcome, duration, reason), copied to `reload.log` beside the durable session
+logs: watcher failures print nothing, and `flutter.stdout.log` has no timestamps. An
+accepted reload clears the previous reload failure from the supervisor state. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin

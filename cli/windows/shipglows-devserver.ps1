@@ -1231,7 +1231,7 @@ try {
         }
         'reload' {
             if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path> [-Full]' }
-            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath $(if ($Full) { 40 } else { 15 }) (Get-SgRequestedTarget) -Full:$Full
+            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath 40 (Get-SgRequestedTarget) -Full:$Full
             if ($reload.Status -eq 'succeeded') { Write-SgInfo "$($reload.Name) $(if ($Full) { 'hot restart' } else { 'reload' }) succeeded" }
             elseif ($reload.Status -eq 'unavailable') { throw "reload unavailable: $($reload.Reason)" }
             else { throw "reload failed: $($reload.Reason)" }

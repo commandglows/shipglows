@@ -1184,14 +1184,46 @@ function Get-SgSessionMutexName([object]$Config, [string]$ProjectPath, [string]$
     return 'Local\ShipGlowsTarget-' + (Get-SgSessionDigest ($Config.RegistryPath + '|' + $ProjectPath.ToLowerInvariant() + '|' + $Target.ToLowerInvariant()))
 }
 
-function Invoke-SgNamedMutex([string]$SgMutexName, [string]$SgMutexBusyMessage, [scriptblock]$SgMutexAction, [int]$SgMutexTimeoutMilliseconds = 30000) {
+# The holder of a target lock records itself, as the registry lock holder does, so a refused start can name it.
+function Get-SgSessionMutexOwnerPath([object]$Config, [string]$ProjectPath, [string]$Target) {
+    return Join-Path $Config.RuntimeDirectory ('target-' + (Get-SgSessionDigest ($Config.RegistryPath + '|' + $ProjectPath.ToLowerInvariant() + '|' + $Target.ToLowerInvariant())) + '.lock.owner.json')
+}
+
+function Get-SgMutexBusyDetail([string]$OwnerPath) {
+    if (-not $OwnerPath) { return '' }
+    $owner = $null
+    try { $owner = [IO.File]::ReadAllText($OwnerPath) | ConvertFrom-Json -ErrorAction Stop } catch { $owner = $null }
+    if (-not $owner -or -not $owner.PSObject.Properties['pid']) { return ' Its holder did not record itself (older ShipGlows CLI or external process).' }
+    $detail = "pid $([int]$owner.pid), command: $([string]$owner.command), since $([string]$owner.acquiredAtUtc)"
+    if (-not (Get-Process -Id ([int]$owner.pid) -ErrorAction SilentlyContinue)) { return " The last recorded holder has exited ($detail)." }
+    return " Held by $detail."
+}
+
+function Write-SgMutexOwner([string]$OwnerPath) {
+    # Diagnostics must never fail the locked operation.
+    try {
+        $command = Protect-SgDiagnosticText ((@([Environment]::GetCommandLineArgs()) -join ' '))
+        if ($command.Length -gt 300) { $command = $command.Substring(0, 300) + '...' }
+        $owner = [pscustomobject]@{ pid=$PID; command=$command; acquiredAtUtc=[DateTime]::UtcNow.ToString('o') }
+        [IO.File]::WriteAllText($OwnerPath, ($owner | ConvertTo-Json -Compress), [Text.UTF8Encoding]::new($false))
+    } catch { }
+}
+
+function Invoke-SgNamedMutex([string]$SgMutexName, [string]$SgMutexBusyMessage, [scriptblock]$SgMutexAction, [int]$SgMutexTimeoutMilliseconds = 30000, [string]$SgMutexOwnerPath = '') {
     $sgMutex = New-Object Threading.Mutex($false, $SgMutexName)
     $sgMutexLocked = $false
     try {
         try { $sgMutexLocked = $sgMutex.WaitOne($SgMutexTimeoutMilliseconds) } catch [Threading.AbandonedMutexException] { $sgMutexLocked = $true }
-        if (-not $sgMutexLocked) { throw $SgMutexBusyMessage }
+        if (-not $sgMutexLocked) { throw ($SgMutexBusyMessage + (Get-SgMutexBusyDetail $SgMutexOwnerPath)) }
+        if ($SgMutexOwnerPath) { Write-SgMutexOwner $SgMutexOwnerPath }
         return & $SgMutexAction
-    } finally { if ($sgMutexLocked) { $sgMutex.ReleaseMutex() }; $sgMutex.Dispose() }
+    } finally {
+        if ($sgMutexLocked) {
+            if ($SgMutexOwnerPath) { try { [IO.File]::Delete($SgMutexOwnerPath) } catch { } }
+            $sgMutex.ReleaseMutex()
+        }
+        $sgMutex.Dispose()
+    }
 }
 
 # Each launch writes its own stdout/stderr/setup logs under <surface>\<target>\<launch>; older launches of the
@@ -1532,7 +1564,15 @@ function Get-SgPortHolderLabel([int]$Port) {
         }
         if ($ownerPid -le 0) { return '' }
         $process = Get-Process -Id $ownerPid -ErrorAction SilentlyContinue
-        return " (held by $(if ($process) { $process.ProcessName } else { 'a process' }) pid $ownerPid)"
+        if (-not $process) { return " (held by a process no longer running, pid $ownerPid)" }
+        $details = "pid $ownerPid"
+        try { $details += ", started $($process.StartTime.ToUniversalTime().ToString('o'))" } catch { }
+        try {
+            $commandLine = Protect-SgDiagnosticText ([string](Get-CimInstance Win32_Process -Filter "ProcessId=$ownerPid" -ErrorAction Stop).CommandLine)
+            if ($commandLine.Length -gt 200) { $commandLine = $commandLine.Substring(0, 200) + '...' }
+            if ($commandLine) { $details += ", command: $commandLine" }
+        } catch { }
+        return " (held by $($process.ProcessName) $details)"
     } catch { return '' }
 }
 
@@ -3763,7 +3803,7 @@ function Copy-SgFlutterDiagnostics([object]$Entry,[string]$DurableOut,[string]$D
     $launch=[string]$Entry.flutterLaunchDirectory;if(-not(Test-Path -LiteralPath $launch -PathType Container)){return};Assert-SgNoReparseTree $launch
     # One copy per launch: a stop retried after a pending cleanup never duplicates the post-mortem.
     $marker=Join-Path $launch 'diagnostics.copied';if(Test-Path -LiteralPath $marker -PathType Leaf){return};[IO.File]::WriteAllText($marker,'')
-    foreach($pair in @(@('flutter.stdout.log',$DurableOut),@('flutter.stderr.log',$DurableErr))){$source=Join-Path $launch $pair[0];if(Test-Path -LiteralPath $source -PathType Leaf){$text=Protect-SgDiagnosticText (Get-SgBoundedFileTail $source 262144);Add-Content -LiteralPath $pair[1] -Value $text}}
+    foreach($pair in @(@('flutter.stdout.log',$DurableOut),@('flutter.stderr.log',$DurableErr),@('flutter.reload.log',(Join-Path (Split-Path -Parent $DurableOut) 'reload.log')))){$source=Join-Path $launch $pair[0];if(Test-Path -LiteralPath $source -PathType Leaf){$text=Protect-SgDiagnosticText (Get-SgBoundedFileTail $source 262144);Add-Content -LiteralPath $pair[1] -Value $text}}
     $statePath=Join-Path $launch 'state.json';if(Test-Path -LiteralPath $statePath -PathType Leaf){try{if((Get-Item -LiteralPath $statePath).Length-gt262144){throw 'Oversized Flutter supervisor state.'};$state=(Get-SgBoundedFileTail $statePath 262144)|ConvertFrom-Json -ErrorAction Stop;$lastError=Protect-SgDiagnosticText ([string]$state.lastError);$protocolError=Protect-SgDiagnosticText ([string]$state.lastProtocolError);$summary=[ordered]@{status=[string]$state.status;lastError=$lastError;lastEvent=[string]$state.lastEvent;lastProtocolError=$protocolError;flutterExitCode=$(if($null-ne$state.flutterExitCode){[int]$state.flutterExitCode}else{$null});exitReason=[string]$state.exitReason;appId=[string]$state.appId;daemonPid=[int]$state.daemonPid}|ConvertTo-Json -Compress;Add-Content -LiteralPath $DurableOut -Value $summary}catch{Add-Content -LiteralPath $DurableErr -Value 'Flutter supervisor state could not be preserved.'}}
 }
 

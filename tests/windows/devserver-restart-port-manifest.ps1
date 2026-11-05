@@ -45,7 +45,7 @@ try {
     [pscustomobject]@{schemaVersion=1;projects=@([pscustomobject]@{name='one';path=$one;launchPath=$one;kind='vite';port=0;status='stopped';pid=0})} | ConvertTo-Json -Depth 10 | Set-Content $config.RegistryPath -Encoding UTF8
     $message = ''
     try { Reserve-SgProjectPort $config $one $port $true | Out-Null } catch { $message = $_.Exception.Message }
-    if ($message -notlike "Configured port $port is unavailable*in use by a listening process*held by*pid*") { throw "Held configured port error lost its holder: $message" }
+    if ($message -notlike "Configured port $port is unavailable*in use by a listening process*held by*pid*started*command:*") { throw "Held configured port error lost its holder: $message" }
     $held.Stop(); $listeners.Clear()
     & $module { $script:SgPortReleaseTimeoutMs = 10000 }
 

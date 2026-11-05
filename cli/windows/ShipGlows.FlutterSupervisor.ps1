@@ -238,12 +238,26 @@ function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
     return $items.ToArray()
 }
 
+# Flutter's own reason stays in the error: a recompile failure and a stuck browser call for different fixes.
+# First line only, bounded and redacted, because it reaches state.json and the CLI.
+function Get-SgFlutterReloadFailureText([object]$Result) {
+    $code=$Result.code -as [int];$detail=''
+    if($Result.PSObject.Properties['message']-and$Result.message-is[string]){$detail=(@($Result.message -split '\r?\n'|Where-Object{-not[string]::IsNullOrWhiteSpace($_)}|Select-Object -First 1) -join '').Trim()}
+    $atom='(?:"[^"]*"|''[^'']*''|[^\s,;]+)'
+    $detail=[regex]::Replace($detail,'(?i)\b(token|secret|password|api[-_]?key|dart-define|authorization)\b(\s*[:=]\s*)'+$atom,'$1$2[REDACTED]')
+    $detail=[regex]::Replace($detail,'(?i)\b(bearer)(\s+)'+$atom,'$1$2[REDACTED]')
+    if($detail.Length-gt240){$detail=$detail.Substring(0,240)+'...'}
+    if(-not$detail){return "Flutter rejected the reload (code $code)."}
+    return "Flutter rejected the reload (code $code): $detail"
+}
+
 function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
     if ([string]::IsNullOrWhiteSpace($Line) -or $Line.Length -gt 1048576) { return }
     try { $messages = @(ConvertFrom-SgFlutterMachineEnvelope $Line) } catch { $trimmed=$Line.TrimStart();if($trimmed.StartsWith('[{')-or$trimmed.StartsWith('{')){$State.LastProtocolError='Invalid Flutter machine protocol envelope.'};return }
     foreach ($message in $messages) {
-        # app.restart reports a rejected reload (compile errors, DevFS sync) as result.code != 0, not as error.
-        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$message.result-and$message.result-isnot[array]-and$message.result.PSObject.Properties['code']-and($message.result.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError="Flutter rejected the reload (code $($message.result.code -as [int])); compile errors are in flutter.stderr.log."};continue }
+        # app.restart reports a rejected reload (compile errors, DevFS sync, debug service timeout) as result.code != 0,
+        # not as error. A later accepted reload clears the failure, so LastError always describes the latest outcome.
+        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$message.result-and$message.result-isnot[array]-and$message.result.PSObject.Properties['code']){if(($message.result.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError=Get-SgFlutterReloadFailureText $message.result}elseif($State.Ready){$State.LastError=$null}};continue }
         if (-not $message.PSObject.Properties['event'] -or -not $message.PSObject.Properties['params']) { continue }
         $params = $message.params
         $State.LastEvent=[string]$message.event
@@ -309,6 +323,24 @@ function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pu
     throw 'Flutter machine response timed out.'
 }
 
+# flutter.stdout.log carries no time and no request origin: this log ties each reload id to its source.
+# Diagnostics must never fail the reload they describe.
+function Write-SgFlutterReloadLog([string]$Path,[string]$SentAtUtc,[int]$RequestId,[string]$Source,[string]$Kind,[string]$Outcome,[long]$ElapsedMilliseconds,[string]$Detail) {
+    try{$record=[ordered]@{sentAtUtc=$SentAtUtc;id=$RequestId;source=$Source;kind=$Kind;outcome=$Outcome;elapsedMs=$ElapsedMilliseconds;detail=$Detail};[IO.File]::AppendAllText($Path,(ConvertTo-Json -InputObject $record -Compress)+[Environment]::NewLine)}catch{}
+}
+
+# Flutter's debug service alone waits 10 s before reporting a stuck browser, on top of the recompile,
+# so the response wait must outlast it or a slow reload that succeeds is reported as failed.
+function Invoke-SgFlutterReloadRequest([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[string]$ReloadLogPath,[int]$RequestId,[string]$Source,[switch]$FullRestart,[int]$TimeoutSeconds=30) {
+    $sentAtUtc=[datetime]::UtcNow.ToString('o');$clock=[Diagnostics.Stopwatch]::StartNew();$outcome='failed';$detail=''
+    try{
+        Send-SgFlutterMachineRequest $Process $RequestId 'app.restart' $State.AppId -FullRestart:$FullRestart
+        [void](Wait-SgFlutterMachineResponse $Process $Pump $Queue $ErrorQueue $State $LogPath $RequestId $TimeoutSeconds)
+        $outcome='ok'
+    }catch{$detail=$_.Exception.Message;throw}
+    finally{Write-SgFlutterReloadLog $ReloadLogPath $sentAtUtc $RequestId $Source $(if($FullRestart){'restart'}else{'reload'}) $outcome $clock.ElapsedMilliseconds $detail}
+}
+
 function Invoke-SgFlutterSupervisor {
     foreach ($item in @(@($LaunchDirectory,'launch directory'),@($ProjectPath,'project path'),@($FlutterPath,'Flutter path'),@($LaunchIdentity,'launch identity'))) { Assert-SgFlutterSafeValue ([string]$item[0]) ([string]$item[1]) }
     if ($Device -in @('chrome','web-server') -and ($Port -lt 1024 -or $Port -gt 65535)) { throw 'Invalid Flutter web port.' }
@@ -327,7 +359,7 @@ function Invoke-SgFlutterSupervisor {
     if(-not(Test-SgFlutterOwnerOnlyPath $launchRoot)){throw 'Flutter supervisor launch directory ACL is not owner-only.'}
     $statePath=Join-Path $launchRoot 'state.json'; $commandDir=Join-Path $launchRoot 'commands'; $responseDir=Join-Path $launchRoot 'responses'
     New-Item -ItemType Directory -Path $commandDir,$responseDir -Force | Out-Null;Protect-SgFlutterOwnerOnlyPath $commandDir;Protect-SgFlutterOwnerOnlyPath $responseDir
-    $stdoutPath=Join-Path $launchRoot 'flutter.stdout.log'; $stderrPath=Join-Path $launchRoot 'flutter.stderr.log'
+    $stdoutPath=Join-Path $launchRoot 'flutter.stdout.log'; $stderrPath=Join-Path $launchRoot 'flutter.stderr.log'; $reloadLogPath=Join-Path $launchRoot 'flutter.reload.log'
 
     $flutterRoot=Split-Path (Split-Path $FlutterPath -Parent) -Parent
     $dart=Join-Path $flutterRoot 'bin\cache\dart-sdk\bin\dart.exe'; $snapshot=Join-Path $flutterRoot 'bin\cache\flutter_tools.snapshot'
@@ -369,13 +401,13 @@ function Invoke-SgFlutterSupervisor {
                 if("$($state.AdbReverseRestoredAtUtc)|$($state.AdbReverseError)" -ne $before){Write-SgFlutterJsonAtomic $statePath $state}
                 $nextReverseCheckUtc=[datetime]::UtcNow.AddSeconds(5)
             }
-            if($state.Ready -and (Test-SgFlutterDebounceReady $changes $nowUtc)){ $requestId++;try{Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)}catch{$state.LastError=$_.Exception.Message};Complete-SgFlutterDebounce $changes;Write-SgFlutterJsonAtomic $statePath $state }
+            if($state.Ready -and (Test-SgFlutterDebounceReady $changes $nowUtc)){ $requestId++;try{Invoke-SgFlutterReloadRequest $process $pump $outQueue $errQueue $state $stdoutPath $reloadLogPath $requestId 'watcher'}catch{$state.LastError=$_.Exception.Message};Complete-SgFlutterDebounce $changes;Write-SgFlutterJsonAtomic $statePath $state }
             foreach($commandFile in @(Get-ChildItem -LiteralPath $commandDir -Filter '*.json' -File -ErrorAction SilentlyContinue | Sort-Object Name)){
                 $claimedPath=Claim-SgFlutterCommandFile $commandFile
                 if(-not $claimedPath){continue}
                 $response=[ordered]@{ok=$false;error='Invalid command.'}
                 try { $claimed=Get-Item -LiteralPath $claimedPath -ErrorAction Stop;if($claimed.Length -gt 65536){throw 'Supervisor command exceeds 64 KiB.'};$command=ConvertFrom-SgFlutterCommandJson ([IO.File]::ReadAllText($claimedPath)) $token;$response=[ordered]@{ok=$true;method=$command.Method}
-                    if($command.Method -in @('reload','restart')){if($Mode -eq 'profile'){throw 'Restart is not supported in profile mode.'};if(-not $state.Ready){throw 'Flutter application is not ready.'};$full=$command.Method -eq 'restart';$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId -FullRestart:$full;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId $(if($full){30}else{10}));Write-SgFlutterJsonAtomic $statePath $state}
+                    if($command.Method -in @('reload','restart')){if($Mode -eq 'profile'){throw 'Restart is not supported in profile mode.'};if(-not $state.Ready){throw 'Flutter application is not ready.'};$full=$command.Method -eq 'restart';$requestId++;Invoke-SgFlutterReloadRequest $process $pump $outQueue $errQueue $state $stdoutPath $reloadLogPath $requestId 'cli' -FullRestart:$full;Write-SgFlutterJsonAtomic $statePath $state}
                     elseif($command.Method -in @('stop','open')){if($state.AppId){$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.stop' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)};$stopRequested=$true}
                 } catch {$response=[ordered]@{ok=$false;error=$_.Exception.Message}}
                 try{Write-SgFlutterJsonAtomic (Join-Path $responseDir ($commandFile.BaseName+'.json')) $response}finally{Remove-Item -LiteralPath $claimedPath -Force -ErrorAction SilentlyContinue}

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.2"
+artifact_version: "1.38.3"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-11-05"
+updated: "2026-11-06"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -584,8 +584,12 @@ une fenêtre calme de 500 ms puis déclenchent `app.restart` en mode hot reload.
 (`fullRestart: true`, quelques secondes) : l'état repart de `main()`, ce qui prend
 en compte une table de routes ou un initialiseur modifié sans relancer la session.
 Un reload refusé par Flutter (`result.code` non nul : erreurs de compilation,
-`DevFS synchronization failed`) fait échouer `s reload` avec le code et le chemin
-du `flutter.stderr.log` de la session, au lieu d'annoncer un succès.
+`DevFS synchronization failed`, expiration du service de debug) fait échouer
+`s reload` avec le code, la première ligne du message de Flutter et le chemin du
+`flutter.stderr.log` de la session, au lieu d'annoncer un succès.
+Un reload du watcher n'affiche rien : `flutter.reload.log` (copié en `reload.log`
+avec les journaux durables) donne l'heure, l'id, la source (`watcher` ou `cli`) et
+le résultat de chaque requête. L'attente d'une réponse est de 30 s.
 Le canal local n'accepte que reload, restart, stop et open, avec l'identité secrète du
 lancement, une taille et des délais bornés ; il n'exécute aucune commande libre.
 Une session lancée avant une mise à jour garde l'ancien superviseur : relancez-la
