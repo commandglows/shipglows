@@ -37,7 +37,7 @@ evidence:
   - "Astro docs (content collections, content loader API): glob loader with generateId, reference() between collections, retainBody false for large collections; the Content Layer targets tens of thousands of entries."
   - "Astro 7.3.5 local check 2026-11-01: the default Sätteri Markdown processor parses [[wikilinks]] with features.wikilinks and accepts mdast plugins; contentglows/site migrated and served on the managed dev server (routes, 301s, hreflang, wikilinks, graph)."
 next_review: "2027-02-01"
-next_step: "Extract contentglows/site/src/lib/content-model into @shipglows/astro-engine/content, then migrate the next site of the Migration table."
+next_step: "Migrate the remaining sites of the Migration table onto @shipglows/astro-content."
 ---
 
 # Content Tree Model
@@ -178,7 +178,7 @@ A site without this file does not follow the model. Tools report it as non-confo
 
 ## Shared Implementation
 
-The collection schema, the `taxonomy.yaml` loader, the wikilink resolver, breadcrumbs, `redirects.json` loading and the graph endpoint will live once in `@shipglows/astro-engine` (`/content`). Sites import them; they keep their own HTML and styling. The reference implementation is `contentglows/site/src/lib/content-model/` (`model.mjs` for Node and `astro.config.mjs`, `site.ts` for pages); copy it until the engine module ships.
+The `taxonomy.yaml` loader, the wikilink resolvers, breadcrumb trails, `redirects.json` loading, the forbidden-field check and the graph live once in `@shipglows/astro-content` (`shipglows-astro-engine/packages/content`, see its README). Each site keeps its HTML, styling and Zod schema, wires `shipglowsContent()` and a wikilink plugin in `astro.config.mjs`, and reads the package by path (`tool/provide-engines.sh` clones the engine on Vercel and CI).
 
 ## Proof
 
