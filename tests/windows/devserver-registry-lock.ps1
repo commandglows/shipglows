@@ -39,6 +39,21 @@ $config = [pscustomobject]@{RuntimeDirectory=$Runtime;RegistryPath=(Join-Path $R
     if (-not $holder.WaitForExit(20000)) { throw 'The lock holder did not exit.' }
     if (Test-Path -LiteralPath (Join-Path $runtime 'registry.lock.owner.json')) { throw 'The lock holder left its owner record behind.' }
 
+    # A start waits past the default 15 s, so a slow status read cannot leave a stopped session down; an explicit wait is kept.
+    $defaultConfig = $config | Select-Object * -ExcludeProperty LockTimeoutSeconds
+    $lifecycle = & $module { param($Config) Get-SgLifecycleConfig $Config } $defaultConfig
+    if ([int]$lifecycle.LockTimeoutSeconds -ne 120) { throw "A start does not wait long enough for the registry: $($lifecycle.LockTimeoutSeconds)" }
+    if ($defaultConfig.PSObject.Properties['LockTimeoutSeconds']) { throw 'The shared configuration gained the start wait, which would slow status reads.' }
+    $explicitWait = $defaultConfig | Select-Object *
+    $explicitWait | Add-Member -NotePropertyName LockTimeoutSeconds -NotePropertyValue 3
+    if ([int](& $module { param($Config) Get-SgLifecycleConfig $Config } $explicitWait).LockTimeoutSeconds -ne 3) { throw 'An explicit registry wait was overridden.' }
+    $holder = Start-LockHolder 17; $holders += $holder
+    $waited = [Diagnostics.Stopwatch]::StartNew()
+    & $module { param($Config) Invoke-SgRegistryMutation $Config { } | Out-Null } $lifecycle
+    $waited.Stop()
+    if ($waited.Elapsed.TotalSeconds -lt 15) { throw "The lock holder released too early to prove the longer wait: $($waited.Elapsed.TotalSeconds) s" }
+    if (-not $holder.WaitForExit(20000)) { throw 'The slow lock holder did not exit.' }
+
     # A target lock names its holder too, cleans up after itself, and reports a holder that is gone.
     $sessionHolderScript = Join-Path $fixture 'session-holder.ps1'
     Set-Content $sessionHolderScript @'

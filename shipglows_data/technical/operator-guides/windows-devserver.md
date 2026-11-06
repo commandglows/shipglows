@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.7"
+artifact_version: "1.38.8"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-11-06"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-11-06, un `s restart` de claiire/app a échoué après l'arrêt de la session (« Registry lock stayed busy for 15 s ») : un `s status` d'une autre session tenait le verrou depuis 34 s, pendant un `s update` qui chargeait le poste. L'app est restée arrêtée. La cause de cette tenue longue n'a pas été établie (0,5 à 4 s mesurées ensuite) ; le démarrage attend désormais 120 s."
   - "Le 2026-11-06 sur claiire/app (web-server, port 3013), `s restart` capturé dépassait 420 s sans fuite de pipe : fin du processus et EOF du pipe coïncident à moins de 0,2 s sur 9 lancements. Un restart dure de 188 à 421 s selon la charge du poste, dont 112 à 248 s de compilation Flutter, et la commande rend la main 1,4 à 7,6 s après app.started. La réconciliation lançait un scan des processus par session Flutter terminée : le correctif ramène `s status` de 25-38 s à 12-16 s, sans gain mesuré sur la durée totale d'un restart. Une sonde HTTP toutes les 0,5 s sur le port empêche le frontend_server de démarrer tant qu'elle dure (échec à 600 s) ; il repart dès son arrêt, et une requête isolée ne gêne pas."
   - "Les 2026-10-31 et 2026-11-02 sur l'extension CommunityGlows (CRXJS + Vite 8, port 3010), `s restart` échouait par intermittence (« Configured port 3010 is … unavailable ») alors que le port se libérait, et `s start` échouait en lisant `dist\\chrome\\manifest.json` pendant que Vite l'écrivait ; `s restart` attend la libération du port de la surface (10 s) et la lecture du manifeste réessaie sur verrou ou JSON incomplet (2 s)."
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21 mis en veille, la session Flutter Android passait à stopped mais `s start` répondait « Already running with verified Flutter configuration » puis « unexpected status: stopped », et `s restart` voyait « Application finished » pendant le build ; `s start` relance depuis une session stopped/error dont le superviseur survit, et `s stop`/`s restart` attendent que l'app soit éteinte sur le téléphone (am force-stop + pidof) avant de relancer."
@@ -552,7 +553,7 @@ le Job Object exact et ne publie `stopped` qu'après disparition prouvée de l'i
 et du service ; sinon le registre reste inchangé et l'erreur est visible. Un stop
 déjà accompli reste idempotent et efface toute erreur live obsolète.
 
-`s start` et `s restart` rendent la main dès que la cible est prête ou en échec : sur Flutter web, la durée vient de la compilation (2 à 4 min sur claiire/app), pas d'un pipe resté ouvert. Ne pas sonder le port d'une cible `web-server` pendant son démarrage : des requêtes HTTP répétées (script, moniteur) retiennent la compilation jusqu'à l'échec à 600 s, alors qu'une requête isolée ne gêne pas. Attendre le retour de la commande, puis contrôler le port. `s status` ne prend pas de verrou de démarrage : il répond pendant un restart (12 à 28 s mesurés sur un poste chargé) et une passe de réconciliation n'énumère les processus qu'une fois.
+`s start` et `s restart` rendent la main dès que la cible est prête ou en échec : sur Flutter web, la durée vient de la compilation (2 à 4 min sur claiire/app), pas d'un pipe resté ouvert. Ne pas sonder le port d'une cible `web-server` pendant son démarrage : des requêtes HTTP répétées (script, moniteur) retiennent la compilation jusqu'à l'échec à 600 s, alors qu'une requête isolée ne gêne pas. Attendre le retour de la commande, puis contrôler le port. Une fois lancés, `s start` et `s restart` attendent le verrou du registre jusqu'à 120 s, contre 15 s pour les lectures comme `s status` : un registre occupé retarde le relancement au lieu de laisser l'app arrêtée. `s status` ne prend pas de verrou de démarrage : il répond pendant un restart (12 à 28 s mesurés sur un poste chargé) et une passe de réconciliation n'énumère les processus qu'une fois.
 
 Pour les projets web (dont Astro), l'attente de readiness suit le budget demandé par l'appelant, plafonné à 300 secondes. Un démarrage à froid d'un gros site Astro peut dépasser 60 secondes : ce plafond n'est plus de 60 secondes. Si le serveur ne répond toujours pas après 300 secondes, l'état passe à `error` avec la fin du log.
 

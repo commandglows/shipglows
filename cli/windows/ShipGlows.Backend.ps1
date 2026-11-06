@@ -164,7 +164,18 @@ function Initialize-SgBackend($Config, $Plan, $Existing) {
     } catch { if ($created) { Stop-SgBackend $state }; throw }
 }
 
+# A start or restart may already have stopped the session it replaces: a busy registry then delays
+# the launch instead of leaving the application down. Status reads keep the short default wait.
+$script:SgLifecycleLockTimeoutSeconds = 120
+function Get-SgLifecycleConfig([object]$Config) {
+    if ($Config.PSObject.Properties['LockTimeoutSeconds'] -and [int]$Config.LockTimeoutSeconds -gt 0) { return $Config }
+    $lifecycle = $Config | Select-Object *
+    $lifecycle | Add-Member -NotePropertyName LockTimeoutSeconds -NotePropertyValue $script:SgLifecycleLockTimeoutSeconds -Force
+    return $lifecycle
+}
+
 function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort=0, [switch]$FlutterVisible, [switch]$RetryingFlutterStartup, [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice='', [string]$FlutterDeviceId='', [ValidateSet('','debug','profile')][string]$FlutterMode='', [ValidateSet('','dev','prd')][string]$FlutterEnvironment='', [ValidateSet('','windows','android')][string]$TauriDevice='', [string]$TauriDeviceId='', [ValidateSet('','dev','prd')][string]$TauriEnvironment='', [switch]$Restart, [ValidateSet('','own','shared')][string]$Frontend='', [switch]$Replace) {
+    $Config = Get-SgLifecycleConfig $Config
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     if (-not (Test-SgProjectPath $path $Config.Workspace)) { throw 'Project must be inside the ShipGlows workspace before backend launch.' }
     $existing = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
