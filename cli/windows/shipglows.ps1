@@ -312,6 +312,7 @@ function Get-SgStackSiteChecks($Site, [string]$ProjectRoot) {
     $surfaceName = Get-SgStackRelative -Root $ProjectRoot -Path $root
     if (-not $surfaceName) { $surfaceName = '.' }
     $findings = New-Object Collections.Generic.List[object]
+    $engineLinkSeen = $false
     $add = {
         param($Severity, $Code, $Path, $Package, $Message)
         $findings.Add([ordered]@{ surface = $surfaceName; severity = $Severity; code = $Code; path = $Path; package = $Package; message = $Message })
@@ -320,6 +321,7 @@ function Get-SgStackSiteChecks($Site, [string]$ProjectRoot) {
     # 1. Duplicate: a site-owned copy of a module that a package already provides.
     $duplicateRules = @(
         @{ Pattern = '(^|/)content-model/model\.mjs$'; Package = '@shipglows/astro-content'; Use = "export * from '@shipglows/astro-content/model'" },
+        @{ Pattern = '(^|/)remark-wikilinks\.(mjs|js|ts)$'; Package = '@shipglows/astro-content'; Use = 'createRemarkWikilinks from @shipglows/astro-content/model' },
         @{ Pattern = '(^|/)ThemeToggle[A-Za-z]*\.(astro|vue|tsx|jsx|svelte)$'; Package = '@shipglows/astro-ui'; Use = '@shipglows/astro-ui/theme/ThemeToggle.astro' },
         @{ Pattern = '(^|/)ThemeScript\.astro$'; Package = '@shipglows/astro-ui'; Use = '@shipglows/astro-ui/theme/ThemeScript.astro' },
         @{ Pattern = '(^|/)Breadcrumbs?\.astro$'; Package = '@shipglows/astro-seo'; Use = '@shipglows/astro-seo/breadcrumbs/Breadcrumbs.astro' },
@@ -359,9 +361,19 @@ function Get-SgStackSiteChecks($Site, [string]$ProjectRoot) {
         $target = $Matches[2]
         try { $resolved = [IO.Path]::GetFullPath((Join-Path $root $target)) } catch { continue }
         $inside = $resolved.TrimEnd('\').StartsWith($repositoryRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase) -or $resolved.TrimEnd('\') -ieq $repositoryRoot.TrimEnd('\')
-        if (-not $inside) {
-            & $add 'info' 'fragile-link' "package.json ($($dependency.Section))" $dependency.Name "$($dependency.Spec) leaves the repository; breaks a Vercel or CI checkout until publication is decided (engine TASKS.md 'Publication')"
+        if ($inside) { continue }
+        if ($dependency.Spec -match 'shipglows-astro-engine[\\/]packages[\\/]') {
+            # The supported mode: a path to the sibling engine, cloned on Vercel and CI by tool/provide-engines.sh.
+            if (-not $engineLinkSeen) {
+                $engineLinkSeen = $true
+                $vercelConfig = Read-SgStackFileText (Join-Path $root 'vercel.json')
+                if ($vercelConfig -notmatch 'provide-engines\.sh' -and $vercelConfig -notmatch '"installCommand":\s*"echo ') {
+                    & $add 'warn' 'engine-not-provided' 'vercel.json' $dependency.Name 'the Astro engine is read by path but installCommand does not run tool/provide-engines.sh; a Vercel build fails'
+                }
+            }
+            continue
         }
+        & $add 'info' 'fragile-link' "package.json ($($dependency.Section))" $dependency.Name "$($dependency.Spec) leaves the repository; breaks a Vercel or CI checkout"
     }
 
     # 4. Content-tree conformity (skills/references/content-tree-model.md).
@@ -379,6 +391,17 @@ function Get-SgStackSiteChecks($Site, [string]$ProjectRoot) {
             & $add 'warn' 'content-not-migrated' '.shipglows.content.json' '@shipglows/astro-content' "no content manifest while src holds $markdownCount Markdown file(s); the site does not follow the content-tree model"
         }
         return ,$findings
+    }
+    $astroConfig = ''
+    foreach ($configName in 'astro.config.mjs', 'astro.config.ts', 'astro.config.js') {
+        $configPath = Join-Path $root $configName
+        if (Test-Path -LiteralPath $configPath -PathType Leaf) { $astroConfig = Read-SgStackFileText $configPath; break }
+    }
+    if ($astroConfig -notmatch 'createWikilinkPlugin|createRemarkWikilinks') {
+        & $add 'warn' 'wikilinks-not-wired' 'astro.config.mjs' '@shipglows/astro-content' 'no shared wikilink plugin in the Markdown processor; [[slug]] renders as plain text'
+    }
+    if ($astroConfig -notmatch 'shipglowsContent\(') {
+        & $add 'warn' 'content-integration-missing' 'astro.config.mjs' '@shipglows/astro-content' 'add shipglowsContent() from @shipglows/astro-content/integration; without it a broken wikilink ships an empty page'
     }
     $manifestLocales = @()
     try {
