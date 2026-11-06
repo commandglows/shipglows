@@ -228,6 +228,240 @@ function Add-SgStackSurfaceNames([string]$Root, [hashtable]$Found) {
     if ((Test-SgStackPath $Root 'convex.json' 'Leaf') -or (Test-SgStackPath $Root 'convex' 'Container')) { $Found['convex'] = $true }
 }
 
+function Get-SgStackRelative([string]$Root, [string]$Path) {
+    return (($Path.Substring($Root.Length).TrimStart('\', '/')) -replace '\\', '/')
+}
+
+function Get-SgStackDependencies($Package) {
+    # Flat list of { Section, Name, Spec } over every dependency section of a parsed package.json.
+    $items = New-Object Collections.Generic.List[object]
+    foreach ($section in 'dependencies', 'devDependencies', 'optionalDependencies') {
+        if (-not $Package.PSObject.Properties[$section] -or -not $Package.$section) { continue }
+        foreach ($property in $Package.$section.PSObject.Properties) {
+            $items.Add([pscustomobject]@{ Section = $section; Name = [string]$property.Name; Spec = [string]$property.Value })
+        }
+    }
+    return ,$items
+}
+
+function Get-SgStackAstroSurfaces([string]$Root) {
+    # Surface roots whose package.json depends on astro. The shared @shipglows/astro-* packages themselves are not sites.
+    $sites = New-Object Collections.Generic.List[object]
+    foreach ($surface in @(Get-SgStackSurfaceRoots -Root $Root)) {
+        $text = Read-SgStackFileText (Join-Path $surface 'package.json')
+        if (-not $text) { continue }
+        try { $package = $text | ConvertFrom-Json } catch { continue }
+        if ($null -eq $package) { continue }
+        if ($package.PSObject.Properties['name'] -and ([string]$package.name).StartsWith('@shipglows/astro-')) { continue }
+        $dependencies = Get-SgStackDependencies -Package $package
+        if (@($dependencies | Where-Object { $_.Name -ceq 'astro' }).Count -eq 0) { continue }
+        $sites.Add([pscustomobject]@{ Root = $surface; Package = $package; Dependencies = $dependencies })
+    }
+    return ,$sites
+}
+
+function Get-SgStackGitRoot([string]$Start, [string]$Fallback) {
+    $current = $Start
+    while ($current) {
+        if (Test-Path -LiteralPath (Join-Path $current '.git')) { return $current }
+        $parent = Split-Path -Parent $current
+        if (-not $parent -or $parent -eq $current) { break }
+        $current = $parent
+    }
+    return $Fallback
+}
+
+function Get-SgStackSourceFiles([string]$SurfaceRoot) {
+    # Source files of one site (extensions that can import a package), plus its root config files. Never node_modules.
+    $files = New-Object Collections.Generic.List[string]
+    $src = Join-Path $SurfaceRoot 'src'
+    $extensions = '\.(astro|ts|tsx|js|jsx|mjs|cjs|mts|vue|svelte|css|mdx)$'
+    if (Test-Path -LiteralPath $src -PathType Container) {
+        foreach ($file in @(Get-ChildItem -LiteralPath $src -Recurse -File -Force -ErrorAction SilentlyContinue)) {
+            if ($file.Name -match $extensions -and $file.FullName -notmatch '[\\/]node_modules[\\/]') { $files.Add($file.FullName) }
+        }
+    }
+    foreach ($file in @(Get-ChildItem -LiteralPath $SurfaceRoot -File -Force -ErrorAction SilentlyContinue)) {
+        if ($file.Name -match '^(astro|tailwind|vite|vitest)\.config\.' -or $file.Name -match '^(middleware|env)\.') { $files.Add($file.FullName) }
+    }
+    return ,$files
+}
+
+function Get-SgStackFrontmatterKeys([string]$Path) {
+    # Top-level keys of the leading --- block, read line by line and stopped at the closing ---.
+    $keys = New-Object Collections.Generic.List[string]
+    $state = 0
+    try {
+        foreach ($line in [IO.File]::ReadLines($Path)) {
+            if ($state -eq 0) {
+                if ($line.TrimEnd() -ne '---') { break }
+                $state = 1
+                continue
+            }
+            if ($line.TrimEnd() -eq '---') { break }
+            if ($line -match '^([A-Za-z_][\w-]*)\s*:') { $keys.Add($Matches[1]) }
+        }
+    } catch { }
+    return ,$keys
+}
+
+function Get-SgStackSiteChecks($Site, [string]$ProjectRoot) {
+    # Read-only checks of one Astro site against the shared packages and the content-tree doctrine.
+    # Severity: error = must fix, warn = should migrate, info = decision pending.
+    $root = $Site.Root
+    $surfaceName = Get-SgStackRelative -Root $ProjectRoot -Path $root
+    if (-not $surfaceName) { $surfaceName = '.' }
+    $findings = New-Object Collections.Generic.List[object]
+    $add = {
+        param($Severity, $Code, $Path, $Package, $Message)
+        $findings.Add([ordered]@{ surface = $surfaceName; severity = $Severity; code = $Code; path = $Path; package = $Package; message = $Message })
+    }
+
+    # 1. Duplicate: a site-owned copy of a module that a package already provides.
+    $duplicateRules = @(
+        @{ Pattern = '(^|/)content-model/model\.mjs$'; Package = '@shipglows/astro-content'; Use = "export * from '@shipglows/astro-content/model'" },
+        @{ Pattern = '(^|/)ThemeToggle[A-Za-z]*\.(astro|vue|tsx|jsx|svelte)$'; Package = '@shipglows/astro-ui'; Use = '@shipglows/astro-ui/theme/ThemeToggle.astro' },
+        @{ Pattern = '(^|/)ThemeScript\.astro$'; Package = '@shipglows/astro-ui'; Use = '@shipglows/astro-ui/theme/ThemeScript.astro' },
+        @{ Pattern = '(^|/)Breadcrumbs?\.astro$'; Package = '@shipglows/astro-seo'; Use = '@shipglows/astro-seo/breadcrumbs/Breadcrumbs.astro' },
+        @{ Pattern = '(^|/)breadcrumbs\.(ts|js|mjs)$'; Package = '@shipglows/astro-seo'; Use = '@shipglows/astro-seo/breadcrumbs' },
+        @{ Pattern = '(^|/)(LanguageSelector|LanguageSwitch(er)?|languageSwitch)\.(astro|vue|tsx|jsx|svelte|ts|js|mjs)$'; Package = '@shipglows/astro-i18n'; Use = '@shipglows/astro-i18n/LanguageSelector.astro' },
+        @{ Pattern = '(^|/)LegalNotice\.astro$'; Package = '@shipglows/astro-seo'; Use = '@shipglows/astro-seo/legal/LegalNotice.astro' },
+        @{ Pattern = '(^|/)Icon\.astro$'; Package = '@shipglows/astro-ui'; Use = '@shipglows/astro-ui/icons/Icon.astro' }
+    )
+    $sourceFiles = Get-SgStackSourceFiles -SurfaceRoot $root
+    foreach ($file in $sourceFiles) {
+        $relative = Get-SgStackRelative -Root $root -Path $file
+        foreach ($rule in $duplicateRules) {
+            if ($relative -notmatch $rule.Pattern) { continue }
+            $text = Read-SgStackFileText $file
+            if ($relative -match 'content-model/model\.mjs$') {
+                # The accepted form is the one-line re-export of the package.
+                if ($text.Trim() -match "^export \* from '@shipglows/astro-content/model';?$") { break }
+            } elseif ($text -match '@shipglows/astro-') {
+                # A site wrapper that already builds on a package is not a copy.
+                break
+            }
+            & $add 'warn' 'duplicate-module' $relative $rule.Package "site-owned copy; replace with $($rule.Use)"
+            break
+        }
+        # 2. Obsolete dependency: imports of the retired single package.
+        if ((Read-SgStackFileText $file) -match '@shipglows/astro-engine') {
+            & $add 'error' 'obsolete-import' $relative '@shipglows/astro-engine' 'imports the retired single package; use the matching @shipglows/astro-<name> package'
+        }
+    }
+    # 2 and 3. Obsolete dependency, and link:/file: dependencies that leave the repository.
+    $repositoryRoot = Get-SgStackGitRoot -Start $root -Fallback $ProjectRoot
+    foreach ($dependency in $Site.Dependencies) {
+        if ($dependency.Name -ceq '@shipglows/astro-engine') {
+            & $add 'error' 'obsolete-dependency' "package.json ($($dependency.Section))" '@shipglows/astro-engine' 'retired single package; depend on the @shipglows/astro-<name> packages instead'
+        }
+        if ($dependency.Spec -notmatch '^(link|file|portal):(.+)$') { continue }
+        $target = $Matches[2]
+        try { $resolved = [IO.Path]::GetFullPath((Join-Path $root $target)) } catch { continue }
+        $inside = $resolved.TrimEnd('\').StartsWith($repositoryRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase) -or $resolved.TrimEnd('\') -ieq $repositoryRoot.TrimEnd('\')
+        if (-not $inside) {
+            & $add 'info' 'fragile-link' "package.json ($($dependency.Section))" $dependency.Name "$($dependency.Spec) leaves the repository; breaks a Vercel or CI checkout until publication is decided (engine TASKS.md 'Publication')"
+        }
+    }
+
+    # 4. Content-tree conformity (skills/references/content-tree-model.md).
+    $contentRoot = Join-Path $root 'src\content'
+    $articlesRoot = Join-Path $contentRoot 'articles'
+    $manifestPath = Join-Path $root '.shipglows.content.json'
+    $hasManifest = Test-Path -LiteralPath $manifestPath -PathType Leaf
+    $markdownCount = 0
+    $src = Join-Path $root 'src'
+    if (Test-Path -LiteralPath $src -PathType Container) {
+        $markdownCount = @(Get-ChildItem -LiteralPath $src -Recurse -File -Force -Include '*.md', '*.mdx' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '[\\/]node_modules[\\/]' }).Count
+    }
+    if (-not $hasManifest) {
+        if ($markdownCount -gt 0 -or (Test-Path -LiteralPath $articlesRoot -PathType Container)) {
+            & $add 'warn' 'content-not-migrated' '.shipglows.content.json' '@shipglows/astro-content' "no content manifest while src holds $markdownCount Markdown file(s); the site does not follow the content-tree model"
+        }
+        return ,$findings
+    }
+    $manifestLocales = @()
+    try {
+        $manifest = (Read-SgStackFileText $manifestPath) | ConvertFrom-Json
+        if ($null -eq $manifest) { throw 'empty' }
+        if ($manifest.PSObject.Properties['schema'] -and [string]$manifest.schema -cne 'shipglows-content/v1') {
+            & $add 'warn' 'content-manifest-schema' '.shipglows.content.json' '@shipglows/astro-content' "unexpected schema '$($manifest.schema)'; expected shipglows-content/v1"
+        }
+        if ($manifest.PSObject.Properties['locales']) { $manifestLocales = @($manifest.locales | ForEach-Object { [string]$_ }) }
+    } catch {
+        & $add 'error' 'content-manifest-invalid' '.shipglows.content.json' '@shipglows/astro-content' 'not valid JSON'
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $contentRoot 'taxonomy.yaml') -PathType Leaf)) {
+        & $add 'error' 'taxonomy-missing' 'src/content/taxonomy.yaml' '@shipglows/astro-content' 'the subject tree is missing'
+    }
+    if (-not (Test-Path -LiteralPath $articlesRoot -PathType Container)) {
+        & $add 'error' 'articles-missing' 'src/content/articles' '@shipglows/astro-content' 'articles collection folder is missing'
+        return ,$findings
+    }
+    $forbidden = @('slug', 'locale', 'category', 'categories', 'section', 'permalink', 'url', 'parent', 'date', 'pubDate')
+    $forbiddenHits = @{}
+    foreach ($entry in @(Get-ChildItem -LiteralPath $articlesRoot -Force -ErrorAction SilentlyContinue)) {
+        $entryPath = 'src/content/articles/' + $entry.Name
+        if (-not $entry.PSIsContainer) {
+            & $add 'error' 'article-outside-locale' $entryPath '@shipglows/astro-content' 'file directly under articles/; articles live in articles/<locale>/'
+            continue
+        }
+        if ($manifestLocales.Count -gt 0 -and $manifestLocales -cnotcontains $entry.Name) {
+            & $add 'error' 'unknown-locale-folder' $entryPath '@shipglows/astro-content' "folder is not a manifest locale ($($manifestLocales -join ', '))"
+        }
+        foreach ($child in @(Get-ChildItem -LiteralPath $entry.FullName -Force -ErrorAction SilentlyContinue)) {
+            $childPath = $entryPath + '/' + $child.Name
+            if ($child.PSIsContainer) {
+                & $add 'error' 'article-subfolder' $childPath '@shipglows/astro-content' 'subfolder below a locale folder; articles are flat'
+                continue
+            }
+            if ($child.Name.StartsWith('_')) { continue }
+            if ($child.Extension -ine '.md') {
+                & $add 'warn' 'article-not-markdown' $childPath '@shipglows/astro-content' 'articles are .md files'
+                continue
+            }
+            if ($child.BaseName -cnotmatch '^[a-z0-9]+(?:-[a-z0-9]+)*$') {
+                & $add 'warn' 'article-slug-invalid' $childPath '@shipglows/astro-content' 'file name must be a lowercase ASCII hyphenated slug'
+            }
+            $frontmatterKeys = Get-SgStackFrontmatterKeys -Path $child.FullName
+            foreach ($key in ($frontmatterKeys | Select-Object -Unique)) {
+                if ($forbidden -ccontains $key) {
+                    if (-not $forbiddenHits.ContainsKey($key)) { $forbiddenHits[$key] = New-Object Collections.Generic.List[string] }
+                    $forbiddenHits[$key].Add($childPath)
+                }
+            }
+        }
+    }
+    foreach ($key in @($forbiddenHits.Keys | Sort-Object)) {
+        $hits = $forbiddenHits[$key]
+        $examples = (@($hits | Select-Object -First 3) -join ', ')
+        & $add 'error' 'forbidden-frontmatter-field' $hits[0] '@shipglows/astro-content' "'$key' in $($hits.Count) article(s), e.g. $examples; the path or the taxonomy already carries it"
+    }
+    return ,$findings
+}
+
+function ConvertTo-SgStackChecksJson([Collections.Generic.List[object]]$Findings, [int]$SiteCount) {
+    $lines = New-Object Collections.Generic.List[string]
+    $lines.Add('{')
+    $lines.Add('  "schema_version": 1,')
+    $lines.Add('  "astro_sites": ' + $SiteCount + ',')
+    foreach ($level in 'error', 'warn', 'info') {
+        $lines.Add('  "' + $level + 's": ' + @($Findings | Where-Object { $_['severity'] -ceq $level }).Count + ',')
+    }
+    if ($Findings.Count -eq 0) {
+        $lines.Add('  "checks": []')
+    } else {
+        $lines.Add('  "checks": [')
+        for ($index = 0; $index -lt $Findings.Count; $index++) {
+            $comma = if ($index -lt $Findings.Count - 1) { ',' } else { '' }
+            $lines.Add('    ' + (ConvertTo-Json -InputObject $Findings[$index] -Compress -Depth 4) + $comma)
+        }
+        $lines.Add('  ]')
+    }
+    $lines.Add('}')
+    return (($lines -join "`n") + "`n")
+}
+
 function ConvertTo-SgStackJsonValue($Value) {
     if ($null -eq $Value) { return 'null' }
     return (ConvertTo-Json -InputObject $Value -Compress -Depth 8)
@@ -288,10 +522,11 @@ function Invoke-SgStack([string[]]$Arguments) {
     # shipglows stack scan -ProjectPath <path> [-Write]
     # Detects technologies from the surface roots of one project. Without -Write nothing is written.
     if ($Arguments.Count -lt 2 -or $Arguments[1] -ine 'scan') {
-        Stop-SgCommand 'expected: shipglows stack scan -ProjectPath <path> [-Write]'
+        Stop-SgCommand 'expected: shipglows stack scan -ProjectPath <path> [-Write|-Checks]'
     }
     $projectPath = ''
     $write = $false
+    $checks = $false
     $index = 2
     while ($index -lt $Arguments.Count) {
         $token = $Arguments[$index]
@@ -305,8 +540,11 @@ function Invoke-SgStack([string[]]$Arguments) {
         } elseif ($token -ieq '-Write') {
             $write = $true
             $index++
+        } elseif ($token -ieq '-Checks') {
+            $checks = $true
+            $index++
         } else {
-            Stop-SgCommand "unexpected argument '$token'; expected: shipglows stack scan -ProjectPath <path> [-Write]"
+            Stop-SgCommand "unexpected argument '$token'; expected: shipglows stack scan -ProjectPath <path> [-Write|-Checks]"
         }
     }
     if ([string]::IsNullOrWhiteSpace($projectPath)) { Stop-SgCommand 'stack scan requires -ProjectPath <path>' }
@@ -314,6 +552,19 @@ function Invoke-SgStack([string[]]$Arguments) {
         Stop-SgCommand "project path does not exist or is not a directory: $projectPath"
     }
     $root = (Resolve-Path -LiteralPath $projectPath).ProviderPath
+    if ($checks -and $write) { Stop-SgCommand '-Checks is read-only and cannot be combined with -Write' }
+
+    if ($checks) {
+        # Per-site Astro checks (duplicates of shared packages, retired dependency, fragile links, content-tree conformity).
+        $sites = Get-SgStackAstroSurfaces -Root $root
+        $findings = New-Object Collections.Generic.List[object]
+        foreach ($site in $sites) {
+            $siteFindings = Get-SgStackSiteChecks -Site $site -ProjectRoot $root
+            foreach ($finding in $siteFindings) { $findings.Add($finding) }
+        }
+        Write-Output ((ConvertTo-SgStackChecksJson -Findings $findings -SiteCount $sites.Count).TrimEnd("`n"))
+        exit 0
+    }
 
     $detectedEntries = New-Object Collections.Generic.List[object]
     foreach ($name in @(Get-SgStackDetectedNames -Root $root)) {
