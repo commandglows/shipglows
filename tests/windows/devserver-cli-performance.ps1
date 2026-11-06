@@ -83,6 +83,26 @@ try {
     $reconcileWatch.Stop()
     if ($reconcileWatch.Elapsed.TotalMilliseconds -ge $MaximumReconcileMs) { throw "Batched registry reconciliation took $([math]::Round($reconcileWatch.Elapsed.TotalMilliseconds,1)) ms and exceeded $MaximumReconcileMs ms." }
 
+    # Each ended Flutter session asks for the process list: one reconciliation pass enumerates it once.
+    $scanCounts = & (Get-Module ShipGlows.DevServer) {
+        $script:sgScanCount = 0
+        function script:Get-CimInstance { $script:sgScanCount++; return @() }
+        try {
+            $entry = [pscustomobject]@{kind='flutter-web';browserProfilePath='C:\sg-probe-profile';port=0}
+            $script:SgReconcilePassCache = @{}
+            1..3 | ForEach-Object { [void](Get-SgOwnedFlutterBrowserPids $entry) }
+            $inPass = $script:sgScanCount
+            $script:SgReconcilePassCache = $null
+            1..2 | ForEach-Object { [void](Get-SgOwnedFlutterBrowserPids $entry) }
+            [pscustomobject]@{InPass=$inPass;Outside=($script:sgScanCount - $inPass)}
+        } finally {
+            $script:SgReconcilePassCache = $null
+            Remove-Item Function:\script:Get-CimInstance -ErrorAction SilentlyContinue
+        }
+    }
+    if ($scanCounts.InPass -ne 1) { throw "A reconciliation pass enumerated processes $($scanCounts.InPass) times instead of once." }
+    if ($scanCounts.Outside -ne 2) { throw 'A process list was reused outside a reconciliation pass.' }
+
 } finally {
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }
 }

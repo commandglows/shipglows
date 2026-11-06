@@ -3724,7 +3724,7 @@ function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds 
         if(((-not$activeProgress)-and$now-ge$deadline)-or($activeProgress-and$now-ge$progressDeadline)){break};Start-Sleep -Milliseconds 250
     }while($true)
     $hint=if($BuildHint){" $BuildHint"}else{''};$target=if($BuildLabel){" $BuildLabel"}else{''}
-    [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($stalled){"Flutter$target build stalled: no build output for $BuildStallTimeoutSeconds seconds before app.started.$hint"}elseif($activeProgress){"Flutter$target build timed out after $ActiveProgressTimeoutSeconds seconds before app.started.$hint"}else{'Flutter supervisor timed out before app.started.'});DaemonPid=0}
+    [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($stalled){"Flutter$target build stalled: no build output for $BuildStallTimeoutSeconds seconds before app.started.$hint"}elseif($activeProgress){"Flutter$target build timed out after $ActiveProgressTimeoutSeconds seconds before app.started.$hint"}else{"Flutter supervisor timed out before app.started.$hint"});DaemonPid=0}
 }
 
 # Flutter readiness per target. Windows and Android builds get a progress-aware window: the wait
@@ -3739,7 +3739,7 @@ function Wait-SgFlutterStartupReady([string]$LaunchDirectory,[string]$LaunchPath
         $activity=Get-SgFlutterAndroidBuildActivity $LaunchPath $LaunchDirectory
         return Wait-SgFlutterSupervisorReady $statePath 90 $Entry 1800 $activity.Path 600 -BuildActivityShallowPath $activity.ShallowPath -BuildLabel 'Android' -BuildHint 'A first Android build downloads the Gradle distribution, dependencies and Android SDK components; check the session logs with s status.'
     }
-    Wait-SgFlutterSupervisorReady $statePath 90 $Entry 600 -BuildLabel $(if($ResolvedDevice-in@('chrome','web-server')){'web'}else{[string]$ResolvedDevice})
+    Wait-SgFlutterSupervisorReady $statePath 90 $Entry 600 -BuildLabel $(if($ResolvedDevice-in@('chrome','web-server')){'web'}else{[string]$ResolvedDevice}) -BuildHint $(if($ResolvedDevice-eq'web-server'){'Repeated HTTP requests to the web port hold the Flutter compile back during startup: stop any client polling it (script, open tab, monitor), then start again.'}else{''})
 }
 
 function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload','restart','stop','open')][string]$Method,[int]$TimeoutSeconds=10) {
@@ -3850,7 +3850,7 @@ function Get-SgOwnedFlutterNativePids([object]$Entry) {
     $runnerPattern='(?i)[\\/]runner[\\/]'+$runnerDirectory+'[\\/][^\\/]+\.exe$'
     $started=$null;if($Entry.PSObject.Properties['startTimeUtc']-and$Entry.startTimeUtc){try{$started=([DateTimeOffset]::Parse([string]$Entry.startTimeUtc,[Globalization.CultureInfo]::InvariantCulture)).UtcDateTime.AddSeconds(-5)}catch{}}
     $owned=@()
-    foreach($process in @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)){
+    foreach($process in @(Get-SgReconcilePassProcesses)){
         try{$executable=[IO.Path]::GetFullPath([string]$process.ExecutablePath)}catch{continue}
         if(-not$executable.StartsWith($runnerRoot,[StringComparison]::OrdinalIgnoreCase)-or$executable-notmatch$runnerPattern-or-not([IO.Path]::GetFileName($executable).Equals($expectedLeaf,[StringComparison]::OrdinalIgnoreCase))){continue}
         if($started-and$process.PSObject.Properties['CreationDate']-and$process.CreationDate){try{if(([datetime]$process.CreationDate).ToUniversalTime()-lt$started){continue}}catch{continue}}
@@ -3897,15 +3897,36 @@ function Invoke-SgReconcileProbe([string]$Key, [scriptblock]$Probe) {
     return $cache[$Key]
 }
 
+# One process list and one listener list per reconciliation pass: every ended Flutter session asks
+# for them, and enumerating them once per session made each status read cost tens of seconds. The
+# locked pass starts empty, so a session changed since the dry pass is probed against fresh lists.
+$script:SgReconcilePassCache = $null
+function Get-SgReconcilePassProcesses {
+    $cache = $script:SgReconcilePassCache
+    if ($null -eq $cache) { return @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue) }
+    if (-not $cache.ContainsKey('processes')) { $cache['processes'] = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue) }
+    return $cache['processes']
+}
+function Get-SgReconcilePassListeners([int]$Port) {
+    $cache = $script:SgReconcilePassCache
+    if ($null -eq $cache) { return @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue) }
+    if (-not $cache.ContainsKey('listeners')) { $cache['listeners'] = @(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue) }
+    return @($cache['listeners'] | Where-Object { [int]$_.LocalPort -eq $Port })
+}
+
 function Reconcile-SgRegistry([object]$Config) {
     $previousCache = $script:SgReconcileProbeCache
+    $previousPassCache = $script:SgReconcilePassCache
     $script:SgReconcileProbeCache = @{}
+    $script:SgReconcilePassCache = @{}
     try {
         # Best effort: a failed dry pass only leaves its probes to the locked pass.
         try { & $script:SgReconcileMutation (Read-SgRegistry $Config -SkipMigration) | Out-Null } catch { }
+        $script:SgReconcilePassCache = @{}
         return Invoke-SgRegistryMutation $Config -SkipProjection -Mutation $script:SgReconcileMutation
     } finally {
         $script:SgReconcileProbeCache = $previousCache
+        $script:SgReconcilePassCache = $previousPassCache
     }
 }
 
@@ -5088,7 +5109,7 @@ function Stop-SgOwnedFlutterLaunch([object]$Entry) {
 function Get-SgOwnedFlutterListenerPids([object]$Entry) {
     if (-not $Entry -or $Entry.kind -ne 'flutter-web' -or [int]$Entry.port -le 0) { return @() }
     if (-not (Test-SgTcpPortListening ([int]$Entry.port))) { return @() }
-    $listeners = @(Get-NetTCPConnection -LocalPort ([int]$Entry.port) -State Listen -ErrorAction SilentlyContinue)
+    $listeners = @(Get-SgReconcilePassListeners ([int]$Entry.port))
     if ($listeners.Count -eq 0) { return @() }
 
     $projectPath = [IO.Path]::GetFullPath($(if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path })).TrimEnd('\','/').ToLowerInvariant()
@@ -5096,7 +5117,7 @@ function Get-SgOwnedFlutterListenerPids([object]$Entry) {
     $signature = if ($Entry.PSObject.Properties['commandSignature']) { ([string]$Entry.commandSignature).ToLowerInvariant() } else { '' }
     $managedPaths=@();foreach($property in @('browserProfilePath','flutterLaunchDirectory')){if($Entry.PSObject.Properties[$property]-and$Entry.$property){$managedPaths+=[IO.Path]::GetFullPath([string]$Entry.$property).TrimEnd('\','/').ToLowerInvariant()}}
     $managedPatterns=@($managedPaths|ForEach-Object{'(?i)(?:^|[\s"''])'+[regex]::Escape($_)+'(?:[\s"'']|$)'})
-    $processes = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)
+    $processes = @(Get-SgReconcilePassProcesses)
     $byId = @{}
     foreach ($process in $processes) { $byId[[int]$process.ProcessId] = $process }
 
@@ -5125,7 +5146,7 @@ function Get-SgOwnedFlutterBrowserPids([object]$Entry) {
     $profile = [IO.Path]::GetFullPath([string]$Entry.browserProfilePath).TrimEnd('\','/')
     $profilePattern = '(?i)(?:^|\s)--user-data-dir=(?:"' + [regex]::Escape($profile) + '"|' + [regex]::Escape($profile) + ')(?:\s|$)'
     $owned = @()
-    foreach ($process in @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)) {
+    foreach ($process in @(Get-SgReconcilePassProcesses)) {
         $executable = [string]$process.ExecutablePath
         $commandLine = [string]$process.CommandLine
         if ($executable -notmatch '(?i)(?:chrome|msedge)\.exe$') { continue }
