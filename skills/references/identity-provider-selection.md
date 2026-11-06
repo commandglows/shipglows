@@ -22,7 +22,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-ui-engine/flutter/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
+  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-app-engine/flutter/services/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
   - "Official Clerk Android documentation reviewed 2026-08-02."
   - "Official Firebase Flutter platform support reviewed 2026-08-02."
   - "Official Clerk, Firebase, and Supabase pricing reviewed 2026-08-02."
@@ -48,7 +48,7 @@ does not change a project's provider or claim that Auth0 is deployed globally.
 Use this matrix before implementing or changing identity. Clerk is the
 portfolio default (operator decision 2026-10-26): Clerk, one application per product. Native Flutter targets sign in through Clerk's hosted pages with
 OIDC Authorization Code + PKCE (public client, system browser; app-scheme redirect on mobile,
-loopback redirect on desktop) via `shipglows-ui-engine/flutter/shipglows_clerk_auth`; the beta
+loopback redirect on desktop) via `shipglows-app-engine/flutter/services/shipglows_clerk_auth`; the beta
 Clerk Flutter SDK is not used.
 Backends verify the Clerk id_token (issuer, and audience = the native client id).
 Firebase Auth and Auth0 are retired for Diane-operated products (suite auth lot

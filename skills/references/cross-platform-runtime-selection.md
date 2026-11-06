@@ -20,7 +20,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-ui-engine/flutter/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
+  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-app-engine/flutter/services/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
   - "Official Flutter documentation reviewed 2026-08-11: Android, iOS, Web, Windows, macOS, and Linux."
   - "Official firebase_auth listing reviewed 2026-08-11: Android, iOS, macOS, Web, and Windows; Linux is not listed."
   - "Official Tauri documentation reviewed 2026-08-11: desktop and mobile."

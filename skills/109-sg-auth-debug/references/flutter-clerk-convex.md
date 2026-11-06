@@ -28,7 +28,7 @@ Portfolio decision updated: 2026-08-11
 ## Recommended Default
 
 - Greenfield universal Flutter uses Clerk on all six targets through
-  `shipglows-ui-engine/flutter/shipglows_clerk_auth`: hosted sign-in, OIDC
+  `shipglows-app-engine/flutter/services/shipglows_clerk_auth`: hosted sign-in, OIDC
   Authorization Code + PKCE, public client, system browser (decision 2026-10-26).
 - Send the Clerk id_token to Convex; Convex verifies the issuer and the audience
   (the native client id). Firebase Auth and Auth0 are retired (suite auth lot 8).

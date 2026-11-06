@@ -231,7 +231,7 @@ signedOut → restoringSession → checkingBackend → checkingWorkspace
 ### Clerk universal contract (greenfield default)
 
 Use Clerk across Web, Android, iOS, Windows, macOS, and Linux through
-`shipglows-ui-engine/flutter/shipglows_clerk_auth`: hosted sign-in with OIDC
+`shipglows-app-engine/flutter/services/shipglows_clerk_auth`: hosted sign-in with OIDC
 Authorization Code + PKCE, a public client and the system browser (app-scheme
 redirect on mobile, loopback on desktop). The package owns callback handling,
 secure refresh-token storage, restore, revocation, and sign-out. Pass fresh

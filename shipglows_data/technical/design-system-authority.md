@@ -30,7 +30,7 @@ evidence:
   - "User decision 2026-06-11: every managed application must declare the canonical design-system source instead of letting agents infer or customize design per screen."
   - "2026-07-17 DevServer implementation confirms cli/lib.sh ui_* primitives as the shared gum/Bash shell UI authority."
   - "Brand 1.2.0 changes public visual hierarchy to lead with business partnership while preserving existing code-level design authority."
-  - "2026-10-23: shared Flutter packages drifted apart (keycaps, buttons, menus restyled per request); user decision: one shared ShipglowsTheme role layer in shipglows-ui-engine, first consumer CommandGlows."
+  - "2026-10-23: shared Flutter packages drifted apart (keycaps, buttons, menus restyled per request); user decision: one shared ShipglowsTheme role layer in shipglows-app-engine, first consumer CommandGlows."
 next_review: "2026-11-23"
 next_step: "/103-sg-verify design-system-authority"
 ---
@@ -86,7 +86,7 @@ The declaration is project-owned, but the carrier must follow the stack:
 - Tailwind v4: `@theme` variables and CSS custom properties as the runtime token layer.
 - Tailwind v3: `tailwind.config.*` plus CSS variables when runtime theming is needed.
 - Flutter: `ThemeData`, `ColorScheme`, `TextTheme`, `ThemeExtension`, shared `EdgeInsets`/radius/duration/curve constants, and component themes.
-- Flutter apps using the shared ui-engine packages: the `ShipglowsTheme` role layer below, filled from the app's own token source.
+- Flutter apps using the shared app-engine packages: the `ShipglowsTheme` role layer below, filled from the app's own token source.
 - React Native/Expo: typed shared theme/tokens object plus component variants.
 - Native mobile: platform theme resources/tokens and adaptive layout APIs.
 - DTCG token pipeline: `tokens.json` or equivalent only when the project actually has a token build pipeline.
@@ -95,7 +95,7 @@ The agent must not choose the easiest carrier. It must use the declared carrier 
 
 ## Shared Flutter Role Layer
 
-`shipglows-ui-engine/flutter/shipglows_theme` is the cross-app role contract for
+`shipglows-app-engine/flutter/foundation/shipglows_theme` is the cross-app role contract for
 Flutter. It is not a value authority: brand values stay in each project's
 declared token source.
 
