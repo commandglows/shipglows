@@ -383,6 +383,10 @@ if ($CommandArguments[0] -ieq 'tools') {
     exit $LASTEXITCODE
 }
 
+if ($CommandArguments[0] -ieq 'private-data') {
+    Invoke-SgManagedDevServer -Arguments $CommandArguments
+}
+
 if ($CommandArguments.Count -eq 1 -and $CommandArguments[0] -ieq 'check') {
     Invoke-SgCheck
 }
@@ -392,7 +396,7 @@ if ($CommandArguments[0] -ieq 'stack') {
 }
 
 if ($CommandArguments[0] -ine 'rename') {
-    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows update [status], shipglows check, shipglows stack scan, shipglows tools <status|update>, or shipglows rename rio <name>"
+    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows update [status], shipglows check, shipglows stack scan, shipglows tools <status|update>, shipglows private-data ..., or shipglows rename rio <name>"
 }
 if ($CommandArguments.Count -lt 2 -or $CommandArguments[1] -ine 'rio') {
     $target = if ($CommandArguments.Count -ge 2) { $CommandArguments[1] } else { '' }
