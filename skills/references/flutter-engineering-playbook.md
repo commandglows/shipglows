@@ -271,7 +271,7 @@ A cohesive overrun is acceptable when the summary justifies it. A single state m
 - **FE-SVC-8** Identity is one `AuthService`-style interface over `shipglows_clerk_auth`. The router's redirect is driven by its state (section 12). Every target uses the same hosted OIDC + PKCE flow. No bypass implementation exists, not even in debug.
 - **FE-SVC-9** Convex is called over HTTP only from repository implementations under `lib/data/`. Calls carry timeouts and bounded retries with backoff. A widget never calls Convex directly.
 - **FE-SVC-10** Before a plugin is accepted, check its platform list against all six targets. A missing target becomes an explicit adapter behind the interface, never a silent gap.
-- **FE-SVC-11** Application zoom uses the pinned `shipglows_flutter_zoom` package through `FlutterZoomViewport` (`flutter-app-zoom.md`). Never copy its pointer or viewport logic into an application.
+- **FE-SVC-11** Application zoom uses the pinned `shipglows_zoom` package through `FlutterZoomViewport` (`flutter-app-zoom.md`). Never copy its pointer or viewport logic into an application.
 
 ## 11. Persistence And Remote Data
 
