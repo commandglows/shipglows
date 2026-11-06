@@ -182,7 +182,7 @@ The collection schema, the `taxonomy.yaml` loader, the wikilink resolver, breadc
 
 ## Proof
 
-Content changes follow the Content Proof section of `astro-site-playbook.md`: schema conformity, locale parity, editorial quality, no build. A conformity check (planned in `shipglows stack scan`) verifies: fixed paths, no subfolder under a locale, unique slugs, forbidden fields absent, every `topic` and wikilink resolving, every locale label present, no catch-all node, and a redirect for every URL that disappeared.
+Content changes follow the Content Proof section of `astro-site-playbook.md`: schema conformity, locale parity, editorial quality, no build. `shipglows stack scan -ProjectPath <site repo> -Checks` already verifies the manifest, the fixed paths, no subfolder under a locale, the locale folders, `taxonomy.yaml` and forbidden fields. The full check will also verify: fixed paths, no subfolder under a locale, unique slugs, forbidden fields absent, every `topic` and wikilink resolving, every locale label present, no catch-all node, and a redirect for every URL that disappeared.
 
 ## Migration
 
