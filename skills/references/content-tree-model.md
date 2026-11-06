@@ -198,5 +198,6 @@ Move content with `git mv` into `articles/<locale>/`, derive `topic` from the ol
 | `communityglows/site` | migrated 2026-11-01 (commit e38ccd53) | six pillars, bilingual `translationKey` pairs, wikilinks, 64 redirects in `redirects.json` and `vercel.json` |
 | `replayglows/site` | migrated 2026-11-01 (commit 501aa1fc) | reference for flat `blog/` sites: taxonomy with four pillars, wikilinks, `redirects.json` |
 | `dreamglows/site` | migrated 2026-11-01 (commit b8a77d1) | four pillars, flat `articles/fr/`, 11 wikilinked articles, 11 redirects from `/guides/` |
-| `beatglows`, `bestfriedchicken`, `dianedefores`, `notefinderz` sites | no articles yet | adopt the model when the first article ships |
+| `beatglows`, `bestfriedchicken`, `dianedefores` sites | no articles yet | adopt the model when the first article ships |
+| `notefinderz/site` | migrated 2026-11-06 (commit b900126) | 7 bilingual blog posts, two pillars, shared slugs across locales, 14 redirects from `/blog/<slug>`; app listings and category guides stay data-driven, not articles |
 | `jarretelacoke` | site at repository root, not in `site/` | apply `project-tree-model.md` first |
