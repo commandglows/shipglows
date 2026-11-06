@@ -306,6 +306,13 @@ function Get-SgRuntimeUpdateOperation {
     return 'no-op'
 }
 
+# A running launcher cannot be overwritten or deleted on Windows, but it can be renamed.
+function Move-SgRuntimeFileAside([string]$Path) {
+    $aside = "$Path.shipglows-old-$([guid]::NewGuid().ToString('N'))"
+    [IO.File]::Move($Path,$aside)
+    Remove-Item -LiteralPath $aside -Force -ErrorAction SilentlyContinue
+}
+
 function Invoke-SgRuntimePayloadTransaction {
     param(
         [Parameter(Mandatory=$true)][string]$PayloadRoot,
@@ -421,15 +428,25 @@ function Invoke-SgRuntimePayloadTransaction {
             [IO.File]::WriteAllText($manifestPath,$manifestContent,[Text.UTF8Encoding]::new($false))
         }
     } catch {
+        # One file that cannot be restored never stops the others; an unchanged file, such as a launcher
+        # still running when the update failed, needs no restoring at all.
+        $unrestored = New-Object 'System.Collections.Generic.List[string]'
         foreach ($relative in $affected) {
             $target = Join-Path $runtimeFull $relative.Replace('/','\')
-            if (Test-Path -LiteralPath $target -PathType Leaf) { Remove-Item -LiteralPath $target -Force }
-            if ($existing.Contains($relative)) {
-                $backup = Join-Path $backupRoot $relative.Replace('/','\')
-                New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
-                Copy-Item -LiteralPath $backup -Destination $target
-            }
+            $backup = Join-Path $backupRoot $relative.Replace('/','\')
+            $hasBackup = $existing.Contains($relative)
+            try {
+                if (Test-Path -LiteralPath $target -PathType Leaf) {
+                    if ($hasBackup -and (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -eq (Get-FileHash -LiteralPath $backup -Algorithm SHA256).Hash) { continue }
+                    try { Remove-Item -LiteralPath $target -Force -ErrorAction Stop } catch { Move-SgRuntimeFileAside $target }
+                }
+                if ($hasBackup) {
+                    New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
+                    Copy-Item -LiteralPath $backup -Destination $target
+                }
+            } catch { $unrestored.Add($relative) }
         }
+        if ($unrestored.Count) { Write-Warning "Runtime rollback could not restore: $($unrestored -join ', '). Run the update again." }
         if (Test-Path -LiteralPath $manifestPath -PathType Leaf) { Remove-Item -LiteralPath $manifestPath -Force }
         $manifestBackup = Join-Path $backupRoot 'manifest.json'
         if (Test-Path -LiteralPath $manifestBackup -PathType Leaf) { Copy-Item -LiteralPath $manifestBackup -Destination $manifestPath }

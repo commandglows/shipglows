@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.5"
+artifact_version: "1.38.6"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-11-06"
@@ -183,7 +183,7 @@ Le menu Authentification affiche les outils sans interroger tous les comptes :
 l'état est vérifié à l'ouverture de l'outil choisi. Les confirmations de connexion
 et déconnexion sont conservées.
 
-Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Les commandes ciblées `shipglows update`, `shipglows update status` et `shipglows rename rio <nom>` passent elles aussi par le runtime PowerShell 7.6.5 géré par ShipGlows. L'ancienne forme `shipglows update runtime` reste acceptée et est normalisée vers la mise à jour canonique. N'utilisez pas `s update` lorsqu'une instance interactive de `s.exe` est encore ouverte, car Windows ne peut pas remplacer un exécutable en cours d'utilisation. La première installation complète en ligne peut acquérir l'archive épinglée. Le mode hors ligne ne fonctionne qu'après validation locale du runtime ; sinon, reconnectez la machine et relancez l'installateur complet. Un échec de SHA, d'archive, de sonde, de verrou ou une corruption conserve le pointeur actif précédent.
+Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Les commandes ciblées `shipglows update`, `shipglows update status` et `shipglows rename rio <nom>` passent elles aussi par le runtime PowerShell 7.6.5 géré par ShipGlows. L'ancienne forme `shipglows update runtime` reste acceptée et est normalisée vers la mise à jour canonique. N'utilisez pas `s update` lorsqu'une instance interactive de `s.exe` est encore ouverte, car Windows ne peut pas remplacer un exécutable en cours d'utilisation. La première installation complète en ligne peut acquérir l'archive épinglée. Le mode hors ligne ne fonctionne qu'après validation locale du runtime ; sinon, reconnectez la machine et relancez l'installateur complet. Un échec de SHA, d'archive, de sonde, de verrou ou une corruption conserve le pointeur actif précédent. Une mise à jour aboutit même si une autre commande `shipglows-dev.exe` tourne : le launcher en cours d'exécution est renommé en `*.shipglows-old-*`, puis supprimé à l'installation suivante. Si la mise à jour échoue, le retour arrière restaure tous les fichiers qu'il peut et nomme les autres.
 
 ## 🎯 Options d'installation
 

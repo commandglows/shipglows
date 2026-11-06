@@ -309,6 +309,23 @@ function Set-SgLauncherContent([string]$Path, [string]$Content) {
     } finally { if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Force } }
 }
 
+# Another s command may be running from this launcher: Windows then refuses to overwrite or delete it,
+# but allows renaming it. The running process keeps the renamed file; the next install removes it.
+function Install-SgNativeCommand([string]$Source, [string]$Target) {
+    $directory = Split-Path -Parent $Target
+    $leaf = Split-Path -Leaf $Target
+    Get-ChildItem -LiteralPath $directory -Filter "$leaf.shipglows-old-*" -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+    $staged = "$Target.shipglows-new-$([guid]::NewGuid().ToString('N'))"
+    Copy-Item -LiteralPath $Source -Destination $staged
+    try {
+        try { Move-Item -LiteralPath $staged -Destination $Target -Force -ErrorAction Stop; return } catch { }
+        $aside = "$Target.shipglows-old-$([guid]::NewGuid().ToString('N'))"
+        [IO.File]::Move($Target,$aside)
+        try { [IO.File]::Move($staged,$Target) } catch { [IO.File]::Move($aside,$Target); throw }
+        Remove-Item -LiteralPath $aside -Force -ErrorAction SilentlyContinue
+    } finally { if (Test-Path -LiteralPath $staged -PathType Leaf) { Remove-Item -LiteralPath $staged -Force } }
+}
+
 function Install-SgCommandWrappers {
     $wrapper = @'
 @echo off
@@ -369,7 +386,7 @@ call exit /b %%errorlevel%%
         }
 
         foreach ($nativeCommand in @('shipglows-dev.exe','sg.exe')) {
-            Copy-Item -LiteralPath $compiledLauncher -Destination (Join-Path $runtimeDir $nativeCommand) -Force
+            Install-SgNativeCommand $compiledLauncher (Join-Path $runtimeDir $nativeCommand)
         }
         Write-Host 'Native commands installed: shipglows-dev, sg' -ForegroundColor Green
     } finally {
