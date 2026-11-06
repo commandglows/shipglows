@@ -95,6 +95,20 @@ try {
     & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath{$Npm};Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $shrinkwrapped (Join-Path $fixture 'shrinkwrapped.log') $fakeNpm|Out-Null
     if(@(Get-Content $capture).Count-ne3){throw 'Missing Vite framework artifact was reused.'}
 
+    # An Obsidian plugin is a Node project: it has a manifest and installs like one, and its framework artifact is the obsidian package.
+    $plugin = Join-Path $fixture 'obsidian-plugin'
+    New-Item -ItemType Directory -Path $plugin -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $plugin 'package.json'), '{"name":"plugin","scripts":{"dev":"vite build --watch"},"devDependencies":{"obsidian":"^1.0.0"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $plugin 'package-lock.json'), '{}', [Text.UTF8Encoding]::new($false))
+    if (@(& $module { param($Project) Get-SgDependencyInputHashes $Project 'obsidian-plugin' } $plugin).Count -eq 0) { throw 'Obsidian plugin has no dependency manifest.' }
+    if ((& $module { param($Project) New-SgDependencyPlan $Project 'obsidian-plugin' } $plugin).ArtifactStrategy -notlike 'node-obsidian-plugin-*') { throw 'Obsidian plugin did not plan a Node install.' }
+    New-Item -ItemType Directory -Path (Join-Path $plugin 'node_modules') -Force | Out-Null
+    Set-Content (Join-Path $plugin 'node_modules\.package-lock.json') '{}' -Encoding UTF8
+    if (& $module { param($Project) Test-SgDependencyArtifacts $Project 'obsidian-plugin' } $plugin) { throw 'Obsidian plugin without the obsidian package was accepted.' }
+    New-Item -ItemType Directory -Path (Join-Path $plugin 'node_modules\obsidian') -Force | Out-Null
+    Set-Content (Join-Path $plugin 'node_modules\obsidian\package.json') '{}' -Encoding UTF8
+    if (-not (& $module { param($Project) Test-SgDependencyArtifacts $Project 'obsidian-plugin' } $plugin)) { throw 'Installed Obsidian plugin dependencies were not recognized.' }
+
     $npmRoot = Join-Path $fixture 'npm-workspace'
     $npmMember = Join-Path $npmRoot 'packages\app'
     $npmLegacy = Join-Path $npmRoot 'packages\legacy'

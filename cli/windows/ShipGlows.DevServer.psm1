@@ -2743,7 +2743,7 @@ function Get-SgDependencyRelativeLabel([string]$BaseDirectory, [string]$Path) {
 }
 
 function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
-    $node = $Kind -in @('astro','vite','browser-extension','tauri')
+    $node = $Kind -in @('astro','vite','browser-extension','tauri','obsidian-plugin')
     $names = if ($node) {
         @('package.json','pnpm-lock.yaml','package-lock.json','npm-shrinkwrap.json')
     } elseif ($Kind -eq 'python') {
@@ -2786,7 +2786,7 @@ function Get-SgDependencyInputHashes([string]$ProjectPath, [string]$Kind) {
 }
 
 function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
-    if ($Kind -in @('astro','vite','browser-extension','tauri')) {
+    if ($Kind -in @('astro','vite','browser-extension','tauri','obsidian-plugin')) {
         $workspaceRoot = Get-SgNodeDependencyWorkspace $ProjectPath
         if ($workspaceRoot) {
             $packageManager=Get-SgNodePackageManager $ProjectPath $workspaceRoot
@@ -2840,7 +2840,7 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
 }
 
 function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
-    if ($Kind -in @('astro','vite','browser-extension','tauri')) {
+    if ($Kind -in @('astro','vite','browser-extension','tauri','obsidian-plugin')) {
         # Workspace members may own no node_modules; an npm workspace hoists every package to the root, and a pnpm workspace root holds .modules.yaml.
         $nodeModules = Join-Path $ProjectPath 'node_modules'
         $workspaceRoot=Get-SgNodeDependencyWorkspace $ProjectPath
@@ -2856,7 +2856,7 @@ function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
             # WXT projects install wxt; only crxjs projects carry @crxjs/vite-plugin.
             $frameworkPackage=if((Get-SgBrowserExtensionFramework (Read-SgNodePackage $ProjectPath))-eq'wxt'){'wxt'}else{'@crxjs\vite-plugin'}
             $frameworkArtifact=& $frameworkExists (Join-Path $frameworkPackage 'package.json')
-        }elseif($Kind-eq'tauri'){$frameworkArtifact=& $frameworkExists '@tauri-apps\cli\package.json'}else{$frameworkArtifact=& $frameworkExists (Join-Path $Kind 'package.json')}
+        }elseif($Kind-eq'tauri'){$frameworkArtifact=& $frameworkExists '@tauri-apps\cli\package.json'}elseif($Kind-eq'obsidian-plugin'){$frameworkArtifact=& $frameworkExists 'obsidian\package.json'}else{$frameworkArtifact=& $frameworkExists (Join-Path $Kind 'package.json')}
         return $managerArtifact -and $frameworkArtifact
     }
     if ($Kind -eq 'python') { return Test-Path -LiteralPath (Join-Path $ProjectPath '.venv\Scripts\python.exe') -PathType Leaf }
@@ -2950,7 +2950,7 @@ function Get-SgDependencyKindLabel([string]$Kind, [string]$FlutterDevice) {
 # Inputs the setup command itself may legitimately rewrite. Locked installs (pnpm --frozen-lockfile,
 # npm ci, uv sync --locked) write none; flutter pub get re-resolves the project's own pubspec.lock.
 function Get-SgDependencySetupOutputLabels([string]$Kind) {
-    if ($Kind -in @('astro','vite','browser-extension','tauri','python')) { return @() }
+    if ($Kind -in @('astro','vite','browser-extension','tauri','obsidian-plugin','python')) { return @() }
     return @('pubspec.lock')
 }
 
