@@ -1,4 +1,4 @@
-# Flutter + Firebase/Clerk + Convex Auth Debug Reference
+# Flutter + Clerk + Convex Auth Debug Reference
 
 Use this reference when a ShipGlows application is a Flutter app using Clerk, Convex, or both.
 
@@ -27,11 +27,13 @@ Portfolio decision updated: 2026-08-11
 
 ## Recommended Default
 
-- Greenfield universal Flutter uses Firebase Auth across all six targets,
-  FlutterFire where listed, and a reviewed REST/OIDC adapter on Linux.
-- Call Convex through its official HTTP API with a fresh Firebase ID token and
-  explicit issuer/audience verification. Firebase Auth does not imply Firestore.
-- Clerk guidance below is an existing-product exception backed by proved flows.
+- Greenfield universal Flutter uses Clerk on all six targets through
+  `shipglows-app-engine/flutter/services/shipglows_clerk_auth`: hosted sign-in, OIDC
+  Authorization Code + PKCE, public client, system browser (decision 2026-10-26).
+- Send the Clerk id_token to Convex; Convex verifies the issuer and the audience
+  (the native client id). Firebase Auth and Auth0 are retired (suite auth lot 8).
+- The ClerkJS bridge guidance below applies to existing Flutter web apps that
+  still use it.
 
 - For existing Clerk Flutter web apps, prefer the ContentFlow pattern documented in `flutter-web-clerkjs-bridge.md`: official ClerkJS on app-domain auth routes plus Dart JS interop.
 - For native Flutter apps that need Clerk today, avoid production reliance on `clerk_flutter` / `clerk_auth` unless the project explicitly accepts beta SDK risk; if used, pin versions carefully and test login on real target platforms.
@@ -170,8 +172,9 @@ blueprint.
 - If using `convex_dart`, confirm generated client files are up to date after Convex function changes.
 - Confirm Flutter points to the correct Convex deployment URL for local/staging/prod.
 - Confirm authenticated Convex calls receive a Clerk token or app-specific bearer token.
-- For Firebase, confirm protected HTTP calls carry a fresh ID token and Convex
-  verifies issuer, audience, expiry, revocation policy, and canonical user mapping.
+- For the hosted OIDC path, confirm protected calls carry a fresh Clerk id_token
+  and Convex verifies issuer, audience (native client id), expiry, and canonical
+  user mapping.
 - Confirm type conversions and generated IDs match the Convex schema.
 - For realtime issues, separate WebSocket connectivity from auth failures.
 

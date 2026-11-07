@@ -19,11 +19,14 @@ Non-trivial routing loads `intent-to-outcome-autonomy.md`; resolve
 under one public owner here. If sufficiency, authority, freshness, conflict,
 compaction or handoff may change routing, load `context-quality-contract.md`;
 keep its qualified Context Capsule, never memory as truth.
-Whenever which projects exist, or which one is meant, matters, read
+Whenever which projects exist, or which one is meant, matters — including plain
+phrases like "mes projets", "mes pitchs", "par projet" or a project name — first read
 `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` and `projects/registry.json`
-(read-only; writes stay with `sg-private` and the CLI).
+(read-only; writes stay with `sg-private` and the CLI). This is the standing
+portfolio-index exception: no namespace or capability gate, and no search of the
+current folder or GitHub for pitches before it.
 
-Offer once to privately remember verified reusable pointers to avoid future research, unless known saved or declined. Do not inspect private stores or presume
+Offer once to privately remember verified reusable pointers to avoid future research, unless known saved or declined. Outside the portfolio index, do not inspect private stores or presume
 absence; route to `sg-private` only after interest.
 
 ## Chantier Tracking
@@ -119,6 +122,15 @@ Before selection extract `#local`, `#nolocal`, `#ci` wherever present and load
 `execution-posture-tags.md`; reject conflicts. Preserve ordinary focus tags and
 owner authority; `#ci` implies nolocal and deferred proof, never external-write authority.
 
+For `init [context|agents|memory|resume] [role=<local|remote|consult|test>] [lifetime=<persistent|ephemeral>]`, load only
+`$SHIPGLOWS_ROOT/skills/references/workstation-initialization.md` and execute its
+workstation workflow directly. It is not project scaffolding or a shell command.
+Also select init for a current first-person arrival/setup intent addressed to
+ShipGlows, such as « je viens d'arriver sur un nouvel ordi », « j'ai changé de PC »,
+or arriving on a new phone, tablet, VM or host environment, with no more specific outcome.
+Preserve the original instruction/tags; do not infer a role or installation consent.
+Questions, quotations, hypothetical/third-party discussion, new-project onboarding,
+and a concrete app/bug task that merely mentions a new device keep their own route.
 For `update`, `context`/`contexte`/`env`/`environment`, `profile`, `blitz`, `auto`, or legacy `nolocal`, load
 `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`. Apply only the selected mode.
 Context is read-only; update resolves channel first. Explicit Blitz implies nolocal,

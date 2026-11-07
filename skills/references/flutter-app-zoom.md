@@ -14,7 +14,7 @@ risk_level: low
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - email-sidebar-app/packages/shipglows_flutter_zoom
+  - shipglows-app-engine/flutter/components/shipglows_zoom
 depends_on: []
 supersedes: []
 evidence:
@@ -25,13 +25,13 @@ next_step: "Adopt the pinned package in the next Flutter application that reques
 
 # Flutter App Zoom
 
-Use the focused `shipglows_flutter_zoom` package when a Flutter web or desktop
+Use the focused `shipglows_zoom` package when a Flutter web or desktop
 application needs app-wide Ctrl/Command+mouse-wheel zoom. Do not copy the
 pointer-signal or viewport-compensation implementation into each application.
 
 Pin the validated baseline commit `2b8b751` from
 `commandglows/email-sidebar-app` and the package path
-`packages/shipglows_flutter_zoom`. Wrap the application surface in
+`flutter/components/shipglows_zoom`. Wrap the application surface in
 `FlutterZoomViewport`; configure only the product-owned minimum, maximum,
 initial value, step, reset shortcuts, and optional change callback.
 

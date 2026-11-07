@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.30.0"
+artifact_version: "0.33.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-10-28"
+updated: "2026-10-30"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -384,7 +384,27 @@ block in its native global file: Codex `.codex\AGENTS.md`, Claude
 `.config\kilo\AGENTS.md`, or Gemini `.gemini\GEMINI.md`. Existing instructions outside the block are preserved;
 the block points to `%USERPROFILE%\.shipglows\environment.md` and to
 `$shipglows context` instead of copying a machine-specific tool inventory.
-That environment report records CLI and MCP readiness separately for every
+
+On a new computer, phone, tablet or VM, use the agent skill `$shipglows init`
+(or `/shipglows init` where slash invocations are supported).
+An equivalent natural request such as `$shipglows je viens d'arriver sur un nouvel ordi`
+selects the same journey. Questions, quoted examples and concrete project tasks
+that merely mention a new device keep their own route. It distinguishes
+your device from the agent's execution host and selects local development,
+remote access, consultation or a test-target journey. Optional choices include
+`role=remote` and `lifetime=ephemeral`; a VM is not assumed disposable.
+With a verified corpus and filesystem, it persists root/context pointers and
+workflow checkpoints, reuses the existing native agent-instruction updater and
+environment diagnostics, and uses the host's permitted memory mechanism.
+`$shipglows init resume` re-observes sources before continuing unfinished steps.
+Optional `context` is read-only; `agents` and `memory` narrow persistence.
+The lightweight plugin provides bounded guidance without a runtime; browser-only
+consultation needs no local SDK. No new native iOS runtime is implied. Existing
+installation, connection, account and restoration workflows retain their gates.
+This is an agent workflow, not a new shell command. See
+[workstation initialization](skills/references/workstation-initialization.md).
+
+The global environment report records CLI and MCP readiness separately for every
 agent, including partial or preserved configurations. Developer Mode remains an
 explicit Windows choice: ShipGlows can open the official settings page but never
 changes the registry. Developer Mode is distinct from emulator acceleration.
@@ -517,9 +537,12 @@ project manifest or lockfile, updates `node_modules`, accepts an SDK licence,
 changes credentials, restarts Windows, or changes the active ShipGlows channel.
 
 The code repository is public, so Git or GitHub credentials are not required
-for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
-selects `full`. In a non-interactive environment, put the mode on the consuming
-shell:
+for this bootstrap. Termux and macOS select `local` without `sudo`; a root shell
+selects `full` only on Debian or Ubuntu. Git Bash, MSYS and Cygwin are refused:
+use `install-shipglows.ps1` on native Windows. Each refusal prints the next
+command. The per-environment matrix lives in
+[`shipglows_data/technical/bootstrap-matrix.md`](./shipglows_data/technical/bootstrap-matrix.md).
+In a non-interactive environment, put the mode on the consuming shell:
 
 ```bash
 curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local sh
@@ -618,8 +641,8 @@ The bootstrap target defaults to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`. 
 ### Install Privilege Model
 
 ShipGlows's complete server installer is intentionally root-level. The public
-bootstrap itself starts without `sudo` so it can route Termux and workstations
-to the user-local installer. Full mode delegates to `sudo ./cli/install.sh`
+bootstrap itself starts without `sudo` so it can route Termux, macOS and
+non-root workstations to the user-local installer. Full mode delegates to `sudo ./cli/install.sh`
 because it manages machine-wide dependencies and service configuration:
 
 - system packages and tools such as Node.js, PM2, Flox, Caddy, GitHub CLI, `jq`, `fuser`, and `ss`
@@ -802,7 +825,7 @@ does not patch project workflows automatically from this menu.
 Notes:
 - `shipglows-gsc` is the ShipGlows-owned, read-only Google Search Console CLI. Its source is `tools/shipglows_gsc.py`; `cli/shipglows-gsc.sh` is the repository launcher. It uses an operator-supplied Google OAuth desktop-client JSON and keeps authorization files in the user's local configuration directory, outside the repository. POSIX mode bits are requested; on Windows verify the effective ACL because `chmod` alone does not secure files. It does not enable a third-party GSC MCP or ChatGPT app, or submit sitemaps. See `shipglows_data/technical/google-search-console-cli.md` for setup, commands, and limits.
 - `shipglows-serp` is a separate one-query Google SERP lookup through SerpApi. It uses `SERPAPI_API_KEY` only from the current process environment, returns localized organic result snapshots, and does not collect GSC impressions or persist credentials. See `shipglows_data/technical/serpapi-google-serp-cli.md` for setup, quota, and limitations.
-- `shipglows-search` is the default web search: it tries the local SearXNG of `local/scraping/` (free, `SHIPGLOWS_SEARXNG_URL`, `off` disables it), then DeepSeek (`DEEPSEEK_API_KEY`, $0.75 per 1,000 requests), then Firecrawl (`FIRECRAWL_API_KEY`), then Parallel (`PARALLEL_API_KEY`), and exits 3 when every provider fails so the agent falls back to its native web search. `shipglows-fetch <url>` reads pages as Markdown: plain HTTP first (a YouTube video page yields its title, channel, date, duration and description from the embedded player data), the local Crawl4AI browser only for JavaScript pages, HTTP errors or non-HTML answers, then DeepSeek, Firecrawl and Parallel. `shipglows-scraping up|status|down` manages the local stack. See `skills/references/web-research-fallback.md` and `local/scraping/README.md`.
+- `shipglows-search` is the default web search: it tries the local SearXNG of `local/scraping/` (free, `SHIPGLOWS_SEARXNG_URL`, `off` disables it; restarted in the background when unreachable, `SHIPGLOWS_SCRAPING_AUTOSTART=off` disables that), then DeepSeek (`DEEPSEEK_API_KEY`, $0.75 per 1,000 requests), then Firecrawl (`FIRECRAWL_API_KEY`), then Parallel (`PARALLEL_API_KEY`), and exits 3 when every provider fails so the agent falls back to its native web search. `shipglows-fetch <url>` reads pages as Markdown: plain HTTP first (a YouTube video page yields its title, channel, date, duration and description from the embedded player data), the agent-browser Chrome (no Docker, skipped when the CLI is missing; `SHIPGLOWS_FETCH_BROWSER=off` disables it) then the local Crawl4AI browser only for JavaScript pages, HTTP errors or non-HTML answers, then DeepSeek, Firecrawl and Parallel. `shipglows-scraping up|status|down` manages the local stack. See `skills/references/web-research-fallback.md` and `local/scraping/README.md`.
 - `shipglows-parallel` provides Search with source/date/location filters, Extract for selected page content, asynchronous cited research tasks, and scheduled web monitors. It uses `PARALLEL_API_KEY` from the process environment. Search relevance is not a Google SERP position. See `shipglows_data/technical/parallel-web-search-cli.md` for commands, usage, and limits.
 - `dataforseo` is configured but disabled by default in Codex unless
   `SHIPGLOWS_ENABLE_DATAFORSEO_MCP=1` and credentials are available.
@@ -1434,7 +1457,8 @@ shipglows/
 - `cli/shipglows-gsc.sh` — installed launcher for the read-only Google Search Console CLI
 - `cli/shipglows-serp.sh` — installed launcher for the one-query SerpApi Google SERP CLI
 - `cli/shipglows-search.sh` — installed launcher for the local SearXNG → DeepSeek → Firecrawl → Parallel search fallback (`tools/shipglows_search.py`)
-- `cli/shipglows-fetch.sh` — installed launcher for the HTTP → Crawl4AI → DeepSeek → Firecrawl → Parallel page reader (`tools/shipglows_fetch.py`)
+- `cli/shipglows-fetch.sh` — installed launcher for the HTTP → agent-browser → Crawl4AI → DeepSeek → Firecrawl → Parallel page reader (`tools/shipglows_fetch.py`)
+- `cli/shipglows-browse.sh` — installed launcher for the agent-browser wrapper with safe defaults: throwaway session, content boundaries, output cap, personal-browser flags refused (`tools/shipglows_browse.py`)
 - `cli/shipglows-scraping.sh` — installed launcher for the local SearXNG + Crawl4AI Docker stack (`tools/shipglows_scraping.py`, [`local/scraping/README.md`](local/scraping/README.md))
 - `cli/shipglows-parallel.sh` — installed launcher for the Parallel Web Search CLI
 - `shipglows readwise` / `shipglows-readwise` — official Readwise/Reader commands with ShipGlows browser OAuth on a dynamic loopback port; [setup, commands and verification limits](shipglows_data/technical/readwise-cli.md)

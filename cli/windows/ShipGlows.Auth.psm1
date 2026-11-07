@@ -37,6 +37,25 @@ function Get-SgAuthenticationState {
     [pscustomobject]@{ Name=$Definition.Name; Status=$status }
 }
 
+function Get-SgPlaywrightMcpPackage {
+    # The @playwright/mcp identity is catalog inventory. This module deliberately does not
+    # import ShipGlows.MobileToolchain.psm1 (side effects); it reads only the Playwright
+    # package field from the sibling MCP catalog and validates its package-name shape.
+    $path = Join-Path $PSScriptRoot 'ShipGlows.McpCatalog.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "ShipGlows MCP catalog is missing: $path" }
+    try { $catalog = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "ShipGlows MCP catalog is malformed: $path" }
+    if ($catalog.schema -cne 'shipglows.mcp-catalog/v1') { throw 'ShipGlows MCP catalog schema is unsupported.' }
+    foreach ($flag in @('registryIsExecutionAuthority','automaticAuthentication','automaticGoogleCloudActivation')) {
+        if ($catalog.policy.$flag -isnot [bool] -or $catalog.policy.$flag) { throw 'ShipGlows MCP catalog policy is unsupported.' }
+    }
+    $candidates = @($catalog.servers | Where-Object { [string]$_.id -ceq 'playwright' })
+    if ($candidates.Count -ne 1) { throw 'ShipGlows MCP catalog has no unique Playwright entry.' }
+    $package = [string]$candidates[0].package
+    if ($package -notmatch '^@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$') { throw 'ShipGlows MCP catalog Playwright package identity is invalid.' }
+    return $package
+}
+
 function Get-SgPlaywrightRuntimePlan {
     param(
         [Parameter(Mandatory=$true)][string]$StableVersion,
@@ -52,7 +71,7 @@ function Get-SgPlaywrightRuntimePlan {
     [pscustomobject]@{
         Stable=[pscustomobject]@{ CommandName='playwright'; Package='playwright'; Version=$StableVersion; Revision=$StableRevision; Root=(Join-Path $Root "playwright-$StableVersion") }
         AgentCli=[pscustomobject]@{ CommandName='playwright-cli'; Package='playwright'; Version=$StableVersion; Revision=$StableRevision; Root=(Join-Path $Root "playwright-$StableVersion"); EntryArguments=@('cli') }
-        Mcp=[pscustomobject]@{ CommandName='playwright-mcp'; Package='@playwright/mcp'; Version=$McpVersion; Revision=$McpRevision; Root=(Join-Path $Root "playwright-mcp-$McpVersion") }
+        Mcp=[pscustomobject]@{ CommandName='playwright-mcp'; Package=(Get-SgPlaywrightMcpPackage); Version=$McpVersion; Revision=$McpRevision; Root=(Join-Path $Root "playwright-mcp-$McpVersion") }
     }
 }
 

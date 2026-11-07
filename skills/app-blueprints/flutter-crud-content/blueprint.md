@@ -63,7 +63,7 @@ Screens identifiés :
 | State management | Riverpod 3.x (`Provider`, `StateNotifierProvider`, `AsyncNotifierProvider`, `FutureProvider`) |
 | Routing | GoRouter (shell route + auth guard redirect + `ChangeNotifier` refresh) |
 | HTTP | Dio (raw, pas de retrofit) |
-| Auth | Firebase Auth identity; FlutterFire where listed and REST/OIDC on Linux |
+| Auth | Clerk identity, one application per product; hosted OIDC + PKCE via `shipglows_clerk_auth` |
 | Backend/data | Convex functions through the official HTTP API |
 | Storage | SharedPreferences (pas de Hive/Isar/SQLite) |
 | Architecture | Layer-first (`core/`, `data/`, `presentation/`, `providers/`) |
@@ -228,13 +228,16 @@ signedOut → restoringSession → checkingBackend → checkingWorkspace
   → needsOnboarding | ready | apiUnavailable | bootstrapFailed | bootstrapUnauthorized
 ```
 
-### Firebase Auth universal contract (greenfield default)
+### Clerk universal contract (greenfield default)
 
-Use Firebase Auth across Web, Android, iOS, Windows, macOS, and Linux. Because
-`firebase_auth` does not list Linux, isolate Linux behind a typed REST/OIDC
-adapter owning PKCE, callback handling, secure refresh-token storage, restore,
-revocation, and sign-out. Pass fresh Firebase ID tokens to Convex HTTP endpoints;
-Convex functions remain authoritative. Firebase Auth does not imply Firestore.
+Use Clerk across Web, Android, iOS, Windows, macOS, and Linux through
+`shipglows-app-engine/flutter/services/shipglows_clerk_auth`: hosted sign-in with OIDC
+Authorization Code + PKCE, a public client and the system browser (app-scheme
+redirect on mobile, loopback on desktop). The package owns callback handling,
+secure refresh-token storage, restore, revocation, and sign-out. Pass fresh
+Clerk id_tokens to Convex (issuer, and audience = native client id); Convex
+functions remain authoritative. Firebase Auth and Auth0 are retired (suite auth
+lot 8).
 
 Require signed-target proof for sign-in, refresh, restart restore, protected
 Convex call, revocation, and sign-out on every launch platform.

@@ -134,7 +134,7 @@ function Get-SgInstallerDiagnosticExcerpt {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-foreach ($launcherModule in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.Backend.ps1','ShipGlows.BackendSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
+foreach ($launcherModule in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.FlutterConfiguration.ps1','ShipGlows.ApiProxy.cjs','ShipGlows.Backend.ps1','ShipGlows.BackendSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ToolCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -309,6 +309,23 @@ function Set-SgLauncherContent([string]$Path, [string]$Content) {
     } finally { if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Force } }
 }
 
+# Another s command may be running from this launcher: Windows then refuses to overwrite or delete it,
+# but allows renaming it. The running process keeps the renamed file; the next install removes it.
+function Install-SgNativeCommand([string]$Source, [string]$Target) {
+    $directory = Split-Path -Parent $Target
+    $leaf = Split-Path -Leaf $Target
+    Get-ChildItem -LiteralPath $directory -Filter "$leaf.shipglows-old-*" -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+    $staged = "$Target.shipglows-new-$([guid]::NewGuid().ToString('N'))"
+    Copy-Item -LiteralPath $Source -Destination $staged
+    try {
+        try { Move-Item -LiteralPath $staged -Destination $Target -Force -ErrorAction Stop; return } catch { }
+        $aside = "$Target.shipglows-old-$([guid]::NewGuid().ToString('N'))"
+        [IO.File]::Move($Target,$aside)
+        try { [IO.File]::Move($staged,$Target) } catch { [IO.File]::Move($aside,$Target); throw }
+        Remove-Item -LiteralPath $aside -Force -ErrorAction SilentlyContinue
+    } finally { if (Test-Path -LiteralPath $staged -PathType Leaf) { Remove-Item -LiteralPath $staged -Force } }
+}
+
 function Install-SgCommandWrappers {
     $wrapper = @'
 @echo off
@@ -369,7 +386,7 @@ call exit /b %%errorlevel%%
         }
 
         foreach ($nativeCommand in @('shipglows-dev.exe','sg.exe')) {
-            Copy-Item -LiteralPath $compiledLauncher -Destination (Join-Path $runtimeDir $nativeCommand) -Force
+            Install-SgNativeCommand $compiledLauncher (Join-Path $runtimeDir $nativeCommand)
         }
         Write-Host 'Native commands installed: shipglows-dev, sg' -ForegroundColor Green
     } finally {
@@ -421,12 +438,15 @@ function Install-SgWebResearchCommands {
         Write-SgInstallerWarning "Web research commands skipped: no ShipGlows checkout at $toolsDir."
         return
     }
-    foreach ($tool in @('search','parallel','fetch','scraping')) {
+    foreach ($tool in @('search','parallel','fetch','browse','scraping')) {
         $script = Join-Path $toolsDir "shipglows_$tool.py"
         if (-not (Test-Path -LiteralPath $script -PathType Leaf)) { continue }
         Set-SgLauncherContent (Join-Path $runtimeDir "shipglows-$tool.cmd") "@echo off`r`npython `"$script`" %*`r`nexit /b %errorlevel%`r`n"
     }
-    Write-Host 'Web research commands installed: shipglows-search, shipglows-parallel, shipglows-fetch, shipglows-scraping' -ForegroundColor Green
+    Write-Host 'Web research commands installed: shipglows-search, shipglows-parallel, shipglows-fetch, shipglows-browse, shipglows-scraping' -ForegroundColor Green
+    if (-not (Get-Command agent-browser -CommandType Application -ErrorAction SilentlyContinue)) {
+        Write-Host 'agent-browser not found: run `npm i -g agent-browser` then `agent-browser install` (downloads Chrome, ~200 MB) to enable shipglows-browse and the shipglows-fetch browser tier.' -ForegroundColor Yellow
+    }
 
     # Free local SearXNG + Crawl4AI: start it when Docker already runs, never install Docker here.
     if (-not (Get-Command docker -CommandType Application -ErrorAction SilentlyContinue)) {
@@ -497,11 +517,13 @@ function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName
 
     $nodeRustActivation = if ($Name -in @('npm','npx','corepack','pnpm')) { @'
 @if exist "%~dp0cargo.cmd" if exist "%USERPROFILE%\.cargo\bin\cargo.exe" (
-  @set "RUSTUP_TOOLCHAIN=1.97.1"
+  @set "RUSTUP_TOOLCHAIN=__SHIPGLOWS_RUST_VERSION__"
   @set "CARGO=%USERPROFILE%\.cargo\bin\cargo.exe"
   @set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
 )
 '@ } else { '' }
+    # The shim's Rust coordinate comes from the shared tool catalog, not a second literal.
+    $nodeRustActivation = $nodeRustActivation.Replace('__SHIPGLOWS_RUST_VERSION__', [string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version)
     $wrapper = @"
 @echo off
 @setlocal DisableDelayedExpansion
@@ -858,7 +880,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
 }
 
 function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$EnvironmentDirectory) {
-    $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','versions.py','windows_tauri_backend.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
+    $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','tool_catalog.py','versions.py','windows_tauri_backend.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
     # Windows PowerShell 5.1 removes embedded double quotes while rebuilding a
     # native argv. Python accepts single-quoted literals, which survive that
     # boundary and keep the -c program intact.
@@ -1546,7 +1568,8 @@ function Install-SgOfficialMise {
     if ($mise) { return $mise }
     $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $winget) { Write-SgInstallerWarning 'ShipGlows toolbox pending: WinGet is unavailable, so the official mise package cannot be acquired.'; return '' }
-    $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise' -Label 'Installing the official mise tool manager' -File $winget.Source -Arguments @('install','--id','jdx.mise','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
+    $miseWingetId = [string](Get-SgToolCatalogEntry 'mise' -RequiredField wingetPackageId).wingetPackageId
+    $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise' -Label 'Installing the official mise tool manager' -File $winget.Source -Arguments @('install','--id',$miseWingetId,'--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
     Update-SgProcessPath
     $mise = Resolve-SgTrustedMisePath
     if (-not $mise) {
@@ -1720,13 +1743,13 @@ function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterP
 
 function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$NpmPath, [string]$NpxPath) {
     if (-not $AnyAgentReady -or -not $NpmPath -or -not $NpxPath) { return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
-    try { $version = Resolve-SgNpmVersion $NpmPath '@playwright/mcp' }
+    try { $playwrightPackage = [string](Get-SgMcpCatalogServer 'playwright' -RequiredField package).package; $version = Resolve-SgNpmVersion $NpmPath $playwrightPackage }
     catch { Write-SgInstallerWarning 'Playwright MCP exact version resolution failed; no agent config was changed.'; return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
     $managedRoot = Join-Path $env:LOCALAPPDATA "ShipGlows\node-tools\playwright-mcp-$version"
     $packageJson = Join-Path $managedRoot 'node_modules\@playwright\mcp\package.json'
     if (-not (Test-Path $packageJson -PathType Leaf)) {
         New-Item -ItemType Directory -Path $managedRoot -Force | Out-Null
-        $packageInstall = Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.mcp' -Label "Installing Playwright MCP $version" -File $NpmPath -Arguments @('install','--prefix',$managedRoot,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"@playwright/mcp@$version") -TimeoutSeconds 600
+        $packageInstall = Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.mcp' -Label "Installing Playwright MCP $version" -File $NpmPath -Arguments @('install','--prefix',$managedRoot,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"$playwrightPackage@$version") -TimeoutSeconds 600
         if ($packageInstall.TimedOut -or $packageInstall.ExitCode -ne 0) { Write-SgInstallerWarning 'Playwright MCP exact package installation failed.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
     }
     $playwrightCommand = Join-Path $managedRoot 'node_modules\.bin\playwright.cmd'
@@ -1825,6 +1848,18 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     $results=@{}
     foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$results[$agentName]=[pscustomobject]@{Installed=[bool]$AgentReady[$agentName];McpSummary=if($AgentReady[$agentName]){'pending'}else{'not applicable'};ReadyServers=@();PendingServers=@()}}
     if(-not $DartPath -or -not $NpxPath){Write-SgInstallerWarning 'Project MCP setup is pending because validated Dart or npx is unavailable.';return $results}
+    # Resolve every project before cleanup or writes so an invalid catalog cannot
+    # remove global entries or discard previously recorded project ownership.
+    $projectServers=@{}
+    try {
+        foreach($projectPath in @($ProjectPaths|Where-Object{$_}|Select-Object -Unique)){
+            $needs=Get-SgProjectServiceNeeds -Workspace $projectPath
+            $projectServers[$projectPath]=@(Get-SgProjectMcpDefinitions -Needs $needs -Versions $ServiceVersions -DartPath $DartPath -NpxPath $NpxPath -Playwright $Playwright)
+        }
+    } catch {
+        Write-SgInstallerWarning 'Project MCP definitions could not be resolved; setup remains pending and existing configurations and ownership state were preserved.'
+        return $results
+    }
     if($ReplaceExistingAgentConfigs){Remove-SgMaintainerGlobalMcpConfigs $AgentReady}
     $statePath=Join-Path $env:LOCALAPPDATA 'ShipGlows\agent-mcp-project-state.json'
     $state=Read-SgProjectMcpState $statePath
@@ -1832,8 +1867,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     $readyByAgent=@{};$pendingByAgent=@{}
     foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$readyByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase);$pendingByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)}
     foreach($projectPath in @($ProjectPaths|Where-Object{$_}|Select-Object -Unique)){
-        $needs=Get-SgProjectServiceNeeds -Workspace $projectPath
-        $servers=@(Get-SgProjectMcpDefinitions -Needs $needs -Versions $ServiceVersions -DartPath $DartPath -NpxPath $NpxPath -Playwright $Playwright)
+        $servers=@($projectServers[$projectPath])
         foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){
             if(-not [bool]$AgentReady[$agentName]){continue}
             $configPlan=Get-SgProjectAgentMcpConfigPlan -Agent $agentName -ProjectPath $projectPath -Servers $servers
@@ -1942,12 +1976,12 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
         Write-SgInstallerWarning 'Machine CLI toolbox pending: the trusted mise executable is unavailable.'
     } else {
         foreach ($definition in @(
-            @{ Need='Firebase'; Package='firebase-tools' },
-            @{ Need='Convex'; Package='convex' },
-            @{ Need='Vercel'; Package='vercel' },
-            @{ Need='Clerk'; Package='clerk' }
+            @{ Need='Firebase'; CatalogId='firebase' },
+            @{ Need='Convex'; CatalogId='convex' },
+            @{ Need='Vercel'; CatalogId='vercel' },
+            @{ Need='Clerk'; CatalogId='clerk' }
         )) {
-            try { $versions[$definition.Need] = Resolve-SgNpmVersion $NpmPath $definition.Package; $resolvedNeeds.($definition.Need) = $true }
+            try { $package = [string](Get-SgMcpCatalogServer $definition.CatalogId -RequiredField cliPackage).cliPackage; $versions[$definition.Need] = Resolve-SgNpmVersion $NpmPath $package; $resolvedNeeds.($definition.Need) = $true }
             catch { Write-SgInstallerWarning "$($definition.Need) exact-version resolution failed; its machine CLI remains pending." }
         }
         foreach ($definition in @(
@@ -2085,7 +2119,7 @@ if ($UpdateDeveloperTools) {
         [pscustomobject]@{Key='git';Name='Git';Command='git.exe';PackageId='Git.Git';Paths=$gitPaths},
         [pscustomobject]@{Key='github';Name='GitHub CLI';Command='gh.exe';PackageId='GitHub.cli';Paths=$ghPaths},
         [pscustomobject]@{Key='node';Name='Node.js LTS';Command='node.exe';PackageId='OpenJS.NodeJS.LTS';Paths=$nodePaths},
-        [pscustomobject]@{Key='mise';Name='mise';Command='mise.exe';PackageId='jdx.mise';Paths=@($misePath)},
+        [pscustomobject]@{Key='mise';Name='mise';Command='mise.exe';PackageId=[string](Get-SgToolCatalogEntry 'mise' -RequiredField wingetPackageId).wingetPackageId;Paths=@($misePath)},
         [pscustomobject]@{Key='gcloud';Name='Google Cloud CLI';Command='gcloud.cmd';PackageId='Google.CloudSDK';Paths=$gcloudPaths},
         [pscustomobject]@{Key='doppler';Name='Doppler CLI';Command='doppler.exe';PackageId='Doppler.Doppler';Paths=$dopplerPaths},
         [pscustomobject]@{Key='uv';Name='uv';Command='uv.exe';PackageId='astral-sh.uv';Paths=$uvPaths}

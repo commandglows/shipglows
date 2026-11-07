@@ -19,12 +19,16 @@ from pathlib import Path
 from typing import Dict, Mapping, Optional, Protocol, Sequence, Tuple
 from urllib.parse import urlsplit
 
+from .tool_catalog import tool_field
 
-MISE_INSTALL_DOC = "https://mise.jdx.dev/installing-mise.html#windows-winget"
+
+# Trusted mise identity and its official acquisition provenance come from the
+# shared tool catalog; a missing or malformed entry fails this import closed.
+MISE_INSTALL_DOC = tool_field("mise", "provenance")
+MISE_PACKAGE_ID = tool_field("mise", "wingetPackageId")
 MISE_EXEC_DOC = "https://mise.jdx.dev/cli/exec.html"
 MISE_LOCK_DOC = "https://mise.jdx.dev/dev-tools/mise-lock.html"
 MISE_OFFLINE_DOC = "https://mise.jdx.dev/configuration/settings.html#offline"
-MISE_PACKAGE_ID = "jdx.mise"
 MAX_OUTPUT_CHARS = 16_384
 MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024
 MISE_VERSION = re.compile(r"(?<!\d)(\d{4}\.\d+(?:\.\d+)?)(?!\d)")
@@ -721,7 +725,7 @@ def plan_operations(
         acquisition = {
             "capability": {"kind": "backend", "id": "mise"},
             "owner": "winget",
-            "references": _identity_references(["jdx.mise"], winget_identity if not offline else None),
+            "references": _identity_references([MISE_PACKAGE_ID], winget_identity if not offline else None),
             "status": "pending" if winget_identity and not offline else "blocked",
             "executable": bool(winget_identity and not offline),
             "reason": (

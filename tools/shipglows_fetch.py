@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Read public pages as Markdown with provider fallback: plain HTTP, local Crawl4AI, DeepSeek, Firecrawl, then Parallel.
+"""Read public pages as Markdown with provider fallback: plain HTTP, agent-browser, local Crawl4AI, DeepSeek, Firecrawl, then Parallel.
 
 Plain HTTP reads static HTML without a browser in a fraction of a second; a
 JavaScript app shell, an HTTP error or a non-HTML answer moves the URL to the
-Crawl4AI browser. A YouTube video page is read from the player data embedded in
+agent-browser Chrome (no Docker; skipped when the CLI is not installed), then to
+the Crawl4AI browser. A YouTube video page is read from the player data embedded in
 its static HTML (title, channel, date, duration, description), so it needs no
 browser. Each URL goes through the cascade on its own; a stopped
 local stack, a missing key, exhausted credits, a network error or an empty page
@@ -18,7 +19,10 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
+import uuid
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -34,11 +38,15 @@ from shipglows_http import (  # noqa: E402
     send_json,
 )
 from shipglows_parallel import ParallelError, normalize_public_url, request_extract  # noqa: E402
-from shipglows_scraping import CRAWL4AI_URL, crawl4ai_token  # noqa: E402
+from shipglows_scraping import CRAWL4AI_URL, autostart_in_background, crawl4ai_token  # noqa: E402
 
 FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape"
 DEEPSEEK_FETCH_URL = "https://api.deepseek.com/v1/tools/fetch"
-PROVIDERS = ("http", "crawl4ai", "deepseek", "firecrawl", "parallel")
+PROVIDERS = ("http", "agent-browser", "crawl4ai", "deepseek", "firecrawl", "parallel")
+BROWSER_ENV = "SHIPGLOWS_FETCH_BROWSER"
+BROWSER_BINARY = "agent-browser"
+BROWSER_MAX_WORKERS = 3
+BROWSER_CLOSE_TIMEOUT = 15.0
 HTTP_ENV = "SHIPGLOWS_FETCH_HTTP"
 HTTP_MAX_TIMEOUT = 15.0
 HTTP_MAX_BYTES = 5_000_000
@@ -134,6 +142,62 @@ def fetch_http_all(urls: list[str], args: argparse.Namespace, opener=None) -> di
         return dict(zip(urls, pool.map(attempt, urls)))
 
 
+def agent_browser_run(binary: str, session: str, argv: list[str], timeout: float) -> dict:
+    """Run one agent-browser command in an isolated session; return its `data` or raise ProviderError."""
+    try:
+        done = subprocess.run([binary, "--session", session, *argv, "--json"], capture_output=True, timeout=timeout,
+                              check=False, stdin=subprocess.DEVNULL)
+    except subprocess.TimeoutExpired:
+        raise ProviderError(f"agent-browser timed out after {timeout:g}s") from None
+    except OSError as error:
+        raise ProviderError(f"agent-browser could not start ({type(error).__name__})") from None
+    try:
+        payload = json.loads(done.stdout.decode("utf-8", "replace"))
+    except ValueError:
+        detail = done.stderr.decode("utf-8", "replace").strip()[:200] or f"exit {done.returncode}"
+        raise ProviderError(f"agent-browser returned no JSON: {safe_message(detail, '')}") from None
+    if not isinstance(payload, dict) or payload.get("success") is not True:
+        error = payload.get("error") if isinstance(payload, dict) else None
+        message = error.get("message") if isinstance(error, dict) else error
+        raise ProviderError(f"agent-browser failed: {safe_message(str(message or 'unknown error')[:200], '')}")
+    return payload.get("data") if isinstance(payload.get("data"), dict) else {}
+
+
+def fetch_agent_browser(url: str, args: argparse.Namespace, binary: str) -> dict:
+    """Render the page in a throwaway agent-browser session (own Chrome, cookies and storage), then read its text."""
+    session = f"sgfetch-{os.getpid()}-{uuid.uuid4().hex[:8]}"
+    try:
+        opened = agent_browser_run(binary, session, ["open", url], args.timeout)
+        read = agent_browser_run(binary, session, ["read"], args.timeout)
+    finally:
+        try:
+            agent_browser_run(binary, session, ["close"], BROWSER_CLOSE_TIMEOUT)
+        except ProviderError:
+            pass
+    text = read.get("content")
+    if args.query and not args.full and isinstance(text, str):
+        text = filter_by_query(text, args.query)
+    title = opened.get("title")
+    return {"title": title if isinstance(title, str) else "", "markdown": require_markdown("agent-browser", text)}
+
+
+def agent_browser_batch(urls: list[str], args: argparse.Namespace) -> dict:
+    """Render every URL in its own session (a few at a time); map each URL to a page or the exception to report."""
+    if os.environ.get(BROWSER_ENV, "").strip().lower() == "off":
+        return dict.fromkeys(urls, ProviderSkipped(f"{BROWSER_ENV} is off"))
+    binary = shutil.which(BROWSER_BINARY)
+    if not binary:
+        return dict.fromkeys(urls, ProviderSkipped("agent-browser is not installed; run `npm i -g agent-browser && agent-browser install`"))
+
+    def attempt(url):
+        try:
+            return fetch_agent_browser(url, args, binary)
+        except ProviderError as error:
+            return error
+    with ThreadPoolExecutor(max_workers=min(BROWSER_MAX_WORKERS, len(urls))) as pool:
+        return dict(zip(urls, pool.map(attempt, urls)))
+
+
 def crawl4ai_payload(urls: list[str], args: argparse.Namespace) -> dict:
     params = {
         "cache_mode": "bypass",
@@ -184,6 +248,9 @@ def crawl4ai_batch(urls: list[str], args: argparse.Namespace, opener=None) -> di
                          http_error=lambda code, body: f"Crawl4AI HTTP {code}: "
                                                        f"{safe_message(body[:200].decode('utf-8', 'replace'), token)}")
     except ProviderError as error:
+        # An unreachable local service is restarted for the next fetch; this one moves on.
+        if opener is None and "network request failed" in str(error):
+            error = ProviderError(f"{error} {autostart_in_background()}.")
         return dict.fromkeys(urls, error)
     items = {item.get("url"): item for item in data.get("results") or [] if isinstance(item, dict)}
     pages: dict = {}
@@ -262,7 +329,7 @@ FETCHERS = {"deepseek": fetch_deepseek, "firecrawl": fetch_firecrawl, "parallel"
 
 
 def fetch_one(url: str, args: argparse.Namespace, local: dict, opener=None) -> dict:
-    """`local` maps each local provider (http, crawl4ai) to its precomputed {url: page or exception}."""
+    """`local` maps each local provider (http, agent-browser, crawl4ai) to its precomputed {url: page or exception}."""
     attempts = []
     for provider in (PROVIDERS if args.provider == "auto" else (args.provider,)):
         try:
@@ -289,13 +356,13 @@ def fetch_one(url: str, args: argparse.Namespace, local: dict, opener=None) -> d
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="shipglows-fetch",
-        description="Read public pages as Markdown: plain HTTP first, then the local Crawl4AI browser, then DeepSeek, Firecrawl and Parallel. "
+        description="Read public pages as Markdown: plain HTTP first, then agent-browser, then the local Crawl4AI browser, then DeepSeek, Firecrawl and Parallel. "
         "Exit 3 means a URL failed every provider: use the agent's native fetch for it.")
     parser.add_argument("url", nargs="+", metavar="URL", help="public http(s) URL; up to ten")
     parser.add_argument("--provider", choices=("auto", *PROVIDERS), default="auto",
-                        help="auto tries HTTP, Crawl4AI, DeepSeek, Firecrawl then Parallel (default); naming one disables fallback")
+                        help="auto tries HTTP, agent-browser, Crawl4AI, DeepSeek, Firecrawl then Parallel (default); naming one disables fallback")
     parser.add_argument("--full", action="store_true", help="whole page instead of the main content")
-    parser.add_argument("--query", help="keep the passages relevant to this query (term filter over HTTP, Crawl4AI BM25, Parallel objective)")
+    parser.add_argument("--query", help="keep the passages relevant to this query (term filter over HTTP and agent-browser, Crawl4AI BM25, Parallel objective)")
     parser.add_argument("--max-chars", type=int, default=DEFAULT_MAX_CHARS,
                         help=f"truncate each page's Markdown (default {DEFAULT_MAX_CHARS}; 0 keeps everything)")
     parser.add_argument("--timeout", type=float,
@@ -322,9 +389,14 @@ def main(argv: list[str] | None = None, opener=None) -> int:
     local: dict = {}
     if args.provider in ("auto", "http"):
         local["http"] = fetch_http_all(urls, args, opener=opener)
-    if args.provider in ("auto", "crawl4ai"):
+    if args.provider in ("auto", "agent-browser"):
         # Only the pages plain HTTP could not read pay for a browser.
         pending = [url for url in urls if isinstance(local.get("http", {}).get(url, ProviderError("")), Exception)]
+        local["agent-browser"] = agent_browser_batch(pending, args) if pending else {}
+    if args.provider in ("auto", "crawl4ai"):
+        # ... and Crawl4AI only gets what neither HTTP nor agent-browser could read.
+        pending = [url for url in urls if all(isinstance(local.get(name, {}).get(url, ProviderError("")), Exception)
+                                              for name in ("http", "agent-browser") if name in local)]
         local["crawl4ai"] = crawl4ai_batch(pending, args, opener=opener) if pending else {}
     pages = [fetch_one(url, args, local, opener=opener) for url in urls]
     print(json.dumps({"pages": pages}, ensure_ascii=False, indent=2))

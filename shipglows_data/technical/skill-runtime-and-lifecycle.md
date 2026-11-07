@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.41.2"
+artifact_version: "2.44.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-19"
+updated: "2026-10-30"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -161,6 +161,35 @@ next_step: "/300-sg-docs technical audit skills"
 ## Purpose
 
 This doc covers ShipGlows skills, lifecycle flow, references, templates, model/topology decisions, and documentation gates. Read it before changing `skills/*/SKILL.md`, shared skill references, or `shipglows_data/workflow/playbooks/spec-driven-workflow.md`.
+
+## Workstation Initialization
+
+Current first-person host/device arrival requests addressed to ShipGlows, such as
+« je viens d'arriver sur un nouvel ordi », normalize to the same init mode across
+the local public wrapper, canonical router, lightweight plugin and OpenCode entry.
+No more specific task may be displaced. Questions, quotes, hypothetical/third-party
+discussion and project/repo onboarding do not trigger this normalization. Ambiguous
+host versus project environments are clarified before writes. Intent normalization
+preserves constraints/tags and grants no additional installation/auth authority.
+
+`$shipglows init [context|agents|memory|resume]` is a public router mode, executed by
+the current agent through `skills/references/workstation-initialization.md`.
+It verifies the canonical root, persists a non-secret machine-local context file
+and workflow checkpoints, reuses the existing native agent updater, uses permitted host memory, and
+refreshes context. Cached roots remain hints beneath environment/channel authority.
+`context` is read-only; `agents` includes the local pointer file; `memory` includes
+that file plus supported agent memory. `resume` re-observes canonical owners before
+continuing permitted pending work. Optional `role=local|remote|consult|test` and
+`lifetime=persistent|ephemeral` select intended use, not capability or authority.
+Schema v2 validates checkpoints against fixed step/owner IDs and migrates verified
+v1 hints without inferring success. Saved checkpoints never override live readiness.
+Lightweight plugin/OpenCode entries guide consult/remote users without a corpus;
+browser-only guidance is distinct from a new native iOS/tablet runtime.
+Installer, connections, accounts, data restoration and application starts
+retain separate gates. This skill does not add a shell command or change an
+installation channel. No other router path loads its procedure. Global Windows
+instructions link to the optional cache inside their existing managed block;
+unsupported native writers remain manual rather than creating another block.
 
 ## Instruction Layering Policy
 

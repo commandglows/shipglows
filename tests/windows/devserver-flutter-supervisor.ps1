@@ -68,7 +68,6 @@ if ($valid.Method -ne 'reload' -or $valid.Id -ne 'cmd-1') { throw 'Valid authent
 foreach ($json in @(
     '{"token":"wrong","id":"cmd-1","method":"reload"}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"../escape","method":"reload"}',
-    '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"restart"}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"status"}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"reload","extra":true}',
     '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":1,"method":"reload"}',
@@ -119,6 +118,34 @@ try {
     $reloadScript=Join-Path $watchRoot 'reload-fixture.ps1';[IO.File]::WriteAllText($reloadScript,'$line=[Console]::In.ReadLine();if(-not$line.StartsWith(''['')-or-not$line.EndsWith('']'')){exit 9};$request=$line.Substring(1,$line.Length-2)|ConvertFrom-Json;if($request.method-ne''app.restart''){exit 9};[Console]::Out.WriteLine(''[{"id":88,"result":{"code":0}}]'');Start-Sleep -Milliseconds 200')
     $reload=New-Object Diagnostics.Process;$reload.StartInfo.FileName=$testPowerShell;$reload.StartInfo.Arguments="-NoProfile -File `"$reloadScript`"";$reload.StartInfo.UseShellExecute=$false;$reload.StartInfo.RedirectStandardInput=$true;$reload.StartInfo.RedirectStandardOutput=$true;$reload.StartInfo.RedirectStandardError=$true
     try{[void]$reload.Start();$reloadPump=New-SgFlutterStreamPump $reload;$roq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$req=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$reloadState=New-SgFlutterProtocolState;Send-SgFlutterMachineRequest $reload 88 'app.restart' 'app-watch';[void](Wait-SgFlutterMachineResponse $reload $reloadPump $roq $req $reloadState (Join-Path $watchRoot 'reload.log') 88 3);if($reloadState.LastResponseId-ne88-or-not$reloadState.LastResponseOk){throw 'Watcher-triggered app.restart response was not correlated.'}}finally{if(-not$reload.HasExited){$reload.Kill();$reload.WaitForExit()};$reload.Dispose()}
+    # The whole reload path, not only the state update: a rejected reload throws Flutter's reason, an accepted one
+    # slower than Flutter's own 10 s debug service wait succeeds, and both are logged with their source.
+    $reloadFixture=Join-Path $watchRoot 'reload-outcome-fixture.ps1'
+    [IO.File]::WriteAllText($reloadFixture,@'
+param($DelayMilliseconds,$ResultJson)
+$line=[Console]::In.ReadLine();$request=$line.Substring(1,$line.Length-2)|ConvertFrom-Json
+Start-Sleep -Milliseconds ([int]$DelayMilliseconds)
+[Console]::Out.WriteLine('[{"id":'+$request.id+',"result":'+[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($ResultJson))+'}]')
+Start-Sleep -Milliseconds 200
+'@)
+    $reloadLog=Join-Path $watchRoot 'flutter.reload.log'
+    function Invoke-ReloadOutcomeFixture([int]$Id,[string]$Source,[int]$DelayMilliseconds,[string]$ResultJson,[switch]$FullRestart){
+        $child=New-Object Diagnostics.Process;$child.StartInfo.FileName=$testPowerShell;$encoded=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($ResultJson));$child.StartInfo.Arguments="-NoProfile -File `"$reloadFixture`" $DelayMilliseconds $encoded";$child.StartInfo.UseShellExecute=$false;$child.StartInfo.RedirectStandardInput=$true;$child.StartInfo.RedirectStandardOutput=$true;$child.StartInfo.RedirectStandardError=$true
+        try{[void]$child.Start();$childPump=New-SgFlutterStreamPump $child;$childOut=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$childErr=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$childState=New-SgFlutterProtocolState;$childState.AppId='app-watch';$childState.Ready=$true;$childState.LastError='Flutter machine response timed out.'
+            $thrown=$null;try{Invoke-SgFlutterReloadRequest $child $childPump $childOut $childErr $childState (Join-Path $watchRoot 'reload.log') $reloadLog $Id $Source -FullRestart:$FullRestart}catch{$thrown=$_.Exception.Message}
+            return [pscustomobject]@{State=$childState;Thrown=$thrown}
+        }finally{if(-not$child.HasExited){$child.Kill();$child.WaitForExit()};$child.Dispose()}
+    }
+    $rejectedReload=Invoke-ReloadOutcomeFixture 201 'watcher' 0 '{"code":1,"message":"Hot reload failed:TimeoutException after 0:00:10.000000: Hot reload timed out - received 1/2 responses.\nTry performing a hot restart instead."}'
+    if($rejectedReload.Thrown-notmatch'code 1'-or$rejectedReload.Thrown-notmatch'received 1/2 responses'-or$rejectedReload.Thrown-match'hot restart instead|compile errors'){throw "A rejected reload did not throw Flutter's reason: $($rejectedReload.Thrown)"}
+    $slowReload=Invoke-ReloadOutcomeFixture 202 'cli' 11000 '{"code":0,"message":""}' -FullRestart
+    if($slowReload.Thrown-or-not$slowReload.State.LastResponseOk){throw "A reload accepted after 11 s was reported as failed: $($slowReload.Thrown)"}
+    if($slowReload.State.LastError){throw 'An accepted reload left the previous failure in LastError.'}
+    $reloadRecords=@(Get-Content -LiteralPath $reloadLog|ForEach-Object{$_|ConvertFrom-Json})
+    if($reloadRecords.Count-ne2){throw 'The reload log does not hold one record per request.'}
+    if($reloadRecords[0].id-ne201-or$reloadRecords[0].source-ne'watcher'-or$reloadRecords[0].kind-ne'reload'-or$reloadRecords[0].outcome-ne'failed'-or$reloadRecords[0].detail-notmatch'received 1/2'-or-not$reloadRecords[0].sentAtUtc){throw 'A failed watcher reload was not logged with its source.'}
+    if($reloadRecords[1].id-ne202-or$reloadRecords[1].source-ne'cli'-or$reloadRecords[1].kind-ne'restart'-or$reloadRecords[1].outcome-ne'ok'-or$reloadRecords[1].elapsedMs-lt10000){throw 'An accepted CLI restart was not logged with its source and duration.'}
+    Write-SgFlutterReloadLog (Join-Path $watchRoot 'missing-directory\flutter.reload.log') 'now' 1 'cli' 'reload' 'ok' 0 ''
 } finally { if($watcher){$watcher.Dispose()};Remove-Item -LiteralPath $watchRoot -Recurse -Force -ErrorAction SilentlyContinue }
 
 $state = New-SgFlutterProtocolState
@@ -133,6 +160,22 @@ Update-SgFlutterProtocolState $state '{"id":7,"result":{"code":0,"message":"Relo
 if ($state.LastResponseId -ne 7 -or -not $state.LastResponseOk) { throw 'Machine response correlation was not recorded.' }
 Update-SgFlutterProtocolState $state '{"id":8,"error":{"code":-32000,"message":"sensitive detail"}}'
 if ($state.LastResponseId -ne 8 -or $state.LastResponseOk -or $state.LastError -match 'sensitive detail') { throw 'Machine response errors were not redacted and correlated.' }
+Update-SgFlutterProtocolState $state '[{"id":9,"result":{"code":1,"message":"DevFS synchronization failed"}}]'
+if ($state.LastResponseId -ne 9 -or $state.LastResponseOk -or $state.LastError -notmatch 'code 1' -or $state.LastError -notmatch 'DevFS synchronization failed') { throw 'A rejected hot reload (result.code != 0) was reported as success or lost its reason.' }
+Update-SgFlutterProtocolState $state '{"id":10,"result":true}'
+if ($state.LastResponseId -ne 10 -or -not $state.LastResponseOk) { throw 'A boolean machine result was not accepted.' }
+if ($state.LastError -notmatch 'DevFS') { throw 'A non-reload response cleared the reload failure.' }
+Update-SgFlutterProtocolState $state '{"id":11,"result":{"code":0,"message":""}}'
+if ($state.LastError) { throw 'An accepted reload did not clear the previous failure.' }
+$startupState=New-SgFlutterProtocolState;$startupState.LastError='startup failure'
+Update-SgFlutterProtocolState $startupState '{"id":12,"result":{"code":0}}'
+if ($startupState.LastError -ne 'startup failure') { throw 'A response before readiness cleared a startup failure.' }
+$longReason=(ConvertFrom-Json '{"code":3,"message":"\n\nleading blank line token=abc123 Bearer xyz789 Unexpected token here\nsecond line"}')
+$failureText=Get-SgFlutterReloadFailureText $longReason
+if ($failureText -notmatch 'code 3' -or $failureText -notmatch 'leading blank line' -or $failureText -match 'second line|abc123|xyz789' -or $failureText -notmatch 'Unexpected token here') { throw "The reload failure text was not first-line and redacted: $failureText" }
+$boundedText=Get-SgFlutterReloadFailureText ([pscustomobject]@{code=1;message='x'*2000})
+if ($boundedText.Length -gt 300) { throw 'The reload failure text was not bounded.' }
+if ((Get-SgFlutterReloadFailureText ([pscustomobject]@{code=2})) -ne 'Flutter rejected the reload (code 2).') { throw 'A reload failure without a message lost its code.' }
 $arrayState=New-SgFlutterProtocolState
 Update-SgFlutterProtocolState $arrayState '[{"event":"daemon.connected","params":{"pid":4321}}]'
 Update-SgFlutterProtocolState $arrayState '[{"event":"app.start","params":{"appId":"app-array"}}]'

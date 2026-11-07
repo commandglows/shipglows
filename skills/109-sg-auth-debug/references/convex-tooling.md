@@ -8,12 +8,15 @@ Sources checked:
 - https://docs.convex.dev/auth/clerk
 - https://docs.convex.dev/auth/debug
 
-Last reviewed: 2026-04-26
+Last reviewed: 2026-11-04 (Convex v1.49.0 release walkthrough, https://www.youtube.com/watch?v=_CDulXbLR_M)
 
 ## Standard ShipGlows Setup
 
 - Convex MCP command: `npx -y convex@latest mcp start`
 - Convex CLI install: `pnpm add -g convex`
+- Agent plugin (Claude Code + Codex): `npx convex plugins install` installs or upgrades the Convex plugin for both agents in one command (convex >= 1.49). Rerun it after each Convex upgrade; an old install silently lags behind.
+- Runtime: convex >= 1.49 requires **Node 22 or newer** (Node 20 is end of life; the CLI refuses to run). Before bumping `convex`, check the local Node, CI workflows, Dockerfiles, `.nvmrc`/`engines` and the Vercel project Node version. Raise `engines.node` to `>=22` in projects that still declare `>=20`.
+- Components: `v.function` (convex >= 1.49) validates function-typed args such as `onComplete` callbacks in Convex components; use it instead of `v.string()` stand-ins.
 
 ## Use Convex MCP When
 

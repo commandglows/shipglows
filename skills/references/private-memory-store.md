@@ -133,6 +133,8 @@ Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/da
 
 The public index decides which pitch may be relevant. The private cache may speed up classification, but it does not replace project-owned source-of-truth docs.
 
+Reading this index is standing read-only context: plain phrases such as "mes projets" or "mes pitchs" trigger it directly, before any other search (see the portfolio-index exception in `603-sg-private`).
+
 Recommended file naming:
 
 ```text

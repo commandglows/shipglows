@@ -20,12 +20,15 @@ param(
     [ValidateSet('','windows','android','chrome','web-server')][string]$FlutterDevice = '',
     [string]$FlutterDeviceId = '',
     [ValidateSet('','debug','profile')][string]$FlutterMode = '',
+    [ValidateSet('','dev','prd')][string]$FlutterEnvironment = '',
+    [ValidateSet('','dev','prd')][string]$TauriEnvironment = '',
     [ValidateSet('','windows','android')][string]$TauriDevice = '',
     [string]$TauriDeviceId = '',
     [ValidateSet('','own','shared')][string]$Frontend = '',
     [switch]$Replace,
     [switch]$Open,
     [switch]$Full,
+    [switch]$Missing,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
     [string]$MenuSessionRequestPath = '',
@@ -138,6 +141,10 @@ function Show-SgShortcutHelp {
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
     Write-Host '    [-FlutterDevice windows|android|chrome|web-server] [-FlutterDeviceId <Android id>] [-FlutterMode debug|profile] [-Open]'
     Write-Host '    -FlutterMode profile runs flutter run --profile for performance measurement (never --release); profile sessions cannot hot reload or hot restart, use s restart to rebuild.' -ForegroundColor DarkGray
+    Write-Host '    -FlutterEnvironment prd runs the debug/profile session against the production backend declared by the project recipe (--environment prd, public values only, Doppler never used, no Desktop shortcut).' -ForegroundColor DarkGray
+    Write-Host '    [-TauriEnvironment dev|prd] -TauriEnvironment prd runs the Tauri desktop dev session against the production backend declared in the project .shipglows.tauri.json (public values only, Doppler never used, no Desktop shortcut).' -ForegroundColor DarkGray
+    Write-Host '    -FlutterDevice web-server with an api/ directory (or vercel.json functions): /api/* is served on the surface port by a local Node proxy; Flutter moves behind it.' -ForegroundColor DarkGray
+    Write-Host '    Handlers get the Doppler scope of .shipglows.flutter.json plus the public defines of the web origin; the registry shows apiProxy=active. chrome is not API-routed.' -ForegroundColor DarkGray
     Write-Host '    [-TauriDevice windows|android] [-TauriDeviceId <adb serial>]'
     Write-Host '    -TauriDevice android runs tauri android dev on a connected phone (adb reverse keeps the local dev port; never a release build).' -ForegroundColor DarkGray
     Write-Host '    Each target (Tauri windows/android, Flutter windows/android/chrome/web-server) is its own session: starting one never replaces another.' -ForegroundColor DarkGray
@@ -153,6 +160,9 @@ function Show-SgShortcutHelp {
     Write-Host '  s m r    Restart a project'
     Write-Host '  s m t    Stop a project'
     Write-Host '  s m w    Unregister a stopped project (files are preserved)'
+    Write-Host '  s refresh                         Rediscover projects; registered surfaces whose folder vanished show as missing'
+    Write-Host '  s unregister -ProjectPath <path>  Unregister a stopped project, even when its folder is missing (frees its port)'
+    Write-Host '  s unregister -Missing             Unregister every stopped surface whose folder is missing'
     Write-Host '  s m o    Stop all projects'
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
@@ -207,7 +217,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
     $results = New-Object 'System.Collections.Generic.List[object]'
     # Restarting every target of a project passes each target's own selection; a one-shot start uses the command line.
     foreach ($name in @($Overrides.Keys)) { Set-Variable -Name $name -Value $Overrides[$name] -Scope Local }
-    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -Frontend $Frontend -Replace:$Replace | ForEach-Object {
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible -FlutterDevice $FlutterDevice -FlutterDeviceId $FlutterDeviceId -FlutterMode $FlutterMode -FlutterEnvironment $FlutterEnvironment -Restart:$Restart -TauriDevice $TauriDevice -TauriDeviceId $TauriDeviceId -TauriEnvironment $TauriEnvironment -Frontend $Frontend -Replace:$Replace | ForEach-Object {
         $item = $_
         if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
             [void]$results.Add($item)
@@ -241,10 +251,12 @@ function Invoke-SgRestart([string]$Path) {
         if ($kind -eq 'tauri') {
             $overrides.TauriDevice = $target
             $overrides.TauriDeviceId = $(if ($target -eq 'android' -and $session.PSObject.Properties['tauriDeviceId'] -and $session.tauriDeviceId) { [string]$session.tauriDeviceId } else { '' })
+            if (-not $TauriEnvironment -and $session.PSObject.Properties['tauriEnvironment'] -and $session.tauriEnvironment) { $overrides.TauriEnvironment = [string]$session.tauriEnvironment }
         } elseif ($kind -eq 'flutter-web') {
             $overrides.FlutterDevice = $target
             $overrides.FlutterDeviceId = $(if ($target -eq 'android' -and $session.PSObject.Properties['flutterDeviceId'] -and $session.flutterDeviceId) { [string]$session.flutterDeviceId } else { '' })
             if (-not $FlutterMode -and $session.PSObject.Properties['flutterMode'] -and $session.flutterMode) { $overrides.FlutterMode = [string]$session.flutterMode }
+            if (-not $FlutterEnvironment -and $session.PSObject.Properties['flutterEnvironment'] -and $session.flutterEnvironment) { $overrides.FlutterEnvironment = [string]$session.flutterEnvironment }
         }
         Write-SgInfo "Restarting the $target target of $($entry.name)."
         Invoke-SgRequiredStart $Path 0 -Overrides $overrides | Out-Null
@@ -262,6 +274,14 @@ function Resolve-SgTargetView([object]$Entry) {
     $session = Select-SgPrimarySession @(Get-SgEntrySessions $Entry)
     if ($session) { return Get-SgSessionView $Entry $session }
     return $Entry
+}
+
+# A multi-surface repository keeps its browser extension in ext\ (skills/references/project-tree-model.md).
+function Resolve-SgExtensionSurfacePath([string]$Path, [string]$Browser) {
+    if (Get-SgBrowserExtensionDescriptor $Path $Browser) { return $Path }
+    $extension = Join-Path $Path 'ext'
+    if (Test-Path -LiteralPath $extension -PathType Container) { return $extension }
+    return $Path
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
@@ -535,6 +555,8 @@ function Show-SgProjectStatus([object]$Entry) {
     Write-Host "Open: $($experience.OpenAction)"
     if ($Entry.status -in @('starting','running')) {
         Write-Host "Next: $($experience.OpenNextAction)"
+    } elseif (Test-SgProjectSurfaceMissing $Entry) {
+        Write-Host "Next: the folder is gone; run s unregister -ProjectPath `"$($Entry.path)`"."
     } else {
         Write-Host "Next: run s start -ProjectPath `"$($Entry.path)`"."
     }
@@ -709,7 +731,6 @@ function Invoke-Navigate {
 }
 
 function Get-SgUpdateSource {
-    param([switch]$AllowDirty)
     $statePath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'development-channel.json'
     if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) {
         return [pscustomobject]@{ Channel='stable'; Root=''; Branch='main'; Upstream='origin/main'; Installer=''; Skills='managed' }
@@ -732,9 +753,6 @@ function Get-SgUpdateSource {
     }
     $dirty = @(& $git -C $root status --porcelain)
     if ($LASTEXITCODE -ne 0) { throw 'The linked ShipGlows checkout could not be inspected.' }
-    if ($dirty.Count -gt 0 -and -not $AllowDirty) {
-        throw "The linked ShipGlows checkout has uncommitted changes, so the update stopped to preserve them. Inspect them with: git -C `"$root`" status --short. Commit or deliberately resolve those changes, then retry 's update'. No files were stashed or replaced."
-    }
     $branch = (& $git -C $root branch --show-current).Trim()
     if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'The linked ShipGlows checkout is detached; update stopped before bootstrap.' }
     $upstream = (& $git -C $root rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>$null).Trim()
@@ -743,7 +761,7 @@ function Get-SgUpdateSource {
 }
 
 function Show-SgUpdateStatus {
-    $source = Get-SgUpdateSource -AllowDirty
+    $source = Get-SgUpdateSource
     $dirty = if ($source.PSObject.Properties['Dirty'] -and $source.Dirty) { 'dirty' } else { 'clean' }
     Write-Host "ShipGlows update status: channel=$($source.Channel) branch=$($source.Branch) upstream=$($source.Upstream) skills=$($source.Skills) source=$dirty" -ForegroundColor Cyan
     if ($source.Channel -eq 'linked') { Write-Host 'Linked skills already follow the checkout. Start a new Codex or Claude session after source changes.' -ForegroundColor DarkGray }
@@ -800,8 +818,17 @@ function Format-SgRuntimeProcessRow([object]$Row) {
 # s doctor lists every managed PowerShell process and offers to stop only the orphans.
 function Invoke-SgDoctor {
     $report = Get-SgRuntimeProcessReport $config
-    if ($Json) { $report | ConvertTo-Json -Depth 4; return }
+    $portReport = Get-SgPortExclusionReport $config
+    if ($Json) { $report | Add-Member -NotePropertyName Ports -NotePropertyValue $portReport -PassThru | ConvertTo-Json -Depth 5; return }
     Write-SgRegistryLockState $report.Lock
+    Write-Host ''
+    Write-Host 'Windows-excluded TCP port ranges' -ForegroundColor Cyan
+    if (-not $portReport.Ranges.Count) { Write-Host '  none' }
+    else { Write-Host ('  ' + (($portReport.Ranges | ForEach-Object { "$($_.Start)-$($_.End)" }) -join ', ')) -ForegroundColor Gray }
+    if ($portReport.Affected.Count) {
+        Write-SgWarn "$($portReport.Affected.Count) registered port(s) fall inside a Windows-excluded range and cannot be bound; the next s start reassigns a free port automatically."
+        foreach ($item in $portReport.Affected) { Write-Host ('  {0,-6} {1,-40} {2} (range {3})' -f $item.Port, $item.Name, $item.Status, $item.Range) -ForegroundColor Yellow }
+    } else { Write-SgInfo 'No registered port is inside a Windows-excluded range.' }
     Write-Host ''
     Write-Host 'Managed PowerShell processes' -ForegroundColor Cyan
     if (-not $report.Processes.Count) { Write-Host '  none' }
@@ -889,8 +916,10 @@ function Invoke-SgDeveloperToolsUpdate {
 }
 
 function Invoke-SgUpdate {
+    # The linked installer archives committed content only, so uncommitted files are never touched.
     $source = Get-SgUpdateSource
     if ($source.Channel -eq 'linked') {
+        if ($source.Dirty) { Write-SgWarn "Uncommitted changes in $($source.Root) are not included; only committed $($source.Branch) is installed." }
         $installerPath = $source.Installer
         # A linked checkout is the maintainer channel, not an ordinary runtime
         # install.  Preserve that surface so its live Codex skills are
@@ -1168,23 +1197,33 @@ try {
         'dashboard' { Show-SgWindowsDashboard; Start-SgBackgroundUpdateStatusRefresh }
         'status' {
             if ($ProjectPath) {
-                $path = ConvertTo-SgCanonicalPath $ProjectPath
+                $path = ConvertTo-SgCanonicalPath $ProjectPath -AllowMissing
                 $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
                 if (-not $entry) { throw "Project is not registered: $path" }
                 if ($Json) {
                     # Each target reports the log files actually being written (live Flutter supervisor logs while they exist).
                     $targets = @(Get-SgEntrySessions $entry | ForEach-Object { $view = $_ | Select-Object *; $logs = Get-SgSessionLogFiles $_; $view | Add-Member -NotePropertyName logPath -NotePropertyValue $(if ($logs.Out) { $logs.Out } else { $null }) -Force; $view | Add-Member -NotePropertyName errorLogPath -NotePropertyValue $(if ($logs.Err) { $logs.Err } else { $null }) -Force; $view | Add-Member -NotePropertyName logDirectory -NotePropertyValue $(if ($logs.Directory) { $logs.Directory } else { $null }) -Force; $view })
-                    [pscustomobject]@{ name=[string]$entry.name; path=[string]$entry.path; kind=[string]$entry.kind; status=[string]$entry.status; port=[int]$entry.port; targets=$targets } | ConvertTo-Json -Depth 6
+                    [pscustomobject]@{ name=[string]$entry.name; path=[string]$entry.path; kind=[string]$entry.kind; status=$(if (@(Get-SgLiveSessions $entry).Count -eq 0 -and (Test-SgProjectSurfaceMissing $entry)) { 'missing' } else { [string]$entry.status }); port=[int]$entry.port; targets=$targets } | ConvertTo-Json -Depth 6
                 } else { Show-SgProjectStatus $entry }
             } else { Show-SgWindowsDashboard }
         }
-        'refresh' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null; Show-SgWindowsDashboard }
+        'refresh' {
+            Get-SgProjectCatalog $config -ForceRefresh | Out-Null
+            Show-SgWindowsDashboard
+            # Vanished folders are flagged, never purged: a folder can be briefly absent (offline drive, checkout in progress).
+            $missingEntries = @(Get-SgMissingProjects $config)
+            if ($missingEntries.Count -gt 0) {
+                Write-SgWarn "$($missingEntries.Count) registered surface(s) have no folder anymore:"
+                foreach ($item in $missingEntries) { Write-Host "  $($item.path)" }
+                Write-SgInfo 'Next: run s unregister -Missing (or s unregister -ProjectPath <path>) to remove them.'
+            }
+        }
         'clone' { Invoke-Clone }
         'register' {
             $path = if ($ProjectPath) { $ProjectPath } else { Read-SgInput 'Project path' $config.Workspace }
             if ($path) { Invoke-SgRegisterProject $path }
         }
-        'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
+        'unregister' { if ($Missing) { Unregister-SgMissingProjects $config } elseif ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
             # -Open (web Dev shortcuts) starts a visible session and opens it once running.
             $startPath = if ($ProjectPath) { $ProjectPath } else { $entry = Get-SelectedProject 'start'; if ($entry) { $entry.path } else { $null } }
@@ -1192,7 +1231,7 @@ try {
         }
         'reload' {
             if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path> [-Full]' }
-            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath $(if ($Full) { 40 } else { 15 }) (Get-SgRequestedTarget) -Full:$Full
+            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath 40 (Get-SgRequestedTarget) -Full:$Full
             if ($reload.Status -eq 'succeeded') { Write-SgInfo "$($reload.Name) $(if ($Full) { 'hot restart' } else { 'reload' }) succeeded" }
             elseif ($reload.Status -eq 'unavailable') { throw "reload unavailable: $($reload.Reason)" }
             else { throw "reload failed: $($reload.Reason)" }
@@ -1205,14 +1244,14 @@ try {
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { $view = Resolve-SgTargetView $entry; Open-SgManagedProject $view; Open-SgAndroidCompanionSessions $entry $view } }
         'extension-inspect' {
-            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            $path = Resolve-SgExtensionSurfacePath $(if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }) $Browser
             $descriptor = Get-SgBrowserExtensionDescriptor $path $Browser
             if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $path" }
             if ($Json) { $descriptor | ConvertTo-Json -Depth 4 -Compress }
             else { Write-SgInfo "$($descriptor.Name) | $($descriptor.Mode) | Manifest V$($descriptor.ManifestVersion) | $($descriptor.RelativeManifestPath)" }
         }
         'extension-lab' {
-            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            $path = Resolve-SgExtensionSurfacePath $(if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }) $Browser
             Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl -Screenshot:$Screenshot -Browser $Browser -ClickSelector $ClickSelector -VisualSelector $VisualSelector -Config $config
         }
         'obsidian-lab' {

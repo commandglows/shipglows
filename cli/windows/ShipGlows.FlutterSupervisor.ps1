@@ -9,7 +9,12 @@ param(
     [switch]$Visible,
     [string]$Device = 'chrome',
     [string]$DartDefineFile = '',
-    [ValidateSet('debug','profile')][string]$Mode = 'debug'
+    [ValidateSet('debug','profile')][string]$Mode = 'debug',
+    # Public port of a web-server surface with API routes; the Flutter web server then listens on $Port.
+    [int]$ApiProxyPort = 0,
+    # Android: comma-separated PC loopback ports kept reversed onto device $Device with $AdbPath.
+    [string]$AdbPath = '',
+    [string]$ReversePorts = ''
 )
 
 Set-StrictMode -Version Latest
@@ -67,6 +72,43 @@ function New-SgFlutterRunArguments([string]$Device,[int]$Port,[string]$ProfilePa
         $arguments+="--web-browser-flag=--user-data-dir=$ProfilePath"
     }
     return $arguments
+}
+
+# Doppler scope declared by the surface recipe; $null when the recipe declares NONE or no recipe exists.
+function Get-SgApiDopplerScope([string]$ProjectRoot) {
+    $recipePath=Join-Path $ProjectRoot '.shipglows.flutter.json'
+    if(-not(Test-Path -LiteralPath $recipePath -PathType Leaf)){return $null}
+    $recipe=Get-Content -LiteralPath $recipePath -Raw | ConvertFrom-Json
+    if($recipe.doppler -is [string]){return $null}
+    return [pscustomobject]@{Project=[string]$recipe.doppler.project;Config=[string]$recipe.doppler.config}
+}
+
+# Starts the Node API proxy on the public port. Doppler secrets come from the declared scope; the public
+# Flutter defines travel in SHIPGLOWS_API_PUBLIC_ENV and are applied by the proxy after injection.
+function Start-SgApiProxy([int]$ProxyPort,[int]$FlutterPort,[string]$ProjectRoot,[string]$PublicEnvironmentJson,[string]$LaunchRoot) {
+    if($ProxyPort -lt 1024 -or $ProxyPort -gt 65535 -or $FlutterPort -lt 1024 -or $FlutterPort -gt 65535 -or $ProxyPort -eq $FlutterPort){throw 'Invalid API proxy port.'}
+    $script=Join-Path $PSScriptRoot 'ShipGlows.ApiProxy.cjs'
+    if(-not(Test-Path -LiteralPath $script -PathType Leaf)){throw 'ShipGlows API proxy is missing.'}
+    $node=Get-Command node -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if(-not $node){throw 'Node.js is required for the local API proxy; it is not on PATH.'}
+    $proxyArguments=@($script,'--listen',"127.0.0.1:$ProxyPort",'--flutter',"127.0.0.1:$FlutterPort",'--root',(Join-Path $ProjectRoot 'api'),'--log',(Join-Path $LaunchRoot 'api.log'))
+    $file=$node.Source
+    $scope=Get-SgApiDopplerScope $ProjectRoot
+    if($scope){
+        $doppler=Get-Command doppler -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if(-not $doppler){throw 'Doppler is required by the declared API scope; it is not on PATH.'}
+        $file=$doppler.Source
+        $proxyArguments=@('run','--project',$scope.Project,'--config',$scope.Config,'--no-fallback','--no-check-version','--',$node.Source)+$proxyArguments
+    }
+    $psi=New-Object Diagnostics.ProcessStartInfo
+    $psi.FileName=$file; $psi.Arguments=(@($proxyArguments | ForEach-Object { ConvertTo-SgWindowsArgument ([string]$_) }) -join ' ')
+    $psi.WorkingDirectory=$ProjectRoot; $psi.UseShellExecute=$false; $psi.CreateNoWindow=$true
+    $psi.EnvironmentVariables['SHIPGLOWS_API_PUBLIC_ENV']=$PublicEnvironmentJson
+    $process=New-Object Diagnostics.Process; $process.StartInfo=$psi
+    if(-not $process.Start()){throw 'API proxy process could not start.'}
+    Start-Sleep -Milliseconds 800
+    if($process.HasExited){throw "API proxy exited during startup (code $($process.ExitCode)); see $LaunchRoot."}
+    return $process
 }
 
 function Resolve-SgFlutterChromeExecutable([string]$Device,[string]$UserChromeExecutable=([Environment]::GetEnvironmentVariable('CHROME_EXECUTABLE','User'))) {
@@ -137,7 +179,7 @@ function Pump-SgFlutterChanges([object]$Watcher,[object]$DebounceState,[int]$Max
 
 function New-SgFlutterProtocolState {
     $now=[datetime]::UtcNow.ToString('o')
-    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastEvent=$null; LastProtocolError=$null; FlutterExitCode=$null; ExitReason=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; VmServiceUri=$null; DevToolsUri=$null; DtdUri=$null; UpdatedAtUtc=$now }
+    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastEvent=$null; LastProtocolError=$null; FlutterExitCode=$null; ExitReason=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; VmServiceUri=$null; DevToolsUri=$null; DtdUri=$null; AdbReverseRestoredAtUtc=$null; AdbReverseError=$null; UpdatedAtUtc=$now }
 }
 
 # Debug endpoints are only ever loopback URIs announced by flutter run --machine; anything else is ignored.
@@ -147,6 +189,36 @@ function ConvertTo-SgFlutterLoopbackUri([object]$Params,[string]$Name,[string[]]
     $uri=$null;if(-not[Uri]::TryCreate($value,[UriKind]::Absolute,[ref]$uri)){return $null}
     if($uri.Scheme-notin$Schemes-or$uri.Host-notin@('127.0.0.1','localhost','[::1]','::1')){return $null}
     return $value
+}
+
+function ConvertTo-SgFlutterReversePorts([string]$Value) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return @() }
+    return @($Value -split ',' | ForEach-Object { $port=0; if (-not [int]::TryParse($_.Trim(),[ref]$port) -or $port -lt 1 -or $port -gt 65535) { throw 'Invalid adb reverse port.' }; $port })
+}
+
+function Invoke-SgFlutterAdb([string]$AdbPath, [string[]]$Arguments, [int]$TimeoutMilliseconds = 5000) {
+    $psi=New-Object Diagnostics.ProcessStartInfo
+    $psi.FileName=$AdbPath; $psi.Arguments=(@($Arguments | ForEach-Object { ConvertTo-SgWindowsArgument $_ }) -join ' ')
+    $psi.UseShellExecute=$false; $psi.CreateNoWindow=$true; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true
+    $process=[Diagnostics.Process]::Start($psi)
+    try {
+        $output=$process.StandardOutput.ReadToEndAsync(); [void]$process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit($TimeoutMilliseconds)) { try { $process.Kill() } catch { }; return $null }
+        return [pscustomobject]@{ ExitCode=$process.ExitCode; Output=$output.GetAwaiter().GetResult() }
+    } finally { $process.Dispose() }
+}
+
+# A cable replug or an adb server restart drops adb reverse, and the app then loses the local backend.
+# While the session lives, missing ports are re-linked; an absent device is retried on the next pass.
+function Sync-SgFlutterAdbReverse([string]$AdbPath, [string]$Serial, [int[]]$Ports, [object]$State) {
+    $list=Invoke-SgFlutterAdb $AdbPath @('-s',$Serial,'reverse','--list')
+    if (-not $list -or $list.ExitCode -ne 0) { return }
+    foreach ($port in $Ports) {
+        if ([string]$list.Output -match "(?m)\btcp:$port\s+tcp:$port\s*$") { continue }
+        $result=Invoke-SgFlutterAdb $AdbPath @('-s',$Serial,'reverse',"tcp:$port","tcp:$port")
+        if ($result -and $result.ExitCode -eq 0) { $State.AdbReverseRestoredAtUtc=[datetime]::UtcNow.ToString('o'); $State.AdbReverseError=$null }
+        else { $State.AdbReverseError="adb reverse tcp:$port could not be restored on $Serial." }
+    }
 }
 
 function Test-SgFlutterEventApp([object]$State,[object]$Params) {
@@ -166,11 +238,26 @@ function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
     return $items.ToArray()
 }
 
+# Flutter's own reason stays in the error: a recompile failure and a stuck browser call for different fixes.
+# First line only, bounded and redacted, because it reaches state.json and the CLI.
+function Get-SgFlutterReloadFailureText([object]$Result) {
+    $code=$Result.code -as [int];$detail=''
+    if($Result.PSObject.Properties['message']-and$Result.message-is[string]){$detail=(@($Result.message -split '\r?\n'|Where-Object{-not[string]::IsNullOrWhiteSpace($_)}|Select-Object -First 1) -join '').Trim()}
+    $atom='(?:"[^"]*"|''[^'']*''|[^\s,;]+)'
+    $detail=[regex]::Replace($detail,'(?i)\b(token|secret|password|api[-_]?key|dart-define|authorization)\b(\s*[:=]\s*)'+$atom,'$1$2[REDACTED]')
+    $detail=[regex]::Replace($detail,'(?i)\b(bearer)(\s+)'+$atom,'$1$2[REDACTED]')
+    if($detail.Length-gt240){$detail=$detail.Substring(0,240)+'...'}
+    if(-not$detail){return "Flutter rejected the reload (code $code)."}
+    return "Flutter rejected the reload (code $code): $detail"
+}
+
 function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
     if ([string]::IsNullOrWhiteSpace($Line) -or $Line.Length -gt 1048576) { return }
     try { $messages = @(ConvertFrom-SgFlutterMachineEnvelope $Line) } catch { $trimmed=$Line.TrimStart();if($trimmed.StartsWith('[{')-or$trimmed.StartsWith('{')){$State.LastProtocolError='Invalid Flutter machine protocol envelope.'};return }
     foreach ($message in $messages) {
-        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'};continue }
+        # app.restart reports a rejected reload (compile errors, DevFS sync, debug service timeout) as result.code != 0,
+        # not as error. A later accepted reload clears the failure, so LastError always describes the latest outcome.
+        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$message.result-and$message.result-isnot[array]-and$message.result.PSObject.Properties['code']){if(($message.result.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError=Get-SgFlutterReloadFailureText $message.result}elseif($State.Ready){$State.LastError=$null}};continue }
         if (-not $message.PSObject.Properties['event'] -or -not $message.PSObject.Properties['params']) { continue }
         $params = $message.params
         $State.LastEvent=[string]$message.event
@@ -232,22 +319,47 @@ function Send-SgFlutterMachineRequest([Diagnostics.Process]$Process, [int]$Id, [
 
 function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[int]$RequestId,[int]$TimeoutSeconds=10) {
     $deadline=(Get-Date).AddSeconds($TimeoutSeconds);$line=$null
-    while((Get-Date)-lt $deadline){Pump-SgFlutterStreams $Pump $Queue $ErrorQueue;if($Process.HasExited){[void](Drain-SgFlutterStreams $Pump $Queue $ErrorQueue 1)};while($Queue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($LogPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $State $line;if($State.LastResponseId -eq $RequestId){if(-not$State.LastResponseOk){throw 'Flutter machine request failed.'};return $true}};if($Process.HasExited){throw 'Flutter exited while waiting for a machine response.'};Start-Sleep -Milliseconds 50}
+    while((Get-Date)-lt $deadline){Pump-SgFlutterStreams $Pump $Queue $ErrorQueue;if($Process.HasExited){[void](Drain-SgFlutterStreams $Pump $Queue $ErrorQueue 1)};while($Queue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($LogPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $State $line;if($State.LastResponseId -eq $RequestId){if(-not$State.LastResponseOk){throw $(if($State.LastError){[string]$State.LastError}else{'Flutter machine request failed.'})};return $true}};if($Process.HasExited){throw 'Flutter exited while waiting for a machine response.'};Start-Sleep -Milliseconds 50}
     throw 'Flutter machine response timed out.'
+}
+
+# flutter.stdout.log carries no time and no request origin: this log ties each reload id to its source.
+# Diagnostics must never fail the reload they describe.
+function Write-SgFlutterReloadLog([string]$Path,[string]$SentAtUtc,[int]$RequestId,[string]$Source,[string]$Kind,[string]$Outcome,[long]$ElapsedMilliseconds,[string]$Detail) {
+    try{$record=[ordered]@{sentAtUtc=$SentAtUtc;id=$RequestId;source=$Source;kind=$Kind;outcome=$Outcome;elapsedMs=$ElapsedMilliseconds;detail=$Detail};[IO.File]::AppendAllText($Path,(ConvertTo-Json -InputObject $record -Compress)+[Environment]::NewLine)}catch{}
+}
+
+# Flutter's debug service alone waits 10 s before reporting a stuck browser, on top of the recompile,
+# so the response wait must outlast it or a slow reload that succeeds is reported as failed.
+function Invoke-SgFlutterReloadRequest([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[string]$ReloadLogPath,[int]$RequestId,[string]$Source,[switch]$FullRestart,[int]$TimeoutSeconds=30) {
+    $sentAtUtc=[datetime]::UtcNow.ToString('o');$clock=[Diagnostics.Stopwatch]::StartNew();$outcome='failed';$detail=''
+    try{
+        Send-SgFlutterMachineRequest $Process $RequestId 'app.restart' $State.AppId -FullRestart:$FullRestart
+        [void](Wait-SgFlutterMachineResponse $Process $Pump $Queue $ErrorQueue $State $LogPath $RequestId $TimeoutSeconds)
+        $outcome='ok'
+    }catch{$detail=$_.Exception.Message;throw}
+    finally{Write-SgFlutterReloadLog $ReloadLogPath $sentAtUtc $RequestId $Source $(if($FullRestart){'restart'}else{'reload'}) $outcome $clock.ElapsedMilliseconds $detail}
 }
 
 function Invoke-SgFlutterSupervisor {
     foreach ($item in @(@($LaunchDirectory,'launch directory'),@($ProjectPath,'project path'),@($FlutterPath,'Flutter path'),@($LaunchIdentity,'launch identity'))) { Assert-SgFlutterSafeValue ([string]$item[0]) ([string]$item[1]) }
     if ($Device -in @('chrome','web-server') -and ($Port -lt 1024 -or $Port -gt 65535)) { throw 'Invalid Flutter web port.' }
+    $reversePortList=@(ConvertTo-SgFlutterReversePorts $ReversePorts)
+    if ($reversePortList.Count -gt 0) {
+        Assert-SgFlutterSafeValue $AdbPath 'adb path'
+        if ($Device -in @('windows','chrome','web-server') -or $Device -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'adb reverse requires an Android device serial.' }
+        if (-not (Test-Path -LiteralPath $AdbPath -PathType Leaf)) { throw 'adb is unavailable for the Android reverse watch.' }
+    }
     $token = [string]$env:SHIPGLOWS_SUPERVISOR_TOKEN
     if ($token -notmatch '^[a-f0-9]{64}$') { throw 'Missing or invalid supervisor token.' }
     Remove-Item Env:SHIPGLOWS_SUPERVISOR_TOKEN -ErrorAction SilentlyContinue
+    $publicEnvironment=[string]$env:SHIPGLOWS_API_PUBLIC_ENV; Remove-Item Env:SHIPGLOWS_API_PUBLIC_ENV -ErrorAction SilentlyContinue
     $launchRoot=[IO.Path]::GetFullPath($LaunchDirectory); $projectRoot=[IO.Path]::GetFullPath($ProjectPath)
     New-Item -ItemType Directory -Path $launchRoot -Force | Out-Null;Assert-SgFlutterNoReparsePath $launchRoot
     if(-not(Test-SgFlutterOwnerOnlyPath $launchRoot)){throw 'Flutter supervisor launch directory ACL is not owner-only.'}
     $statePath=Join-Path $launchRoot 'state.json'; $commandDir=Join-Path $launchRoot 'commands'; $responseDir=Join-Path $launchRoot 'responses'
     New-Item -ItemType Directory -Path $commandDir,$responseDir -Force | Out-Null;Protect-SgFlutterOwnerOnlyPath $commandDir;Protect-SgFlutterOwnerOnlyPath $responseDir
-    $stdoutPath=Join-Path $launchRoot 'flutter.stdout.log'; $stderrPath=Join-Path $launchRoot 'flutter.stderr.log'
+    $stdoutPath=Join-Path $launchRoot 'flutter.stdout.log'; $stderrPath=Join-Path $launchRoot 'flutter.stderr.log'; $reloadLogPath=Join-Path $launchRoot 'flutter.reload.log'
 
     $flutterRoot=Split-Path (Split-Path $FlutterPath -Parent) -Parent
     $dart=Join-Path $flutterRoot 'bin\cache\dart-sdk\bin\dart.exe'; $snapshot=Join-Path $flutterRoot 'bin\cache\flutter_tools.snapshot'
@@ -272,7 +384,9 @@ function Invoke-SgFlutterSupervisor {
     $lib=Join-Path $projectRoot 'lib'
     # Profile builds support neither hot reload nor hot restart, so source watching stays off.
     if ($Mode -ne 'profile' -and (Test-Path -LiteralPath $lib -PathType Container)) { $watcher=New-SgFlutterChangeWatcher $lib }
-    $requestId=1000; $stopRequested=$false
+    $apiProcess=$null
+    if($ApiProxyPort -gt 0){try{$apiProcess=Start-SgApiProxy $ApiProxyPort $Port $projectRoot $publicEnvironment $launchRoot}catch{if(-not$process.HasExited){$process.Kill()};throw}}
+    $requestId=1000; $stopRequested=$false; $nextReverseCheckUtc=[datetime]::UtcNow.AddSeconds(5)
     try {
         while (-not $process.HasExited) {
             $line=$null
@@ -281,13 +395,19 @@ function Invoke-SgFlutterSupervisor {
             while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)}
             if($watcher){[void](Pump-SgFlutterChanges $watcher $changes 64)}
             $nowUtc = [datetime]::UtcNow
-            if($state.Ready -and (Test-SgFlutterDebounceReady $changes $nowUtc)){ $requestId++;try{Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)}catch{$state.LastError=$_.Exception.Message};Complete-SgFlutterDebounce $changes;Write-SgFlutterJsonAtomic $statePath $state }
+            if($reversePortList.Count -gt 0 -and $nowUtc -ge $nextReverseCheckUtc){
+                $before="$($state.AdbReverseRestoredAtUtc)|$($state.AdbReverseError)"
+                try{Sync-SgFlutterAdbReverse $AdbPath $Device $reversePortList $state}catch{$state.AdbReverseError=$_.Exception.Message}
+                if("$($state.AdbReverseRestoredAtUtc)|$($state.AdbReverseError)" -ne $before){Write-SgFlutterJsonAtomic $statePath $state}
+                $nextReverseCheckUtc=[datetime]::UtcNow.AddSeconds(5)
+            }
+            if($state.Ready -and (Test-SgFlutterDebounceReady $changes $nowUtc)){ $requestId++;try{Invoke-SgFlutterReloadRequest $process $pump $outQueue $errQueue $state $stdoutPath $reloadLogPath $requestId 'watcher'}catch{$state.LastError=$_.Exception.Message};Complete-SgFlutterDebounce $changes;Write-SgFlutterJsonAtomic $statePath $state }
             foreach($commandFile in @(Get-ChildItem -LiteralPath $commandDir -Filter '*.json' -File -ErrorAction SilentlyContinue | Sort-Object Name)){
                 $claimedPath=Claim-SgFlutterCommandFile $commandFile
                 if(-not $claimedPath){continue}
                 $response=[ordered]@{ok=$false;error='Invalid command.'}
                 try { $claimed=Get-Item -LiteralPath $claimedPath -ErrorAction Stop;if($claimed.Length -gt 65536){throw 'Supervisor command exceeds 64 KiB.'};$command=ConvertFrom-SgFlutterCommandJson ([IO.File]::ReadAllText($claimedPath)) $token;$response=[ordered]@{ok=$true;method=$command.Method}
-                    if($command.Method -in @('reload','restart')){if($Mode -eq 'profile'){throw 'Restart is not supported in profile mode.'};if(-not $state.Ready){throw 'Flutter application is not ready.'};$full=$command.Method -eq 'restart';$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId -FullRestart:$full;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId $(if($full){30}else{10}));Write-SgFlutterJsonAtomic $statePath $state}
+                    if($command.Method -in @('reload','restart')){if($Mode -eq 'profile'){throw 'Restart is not supported in profile mode.'};if(-not $state.Ready){throw 'Flutter application is not ready.'};$full=$command.Method -eq 'restart';$requestId++;Invoke-SgFlutterReloadRequest $process $pump $outQueue $errQueue $state $stdoutPath $reloadLogPath $requestId 'cli' -FullRestart:$full;Write-SgFlutterJsonAtomic $statePath $state}
                     elseif($command.Method -in @('stop','open')){if($state.AppId){$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.stop' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)};$stopRequested=$true}
                 } catch {$response=[ordered]@{ok=$false;error=$_.Exception.Message}}
                 try{Write-SgFlutterJsonAtomic (Join-Path $responseDir ($commandFile.BaseName+'.json')) $response}finally{Remove-Item -LiteralPath $claimedPath -Force -ErrorAction SilentlyContinue}
@@ -295,7 +415,7 @@ function Invoke-SgFlutterSupervisor {
             if($stopRequested){if(-not $process.WaitForExit(5000)){$process.Kill()};break}
             Start-Sleep -Milliseconds 100
         }
-    } finally { if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.FlutterExitCode=try{[int]$process.ExitCode}catch{$null};$state.Ready=$false;Clear-SgFlutterDebugEndpoints $state;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};$state.ExitReason=if($stopRequested){'stop-requested'}elseif($state.LastEvent-eq'app.stop'){'app-stopped-during-startup'}else{'flutter-host-exited'};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
+    } finally { if($apiProcess -and -not$apiProcess.HasExited){& taskkill.exe /PID $apiProcess.Id /T /F *> $null};if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.FlutterExitCode=try{[int]$process.ExitCode}catch{$null};$state.Ready=$false;Clear-SgFlutterDebugEndpoints $state;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};$state.ExitReason=if($stopRequested){'stop-requested'}elseif($state.LastEvent-eq'app.stop'){'app-stopped-during-startup'}else{'flutter-host-exited'};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
 }
 
 if (-not $TestMode) { Invoke-SgFlutterSupervisor }

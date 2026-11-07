@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.18.0"
+artifact_version: "3.19.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-10-24"
+updated: "2026-10-29"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -50,6 +50,13 @@ next_step: "/103-sg-verify Windows runtime awareness"
 # Agent Runtime Awareness
 
 ## Host Observation
+
+If present on the filesystem-capable execution host, the init-managed
+`.shipglows/workstation-context.json` provides cached root hints and selected
+role/lifetime/checkpoints. Compare pointers with canonical environment/channel
+resolution before reads. Use current observations for capabilities and runtime
+state; recorded init steps never establish transport, login or backup readiness.
+Distinguish the operator's phone/tablet from the host executing the agent.
 
 When host identity affects a decision, record operating system, agent surface,
 terminal host, session location and machine kind from current evidence. Keep

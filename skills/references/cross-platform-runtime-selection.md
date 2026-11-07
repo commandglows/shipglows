@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-20"
+updated: "2026-10-31"
 status: active
 source_skill: 900-shipglows-core
 scope: cross-platform-runtime-selection
@@ -20,6 +20,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-app-engine/flutter/services/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
   - "Official Flutter documentation reviewed 2026-08-11: Android, iOS, Web, Windows, macOS, and Linux."
   - "Official firebase_auth listing reviewed 2026-08-11: Android, iOS, macOS, Web, and Windows; Linux is not listed."
   - "Official Tauri documentation reviewed 2026-08-11: desktop and mobile."
@@ -46,7 +47,7 @@ next_step: "Refresh platform support before the next runtime commitment."
 
 1. Astro owns public SEO surfaces.
 2. Flutter owns Web, Android, iOS, Windows, macOS, and Linux application surfaces.
-3. Firebase Auth owns identity; Linux uses REST/OIDC because `firebase_auth` does not list Linux.
+3. Clerk owns identity, one application per product; Flutter signs in through Clerk's hosted pages with OIDC + PKCE (`shipglows_clerk_auth`) on every target.
 4. Convex HTTP owns data and authoritative functions.
 5. Rust is added only for a measured native-engine requirement behind a typed Flutter boundary.
 

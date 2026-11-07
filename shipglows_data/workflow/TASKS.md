@@ -3,7 +3,7 @@
 > **Priority:** 🔴 P0 blocker · 🟠 P1 high · 🟡 P2 normal · 🟢 P3 low · ⚪ deferred
 > **Status:** 📋 todo · 🔄 in progress · ✅ done · ⛔ blocked · 💤 deferred
 > **Priority last updated:** 2026-06-27 UTC · criteria: balanced (`impact`, `blockers`, `risk`, `high-roi`)
-> **Recommended next execution target:** remediate the Astro production advisory (`GHSA-j687-52p2-xcff`) through the planned migration
+> **Recommended next execution target:** verify the Astro production advisory (`GHSA-j687-52p2-xcff`) against the resolved Astro 7.x version; the site already declares `astro ^7.3.5`, so no astro@6 migration is needed
 
 ---
 
@@ -24,14 +24,14 @@
 
 | Pri | Task | Status |
 |-----|------|--------|
-| 🔴 | Concevoir un bootstrap universel multi-OS (`Linux`, `macOS`, `WSL`, `Windows`) avec comportement explicite selon la plateforme | 📋 todo |
+| 🔴 | Concevoir un bootstrap universel multi-OS (`Linux`, `macOS`, `WSL`, `Windows`) avec comportement explicite selon la plateforme | ✅ done (dispatch : `install-shipglows.sh` `detect_platform` / `check_platform_support` ; matrice : `shipglows_data/technical/bootstrap-matrix.md`; relecture seule, pas de run) |
 | 🔴 | Supprimer l'hypothèse implicite "`python3` déjà installé" hors `sudo ./install.sh` serveur et définir la stratégie officielle de provisioning runtime | ✅ done (règle : `shipglows_data/technical/python-runtime-provisioning.md`, garde : `cli/python-runtime.sh`) |
-| 🟠 | Ajouter un chemin d'installation local sans root quand possible pour les outils docs/metadata qui reposent sur Python | 📋 todo |
+| 🟠 | Ajouter un chemin d'installation local sans root quand possible pour les outils docs/metadata qui reposent sur Python | ✅ done (mode `local` sans root ; Python vérifié par `local/install.sh` avant le plugin Codex ; `uv`/`pyenv` cités comme options sans root) |
 | 🟠 | Faire échouer les scripts avec un diagnostic précis et actionnable quand un runtime requis manque au lieu de dépendre d'erreurs secondaires | 📋 todo |
 | 🟠 | Corriger la configuration Playwright MCP pour pointer le Chromium ARM64 local au lieu de Google Chrome stable absent | 🔄 in progress |
-| 🟠 | Documenter la matrice de bootstrap par environnement : serveur Debian/Ubuntu, poste macOS, poste Linux non-root, Windows/WSL | 📋 todo |
+| 🟠 | Documenter la matrice de bootstrap par environnement : serveur Debian/Ubuntu, poste macOS, poste Linux non-root, Windows/WSL | ✅ done (`shipglows_data/technical/bootstrap-matrix.md`, statut draft ; refus explicites dans `install-shipglows.sh`) |
 | 🟡 | Évaluer s'il faut fournir un wrapper unique (`bootstrap` / `doctor`) pour vérifier et installer les prérequis avant usage | 📋 todo |
-| 🟡 | Vérifier que `README.md`, `AGENT.md`, `CONTEXT.md` et `GUIDELINES.md` racontent le même contrat de bootstrap | 📋 todo |
+| 🟡 | Vérifier que `README.md`, `AGENT.md`, `shipglows_data/technical/context.md` et `shipglows_data/technical/guidelines.md` racontent le même contrat de bootstrap (les `CONTEXT.md` / `GUIDELINES.md` racine sont des reliquats de migration, non sources) | 📋 todo |
 
 🟡 [ShipGlows] task: Porter le menu local `urls` complet vers PowerShell natif, avec une parité explicitement définie avant code | status: deferred | area: windows-local-menu | id: windows-native-urls-parity | evidence: le bootstrap Windows, OpenSSH et un tunnel manuel sont vérifiés; le menu Unix/Termux reste Bash-only | decision: utiliser provisoirement la console navigateur Hetzner pour le CLI Unix et les URLs HTTPS publiques pour les aperçus | next: spécifier les actions Windows supportées et la stratégie de QA sur Windows PowerShell 5.1
 
@@ -74,6 +74,13 @@
 | 🟢 | Étudier Alpic comme inspiration pour packager, déployer, monitorer et distribuer des MCP servers / ChatGPT Apps liés aux skills ShipGlows | 💤 deferred |
 | 🟢 | Idée à cadrer : créer une brique partagée de journaux opérationnels append-only (`OPERATIONS_LOG.md` / `DEPENDENCY_LOG.md`) pour tracer les runs importants sans remplacer `specs/`, `shipglows_data/workflow/bugs/`, `TASKS.md` ni `CHANGELOG.md` | 💤 deferred |
 | 🟢 | Cadrer plus tard le mécanisme de synchronisation `project repo -> master` pour `shipglows_data` (symlink, copie, index généré, ingestion web app ou autre) dans une spec dédiée | 💤 deferred |
+| 🟠 | DevServer Windows : `Get-SgAndroidPackageInstallStamp` renvoie `''` quand adb échoue, ce qui compte à tort comme une installation et coupe le build avec « installed but not running after 90 s » (observé le 2026-11-05) | 📋 todo |
+| 🟠 | DevServer Windows : après un échec d'installation Android, le suivi de `s start` est resté bloqué 30 min, service local muet ; établir si le blocage vient de la CLI ou de l'enveloppe de suivi | 📋 todo |
+| 🟡 | DevServer Windows : signaler l'instabilité du lien adb (pertes répétées du téléphone pendant Gradle) au lieu d'une erreur de build ou d'installation sans cause | 📋 todo |
+| 🟡 | DevServer Windows : remonter l'erreur « No application found » d'un projet Flutter sans dossier android au lieu de « Flutter supervisor timed out » | 📋 todo |
+| 🟡 | DevServer Windows : `s update` ne rend pas la main de façon fiable (tué après 15 min alors que la mise à jour était installée) | 📋 todo |
+| 🟡 | DevServer Windows : `s restart`/`s stop` affichent « Managed process job is unavailable » et passent à un arrêt forcé ; établir pourquoi le job est perdu | 📋 todo |
+| 🟢 | `audit_project_governance_topology.py` : ne pas signaler `AGENTS.md` quand git le suit en lien (mode 120000) sous `core.symlinks=false`, ni les dossiers ignorés `.csr-*` et les fixtures de test | 📋 todo |
 
 🟢 [ShipGlows] task: Évaluer models.dev comme registre externe optionnel pour `sg-model` | status: deferred | area: model-routing | source: veille utilisateur https://models.dev/ 2026-06-10
 🟢 [ShipGlows] task: Évaluer OpenPostern comme pattern pour enrichir `sg-veille`, `010-sg-technical deps`, `010-sg-technical audit` et les skills de codage avec scoring vendor-risk et signaux sécurité actionnables | status: deferred | area: tech-watch-security-skills | source: veille utilisateur https://betalist.com/startups/openpostern et https://openpostern.com/ 2026-06-10
@@ -93,7 +100,7 @@
 | 🟡 | Corriger la détection de commande dev quand un projet Flutter contient un `package.json` uniquement Convex (`BUG-2026-05-04-004`) | 🔄 in progress |
 | 🟡 | Empêcher ShipGlows de créer des symlinks `TASKS.md` dans les projets et garder le tracking dans `shipglows_data` (`BUG-2026-05-05-001`) | 🔄 in progress |
 | 🟠 | Split `lib.sh` hotspots around environment lifecycle, publishing, dashboard, inspector, and metadata helpers to reduce the 5,900+ line blast radius | 📋 todo |
-| 🟡 | Resolve the `site` production dependency advisory for Astro (`GHSA-j687-52p2-xcff`) through a planned Astro upgrade/migration | 📋 todo |
+| 🟡 | Verify the `site` production dependency advisory for Astro (`GHSA-j687-52p2-xcff`) against the resolved Astro 7.x version; the site already declares `astro ^7.3.5`, so no astro@6 migration is needed | 📋 todo |
 | 🟡 | Fix `tests/cli/json-error-handling.sh` so the PM2 jq parsing fixture passes or is explicitly skipped with an accurate reason | 📋 todo |
 
 ### Audit: Perf (2026-04-29) — Score: B
@@ -106,5 +113,5 @@
 
 ### Audit: Deps
 
-🟠 [ShipGlows] task: Remediate the site Astro advisory with the planned major upgrade path | status: todo | area: site-deps | next: /010-sg-technical migrate astro@6
+🟠 [ShipGlows] task: Verify the site Astro advisory (`GHSA-j687-52p2-xcff`) against the resolved Astro 7.x version; the site already declares `astro ^7.3.5`, so no astro@6 migration is needed | status: todo | area: site-deps | next: check the resolved astro version in the lockfile against the advisory range
 🟡 [ShipGlows] task: Add a committed lockfile and pin the tui toolchain for reproducible dependency audits | status: todo | area: tui-deps | next: bun install --lockfile-only

@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - tools/shipglows_search.py
   - tools/shipglows_fetch.py
+  - tools/shipglows_browse.py
   - tools/shipglows_scraping.py
   - cli/shipglows-search.sh
   - local/scraping/README.md
@@ -48,8 +49,10 @@ never a final answer. Report the provider that served the results only when it
 matters to the answer.
 
 A stopped local stack, an empty SearXNG answer, `--after-date` or `--location`
-move to Firecrawl after one attempt; `SHIPGLOWS_SEARXNG_URL` (default
-`http://127.0.0.1:8888`, `off` disables) points at the instance.
+move to DeepSeek after one attempt; `SHIPGLOWS_SEARXNG_URL` (default
+`http://127.0.0.1:8888`, `off` disables) points at the instance. An unreachable
+local stack is restarted in the background (Docker Desktop included) so the
+next request finds it; `SHIPGLOWS_SCRAPING_AUTOSTART=off` disables that.
 
 All providers share one transport (`tools/shipglows_http.py`): network errors
 and HTTP 502/503/504 get up to 3 attempts with backoff; in `auto` mode
@@ -61,9 +64,11 @@ provider. Failure reasons name the error type, its cause and the attempt count.
 
 - Never print, pass or persist provider keys; keys come only from the Doppler
   `dotfiles/dev` scope.
-- To read a page, use `shipglows-fetch <url>` (plain HTTP, then the local
-  Crawl4AI browser for JavaScript pages, then DeepSeek, Firecrawl, then Parallel Extract;
+- To read a page, use `shipglows-fetch <url>` (plain HTTP, then the
+  agent-browser Chrome, then the local Crawl4AI browser for JavaScript pages, then DeepSeek, Firecrawl, then Parallel Extract;
   exit 3 means use the native fetch for that URL).
+- `shipglows-browse <agent-browser command>` drives a real browser (snapshot, click, fill,
+  screenshot, a11y) with safe defaults; it does not replace `s extension-lab` for extensions.
 - `shipglows-parallel` stays the tool for Task research and Monitor;
   `shipglows-search` covers search only.
 - `shipglows-scraping status` shows whether the free local stack runs;

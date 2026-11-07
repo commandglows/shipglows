@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.0"
+artifact_version: "1.38.8"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-10-24"
+updated: "2026-11-06"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,12 +23,16 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-11-06, un `s restart` de claiire/app a échoué après l'arrêt de la session (« Registry lock stayed busy for 15 s ») : un `s status` d'une autre session tenait le verrou depuis 34 s, pendant un `s update` qui chargeait le poste. L'app est restée arrêtée. La cause de cette tenue longue n'a pas été établie (0,5 à 4 s mesurées ensuite) ; le démarrage attend désormais 120 s."
+  - "Le 2026-11-06 sur claiire/app (web-server, port 3013), `s restart` capturé dépassait 420 s sans fuite de pipe : fin du processus et EOF du pipe coïncident à moins de 0,2 s sur 9 lancements. Un restart dure de 188 à 421 s selon la charge du poste, dont 112 à 248 s de compilation Flutter, et la commande rend la main 1,4 à 7,6 s après app.started. La réconciliation lançait un scan des processus par session Flutter terminée : le correctif ramène `s status` de 25-38 s à 12-16 s, sans gain mesuré sur la durée totale d'un restart. Une sonde HTTP toutes les 0,5 s sur le port empêche le frontend_server de démarrer tant qu'elle dure (échec à 600 s) ; il repart dès son arrêt, et une requête isolée ne gêne pas."
+  - "Les 2026-10-31 et 2026-11-02 sur l'extension CommunityGlows (CRXJS + Vite 8, port 3010), `s restart` échouait par intermittence (« Configured port 3010 is … unavailable ») alors que le port se libérait, et `s start` échouait en lisant `dist\\chrome\\manifest.json` pendant que Vite l'écrivait ; `s restart` attend la libération du port de la surface (10 s) et la lecture du manifeste réessaie sur verrou ou JSON incomplet (2 s)."
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21 mis en veille, la session Flutter Android passait à stopped mais `s start` répondait « Already running with verified Flutter configuration » puis « unexpected status: stopped », et `s restart` voyait « Application finished » pendant le build ; `s start` relance depuis une session stopped/error dont le superviseur survit, et `s stop`/`s restart` attendent que l'app soit éteinte sur le téléphone (am force-stop + pidof) avant de relancer."
   - "Le 2026-10-24 sur CommandGlows, `s start -FlutterDevice android` lançait le build alors que la plateforme Android demandée par compileSdk n'était pas installée ; Gradle la téléchargeait pendant le build jusqu'au délai. `s start` vérifie depuis compileSdk et ndkVersion contre `platforms/` et `ndk/` du SDK et refuse le lancement avec la commande sdkmanager exacte."
   - "Le 2026-10-24 sur CommandGlows, Gradle 8.14 refusait le build Android (« Java 25.0.3 incompatible with Gradle 8.14 ») : Flutter prenait le JBR 25 d'Android Studio avant le JDK 17 de ShipGlows, car seul `flutter config --jdk-dir` passe devant ce JBR ; l'installeur épingle depuis ce réglage et `s start` vérifie la compatibilité Gradle/JDK avant le build."
   - "Le 2026-10-24 sur CommandGlows avec un Galaxy S21, `s start -FlutterDevice android` abandonnait après 10 minutes (« Flutter supervisor timed out before app.started ») alors que le premier build Gradle à froid progressait encore ; Android suit depuis la même fenêtre sensible à la progression que Windows (coupure après 10 min sans écriture Gradle, plafond 30 min) et annonce qu'un premier build Android peut être long."
   - "Le 2026-10-24 sur commandglows_app, une session profile Windows laissait vides le stdout.log et le stderr.log annoncés par `s status`, et cachait le VM service et DevTools dans flutter-launch ; `s status` affiche depuis ces URI et les journaux réellement écrits."
   - "Le 2026-10-23 sur CommunityGlows, un `tauri android dev` lancé par une autre session a remplacé sans message la session Tauri Windows et écrasé son stderr.log ; chaque cible a depuis sa propre session, ses logs par lancement, et un second Tauri exige un choix explicite."
+  - "Le 2026-10-30, `s restart` arrête le binaire Windows Tauri exact déduit de Cargo.toml et ses descendants avant de relancer ; `s status` qualifie le frontend par sa réponse HTTP et garde une grâce de démarrage bornée après une sonde transitoire en erreur."
   - "Le replay du 2026-09-04 confirme que `shipglows update status` s'exécute dans le PowerShell géré et que `shipglows update runtime` reste accepté comme forme de compatibilité sans verrouiller `s.exe`."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
@@ -180,7 +184,7 @@ Le menu Authentification affiche les outils sans interroger tous les comptes :
 l'état est vérifié à l'ouverture de l'outil choisi. Les confirmations de connexion
 et déconnexion sont conservées.
 
-Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Les commandes ciblées `shipglows update`, `shipglows update status` et `shipglows rename rio <nom>` passent elles aussi par le runtime PowerShell 7.6.5 géré par ShipGlows. L'ancienne forme `shipglows update runtime` reste acceptée et est normalisée vers la mise à jour canonique. N'utilisez pas `s update` lorsqu'une instance interactive de `s.exe` est encore ouverte, car Windows ne peut pas remplacer un exécutable en cours d'utilisation. La première installation complète en ligne peut acquérir l'archive épinglée. Le mode hors ligne ne fonctionne qu'après validation locale du runtime ; sinon, reconnectez la machine et relancez l'installateur complet. Un échec de SHA, d'archive, de sonde, de verrou ou une corruption conserve le pointeur actif précédent.
+Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Les commandes ciblées `shipglows update`, `shipglows update status` et `shipglows rename rio <nom>` passent elles aussi par le runtime PowerShell 7.6.5 géré par ShipGlows. L'ancienne forme `shipglows update runtime` reste acceptée et est normalisée vers la mise à jour canonique. La première installation complète en ligne peut acquérir l'archive épinglée. Le mode hors ligne ne fonctionne qu'après validation locale du runtime ; sinon, reconnectez la machine et relancez l'installateur complet. Un échec de SHA, d'archive, de sonde, de verrou ou une corruption conserve le pointeur actif précédent. Une mise à jour aboutit même si une autre commande `shipglows-dev.exe` tourne : le launcher en cours d'exécution est renommé en `*.shipglows-old-*`, puis supprimé à l'installation suivante. Si la mise à jour échoue, le retour arrière restaure tous les fichiers qu'il peut et nomme les autres.
 
 ## 🎯 Options d'installation
 
@@ -387,6 +391,18 @@ dans votre profil personnel. La détection automatique actuelle couvre les
 projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
 
+Deux tolérances bornées évitent de faux échecs pendant que le bundler travaille :
+
+- `manifest.json` est lu avec partage en écriture. Un fichier verrouillé, vide ou
+  tronqué par une écriture en cours est relu toutes les 200 ms pendant 2 s au plus
+  avant d'être déclaré invalide ; les contrôles reparse point, taille (1 Mo) et
+  `manifest_version`/`name`/`version` restent inchangés.
+- `s restart` sur un port configuré attend, pendant 10 s au plus (sonde toutes les
+  250 ms), que l'ancien processus de la même surface libère son propre port avant
+  de le réserver. Un port tenu par une autre surface ou un autre processus n'est
+  jamais repris : au-delà du délai, l'erreur « Configured port N is unavailable »
+  indique le processus qui le détient (nom et pid) quand il est connu.
+
 #### Variables publiques Doppler pour une surface Node
 
 Un fichier optionnel `.shipglows.node.json` (schéma `shipglows.node-recipe.v1`)
@@ -499,6 +515,16 @@ réserver le même port pour deux surfaces. La migration d'une ancienne entrée
 racine vers sa surface se fait par chemin exécutable et préserve les métadonnées
 d'un processus dont l'identité est encore vérifiée.
 
+Pendant l'installation des dépendances, aucun PID serveur n'est encore enregistré.
+La réservation conserve donc l'identité de la CLI propriétaire (PID et heure de
+démarrage) : tant que ce processus est vérifié, `s status` et les réservations
+d'autres cibles préservent le bail, même au-delà de cinq minutes. Une CLI disparue
+ou un PID réutilisé ne prolonge pas ce bail ; le délai historique de cinq minutes
+depuis la réservation reste le repli, notamment pour les anciens registres sans
+propriétaire. Le propriétaire est effacé avec le jeton après succès, échec ou arrêt.
+La fixture `tests/windows/devserver-install-reservation.ps1` reproduit cette
+concurrence entre processus avec un bail antidaté, sans installation npm réelle.
+
 Lors de l'enregistrement, un port valide déjà présent dans `ENVIRONMENT.md` est
 hydraté directement dans le registre s'il n'appartient à aucune autre surface ;
 une collision reste à `0` et le fichier durable est réconcilié. Pour npm, un
@@ -526,6 +552,8 @@ enregistre l'état `error` et renvoie un échec à la commande appelante. Stop t
 le Job Object exact et ne publie `stopped` qu'après disparition prouvée de l'identité
 et du service ; sinon le registre reste inchangé et l'erreur est visible. Un stop
 déjà accompli reste idempotent et efface toute erreur live obsolète.
+
+`s start` et `s restart` rendent la main dès que la cible est prête ou en échec : sur Flutter web, la durée vient de la compilation (2 à 4 min sur claiire/app), pas d'un pipe resté ouvert. Ne pas sonder le port d'une cible `web-server` pendant son démarrage : des requêtes HTTP répétées (script, moniteur) retiennent la compilation jusqu'à l'échec à 600 s, alors qu'une requête isolée ne gêne pas. Attendre le retour de la commande, puis contrôler le port. Une fois lancés, `s start` et `s restart` attendent le verrou du registre jusqu'à 120 s, contre 15 s pour les lectures comme `s status` : un registre occupé retarde le relancement au lieu de laisser l'app arrêtée. `s status` ne prend pas de verrou de démarrage : il répond pendant un restart (12 à 28 s mesurés sur un poste chargé) et une passe de réconciliation n'énumère les processus qu'une fois.
 
 Pour les projets web (dont Astro), l'attente de readiness suit le budget demandé par l'appelant, plafonné à 300 secondes. Un démarrage à froid d'un gros site Astro peut dépasser 60 secondes : ce plafond n'est plus de 60 secondes. Si le serveur ne répond toujours pas après 300 secondes, l'état passe à `error` avec la fin du log.
 
@@ -559,6 +587,13 @@ une fenêtre calme de 500 ms puis déclenchent `app.restart` en mode hot reload.
 `s reload -ProjectPath <chemin> -Full` envoie à la place un hot restart
 (`fullRestart: true`, quelques secondes) : l'état repart de `main()`, ce qui prend
 en compte une table de routes ou un initialiseur modifié sans relancer la session.
+Un reload refusé par Flutter (`result.code` non nul : erreurs de compilation,
+`DevFS synchronization failed`, expiration du service de debug) fait échouer
+`s reload` avec le code, la première ligne du message de Flutter et le chemin du
+`flutter.stderr.log` de la session, au lieu d'annoncer un succès.
+Un reload du watcher n'affiche rien : `flutter.reload.log` (copié en `reload.log`
+avec les journaux durables) donne l'heure, l'id, la source (`watcher` ou `cli`) et
+le résultat de chaque requête. L'attente d'une réponse est de 30 s.
 Le canal local n'accepte que reload, restart, stop et open, avec l'identité secrète du
 lancement, une taille et des délais bornés ; il n'exécute aucune commande libre.
 Une session lancée avant une mise à jour garde l'ancien superviseur : relancez-la
@@ -590,6 +625,19 @@ nouvel essai, après extinction prouvée de tous les processus attribués. Le mo
 qui exige une connexion manuelle compatible avec Dart Debug, reste disponible
 uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
+### Flutter Web avec routes API locales
+
+Une surface Flutter lancée en `-FlutterDevice web-server` qui contient un dossier `api/` (ou un `vercel.json` déclarant `functions`) sert `/api/*` sur le même port que l'application, par exemple `http://127.0.0.1:3031/api/auth/youtube`. Le web-server Flutter passe sur un port libre interne ; le reste (`/`, hot reload, WebSocket de débogage) continue de passer par lui.
+
+- Méthode : `cli/windows/ShipGlows.ApiProxy.cjs`, un proxy Node sans dépendance. Les handlers Vercel `module.exports = async function handler(req, res)` reçoivent les helpers Vercel (`req.query`, `req.cookies`, `req.body`, `res.status`, `res.json`, `res.send`, `res.redirect`) ; le routage suit les fichiers Vercel (`[id].js`, `[...slug].js`, `index.js`).
+- Env : le scope Doppler déclaré dans `.shipglows.flutter.json` est injecté au proxy, sans jamais afficher de valeur. Les defines publics de l'origine web locale (par exemple `REPLAYGLOWS_APP_URL`) sont appliqués après injection.
+- Rechargement : les handlers CommonJS sont relus à chaque requête ; un changement de dépendance hors `api/` demande `s restart`.
+- Journal : chaque requête `/api` est tracée dans `api.log` du dossier de lancement de la session (`[api] METHOD path status durée`), sans valeur d'environnement.
+- Registre : la session porte `apiProxy: active` et `flutterWebPort` (port du web-server Flutter interne). Ce port est réservé comme un port de session : aucune autre surface ne le reçoit tant que la session vit.
+- Limites : `vercel.json` (rewrites, routes, runtimes) n'est pas interprété ; seuls les fichiers `.js`, `.cjs` et `.mjs` sous `api/` sont routés ; `chrome` n'est pas routé par l'API.
+
+Preuve attendue : `curl -i http://127.0.0.1:<port>/api/<route>` renvoie le handler (JSON ou redirection), et `curl -i http://127.0.0.1:<port>/` renvoie toujours l'application Flutter.
+
 ### Flutter Windows en développement
 
 Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `<dépôt>-<surface> - Dev` (par exemple `dreamglows-windows_app - Dev`), qui démarre la session ou réutilise celle déjà active. La même règle vaut pour les serveurs de dev Tauri, Astro, Vite et Flutter web ; pour le web, le raccourci ajoute `-Open` et ouvre le navigateur une fois le serveur prêt. Un worktree Git ne reçoit jamais de raccourci. Au démarrage, les raccourcis ShipGlows du même projet sous un ancien nom, et ceux qui pointent vers un worktree ou un dossier disparu, sont retirés. Un raccourci non créé par ShipGlows n’est jamais écrasé, et un échec de raccourci n’empêche jamais le démarrage. Seul `shipglows-dev start` crée ces raccourcis : aucun raccourci fait à la main.
@@ -597,6 +645,10 @@ Sur Windows, une application Flutter qui contient une cible `windows/` utilise p
 Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`.
 
 `s start -ProjectPath <app> -FlutterDevice windows -FlutterMode profile` lance la même session supervisée en mode profile (`flutter run --machine --profile -d windows`), avec le wrapper Doppler et la projection de configuration publique du projet, pour mesurer les performances avec Flutter attaché. `-FlutterMode debug` est la valeur par défaut ; `.shipglows.env` peut déclarer `SHIPGLOWS_FLUTTER_MODE=debug|profile` durablement. Le mode fait partie de l’empreinte de session : passer de debug à profile redémarre la session gérée. Le registre mémorise `flutterMode` et `s status` l’affiche (`Live session | profile`). En profile, Flutter ne sait faire ni hot reload ni hot restart (« Restart is not supported in profile mode ») : la surveillance des sources est désactivée et `s reload` refuse en renvoyant vers `s restart … -FlutterMode profile`, qui reconstruit la session profile ; `s stop` ne change pas. Aucune session gérée n’utilise `--release` : les builds release passent par la publication d’artefacts.
+
+`s start -ProjectPath <app> -FlutterDevice windows|android -FlutterEnvironment prd` lance la session debug (ou profile) contre le backend de production que la recette du projet déclare : le script `configurationScript` de `.shipglows.flutter.json` reçoit `--environment prd` et doit renvoyer des valeurs publiques uniquement (issuer, client id, URL). Doppler n’est jamais lancé pour `prd`, aucune portée secrète de production n’atteint une session de dev, et un projet sans recette refuse. `dev` reste la valeur par défaut ; l’environnement fait partie de l’empreinte de session, le registre mémorise `flutterEnvironment`, `s status` affiche `prd backend`, `s restart` sans option garde l’environnement de la session, et aucune session `prd` ne crée de raccourci Bureau. Usage : preuve de connexion en production sans build (migration Clerk, lot 7).
+
+`s start -ProjectPath <tauri-app> -TauriEnvironment prd` lance la session Tauri desktop (jamais Android) contre le backend de production que le projet déclare dans `.shipglows.tauri.json` : `{"schemaVersion":1,"prd":{"beforeDevCommand":"<commande frontend sans Doppler>","publicEnv":{"VITE_...":"<valeur publique>"}}}`. La CLI remplace `beforeDevCommand` par cette commande dans la configuration de session, injecte les `publicEnv` (noms `VITE_*`, valeurs simples) et n'appelle jamais Doppler. Aucun raccourci Bureau, le registre affiche `prd backend`, `tauriEnvironment` est mémorisé pour `s restart` et la réutilisation de session. Le frontend prd ne se partage jamais (`-Frontend shared`) avec une autre cible. Si la session tourne déjà dans l'autre environnement, `s start -TauriEnvironment <env>` échoue au lieu de la réutiliser : `s restart -ProjectPath <tauri-app> -TauriEnvironment <env>` la bascule.
 
 Les fichiers de build restent dans le cache ShipGlows et sont consultables par la commande d’accès aux artefacts ; ils ne créent pas de raccourci sur le Bureau. Le Bureau est réservé aux raccourcis des projets Dev. Une fois le build enregistré testé, la sortie brute du checkout (`build\windows\x64\runner\Release`, `build\app\outputs`) est supprimée : le cache conserve déjà les deux dernières générations validées.
 
@@ -642,6 +694,8 @@ dépendances, qui s'exécute une seule fois à la fois.
 ### Flutter Android en développement
 
 `SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
+
+Sur l'appareil, `localhost` désigne l'appareil lui-même. Avant le build, `s start` relie donc à l'ordinateur, avec `adb reverse tcp:<port>`, chaque port local que l'app appelle : URL locales des variables publiques (par exemple `API_BASE_URL`) et URL de disponibilité de `.shipglows.backend.json` quand elle est locale. La liaison est confirmée, sinon le démarrage échoue ; une session réutilisée la refait aussi. Pendant la session, le superviseur Flutter la vérifie toutes les 5 s et la refait si elle a sauté (câble rebranché, redémarrage d'adb) ; un appareil absent est réessayé au passage suivant, et `state.json` garde l'heure de la dernière réparation (`AdbReverseRestoredAtUtc`) ou l'erreur (`AdbReverseError`). `s open` la force sans attendre, et `s stop` la retire.
 
 Flutter choisit le JDK du build Gradle dans cet ordre : `flutter config
 --jdk-dir`, puis le JBR embarqué d'Android Studio, puis `JAVA_HOME`. Le JBR
@@ -703,6 +757,26 @@ les journaux. Le 2026-10-24, un Galaxy S21 sur CommandGlows était coupé après
 10 minutes alors que « Running Gradle task 'assembleDebug' » progressait encore.
 
 Les APK et AAB restent des sorties de release ou de validation autonome ciblée : installation, permissions, notifications, services, plugins natifs et comportement sans Flutter attaché. Ils ne remplacent pas la boucle de développement live.
+
+### Tauri Windows en développement
+
+Pour une surface Tauri imbriquée dans un workspace Node, `s start` résout le
+gestionnaire de paquets depuis le même workspace que la préparation des
+dépendances. La déclaration `packageManager` et le lockfile de la racine
+déterminent ainsi la commande Tauri, y compris dans un sous-dossier comme `desktop`.
+
+`s stop` et `s restart` arrêtent le Job Windows de la session et vérifient aussi
+le binaire Tauri de ce projet dans `src-tauri\target\debug`, d'après le nom du
+package Cargo dans `src-tauri\Cargo.toml`. Le processus et son arbre,
+dont les enfants WebView2 encore attachés, sont arrêtés avant que l'état soit
+enregistré comme stoppé ou qu'un redémarrage soit relancé. La comparaison porte
+sur le chemin complet : un `app.exe` d'un autre projet n'est pas ciblé.
+
+Pour `s status`, une réponse HTTP du port local configuré suffit à confirmer le
+frontend prêt ; l'inventaire TCP système ne peut pas invalider cette réponse. Une
+sonde initiale indisponible garde la session en `starting` pendant la grâce
+bornée depuis son lancement, même si une première réconciliation l'avait marquée
+`error`. La session reste en erreur après expiration si le frontend ne répond pas.
 
 ### Tauri Android en développement
 

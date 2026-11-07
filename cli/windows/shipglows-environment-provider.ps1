@@ -37,7 +37,8 @@ try {
         if($mise){Write-SgProviderResult ([pscustomobject]@{status='applied';completed=@('acquire_mise');next_action='replan'})}
         $winget=Resolve-SgTrustedWingetIdentity
         if(-not $winget){Write-SgProviderResult ([pscustomobject]@{status='offline';reason='WinGet is unavailable'})}
-        $result=Invoke-SgBoundedProcess -File $winget.Path -Arguments @('install','--id','jdx.mise','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
+        $miseWingetId=[string](Get-SgToolCatalogEntry 'mise' -RequiredField wingetPackageId).wingetPackageId
+        $result=Invoke-SgBoundedProcess -File $winget.Path -Arguments @('install','--id',$miseWingetId,'--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
         if($result.TimedOut){Write-SgProviderResult ([pscustomobject]@{status='timeout';reason='mise acquisition timed out'})}
         if($result.ExitCode -ne 0){Write-SgProviderResult ([pscustomobject]@{status='partial';reason="mise acquisition exited $($result.ExitCode)"})}
         if(-not (Resolve-SgTrustedMisePath)){Write-SgProviderResult ([pscustomobject]@{status='partial';reason='mise identity was not observed after acquisition'})}

@@ -63,7 +63,7 @@ The central service exposes these capabilities. Their contracts and operator pro
 - Public signup for portfolio sites: `POST /api/v1/email/public/subscriptions`, no credential, double opt-in, uniform `202`.
 - Registered sequences: `POST /api/v1/email/sequences/steps` (`sequence_send`). The operator registers timing; callers supply content only.
 - Contact import with provenance: `POST /api/v1/email/imports` (`contact_import`), run with `pnpm email:import`.
-- Campaign bridge for apps: `/api/bridge/email-campaigns/firebase/*`. Drafts only; approval stays with a human operator (`campaign_approve`).
+- Campaign bridge for apps: `/api/bridge/email-campaigns/{firebase|shipglows_clerk}/*`. Drafts only; approval stays with a human operator (`campaign_approve`).
 - Rich text blocks: restricted Markdown (`rich_text`), never HTML.
 - Pre-deploy check: `pnpm email:config-check`.
 

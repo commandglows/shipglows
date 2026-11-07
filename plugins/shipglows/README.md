@@ -14,10 +14,19 @@ ShipGlows routes to: `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `
 
 The public names describe the result you want. A pack may still be planned or partial; the plugin reports that honestly and offers the sparse public skills corpus only when it is needed.
 
+`$shipglows init` prepares a device/host journey and `$shipglows init resume`
+continues its pending steps after re-observation. Optional `context`, `agents`,
+`memory`, role and lifetime choices are described in the bundled
+`skills/shipglows/references/workstation-entry.md`. Portable consult/remote guidance
+works without a local corpus; verified canonical sources own persistence and
+existing updater/diagnostic reuse. Source changes need plugin reload for installed
+discovery proof; this source bundle does not claim a newly installed native mobile runtime.
+
 This alpha intentionally ships a small nucleus:
 
 - `skills/shipglows`: public entrypoint and pack router
 - `skills/shipglows/references/public-help-catalog.md`: public help content used by the `shipglows` entrypoint
+- `skills/shipglows/references/workstation-entry.md`: portable init entry and canonical-corpus handoff
 - `skills/shipglows/references/pack-catalog.md`: planned pack model
 - `skills/shipglows/references/reference-strategy.md`: local-vs-hosted reference policy
 - `skills/shipglows/references/shipglows-main-portability-matrix.md`: current `shipglows-main` bundle-readiness decision matrix

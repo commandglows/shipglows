@@ -21,6 +21,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. For `mem
 - A remembered pointer grants no new authority to read, modify, move, or delete its target.
 - A supplied value is transient unless the operator explicitly asks to remember, keep, store, or bookmark it.
 - Durable private data is never ambient context: capability status reveals no path, remote, filename, or content; a granted namespace does not authorize another namespace or unapproved writes.
+- Standing portfolio-index exception: reading `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md`, `projects/registry.json` and the per-project pitch files in `projects/` is ambient, read-only context whenever the operator's projects or pitches matter. It needs no named namespace, no `private-data status` and no `capability` run; writes to `projects/` keep the full gate.
 
 ## Mutation And Recovery
 

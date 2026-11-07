@@ -53,11 +53,11 @@ Conditional gates: PM2, docs, UI, diagnostics, records, Atlas, and operator evid
 
 - Preserve the user-story outcome, spec/mini-contract, dependencies, invariants, linked systems, and chosen proof path.
 - Before writing, resolve product/security/data/tenant/destructive/external-side-effect ambiguity; never substitute checkbox completion or the fastest patch for the accepted outcome.
-- Execute bounded slices, preserve existing user changes, update durable progress only after completion, and stop when scope or authority expands.
+- Execute bounded slices back to back until the whole approved spec is implemented: finishing a slice is never a stopping point and needs no operator "ok". Preserve existing user changes, update durable progress only after completion, and stop only when scope or authority expands or an operator-only action is needed.
 - Passing technical checks never proves product, security, auth, hosted, production, manual, or device behavior.
 - Preserve observable success/failure, documentation coherence, security controls, diagnostics, and design-system sources when applicable.
 - Reclassify on scope growth; an unresolved final `Implementation Excellence Gate` prevents `implemented`.
-- After milestone proof apply `git-milestone-delivery-contract.md` and `005-sg-ship checkpoint` before more writes.
+- After milestone proof apply `git-milestone-delivery-contract.md` and `005-sg-ship checkpoint` (autonomous local commit, no prompt), then continue with the next slice.
 - For executable work, retain the topology receipt and report `Agents: <count> · <mode>`; use the lowest-overhead capable topology, parallelize independent scopes only for net time/coverage gain, and require ready non-overlapping `Execution Batches` plus an integration owner for parallel writes.
 
 ## Stop Conditions

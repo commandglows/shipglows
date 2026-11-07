@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.1.1"
+artifact_version: "0.1.2"
 project: ShipGlows
 created: "2026-10-07"
-updated: "2026-10-19"
+updated: "2026-10-30"
 status: draft
 source_skill: 900-shipglows-core
 scope: browser-extension-lab
@@ -76,7 +76,7 @@ each accepted engine; report missing proof as partial.
 
 ## Proof vocabulary
 
-- `static`: `manifest.json` is at the selected project root.
+- `static`: `manifest.json` is at the selected project root. From the root of a multi-surface repository with no extension of its own, `extension-inspect` and `extension-lab` select `ext/`.
 - `built`: a supported output directory contains the sole valid manifest.
 - `build-required`: a reviewed CRXJS build contract exists but no loadable artifact is present.
 - `loaded`: isolated Chromium accepted the unpacked artifact and ShipGlows resolved its extension id through an observed worker or the bounded CDP fallback.

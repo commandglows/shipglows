@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-13"
+updated: "2026-10-30"
 status: active
 source_skill: 900-shipglows-core
 scope: canonical-project-governance-placement
@@ -44,7 +44,7 @@ Use theme-first families, scoped by surface only when truth differs:
 - `shipglows_data/editorial/` for public-content maps and claims
 - `shipglows_data/workflow/` for specs, bugs, audits, reviews, research, verification, conversations, explorations, trackers, playbooks, checklists, and archived history
 
-For detailed monorepo source layout and the `ext/` versus `extensions/<name>/` decision, load `skills/references/monorepo-governance-topology.md` directly from the core route; this leaf does not restate it.
+For source folders and manifest locations, load `skills/references/project-tree-model.md`; for the `ext/` versus `extensions/<name>/` decision, load `skills/references/monorepo-governance-topology.md`. This leaf does not restate them.
 
 ## Root Exceptions And Migration
 

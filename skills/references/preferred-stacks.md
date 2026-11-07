@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.2"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-10-20"
+updated: "2026-10-31"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -27,6 +27,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-10-26: Clerk is the single identity provider for every Diane-operated product, one Clerk application per product; native Flutter signs in through Clerk hosted pages with OIDC Authorization Code + PKCE (shipglows-app-engine/flutter/services/shipglows_clerk_auth), not the beta Clerk Flutter SDK; Firebase Auth and Auth0 are retired (suite auth lot 8, 2026-10-31); client projects keep their own provider (BestFriedChicken: Supabase Auth). Canonical: commandglows shipglows_data/workflow/docs/technical/suite-authentication.md."
   - "2026-10-07: selectively recovered the 2026-09-03 extension and Obsidian presets from dev; Windows runtime capabilities and historical validation are not imported."
   - "Existing ShipGlows Auth SDK Policy: apps use Flutter, sites use Astro, backend/data uses Convex, scripts/jobs/tools use Python, and auth is mostly Clerk."
   - "Operator correction 2026-07-17: public/SEO sites habitually use Astro and application surfaces use Flutter."
@@ -106,10 +107,13 @@ rediscover ShipGlows's habitual stack.
 When the operator accepts the Astro plus Flutter preset with a shared backend, the expected source layout is:
 
 - `site/` for the Astro public/SEO surface
-- `app/` for the Flutter ordering application
+- `app/` for the Flutter application, one app for every platform
 - `backend/` for the shared backend authority
 - `ext/` for the default single browser/web extension, when present
 - `packages/contracts/` when typed cross-surface contracts are versioned separately
+
+`project-tree-model.md` is the authority for these names, the Obsidian and
+Tauri folders, and the discovery rule the tools follow.
 
 Do not create a plural `extensions/` umbrella for a single extension. If a
 second independently shipped extension is added later, migrate to
@@ -157,21 +161,20 @@ host-validation tooling remains a proof gap rather than an invented command.
 
 - Backend/data baseline: Convex through its official HTTP API from Flutter.
 - Scripts, jobs, and internal tools: Python.
-- Authentication baseline: Firebase Auth as the one product-wide identity
-  owner, using official FlutterFire where listed and a REST/OIDC adapter on
-  Linux because `firebase_auth` does not list Linux.
+- Authentication baseline: Clerk as the one product-wide identity owner, one
+  Clerk application per product; Flutter signs in through Clerk's hosted pages
+  (OIDC + PKCE) via `shipglows_clerk_auth` on every target (decision 2026-10-26).
 - Native engine baseline: none. Add Rust only for a measured native capability
   or performance requirement; keep Flutter as the UI shell.
 - Backend/data provider selection: resolve through
   `backend-data-provider-selection.md`. For a portfolio of many pre-revenue
-  products, Convex is the first recommendation; Firebase Auth does not imply
-  Firestore.
+  products, Convex is the first recommendation; the identity provider does not
+  imply the data backend.
 
-Clerk remains valid for an existing product with release-device-proved web and
-Android paths. It is inherited migration context, not the universal greenfield
-default, and should not be copied into new products. Auth0 is an approved OIDC
-alternative when enterprise requirements justify its official Convex
-integration and paid tenant model; it is not the free-portfolio default.
+Firebase Auth and Auth0 are retired for Diane-operated products (suite auth
+lot 8, 2026-10-31) and are not selected for new ones. A client project keeps its
+own provider (BestFriedChicken: Supabase Auth); Auth0 stays possible only for a
+documented enterprise requirement.
 
 These supporting defaults are starting assumptions, not universal mandates.
 Provider suitability, official SDK support, transactional guarantees, legal or
@@ -212,7 +215,7 @@ For greenfield work:
 - `PSP-006 free portfolio`: a provider is not recommended from its headline
   free price alone; project/deployment count, pooled quotas, pause/hard-stop or
   metered behavior, and server-authority needs are recorded first.
-- `PSP-007 auth is not data`: Firebase Auth may authenticate a Flutter product
-  backed by Convex; Firestore is selected only from an independent data decision.
+- `PSP-007 auth is not data`: Clerk authenticates a Flutter product backed by
+  Convex; the data backend is selected only from an independent data decision.
 - `PSP-008 sparse browser extension`: a greenfield extension request with no technical direction receives the WXT, strict TypeScript, pnpm, Manifest V3 preset; native UI is used unless the accepted experience crosses the rich-interface threshold, where Vue 3 is added.
 - `PSP-009 sparse Obsidian plugin`: a greenfield plugin request with no technical direction receives the official TypeScript and esbuild-compatible foundation, desktop-plus-mobile support, and native Obsidian UI unless a rich reactive surface justifies Vue 3.

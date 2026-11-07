@@ -21,9 +21,9 @@ function Get-SgTauriAndroidBaseline {
     [pscustomobject]@{
         Schema = 'shipglows.tauri-android-baseline/v1'
         ValidatedAt = '2026-08-17'
-        RustToolchainVersion = '1.97.1'
+        RustToolchainVersion = [string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version
         RustTargets = @('aarch64-linux-android','armv7-linux-androideabi','i686-linux-android','x86_64-linux-android')
-        TauriCliVersion = '2.11.4'
+        TauriCliVersion = [string](Get-SgToolCatalogEntry 'tauri-cli' -RequiredField version).version
         TauriApiVersion = '2.11.1'
         TauriRustVersion = '2.11.5'
         TauriBuildVersion = '2.6.3'
@@ -503,22 +503,89 @@ function Resolve-SgAdoptiumJdkPackage {
     [pscustomobject]@{ Version=$version; Url=$url; Sha256=$checksum.ToUpperInvariant() }
 }
 
+function Get-SgMcpCatalogServer {
+    param(
+        [Parameter(Mandatory=$true)][string]$Id,
+        [Parameter(Mandatory=$true)][ValidateSet('package','cliPackage','url')][string]$RequiredField
+    )
+    # The catalog ships beside this module in the source checkout and the installed
+    # runtime. It supplies package and endpoint identities only; argv, activation,
+    # authentication and read-only policy stay in the code paths that use them.
+    $path = Join-Path $PSScriptRoot 'ShipGlows.McpCatalog.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "ShipGlows MCP catalog is missing: $path" }
+    try { $catalog = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "ShipGlows MCP catalog is malformed: $path" }
+    if ($catalog.schema -cne 'shipglows.mcp-catalog/v1' -or -not $catalog.servers -or -not $catalog.policy -or $catalog.policy.registryIsExecutionAuthority -ne $false -or $catalog.policy.automaticAuthentication -ne $false -or $catalog.policy.automaticGoogleCloudActivation -ne $false) { throw 'ShipGlows MCP catalog schema or policy is unsupported.' }
+    foreach ($flag in @('registryIsExecutionAuthority','automaticAuthentication','automaticGoogleCloudActivation')) {
+        if ($catalog.policy.$flag -isnot [bool]) { throw 'ShipGlows MCP catalog policy flags must be booleans.' }
+    }
+    $candidates = @($catalog.servers | Where-Object { [string]$_.id -ceq $Id })
+    if ($candidates.Count -ne 1) { throw "ShipGlows MCP catalog entry is missing or duplicated: $Id" }
+    $server = $candidates[0]
+    $required = $server.PSObject.Properties[$RequiredField]
+    if (-not $required -or $required.Value -isnot [string] -or [string]::IsNullOrWhiteSpace($required.Value)) { throw "ShipGlows MCP catalog entry $Id requires $RequiredField." }
+    foreach ($field in @('package','cliPackage')) {
+        $property = $server.PSObject.Properties[$field]
+        if ($property -and [string]$property.Value -notmatch '^(@[a-z0-9][a-z0-9._-]*/)?[a-z0-9][a-z0-9._-]*$') { throw "ShipGlows MCP catalog entry $Id has an invalid $field identity." }
+    }
+    $endpoint = $server.PSObject.Properties['url']
+    if ($endpoint) {
+        $uri = $null
+        if ($endpoint.Value -isnot [string] -or [string]$endpoint.Value -match '[\s\\]' -or -not [Uri]::TryCreate([string]$endpoint.Value,[UriKind]::Absolute,[ref]$uri) -or $uri.Scheme -cne 'https' -or -not $uri.Host -or $uri.UserInfo) { throw "ShipGlows MCP catalog entry $Id has an invalid endpoint." }
+    }
+    return $server
+}
+
+function Get-SgToolCatalogEntry {
+    param(
+        [Parameter(Mandatory=$true)][string]$Id,
+        [Parameter(Mandatory=$true)][ValidateSet('owner','version','wingetPackageId','provenance')][string]$RequiredField
+    )
+    # ShipGlows.ToolCatalog.json ships beside this module in the source checkout and the
+    # installed runtime. It is data only: versions and identities for the Rust, Tauri CLI
+    # and mise baselines. Argv, mise coordinates and backend activation stay in code.
+    $path = Join-Path $PSScriptRoot 'ShipGlows.ToolCatalog.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "ShipGlows tool catalog is missing: $path" }
+    try { $catalog = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "ShipGlows tool catalog is malformed: $path" }
+    $policyNames = @($catalog.policy.PSObject.Properties.Name | Sort-Object)
+    if ($catalog.schema -cne 'shipglows.tool-catalog/v1' -or -not $catalog.tools -or -not $catalog.policy -or ($policyNames -join ',') -cne 'activatesBackend,argvAuthority,executionAuthority') { throw 'ShipGlows tool catalog schema or policy is unsupported.' }
+    foreach ($flag in @('executionAuthority','activatesBackend','argvAuthority')) {
+        if ($catalog.policy.$flag -isnot [bool] -or $catalog.policy.$flag) { throw 'ShipGlows tool catalog must disable execution, activation and argv authority.' }
+    }
+    $candidates = @($catalog.tools | Where-Object { [string]$_.id -ceq $Id })
+    if ($candidates.Count -ne 1) { throw "ShipGlows tool catalog entry is missing or duplicated: $Id" }
+    $tool = $candidates[0]
+    $allowedFields = @('id','kind','owner','version','wingetPackageId','provenance')
+    if (@($tool.PSObject.Properties.Name | Where-Object { $_ -cnotin $allowedFields }).Count -gt 0 -or $tool.kind -cnotin @('manager','toolchain','cli') -or $tool.owner -isnot [string] -or [string]::IsNullOrWhiteSpace($tool.owner)) { throw "ShipGlows tool catalog entry $Id has an unsupported shape." }
+    $required = $tool.PSObject.Properties[$RequiredField]
+    if (-not $required -or $required.Value -isnot [string] -or [string]::IsNullOrWhiteSpace($required.Value)) { throw "ShipGlows tool catalog entry $Id requires $RequiredField." }
+    if ($RequiredField -eq 'version' -and [string]$required.Value -notmatch '^\d{1,4}\.\d{1,4}\.\d{1,4}$') { throw "ShipGlows tool catalog entry $Id has an inexact version." }
+    if ($RequiredField -eq 'wingetPackageId' -and [string]$required.Value -notmatch '^[A-Za-z0-9][A-Za-z0-9-]{0,63}(\.[A-Za-z0-9][A-Za-z0-9-]{0,63}){1,7}$') { throw "ShipGlows tool catalog entry $Id has an invalid WinGet package id." }
+    if ($RequiredField -eq 'provenance') {
+        $uri = $null
+        if ([string]$required.Value -match '[\s\\]' -or -not [Uri]::TryCreate([string]$required.Value,[UriKind]::Absolute,[ref]$uri) -or $uri.Scheme -cne 'https' -or -not $uri.Host -or $uri.UserInfo) { throw "ShipGlows tool catalog entry $Id has an invalid provenance URL." }
+    }
+    return $tool
+}
+
 function Get-SgServiceCliPlan {
     param($Needs, [hashtable]$Versions)
     $plan = New-Object Collections.Generic.List[object]
     foreach ($definition in @(
-        @{ Need='Firebase'; Name='firebase'; Package='firebase-tools'; Manager='npm' },
+        @{ Need='Firebase'; Name='firebase'; CatalogId='firebase'; Manager='npm' },
         @{ Need='FlutterFire'; Name='flutterfire'; Package='flutterfire_cli'; Manager='dart' },
         @{ Need='Supabase'; Name='supabase'; Package='supabase'; Manager='npx' },
-        @{ Need='Convex'; Name='convex'; Package='convex'; Manager='npx' },
-        @{ Need='Vercel'; Name='vercel'; Package='vercel'; Manager='npm' },
-        @{ Need='Clerk'; Name='clerk'; Package='clerk'; Manager='npm' }
+        @{ Need='Convex'; Name='convex'; CatalogId='convex'; Manager='npx' },
+        @{ Need='Vercel'; Name='vercel'; CatalogId='vercel'; Manager='npm' },
+        @{ Need='Clerk'; Name='clerk'; CatalogId='clerk'; Manager='npm' }
     )) {
         $needProperty = $Needs.PSObject.Properties[$definition.Need]
         if (-not $needProperty -or -not [bool]$needProperty.Value) { continue }
         $version = [string]$Versions[$definition.Need]
         if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "$($definition.Name) requires an exact resolved version." }
-        $plan.Add([pscustomobject]@{ Name=$definition.Name; Package=$definition.Package; Manager=$definition.Manager; Version=$version })
+        $package = if ($definition.ContainsKey('CatalogId')) { [string](Get-SgMcpCatalogServer $definition.CatalogId -RequiredField cliPackage).cliPackage } else { [string]$definition.Package }
+        $plan.Add([pscustomobject]@{ Name=$definition.Name; Package=$package; Manager=$definition.Manager; Version=$version })
     }
     return $plan.ToArray()
 }
@@ -527,11 +594,11 @@ function Get-SgMachineToolboxPlan {
     param([Parameter(Mandatory=$true)][hashtable]$Versions)
     $plan = New-Object Collections.Generic.List[object]
     foreach ($definition in @(
-        @{ Name='firebase';  Tool='npm:firebase-tools'; Command='firebase';   VersionKey='Firebase'; Optional=$false },
+        @{ Name='firebase';  Tool=('npm:' + [string](Get-SgMcpCatalogServer 'firebase' -RequiredField cliPackage).cliPackage); Command='firebase';   VersionKey='Firebase'; Optional=$false },
         @{ Name='supabase';  Tool='aqua:supabase/cli'; Command='supabase';    VersionKey='Supabase'; Optional=$false },
-        @{ Name='convex';    Tool='npm:convex';         Command='convex';      VersionKey='Convex'; Optional=$false },
-        @{ Name='vercel';    Tool='npm:vercel';         Command='vercel';      VersionKey='Vercel'; Optional=$false },
-        @{ Name='clerk';     Tool='npm:clerk';          Command='clerk';       VersionKey='Clerk'; Optional=$false },
+        @{ Name='convex';    Tool=('npm:' + [string](Get-SgMcpCatalogServer 'convex' -RequiredField cliPackage).cliPackage);         Command='convex';      VersionKey='Convex'; Optional=$false },
+        @{ Name='vercel';    Tool=('npm:' + [string](Get-SgMcpCatalogServer 'vercel' -RequiredField cliPackage).cliPackage);         Command='vercel';      VersionKey='Vercel'; Optional=$false },
+        @{ Name='clerk';     Tool=('npm:' + [string](Get-SgMcpCatalogServer 'clerk' -RequiredField cliPackage).cliPackage);          Command='clerk';       VersionKey='Clerk'; Optional=$false },
         @{ Name='auth0';     Tool='aqua:auth0/auth0-cli'; Command='auth0';      VersionKey='Auth0'; Optional=$true }
     )) {
         if ($definition.Optional -and -not $Versions.ContainsKey($definition.VersionKey)) { continue }
@@ -670,24 +737,24 @@ function Get-SgStackMcpDefinitions {
         # An unresolved version leaves this MCP pending instead of failing the whole install.
         $version = if ($Versions -and $Versions.ContainsKey('Firebase')) { [string]$Versions['Firebase'] } else { '' }
         if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { Write-Warning 'Firebase MCP remains pending: no exact firebase-tools version was resolved.' }
-        else { $definitions.Add([pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"firebase-tools@$version",'mcp'); RequiresAuthentication=$true }) }
+        else { $definitions.Add([pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"$((Get-SgMcpCatalogServer 'firebase' -RequiredField package).package)@$version",'mcp'); RequiresAuthentication=$true }) }
     }
     if ($Needs.PSObject.Properties['Convex'] -and [bool]$Needs.Convex) {
         $version = if ($Versions -and $Versions.ContainsKey('Convex')) { [string]$Versions['Convex'] } else { '' }
         if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { Write-Warning 'Convex MCP remains pending: no exact Convex version was resolved.' }
-        else { $definitions.Add([pscustomobject]@{ Name='convex'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"convex@$version",'mcp','start'); RequiresAuthentication=$true }) }
+        else { $definitions.Add([pscustomobject]@{ Name='convex'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"$((Get-SgMcpCatalogServer 'convex' -RequiredField package).package)@$version",'mcp','start'); RequiresAuthentication=$true }) }
     }
     if ($Needs.PSObject.Properties['Clerk'] -and [bool]$Needs.Clerk) {
-        $definitions.Add([pscustomobject]@{ Name='clerk'; Type='remote'; Url='https://mcp.clerk.com/mcp'; Command=''; Arguments=@(); RequiresAuthentication=$false })
+        $definitions.Add([pscustomobject]@{ Name='clerk'; Type='remote'; Url=[string](Get-SgMcpCatalogServer 'clerk' -RequiredField url).url; Command=''; Arguments=@(); RequiresAuthentication=$false })
     }
     if ($Needs.PSObject.Properties['Supabase'] -and [bool]$Needs.Supabase) {
-        $definitions.Add([pscustomobject]@{ Name='supabase'; Type='remote'; Url='https://mcp.supabase.com/mcp?read_only=true'; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
+        $definitions.Add([pscustomobject]@{ Name='supabase'; Type='remote'; Url=[string](Get-SgMcpCatalogServer 'supabase' -RequiredField url).url; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
     }
     if ($Needs.PSObject.Properties['Vercel'] -and [bool]$Needs.Vercel) {
-        $definitions.Add([pscustomobject]@{ Name='vercel'; Type='remote'; Url='https://mcp.vercel.com'; Command=''; Arguments=@(); RequiresAuthentication=$true })
+        $definitions.Add([pscustomobject]@{ Name='vercel'; Type='remote'; Url=[string](Get-SgMcpCatalogServer 'vercel' -RequiredField url).url; Command=''; Arguments=@(); RequiresAuthentication=$true })
     }
     if (-not $Needs.PSObject.Properties['GitHub'] -or [bool]$Needs.GitHub) {
-        $definitions.Add([pscustomobject]@{ Name='github'; Type='remote'; Url='https://api.githubcopilot.com/mcp/readonly'; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
+        $definitions.Add([pscustomobject]@{ Name='github'; Type='remote'; Url=[string](Get-SgMcpCatalogServer 'github' -RequiredField url).url; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
     }
     return $definitions.ToArray()
 }
@@ -699,7 +766,7 @@ function Get-SgProjectMcpDefinitions {
         $definitions.Add([pscustomobject]@{ Name='dart'; Type='local'; Url=''; Command=$DartPath; Arguments=@('mcp-server','--force-roots-fallback') })
     }
     if ($Needs.PSObject.Properties['Playwright'] -and [bool]$Needs.Playwright -and $Playwright.Ready) {
-        $definitions.Add([pscustomobject]@{ Name='playwright'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"@playwright/mcp@$($Playwright.Version)",'--headless','--browser','chromium') })
+        $definitions.Add([pscustomobject]@{ Name='playwright'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"$((Get-SgMcpCatalogServer 'playwright' -RequiredField package).package)@$($Playwright.Version)",'--headless','--browser','chromium') })
     }
     foreach ($definition in @(Get-SgStackMcpDefinitions -Needs $Needs -Versions $Versions -NpxPath $NpxPath)) { $definitions.Add($definition) }
     return $definitions.ToArray()
@@ -817,7 +884,7 @@ function Get-SgTauriRustWrapperContent {
         [Parameter(Mandatory=$true)][string]$MisePath,
         [Parameter(Mandatory=$true)][string]$ToolchainRoot,
         [ValidateSet('cargo','rustc','rustup')][string]$Command,
-        [string]$RustVersion='1.97.1'
+        [string]$RustVersion=[string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version
     )
     if (-not (Test-SgExactVersionCoordinate $RustVersion)) { throw 'Tauri Rust wrapper version must be exact.' }
     $mise = ConvertTo-SgBatchQuotedPath $MisePath 'mise executable'
@@ -854,7 +921,7 @@ function Get-SgTauriRustTargetAddArguments {
 }
 
 function Get-SgTauriDesktopBaseline {
-    [pscustomobject]@{ RustToolchainVersion='1.97.1'; TauriCliVersion='2.11.4' }
+    [pscustomobject]@{ RustToolchainVersion=[string](Get-SgToolCatalogEntry 'rust' -RequiredField version).version; TauriCliVersion=[string](Get-SgToolCatalogEntry 'tauri-cli' -RequiredField version).version }
 }
 
 function Get-SgTauriDesktopMiseConfig {
@@ -1578,6 +1645,8 @@ function Get-SgFlutterAndroidDiagnostic {
 }
 
 Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgTauriDesktopBaseline,Get-SgTauriDesktopMiseConfig,Resolve-SgTrustedMisePath,Invoke-SgIsolatedTauriMise,Test-SgTauriDesktopRustToolchain,Test-SgTauriDesktopRustWrappers,Install-SgTauriDesktopRustToolchain,Get-SgWindowsWebView2State,Get-SgTauriWindowsEnvironmentObservation,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Get-SgMcpCatalogServer
+Export-ModuleMember -Function Get-SgToolCatalogEntry
 Export-ModuleMember -Function Resolve-SgTrustedWingetIdentity
 Export-ModuleMember -Function Get-SgAndroidSdkRoot,Get-SgFlutterSdkRoot,Get-SgFlutterGradleDefaults,Get-SgFlutterAndroidBuildRequirements,Get-SgFlutterAndroidSdkVerdict
 Export-ModuleMember -Function Get-SgShipGlowsJdkHome,Get-SgFlutterSettingsPath,Get-SgFlutterConfiguredJdkDir,Get-SgJdkMajorVersion,Get-SgAndroidStudioJbrHome,Resolve-SgFlutterEffectiveJdk,Get-SgGradleWrapperVersion,Get-SgGradleJavaSupport,Test-SgGradleJdkCompatible,Get-SgFlutterAndroidJdkVerdict

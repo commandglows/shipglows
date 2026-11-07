@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.20.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-10-06"
+updated: "2026-11-02"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -28,6 +28,7 @@ linked_systems:
   - "shipglows_data/technical/platforms/hetzner.md"
   - "skills/references/schemas/source-analysis-v1.schema.json"
   - "shipglows_data/technical/decisions/provider-agnostic-source-ingestion-with-readwise-reader-pilot.md"
+  - "shipglows_data/technical/decisions/toolchain-and-agent-capability-policy.md"
 external_dependencies:
   - "Flox"
   - "PM2"
@@ -51,6 +52,7 @@ invariants:
 security_impact: yes
 docs_impact: yes
 evidence:
+  - "Operator decision 2026-11-01 retains native tool managers below ShipGlows capability policy and separates discovery, trusted resolution, installation, project activation, authentication and fresh observation."
   - "Core files and function tree extracted from the repo"
   - "CLAUDE.md documents PM2 caching, port allocation, idempotence, and validation rules"
   - "2026-05-11 decision record project-governance-layout formalizes root-vs-shipglows_data placement."
@@ -100,6 +102,8 @@ ShipGlows currently separates its Hetzner compute into two logical roles. `sg-ru
 
 ### Reproducible environment control plane
 
+The accepted [toolchain and agent capability policy](decisions/toolchain-and-agent-capability-policy.md) places native managers and MCP metadata sources beneath ShipGlows policy. Machine provisioning, project version selection, agent activation and authentication have separate ownership and evidence. The decision records the current pilot boundaries and future convergence without claiming a unified inventory or additional executable backends.
+
 `cli/environment/` is a thin, Python-standard-library control plane above native environment engines. It owns the ShipGlows capability vocabulary and keeps three truths distinct:
 
 - desired state comes from a strict `shipglows.environment.json`, the closed runtime-policy allowlist in `.shipglows.env`, and recognized native manifest references;
@@ -108,9 +112,11 @@ ShipGlows currently separates its Hetzner compute into two logical roles. `sg-ru
 
 The first executable source pilot recognizes only an explicit Windows `mise.toml` containing the code-free `[tools] node = "24"` and `pnpm = "10"` shape plus exact `mise.lock` Windows artifact entries. Missing mise produces a distinct approval-gated `jdx.mise` WinGet acquisition operation; a fresh plan is required before tool installation. Existing mise installs are observed rather than adopted, each missing tool is installed by its own fixed `mise --locked install <tool>` operation, and ownership is proven with `mise --locked which <tool>` before every structured user/agent `mise --locked exec -- <tool> --version` probe. When `package.json#packageManager` exists it must equal the exact locked pnpm version. ShipGlows never runs `pnpm install` in this pilot, activates shims globally, edits a profile, rewrites persistent `PATH`, or takes ownership of global Node or pnpm.
 
-The backend boundary reconstructs fixed argv after validating the complete semantic plan, approval digest, current source digests, safe config shape, exact lock entries, backend version, and official package identity. Repository command names and manifest strings never become executable input. The runner is injectable for fixture proof and uses `shell=False` in the OS implementation. It removes inherited `MISE_*` controls from the child only, supplies its own safe/config/offline controls, preserves `PATH`, rejects alternate project mise configuration and refuses a backend executable resolved inside the repository. Windows App Execution Alias and fresh WinGet package discovery are resolved through canonical package roots rather than arbitrary PATH entries. Outside that exact pilot, `apply` retains the foundation's `no_active_backend` refusal. The approved Best Fried Chicken smoke acquired mise and converged locked Node 24.19.0 plus pnpm 10.34.5 without dependency installation, profile/PATH mutation, commit or push.
+The backend boundary reconstructs fixed argv after validating the complete semantic plan, approval digest, current source digests, safe config shape, exact lock entries, backend version, and official package identity. Repository command names and manifest strings never become executable input. The runner is injectable for fixture proof and uses `shell=False` in the OS implementation. It removes inherited `MISE_*` controls from the child only, supplies its own safe/config/offline controls, preserves `PATH`, rejects alternate project mise configuration and refuses a backend executable resolved inside the repository. Windows App Execution Alias and fresh WinGet package discovery are resolved through canonical package roots rather than arbitrary PATH entries. For operations owned by the mise adapter, `apply` outside that exact pilot retains the foundation's `no_active_backend` refusal. The approved Best Fried Chicken smoke acquired mise and converged locked Node 24.19.0 plus pnpm 10.34.5 without dependency installation, profile/PATH mutation, commit or push.
 
 Native Windows packaging keeps the environment engine as a closed Python package under the runtime `cli/environment` tree. The DevServer launcher resolves that installed tree explicitly, while a source checkout resolves its sibling `cli/environment` tree. `s env` dispatch remains ahead of DevServer module import and workspace initialization, so inspection cannot acquire menu/bootstrap side effects. The bootstrap extracts only the required package files and schema from the immutable archive, and installer tests must prove the installed launcher from an isolated runtime rather than relying on source-relative imports.
+
+The separate Windows Tauri adapter owns bounded `acquire_mise` and `install_rust` operations through the provider bridge; its fixed action set remains independent of the Node/pnpm pilot. Both Python backends and the Windows installer/toolchain module now read shared mise identity and Rust/Tauri CLI baseline metadata from `cli/windows/ShipGlows.ToolCatalog.json`. The Python loader resolves that catalog relative to its installed package; PowerShell resolves the copy beside its module. Catalogs supply metadata only, with no argv or backend activation authority. Missing or invalid catalog data refuses the affected operation; the CLI reports a structured contract error.
 
 ## Entry Points
 

@@ -31,7 +31,7 @@ Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/s
 
 Before selecting the route, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-lifecycle-workflow.md`. Check existing chantier ownership before creating a spec. Route dominant maintenance, bug, release, or proof work early; do not load greenfield or delivery packs for an early reroute.
 
-For a product change, continue every safe agent-runnable stage. Do not stop after spec, governance bootstrap, readiness, implementation, or verification and make the operator infer the next internal command. Ask only for a material operator decision or external/safety approval.
+For a product change, continue every safe agent-runnable stage. Do not stop after spec, governance bootstrap, readiness, implementation, or verification and make the operator infer the next internal command. Ask only for a material operator decision or external/safety approval. Once the chantier is validated, run spec -> ready -> start -> verify -> end -> milestone commits to completion in one turn chain: no per-phase "ok", no progress question, no stop on solvable obstacles (see `mutation-plan-approval.md` Approved chantier continuation).
 
 ## Delegation And Lifecycle Policy
 

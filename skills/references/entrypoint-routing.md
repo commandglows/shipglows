@@ -122,6 +122,10 @@ Tags such as `#partner`, `#growth`, `#traffic`, `#acquisition`, `#offer`, `#roi`
 - when `#pitch` is present, reload `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` and prefer the active project's own pitch URL if the index points to one before answering or routing
 - when `#portfolio` is present, reload `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` and scan the index for the most relevant cross-project opportunity before answering or routing
 
+### Portfolio Phrases (no tag needed)
+
+Plain phrases such as "mes projets", "mes pitchs", "mes pitch de projet", "par projet", "chaque projet", "my projects", "my pitches", "per project", or a portfolio project name act like `#portfolio`: as the first step, read `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` (plus `projects/registry.json` and the per-project files in `projects/` when the pitch summaries matter), then answer or route from that list. This read-only access is the standing portfolio-index exception in `603-sg-private`; never search the current folder, a parent vault, or GitHub for pitches first, and never ask the operator to name a namespace for it.
+
 ### Content Tags
 
 Tags such as `#end-user`, `#cta`, `#clarity`, `#faq`, `#voice`, `#audience`, `#source`, `#repurpose`, `#pillar`, and `#seo-intent` imply:

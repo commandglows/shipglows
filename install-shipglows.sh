@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
 # Bootstrap ShipGlows without a manual git clone.
 
-set -eu
+# cli/doctor.sh sources this file with SHIPGLOWS_BOOTSTRAP_LIBRARY=1 to reuse
+# the detection functions; in that mode nothing below runs.
+if [ "${SHIPGLOWS_BOOTSTRAP_LIBRARY:-0}" != 1 ]; then
+    set -eu
+fi
 
 REPO_URL="${SHIPGLOWS_REPO_URL:-https://github.com/commandglows/shipglows.git}"
 BRANCH="${SHIPGLOWS_BRANCH:-main}"
@@ -85,6 +89,71 @@ prompt_install_mode() {
     esac
 }
 
+PLATFORM=""
+DISTRO_FAMILY=other
+
+# Platform values: termux, macos, wsl, linux, windows-gitbash, unsupported.
+# local/install.sh detects the same families after the clone; keep both in step.
+detect_platform() {
+    if [ "$IS_TERMUX" = true ]; then
+        PLATFORM=termux
+    else
+        case "$(uname -s 2>/dev/null || echo unknown)" in
+            Darwin) PLATFORM=macos ;;
+            Linux)
+                if grep -qEi '(microsoft|wsl)' /proc/version 2>/dev/null; then
+                    PLATFORM=wsl
+                else
+                    PLATFORM=linux
+                fi
+                ;;
+            MINGW*|MSYS*|CYGWIN*) PLATFORM=windows-gitbash ;;
+            *) PLATFORM=unsupported ;;
+        esac
+    fi
+    if [ -r /etc/os-release ] && grep -Eq '^(ID|ID_LIKE)=.*(debian|ubuntu)' /etc/os-release; then
+        DISTRO_FAMILY=debian
+    fi
+}
+
+# Refuses a platform or mode this bootstrap does not support, and names the next step.
+# Runs before mode resolution (platform only, INSTALL_MODE empty) and after it.
+check_platform_support() {
+    case "$PLATFORM" in
+        windows-gitbash)
+            log "Windows (Git Bash, MSYS ou Cygwin): ce bootstrap shell n'est pas supporté."
+            log "Sur Windows natif, lancez install-shipglows.ps1 dans PowerShell."
+            log "Pour un environnement Linux, lancez ce script dans une distribution WSL."
+            return 1
+            ;;
+        unsupported)
+            log "Système non supporté par ce bootstrap: $(uname -s 2>/dev/null || echo inconnu)."
+            log "Plateformes prises en charge: Debian/Ubuntu (serveur), Linux, WSL, macOS, Termux, et Windows natif via install-shipglows.ps1."
+            return 1
+            ;;
+    esac
+
+    if [ "$INSTALL_MODE" = full ]; then
+        case "$PLATFORM" in
+            macos)
+                log "Le mode full n'est pas pris en charge sur macOS (serveur Debian/Ubuntu uniquement)."
+                log "Utilisez le mode local, sans sudo:"
+                log "  curl -fsSL $PUBLIC_INSTALL_URL | SHIPGLOWS_INSTALL_MODE=local sh"
+                return 1
+                ;;
+            linux|wsl)
+                if [ "$DISTRO_FAMILY" != debian ]; then
+                    log "Le mode full ne prend en charge que Debian et Ubuntu pour l'instant."
+                    log "Utilisez le mode local, sans sudo, et installez Python 3.9+ avec le gestionnaire de paquets de votre distribution:"
+                    log "  curl -fsSL $PUBLIC_INSTALL_URL | SHIPGLOWS_INSTALL_MODE=local sh"
+                    return 1
+                fi
+                ;;
+        esac
+    fi
+    return 0
+}
+
 resolve_install_mode() {
     if [ -n "$REQUESTED_MODE" ]; then
         INSTALL_MODE="$(normalize_mode "$REQUESTED_MODE")"
@@ -95,9 +164,9 @@ resolve_install_mode() {
                 return 1
                 ;;
         esac
-    elif [ "$IS_TERMUX" = true ]; then
+    elif [ "$PLATFORM" = termux ] || [ "$PLATFORM" = macos ]; then
         INSTALL_MODE=local
-    elif [ "$CURRENT_UID" -eq 0 ]; then
+    elif [ "$CURRENT_UID" -eq 0 ] && [ "$DISTRO_FAMILY" = debian ]; then
         INSTALL_MODE=full
     elif tty_available; then
         prompt_install_mode || return 1
@@ -126,7 +195,14 @@ resolve_install_mode() {
 }
 
 INSTALL_MODE=""
+if [ "${SHIPGLOWS_BOOTSTRAP_LIBRARY:-0}" = 1 ]; then
+    return 0
+fi
+detect_platform
+check_platform_support || exit 1
 resolve_install_mode || exit 1
+check_platform_support || exit 1
+log "Plateforme détectée: $PLATFORM (famille de distribution: $DISTRO_FAMILY)"
 resolve_install_surface || exit 1
 export SHIPGLOWS_INSTALL_SURFACE="$INSTALL_SURFACE"
 

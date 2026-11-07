@@ -38,7 +38,7 @@ build/run instruction for this repository. Be concise and preserve unrelated wor
 External web research keeps its dedicated environment: use
 `doppler run --project dotfiles --config dev -- shipglows-search "..."`, which
 tries local SearXNG, then DeepSeek, then Firecrawl, then Parallel, and `shipglows-fetch <url>` to read
-a page (plain HTTP, then the local Crawl4AI browser for JavaScript pages);
+a page (plain HTTP, then agent-browser, then the local Crawl4AI browser for JavaScript pages);
 `shipglows-scraping up` starts the free local stack; on exit 3 use the agent's native web search
 (`skills/references/web-research-fallback.md`).
 That research-only configuration does not apply to project execution.
@@ -55,10 +55,12 @@ That research-only configuration does not apply to project execution.
 ## Route By Task
 
   - Pour tout fichier interne ShipGlows, resoudre depuis `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`. Cela inclut `skills/`, `skills/references/`, `templates/`, `tools/`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` et `shipglows_data/technical/metadata-migration-guide.md`. Le repo courant ne sert de racine que pour les artefacts et le code du projet audite ou modifie.
+  - Sur le poste Windows de l'operatrice, la racine est `C:\Users\Diane\ShipGlows\shipglows` (canal `linked`, voir `%USERPROFILE%\.shipglows\development-channel.json`). La variable `SHIPGLOWS_ROOT` reste prioritaire ; ce chemin sert de repli documente, pas de substitut.
 - Si la tache touche la creation d'une app ou l'utilisation du Blueprint Gate (consommation), lire `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` puis `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`; le Blueprint Gate appartient à `001-sg-build`.
 - Si la tache touche l'extraction d'un blueprint depuis une app existante (creation/maintenance interne ShipGlows), lire `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` puis `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`; la creation d'un blueprint appartient à `900-shipglows-core build`.
 - Si la tache touche le CLI principal, commencer par `cli/shipglows.sh`, `cli/lib.sh`, puis `shipglows_data/technical/context.md`.
 - Si la tache touche le setup serveur ou Codex, lire `cli/install.sh`, `cli/config.sh`, puis `shipglows_data/technical/context.md`.
+- Si la tache touche le bootstrap d'installation (`install-shipglows.sh`, `install-shipglows.ps1`, `local/install.sh`, runtime Python), lire `shipglows_data/technical/bootstrap-matrix.md`, puis `shipglows_data/technical/python-runtime-provisioning.md`.
 - Si la tache touche les tunnels SSH locaux, lire `local/local.sh`, `local/dev-tunnel.sh`, puis `shipglows_data/technical/context-function-tree.md`.
 - Si la tache touche Blacksmith, runners CI, Testboxes, logs CI, APK/AAB Android, SSH Access runner ou debugging de build GitHub Actions, lire `shipglows_data/technical/blacksmith.md`; pour une verification deploy/logs, router via `skills/405-sg-prod/SKILL.md`, et pour une release complete via `skills/004-sg-deploy/SKILL.md`.
 - Si la tache touche les skills, lire `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, puis les `skills/*/SKILL.md` concernes.

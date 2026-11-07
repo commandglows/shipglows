@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-05-24"
+updated: "2026-11-04"
 status: draft
 source_skill: sg-docs
 scope: external-platform-convex
@@ -86,6 +86,7 @@ Use `fresh-docs conflict` when current Convex docs contradict local docs, deploy
 - Scheduled function auth is not implicitly inherited. Pass durable user/account identifiers and re-check authorization where relevant.
 - Schema and index changes must consider existing production data. Do not force schema changes without migration/backfill strategy.
 - Prefer indexed queries for growing tables; avoid broad scans hidden behind reactive queries.
+- Convex >= 1.49 (2026-10-30) needs Node 22+; check local, CI, Docker and Vercel Node versions before upgrading. `npx convex plugins install` installs or upgrades the Convex agent plugin for Claude Code and Codex; `v.function` validates callback args in components. Details: `skills/109-sg-auth-debug/references/convex-tooling.md`.
 
 ## Common Project-Local Fields
 

@@ -25,6 +25,7 @@ if __package__ in (None, ""):
         verify_project,
     )
     from cli.environment.preparation import apply_preparation_plan, build_preparation_plan  # type: ignore
+    from cli.environment.tool_catalog import ToolCatalogError  # type: ignore
 else:
     from .core import (
         ApplyRefused,
@@ -39,6 +40,7 @@ else:
         verify_project,
     )
     from .preparation import apply_preparation_plan, build_preparation_plan
+    from .tool_catalog import ToolCatalogError
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -113,7 +115,7 @@ def main(argv=None) -> int:
     except ApplyRefused as exc:
         _emit({"command": arguments.command, "status": "refused", "code": exc.code, "message": str(exc), "mutated": False})
         return 3
-    except ContractError as exc:
+    except (ContractError, ToolCatalogError) as exc:
         _emit({"command": arguments.command, "status": "invalid", "code": "contract_error", "message": str(exc), "mutated": False}, sys.stderr)
         return 2
 

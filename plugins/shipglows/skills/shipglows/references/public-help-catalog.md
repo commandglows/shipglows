@@ -12,6 +12,24 @@ Start with one route:
 $shipglows <what I want to accomplish>
 ```
 
+To prepare this device or continue its initialization:
+
+```text
+$shipglows init
+$shipglows init resume
+```
+
+Natural arrival requests such as `$shipglows je viens d'arriver sur un nouvel ordi`
+select the same init journey. Questions, quoted examples, project onboarding and
+concrete app tasks merely mentioning a new device retain their own route.
+
+Optional scopes are `context` (read-only), `agents`, or `memory`; optional
+`role=local|remote|consult|test` and `lifetime=persistent|ephemeral` select intended
+use. The bundled entry works as portable guidance without a local runtime; a verified
+complete corpus owns persistence and orchestration. Existing tools, agent writers
+and data workflows remain canonical. Installation, account access and remote
+connections keep their own gates.
+
 To reload the local development context before server or browser work:
 
 ```text

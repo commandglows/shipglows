@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.47.0"
+artifact_version: "1.49.4"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-28"
+updated: "2026-11-06"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -24,6 +24,8 @@ linked_systems:
   - cli/windows/install-devserver.ps1
   - cli/environment/core.py
   - cli/environment/mise_backend.py
+  - cli/environment/tool_catalog.py
+  - cli/environment/windows_tauri_backend.py
   - cli/environment/shipglows_environment.py
   - cli/environment/schemas/shipglows-environment-v1.schema.json
   - tools/shipglows_gsc.py
@@ -49,6 +51,7 @@ evidence:
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
   - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
+  - "Linked update 2026-10-31: `s update` no longer refuses a dirty linked checkout; the installer archives committed content only, so it warns that uncommitted changes are not included."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
   - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and CRXJS Chrome extensions with exact next actions instead of exposing internal project kinds."
   - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
@@ -96,7 +99,7 @@ evidence:
   - "Linux Flox discovery now records environment_root and launch_path separately, respects nested Flox boundaries, migrates the legacy registry idempotently, and rejects ambiguous launch targets."
   - "SHIPGLOWS_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
   - "The environment control-plane foundation exposes strict inspect/plan/verify/status commands in source checkouts and refuses apply until an executable backend exists."
-  - "The Windows pilot executes only approval-digest-bound jdx.mise acquisition or locked project-local Node 24 and pnpm 10 operations through fixed structured argv; the Best Fried Chicken smoke proved the real provider cycle."
+  - "The Windows mise pilot executes only approval-digest-bound jdx.mise acquisition or locked project-local Node 24 and pnpm 10 operations through fixed structured argv; the separate Tauri adapter may additionally apply the closed `install_rust` action through the provider bridge. The Best Fried Chicken smoke proved the real provider cycle."
   - "Independent Task 5 verification binds canonical external mise/WinGet executable paths and SHA-256 identities into approved plans, revalidates them before runner use, and treats those hashes as approved identity evidence rather than official provenance."
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
@@ -129,6 +132,15 @@ previous one, and the backend stops with the last live target. Existing manifest
 are never inferred or generated; a justified `none` mode is the only no-backend exception.
 
 ## Windows target sessions
+
+Port reservations record their CLI owner's PID and process start time. Before a
+server PID exists, reconciliation and sibling-target reservation cleanup retain
+the lease while that owner is verified, including dependency installation lasting
+more than five minutes. A dead owner or reused PID falls back to the original
+five-minute grace period; legacy records without an owner use the same grace.
+Completion, failure and stop clear the owner together with the reservation token.
+`tests/windows/devserver-install-reservation.ps1` exercises concurrent status,
+launch continuation, abandoned ownership, PID reuse and legacy grace in isolation.
 
 Each registry surface keeps one session per run target in `sessions`: Tauri
 `windows`/`android`, Flutter `windows`/`android`/`chrome`/`web-server`, and one
@@ -170,6 +182,10 @@ reservation regressions cover the integration boundaries.
 ## Windows host contract
 
 `s.cmd` and `shipglows-dev.cmd` use the installed managed Core executable directly; Windows PowerShell 5.1 is used only for the `ShipGlows.PowerShellBootstrap.ps1` fallback when that executable is absent. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`. The separate collision-safe `shipglows.cmd` also enters that exact managed runtime before routing focused commands through `shipglows.ps1`; when the managed runtime is missing, its bootstrap fallback uses the explicit focused-launcher route instead of bypassing command validation. This surface owns `shipglows rename rio <name>`, `shipglows check`, `shipglows update`, `shipglows update status`, and the compatibility spelling `shipglows update runtime`, which normalizes to the canonical update action. The Rio rename path validates the title and emits exactly one UTF-8 OSC title sequence for the current terminal tab without reading Codex state. `shipglows check` runs the lint and test scripts declared by `package.json` (`npm`, `pnpm` or `yarn` by lockfile) and by `pubspec.yaml` (`flutter analyze`, `flutter test`) in the current directory. It refuses Bun lockfiles, reports placeholder scripts (`echo`, `exit 0`, `true`, `:`) as `NOT CONFIGURED`, and exits non-zero on any missing or failing step; its summary is meant for the pull request.
+
+`shipglows stack scan -ProjectPath <path> [-Write]` detects technologies from the surface roots of a project (the repository root, every first-level folder and every `packages/*` folder, skipping hidden, generated, `vendor`, `third_party` and `public` folders, per `skills/references/project-tree-model.md`) and prints the JSON; `-Write` merges it into `shipglows_data/stack.json`, keeping `declared` entries unchanged. Tauri is read from `src-tauri/Cargo.toml` or the `@tauri-apps` packages; a WXT or CRXJS package, or a `manifest.json` with `manifest_version`, adds `browser-extension`; the `obsidian` package adds `obsidian`.
+
+`shipglows stack scan -ProjectPath <path> -Checks` is a separate read-only report (not combinable with `-Write`, always exit 0) for every surface whose `package.json` depends on `astro` (the `@shipglows/astro-*` packages themselves are skipped). It never runs a site's CLI. Output: `{ schema_version, astro_sites, errors, warns, infos, checks: [{ surface, severity, code, path, package, message }] }`. Codes: `duplicate-module` (warn; a site-owned `content-model/model.mjs` other than the one-line `export * from '@shipglows/astro-content/model'`, `ThemeToggle`, `ThemeScript`, `Breadcrumb(s)`, `breadcrumbs.ts`, `LanguageSelector`/`languageSwitch`, `LegalNotice`, `Icon.astro`, unless the file already references an `@shipglows/astro-*` package; the message names the replacement), `obsolete-dependency` / `obsolete-import` (error; `@shipglows/astro-engine` in `package.json` or imported from source/config), `fragile-link` (info; a `link:`/`file:`/`portal:` dependency resolving outside the git root, kept as info until the engine `Publication` task is decided), and the content-tree conformity of `skills/references/content-tree-model.md`: `content-not-migrated` (warn; Markdown present but no `.shipglows.content.json`, further checks skipped), `content-manifest-invalid`, `content-manifest-schema`, `taxonomy-missing`, `articles-missing`, `article-outside-locale`, `unknown-locale-folder`, `article-subfolder`, `article-not-markdown`, `article-slug-invalid` and `forbidden-frontmatter-field` (one finding per field with the count and first three files; fields are `FORBIDDEN_FIELDS` of `@shipglows/astro-content`: `slug`, `locale`, `category`, `categories`, `section`, `permalink`, `url`, `parent`, `date`, `pubDate`). Not yet checked: slug uniqueness, `topic`/wikilink resolution, locale labels, catch-all nodes, redirects. Astro engine paths are the supported mode: `engine-not-provided` warns when `vercel.json` does not run `tool/provide-engines.sh` (a holding `echo` install is accepted); `fragile-link` remains for other paths leaving the repository. Content sites also get `wikilinks-not-wired` and `content-integration-missing`, and a site-owned `remark-wikilinks` counts as a duplicate.
 
 ### Native Windows interactive menu
 
@@ -238,6 +254,8 @@ The managed PowerShell frontend accepts the equivalent form `s env <command> -Pr
 
 Without an explicit ShipGlows manifest, Windows also infers Node and pnpm constraints from `package.json#engines.node` and `package.json#packageManager`. A detected `src-tauri/Cargo.toml` or `@tauri-apps/cli` adds Cargo and Tauri requirements; they remain blocked with Rust setup guidance until their toolchain is observable, and no install is started by inspect, plan, verify, or status. A native `.flox/env/manifest.toml` is retained as source evidence but reported incompatible on Windows instead of becoming a capability owner. `verify` and `status` return code `4` for an inferred or explicit project whose observed state is not `ready`; a genuinely unmanaged project remains a valid zero-exit inspection target.
 
+The Windows Tauri adapter (`windows_tauri_backend.py`) is separate from the mise pilot. It reads the Rust 1.97.1 and Tauri CLI 2.11.4 baselines from `ShipGlows.ToolCatalog.json`, observes `rustc`, `cargo`, `rustup`, the local `tauri-cli` and the MSVC, Windows SDK and WebView2 prerequisites through the injected provider bridge, and applies only the closed `acquire_mise` and `install_rust` actions. Missing provider, PowerShell or module identities block planning; a malformed catalog fails closed when the adapter is loaded.
+
 The pilot requires root `mise.toml` to contain only `[tools] node = "24"` and `pnpm = "10"`, rejects alternate local/early mise configuration, and requires `mise.lock` to pin one exact `core:node` entry and one exact `aqua:pnpm/pnpm` entry. Each Windows artifact URL must match the exact version, architecture and official Node or pnpm release authority/path, with a checksum value in the supported format. If `package.json#packageManager` exists, it must equal `pnpm@<exact locked version>`; its absence remains valid because the ShipGlows manifest and mise lock already declare ownership. Injected fixtures remain synthetic; the approved Best Fried Chicken smoke additionally acquired mise 2026.8.2 and converged Node 24.19.0 plus pnpm 10.34.5 from their locked official release coordinates without installing application dependencies. `--offline` maps to `MISE_OFFLINE=1`: already installed exact mise-managed tools are ready, while any missing install blocks because mise documents downloaded archives as an unsupported offline cache and recommends retaining the installs directory. Existing global Node, pnpm and persistent `PATH` remain outside this owner. A `mise.exe` or `winget.exe` resolved from inside the repository or outside the adapter's canonical package-manager roots is never invoked; executable path and SHA-256 identity are approval-bound and revalidated before apply runner use.
 
 Current official authorities checked for this pilot are mise's [Windows installation](https://mise.jdx.dev/installing-mise.html#windows-winget), [`mise exec`](https://mise.jdx.dev/cli/exec.html), [`mise.lock`](https://mise.jdx.dev/dev-tools/mise-lock.html), [direct Node plus pnpm project configuration](https://mise.jdx.dev/demo), [configuration cascade and overrides](https://mise.jdx.dev/configuration.html), [safe mode](https://mise.jdx.dev/continuous-integration.html#running-against-untrusted-config-safe-mode), and [offline/cache settings](https://mise.jdx.dev/configuration/settings.html#offline).
@@ -283,7 +301,7 @@ analytics must not be sent to public research providers.
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry with per-target sessions, process lifecycle, ports, and per-launch logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
-| `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
+| `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json`, `cli/windows/ShipGlows.ToolCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions; MCP package/endpoint identities and machine CLI npm packages for Firebase, Convex, Vercel and Clerk come from the MCP catalog, while the `jdx.mise` WinGet id and Rust/Tauri CLI baselines come from the tool catalog | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 The Windows launcher also owns the profile-independent shortcut paths that
@@ -454,6 +472,11 @@ effect on Windows dependencies, variables, launch commands, ports, or project
 identity.
 
 Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A pnpm lockfile keeps pnpm, and an exact `packageManager: pnpm@x.y.z` declaration is executed through Corepack so ShipGlows does not substitute its machine-wide pnpm version. For a nested Node surface, a parent `pnpm-workspace.yaml` with a pnpm lock, or a parent `package.json` `workspaces` list (npm or yarn, with `!` exclusions), is inherited only when it explicitly includes the surface, searching up to five parent levels and stopping at a repository boundary. Its install location, manager and lockfile then govern setup, and a pnpm declaration beside an npm lock without a pnpm lock is refused as a conflict. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
+
+Tauri development resolves its Node package manager against the same discovered
+workspace root as dependency setup. A nested Tauri surface therefore honors the
+workspace lockfile and exact pinned package manager instead of falling back to
+the package-manager default for its subdirectory.
 
 A Node surface is classified as `browser-extension` before generic Vite only
 when it declares `@crxjs/vite-plugin` and an explicit `dev:chrome` script.
@@ -643,11 +666,12 @@ a dirty repository or missing upstream and uses only fast-forward pull or
 ordinary push. None of these commands is run by installation, startup, generic
 context discovery, or a skill without an explicit private-data request.
 The explicit Windows DevServer `s u` / `s update` path downloads the public
-bootstrap over HTTPS for the stable channel, or selects the checked clean
-upstream branch of a linked developer checkout. `shipglows update` is the
+bootstrap over HTTPS for the stable channel, or installs the committed
+branch of a linked developer checkout. `shipglows update` is the
 cross-platform canonical entrypoint and `shipglows update status` is read-only;
-on Unix `s u` remains the system-package update action. On Windows, dirty linked
-checkouts fail closed with a focused inspection and retry path, and
+on Unix `s u` remains the system-package update action. On Windows, a linked
+update installs committed content only (`git archive` of the branch), so a dirty
+checkout proceeds with a warning that uncommitted changes are not included, and
 an interactive update attempt exits the menu instead of redrawing the project
 catalog after success or failure. The Windows path resolves
 an immutable source commit, stages and validates the full
@@ -688,6 +712,20 @@ already exited, is an orphan; it is stopped with its tree only after an interact
 confirmation. A process still recorded by an ended session is `stale`: doctor
 names the `s stop -ProjectPath` command instead of killing it. `s unlock` names the lock holder and stops it only after
 confirmation. Both list without stopping anything in a non-interactive console.
+
+Windows reserves TCP port ranges (Hyper-V, WSL, Docker, WinNAT; see
+`netsh int ipv4 show excludedportrange protocol=tcp`) that change across
+reboots and cannot be bound even when nothing listens. `Get-SgExcludedPortRanges`
+reads them live (5 s cache); `Test-SgPortAllocatable` rejects any port inside a
+range, and `Reserve-SgProjectPort` reassigns a free port outside the ranges, with
+a warning, when a configured or persisted port falls inside one instead of failing.
+The new port rewrites the surface `ENVIRONMENT.md` through the usual primary-port
+write. A port that is truly in use, held by another surface, or otherwise not
+bindable still fails with an explicit reason; a listening holder is named with its
+PID, start time and redacted command line, or reported as no longer running. A start
+refused because the target lock is busy names the holder recorded in the runtime
+directory's `target-*.lock.owner.json`. `s doctor [-Json]` also lists the
+excluded ranges and the registered ports inside them.
 
 Windows exposes a separate global developer-tool surface through
 `shipglows tools status|update` and `s tools status|update`. Status is read-only:
@@ -808,7 +846,18 @@ hot reload only to a running managed Flutter session whose registered process,
 supervisor state, daemon and app identity still match; it never substitutes stop/start
 or a native rebuild. `s reload -Full` sends a hot restart (`fullRestart: true`)
 through the same checks, rebuilding app state from `main()` when routes or
-initializers change. `s open` restarts that managed Flutter session with visible
+initializers change. A reload Flutter rejects (`app.restart` answering
+`result.code != 0`, e.g. compile errors, `DevFS synchronization failed` or a debug
+service timeout) fails the command with the code, the first line of Flutter's
+message (bounded and redacted) and the session's `flutter.stderr.log` path instead of
+reporting success. The supervisor waits 30 s for a reload or hot restart response,
+because Flutter's debug service alone waits 10 s for connected browsers on top of
+the recompile, and the CLI 40 s; meanwhile its loop handles no other command, so a
+`s stop` arriving then can use the verified forced stop. Each reload, from `s reload`
+or from the source watcher, is recorded in `flutter.reload.log` (time, id, source,
+kind, outcome, duration, reason), copied to `reload.log` beside the durable session
+logs: watcher failures print nothing, and `flutter.stdout.log` has no timestamps. An
+accepted reload clears the previous reload failure from the supervisor state. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin

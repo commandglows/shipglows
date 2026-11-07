@@ -11,7 +11,7 @@ description: Private path, URL, and Vivaldi bookmark memory with explicit persis
 
 ## Scope Gate
 
-Resolve the intended private action and source, then load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Supplying a path, URL, file, bookmark, or private repository is not permission to persist or inspect it. Durable private-data access requires an explicit request and declared namespace.
+Resolve the intended private action and source, then load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Supplying a path, URL, file, bookmark, or private repository is not permission to persist or inspect it. Durable private-data access requires an explicit request and declared namespace, except the standing read-only portfolio index (`$SHIPGLOWS_PRIVATE_DATA_DIR/projects/`), which any route reads directly whenever the operator's projects or pitches matter.
 
 ## Required References
 

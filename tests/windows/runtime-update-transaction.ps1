@@ -29,7 +29,7 @@ function Get-TreeDigest([string]$Path) {
 }
 
 try {
-    foreach ($source in @(Get-BootstrapFunctionSources $bootstrap @('Test-SgManagedRelativePath','Get-SgRuntimeUpdateOperation','Invoke-SgRuntimePayloadTransaction'))) { Invoke-Expression $source }
+    foreach ($source in @(Get-BootstrapFunctionSources $bootstrap @('Test-SgManagedRelativePath','Get-SgRuntimeUpdateOperation','Move-SgRuntimeFileAside','Invoke-SgRuntimePayloadTransaction'))) { Invoke-Expression $source }
     $runtime = Join-Path $fixture 'runtime'
     $payload = Join-Path $fixture 'payload'
     New-Item -ItemType Directory -Path (Join-Path $runtime 'cli\windows'),(Join-Path $runtime 'cli\environment'),(Join-Path $runtime 'bin'),(Join-Path $payload 'cli\windows'),(Join-Path $payload 'cli\environment') -Force | Out-Null
@@ -127,6 +127,74 @@ try {
     catch { $failed = $_.Exception.Message -match 'injected failure' }
     if (-not $failed) { throw 'Injected update failure was not propagated.' }
     if ((Get-TreeDigest $runtime) -cne $beforeFailure) { throw 'Failed update did not restore the runtime byte-for-byte.' }
+
+    # A launcher running from the runtime blocks neither the rollback of the other files nor its own replacement.
+    $runningImage = Join-Path $env:WINDIR 'System32\ping.exe'
+    $lockedRuntime = Join-Path $fixture 'locked-runtime'
+    New-Item -ItemType Directory -Path (Join-Path $lockedRuntime 'cli\windows'),(Join-Path $lockedRuntime 'bin') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $lockedRuntime 'cli\windows\current.ps1'),'old-source')
+    $lockedExe = Join-Path $lockedRuntime 'bin\generated.exe'
+    Copy-Item -LiteralPath $runningImage -Destination $lockedExe
+    [IO.File]::WriteAllText((Join-Path $lockedRuntime '.shipglows-install.json'),('{"schemaVersion":1,"sourceCommit":"' + ('d' * 40) + '"}'))
+    [IO.File]::WriteAllText((Join-Path $lockedRuntime '.shipglows-runtime-files.json'),'["cli/windows/current.ps1","bin/generated.exe"]')
+    $beforeLocked = Get-TreeDigest $lockedRuntime
+    $lockedProcess = Start-Process -FilePath $lockedExe -ArgumentList '-n','120','127.0.0.1' -WindowStyle Hidden -PassThru
+    $script:swappedProcess = $null
+    try {
+        Start-Sleep -Milliseconds 300
+        if ($lockedProcess.HasExited) { throw 'The running launcher fixture exited early.' }
+        $deleteRefused = $false
+        try { Remove-Item -LiteralPath $lockedExe -Force -ErrorAction Stop } catch { $deleteRefused = $true }
+        if (-not $deleteRefused) { throw 'The running launcher fixture does not hold its image.' }
+        $lockedFailure = $false
+        try { Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $lockedRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -Action { throw 'launcher in use' } }
+        catch { $lockedFailure = $_.Exception.Message -match 'launcher in use' }
+        if (-not $lockedFailure) { throw 'The failure raised with a running launcher was not propagated.' }
+        if ((Get-TreeDigest $lockedRuntime) -cne $beforeLocked) { throw 'A running launcher left the runtime partly updated after rollback.' }
+
+        # The action replaced the launcher, then the update failed while the new one runs: rollback restores the old bytes.
+        $swapRuntime = Join-Path $fixture 'swap-runtime'
+        New-Item -ItemType Directory -Path (Join-Path $swapRuntime 'bin') -Force | Out-Null
+        $swapExe = Join-Path $swapRuntime 'bin\generated.exe'
+        [IO.File]::WriteAllText($swapExe,'old-binary')
+        [IO.File]::WriteAllText((Join-Path $swapRuntime '.shipglows-install.json'),('{"schemaVersion":1,"sourceCommit":"' + ('d' * 40) + '"}'))
+        [IO.File]::WriteAllText((Join-Path $swapRuntime '.shipglows-runtime-files.json'),'["bin/generated.exe"]')
+        $swapFailure = $false
+        try {
+            Invoke-SgRuntimePayloadTransaction -PayloadRoot $generatedPayload -RuntimeRoot $swapRuntime -ManagedRelativePaths $generatedManaged -ActionGeneratedRelativePaths $generatedPaths -GeneratedHashStateRelativePath '.shipglows-install.json' -Action {
+                Copy-Item -LiteralPath $runningImage -Destination $swapExe -Force
+                $script:swappedProcess = Start-Process -FilePath $swapExe -ArgumentList '-n','120','127.0.0.1' -WindowStyle Hidden -PassThru
+                Start-Sleep -Milliseconds 300
+                throw 'swap failure'
+            }
+        } catch { $swapFailure = $_.Exception.Message -match 'swap failure' }
+        if (-not $swapFailure) { throw 'The original failure was lost while restoring a running launcher.' }
+        if ([IO.File]::ReadAllText($swapExe) -cne 'old-binary') { throw 'Rollback did not restore a launcher that was running.' }
+        if ($script:swappedProcess.HasExited) { throw 'Rollback disturbed the running launcher.' }
+
+        # The installer replaces a running launcher; the process survives and the next install removes the renamed file.
+        $tokens = $null; $errors = $null
+        $installerAst = [Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'cli\windows\install-devserver.ps1'), [ref]$tokens, [ref]$errors)
+        $installerFunction = $installerAst.Find({ param($candidate) $candidate -is [Management.Automation.Language.FunctionDefinitionAst] -and $candidate.Name -eq 'Install-SgNativeCommand' }, $true)
+        if (-not $installerFunction) { throw 'Installer function is missing: Install-SgNativeCommand' }
+        Invoke-Expression $installerFunction.Extent.Text
+        $newImage = Join-Path $fixture 'new-launcher.bin'
+        [IO.File]::WriteAllText($newImage,'new-launcher')
+        Install-SgNativeCommand $newImage $lockedExe
+        if ([IO.File]::ReadAllText($lockedExe) -cne 'new-launcher') { throw 'A running launcher was not replaced.' }
+        if ($lockedProcess.HasExited) { throw 'Replacing the launcher disturbed its running process.' }
+        $lockedBin = Split-Path -Parent $lockedExe
+        if (@(Get-ChildItem -LiteralPath $lockedBin -Filter 'generated.exe.shipglows-old-*' -File).Count -ne 1) { throw 'The renamed running launcher was not kept for its process.' }
+        if (@(Get-ChildItem -LiteralPath $lockedBin -Filter 'generated.exe.shipglows-new-*' -File).Count) { throw 'A staged launcher was left behind.' }
+        Stop-Process -Id $lockedProcess.Id -Force
+        [void]$lockedProcess.WaitForExit(5000)
+        Install-SgNativeCommand $newImage $lockedExe
+        if (@(Get-ChildItem -LiteralPath $lockedBin -Filter 'generated.exe.shipglows-old-*' -File).Count) { throw 'The next install did not remove the renamed launcher.' }
+    } finally {
+        foreach ($process in @($lockedProcess,$script:swappedProcess)) {
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue; [void]$process.WaitForExit(5000) }
+        }
+    }
 
     $localPayload = Join-Path $fixture 'local-payload'
     New-Item -ItemType Directory -Path (Join-Path $localPayload 'local') -Force | Out-Null

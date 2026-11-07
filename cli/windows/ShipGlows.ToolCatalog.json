@@ -1,0 +1,13 @@
+{
+  "schema": "shipglows.tool-catalog/v1",
+  "policy": {
+    "executionAuthority": false,
+    "activatesBackend": false,
+    "argvAuthority": false
+  },
+  "tools": [
+    {"id": "mise", "kind": "manager", "owner": "jdx", "wingetPackageId": "jdx.mise", "provenance": "https://mise.jdx.dev/installing-mise.html#windows-winget"},
+    {"id": "rust", "kind": "toolchain", "owner": "Rust", "version": "1.97.1"},
+    {"id": "tauri-cli", "kind": "cli", "owner": "Tauri", "version": "2.11.4"}
+  ]
+}
