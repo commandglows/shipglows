@@ -52,10 +52,26 @@ try {
         $deviceJson='[{"name":"Pixel","id":"phone-1","isSupported":true,"targetPlatform":"android-arm64","emulator":false}]'
         $selected=Resolve-SgFlutterAndroidDevice 'flutter.bat' 'phone-1' 'ShipGlows_API_36' { param($f,$a) [pscustomobject]@{ExitCode=0;Output=$deviceJson} } { param($ms) } 2
         if ($selected -ne 'phone-1') { throw 'Explicit connected Android device selection drifted.' }
-        $script:androidProbe=0
-        $autoRunner={param($f,$a)$joined=$a-join' ';if($joined-eq'emulators --launch ShipGlows_API_36'){[pscustomobject]@{ExitCode=0;Output='started'}}else{$script:androidProbe++;$output=if($script:androidProbe-lt2){'[]'}else{'[{"name":"ShipGlows API 36","id":"emulator-5554","isSupported":true,"targetPlatform":"android-x64","emulator":true}]'};[pscustomobject]@{ExitCode=0;Output=$output}}}
-        $automatic=Resolve-SgFlutterAndroidDevice 'flutter.bat' '' 'ShipGlows_API_36' $autoRunner {param($ms)} 2
-        if($automatic-ne'emulator-5554'){throw 'ShipGlows Android emulator was not launched and selected when no device was connected.'}
+        # adb answers device selection, with or without a requested id, and Flutter is never asked.
+        $adbOnly={param($f,$a)if(($a-join' ')-ne'devices'){throw "flutter devices ran while adb answered: $($a-join' ')"};[pscustomobject]@{ExitCode=0;Output="List of devices attached`r`nphone-1`tdevice`r`nemulator-5554`tdevice`r`nasleep-1`toffline`r`nlocked-1`tunauthorized`r`n";TimedOut=$false}}
+        if((Resolve-SgFlutterAndroidDevice 'flutter.bat' 'phone-1' 'ShipGlows_API_36' $adbOnly {param($ms)} 2)-ne'phone-1'){throw 'A requested connected device needed more than adb.'}
+        if((Resolve-SgFlutterAndroidDevice 'flutter.bat' '' 'ShipGlows_API_36' $adbOnly {param($ms)} 2)-ne'emulator-5554'){throw 'Automatic selection did not prefer the emulator from the adb list.'}
+        foreach($absent in 'phone-2','asleep-1','locked-1'){try{[void](Resolve-SgFlutterAndroidDevice 'flutter.bat' $absent 'ShipGlows_API_36' $adbOnly {param($ms)} 2);throw "Requested device $absent was accepted."}catch{if($_.Exception.Message-cne"Requested Android device is not connected: $absent"){throw}}}
+        # Without a usable adb answer Flutter decides, and its failure says what happened.
+        $adbDown={param($f,$a)if(($a-join' ')-eq'devices'){[pscustomobject]@{ExitCode=1;Output='adb exploded';TimedOut=$false}}else{& $script:flutterAnswer}}
+        $script:flutterAnswer={[pscustomobject]@{ExitCode=0;Output=$deviceJson;TimedOut=$false}}
+        if((Resolve-SgFlutterAndroidDevice 'flutter.bat' 'phone-1' 'ShipGlows_API_36' $adbDown {param($ms)} 2)-ne'phone-1'){throw 'Flutter did not take over when adb failed.'}
+        $script:flutterAnswer={[pscustomobject]@{ExitCode=-1;Output='Command timed out and its process tree was stopped.';TimedOut=$true}}
+        try{[void](Resolve-SgFlutterAndroidDevice 'flutter.bat' '' 'ShipGlows_API_36' $adbDown {param($ms)} 2);throw 'A timed-out inventory was accepted.'}catch{if($_.Exception.Message-cne'Flutter could not enumerate Android devices: flutter devices --machine timed out.'){throw}}
+        $script:flutterAnswer={[pscustomobject]@{ExitCode=3;Output='lock is busy';TimedOut=$false}}
+        try{[void](Resolve-SgFlutterAndroidDevice 'flutter.bat' '' 'ShipGlows_API_36' $adbDown {param($ms)} 2);throw 'A failed inventory was accepted.'}catch{if($_.Exception.Message-cne'Flutter could not enumerate Android devices: flutter devices --machine exited with code 3. lock is busy'){throw}}
+        # Nothing connected: the emulator starts, and a failed inventory during its boot does not end the wait.
+        $script:androidProbe=0;$script:androidLaunched=$false
+        $autoRunner={param($f,$a)$joined=$a-join' ';if($joined-eq'devices'){[pscustomobject]@{ExitCode=0;Output="List of devices attached`r`n`r`n";TimedOut=$false}}elseif($joined-eq'emulators --launch ShipGlows_API_36'){$script:androidLaunched=$true;[pscustomobject]@{ExitCode=0;Output='started';TimedOut=$false}}else{$script:androidProbe++;switch($script:androidProbe){1{[pscustomobject]@{ExitCode=-1;Output='';TimedOut=$true}}2{[pscustomobject]@{ExitCode=0;Output='[]';TimedOut=$false}}default{[pscustomobject]@{ExitCode=0;Output='[{"name":"ShipGlows API 36","id":"emulator-5554","isSupported":true,"targetPlatform":"android-x64","emulator":true}]';TimedOut=$false}}}}}
+        $automatic=Resolve-SgFlutterAndroidDevice 'flutter.bat' '' 'ShipGlows_API_36' $autoRunner {param($ms)} 5
+        if($automatic-ne'emulator-5554'-or-not$script:androidLaunched){throw 'ShipGlows Android emulator was not launched and selected when no device was connected.'}
+        $stuckRunner={param($f,$a)$joined=$a-join' ';if($joined-eq'devices'){[pscustomobject]@{ExitCode=0;Output='List of devices attached';TimedOut=$false}}elseif($joined-like'emulators*'){[pscustomobject]@{ExitCode=0;Output='started';TimedOut=$false}}else{[pscustomobject]@{ExitCode=-1;Output='';TimedOut=$true}}}
+        try{[void](Resolve-SgFlutterAndroidDevice 'flutter.bat' '' 'ShipGlows_API_36' $stuckRunner {param($ms)} 1);throw 'An emulator that never appeared was accepted.'}catch{if($_.Exception.Message-notmatch'did not become ready within 1 seconds: ShipGlows_API_36\. Last inventory failure: .*timed out'){throw}}
         $jdkFixture=Join-Path ([IO.Path]::GetTempPath()) ("sg-android-jdk-{0}" -f [guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Path (Join-Path $jdkFixture 'app\android\gradle\wrapper'),(Join-Path $jdkFixture 'jdk17\bin'),(Join-Path $jdkFixture 'jbr\bin') -Force|Out-Null
         try {
             Set-Content -LiteralPath (Join-Path $jdkFixture 'app\android\gradle\wrapper\gradle-wrapper.properties') -Value 'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-all.zip';Set-Content -LiteralPath (Join-Path $jdkFixture 'jdk17\release') -Value 'JAVA_VERSION="17.0.20"';Set-Content -LiteralPath (Join-Path $jdkFixture 'jbr\release') -Value 'JAVA_VERSION="25.0.3"';Set-Content -LiteralPath (Join-Path $jdkFixture 'jdk17\bin\java.exe') -Value 'x';Set-Content -LiteralPath (Join-Path $jdkFixture 'jbr\bin\java.exe') -Value 'x'

@@ -4277,9 +4277,33 @@ function Invoke-SgFlutterAndroidTool([string]$File, [string[]]$Arguments, [int]$
 function Get-SgFlutterAndroidDevices([string]$FlutterPath, [scriptblock]$Runner = $null) {
     if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 30 } }
     $result=& $Runner $FlutterPath @('devices','--machine')
-    if (-not $result -or [int]$result.ExitCode -ne 0) { throw 'Flutter could not enumerate Android devices.' }
+    if (-not $result) { throw 'Flutter could not enumerate Android devices: flutter devices --machine returned no result.' }
+    if ($result.PSObject.Properties['TimedOut'] -and $result.TimedOut) { throw 'Flutter could not enumerate Android devices: flutter devices --machine timed out.' }
+    if ([int]$result.ExitCode -ne 0) {
+        $detail=([string]$result.Output).Trim()
+        if ($detail.Length -gt 300) { $detail=$detail.Substring($detail.Length-300) }
+        throw "Flutter could not enumerate Android devices: flutter devices --machine exited with code $([int]$result.ExitCode). $detail".TrimEnd()
+    }
     try { $devices=@(([string]$result.Output | ConvertFrom-Json -ErrorAction Stop)) } catch { throw 'Flutter returned invalid device inventory JSON.' }
     return @($devices | Where-Object { $_.targetPlatform -match '^android-' -and [string]$_.id -match '^[A-Za-z0-9._:-]{1,128}$' })
+}
+
+# Serials in the usable `device` state, from `adb devices` output.
+function ConvertFrom-SgAdbDeviceList([string]$Output) {
+    return @($Output -split "`r?`n" | ForEach-Object { if ($_ -match '^([A-Za-z0-9._:-]{1,128})\s+device$') { $Matches[1] } })
+}
+
+# Devices to choose from for a Flutter Android launch. adb answers in a fraction of a second where
+# `flutter devices` takes seconds and can pass its bound on a loaded machine, and its serials are the
+# ids `flutter run -d` takes: Flutter's own discovery reads this list and drops the same unauthorized
+# and offline entries. `flutter devices` remains the answer when adb is missing or does not reply.
+function Get-SgFlutterAndroidTargets([string]$FlutterPath, [scriptblock]$Runner) {
+    $adb=try { Get-SgAdbPath } catch { '' }
+    $list=if ($adb) { & $Runner $adb @('devices') } else { $null }
+    if ($list -and [int]$list.ExitCode -eq 0 -and [string]$list.Output -match '(?m)^List of devices attached') {
+        return @(ConvertFrom-SgAdbDeviceList ([string]$list.Output) | ForEach-Object { [pscustomobject]@{ id=$_; name=$_; emulator=($_ -match '^emulator-') } })
+    }
+    return @(Get-SgFlutterAndroidDevices $FlutterPath $Runner)
 }
 
 # Before an Android build: Flutter must hand Gradle a JDK the project's Gradle can run. With
@@ -4319,7 +4343,7 @@ function Resolve-SgFlutterAndroidDevice([string]$FlutterPath, [string]$Requested
     if ($AvdName -notmatch '^[A-Za-z0-9._-]{1,64}$') { throw 'Invalid Android emulator name.' }
     if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 30 } }
     if (-not $Waiter) { $Waiter = { param($Milliseconds) Start-Sleep -Milliseconds $Milliseconds } }
-    $devices=@(Get-SgFlutterAndroidDevices $FlutterPath $Runner)
+    $devices=@(Get-SgFlutterAndroidTargets $FlutterPath $Runner)
     if ($RequestedDeviceId) {
         $requested=@($devices | Where-Object { [string]$_.id -ceq $RequestedDeviceId }) | Select-Object -First 1
         if (-not $requested) { throw "Requested Android device is not connected: $RequestedDeviceId" }
@@ -4333,12 +4357,14 @@ function Resolve-SgFlutterAndroidDevice([string]$FlutterPath, [string]$Requested
     $launch=& $Runner $FlutterPath @('emulators','--launch',$AvdName)
     if (-not $launch -or [int]$launch.ExitCode -ne 0) { throw "Android emulator could not start: $AvdName" }
     $deadline=[datetime]::UtcNow.AddSeconds([Math]::Max(1,$TimeoutSeconds))
+    $lastFailure=''
     do {
         & $Waiter 1000
-        $devices=@(Get-SgFlutterAndroidDevices $FlutterPath $Runner)
+        # The wait keeps Flutter's view of readiness. A boot loads the machine, so one failed inventory does not end it.
+        try { $devices=@(Get-SgFlutterAndroidDevices $FlutterPath $Runner) } catch { $devices=@(); $lastFailure=" Last inventory failure: $($_.Exception.Message)" }
         if ($devices.Count -gt 0) { $first=@($devices | Sort-Object name,id)[0]; return [string]$first.id }
     } while ([datetime]::UtcNow -lt $deadline)
-    throw "Android emulator did not become ready within $TimeoutSeconds seconds: $AvdName"
+    throw "Android emulator did not become ready within $TimeoutSeconds seconds: $AvdName.$lastFailure"
 }
 
 # 'stopped' or 'error' when a Flutter session's own state says its application ended, even if the
@@ -4415,7 +4441,7 @@ function Resolve-SgTauriAndroidDevice([string]$RequestedSerial = '', [scriptbloc
     $adb = Get-SgAdbPath
     $list = & $Runner $adb @('devices')
     if (-not $list -or [int]$list.ExitCode -ne 0) { throw 'adb could not enumerate Android devices.' }
-    $serials = @(([string]$list.Output) -split "`r?`n" | ForEach-Object { if ($_ -match '^([A-Za-z0-9._:-]{1,128})\s+device$') { $Matches[1] } })
+    $serials = @(ConvertFrom-SgAdbDeviceList ([string]$list.Output))
     if ($RequestedSerial) {
         if ($serials -cnotcontains $RequestedSerial) { throw "Requested Android device is not connected or not authorized: $RequestedSerial" }
         $serial = $RequestedSerial

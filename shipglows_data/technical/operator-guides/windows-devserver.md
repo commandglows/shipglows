@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.8"
+artifact_version: "1.38.9"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-11-06"
+updated: "2026-11-07"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le 2026-11-07 sur claiire, `s start -FlutterDevice android` a échoué une fois (« Flutter could not enumerate Android devices ») alors que l'émulateur tournait, puis a réussi sans autre changement. La cause reste inconnue, car le message confondait dépassement de temps et code de sortie. `flutter devices --machine` a pris 17 s puis 8,7 s sur le poste chargé, contre 0,1 s pour `adb devices` ; le choix de l'appareil passe depuis par adb, et l'échec de Flutter dit ce qui s'est passé."
   - "Le 2026-11-06, un `s restart` de claiire/app a échoué après l'arrêt de la session (« Registry lock stayed busy for 15 s ») : un `s status` d'une autre session tenait le verrou depuis 34 s, pendant un `s update` qui chargeait le poste. L'app est restée arrêtée. La cause de cette tenue longue n'a pas été établie (0,5 à 4 s mesurées ensuite) ; le démarrage attend désormais 120 s."
   - "Le 2026-11-06 sur claiire/app (web-server, port 3013), `s restart` capturé dépassait 420 s sans fuite de pipe : fin du processus et EOF du pipe coïncident à moins de 0,2 s sur 9 lancements. Un restart dure de 188 à 421 s selon la charge du poste, dont 112 à 248 s de compilation Flutter, et la commande rend la main 1,4 à 7,6 s après app.started. La réconciliation lançait un scan des processus par session Flutter terminée : le correctif ramène `s status` de 25-38 s à 12-16 s, sans gain mesuré sur la durée totale d'un restart. Une sonde HTTP toutes les 0,5 s sur le port empêche le frontend_server de démarrer tant qu'elle dure (échec à 600 s) ; il repart dès son arrêt, et une requête isolée ne gêne pas."
   - "Les 2026-10-31 et 2026-11-02 sur l'extension CommunityGlows (CRXJS + Vite 8, port 3010), `s restart` échouait par intermittence (« Configured port 3010 is … unavailable ») alors que le port se libérait, et `s start` échouait en lisant `dist\\chrome\\manifest.json` pendant que Vite l'écrivait ; `s restart` attend la libération du port de la surface (10 s) et la lecture du manifeste réessaie sur verrou ou JSON incomplet (2 s)."
@@ -693,7 +694,9 @@ dépendances, qui s'exécute une seule fois à la fois.
 
 ### Flutter Android en développement
 
-`SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
+`SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible, l'émulateur d'abord, puis par numéro de série ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
+
+Le choix de l'appareil se lit dans `adb devices`, qui répond en une fraction de seconde : ses numéros de série sont les identifiants de `flutter run -d`, et Flutter écarte les mêmes appareils non autorisés ou hors ligne. `flutter devices --machine` ne sert que si adb manque ou ne répond pas, et pour attendre l'émulateur qui démarre ; pendant cette attente, un inventaire raté n'y met pas fin. Son échec dit s'il s'agit d'un dépassement de temps ou d'un code de sortie.
 
 Sur l'appareil, `localhost` désigne l'appareil lui-même. Avant le build, `s start` relie donc à l'ordinateur, avec `adb reverse tcp:<port>`, chaque port local que l'app appelle : URL locales des variables publiques (par exemple `API_BASE_URL`) et URL de disponibilité de `.shipglows.backend.json` quand elle est locale. La liaison est confirmée, sinon le démarrage échoue ; une session réutilisée la refait aussi. Pendant la session, le superviseur Flutter la vérifie toutes les 5 s et la refait si elle a sauté (câble rebranché, redémarrage d'adb) ; un appareil absent est réessayé au passage suivant, et `state.json` garde l'heure de la dernière réparation (`AdbReverseRestoredAtUtc`) ou l'erreur (`AdbReverseError`). `s open` la force sans attendre, et `s stop` la retire.
 
