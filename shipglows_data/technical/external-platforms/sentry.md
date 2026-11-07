@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.2.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-05-24"
+updated: "2026-11-07"
 status: draft
 source_skill: sg-docs
 scope: external-platform-sentry
@@ -82,6 +82,22 @@ Use `fresh-docs conflict` when current Sentry docs contradict local docs, alert 
 - Treat Session Replay, breadcrumbs, console logs, query strings, request bodies, headers, and tags as PII leak surfaces.
 - Monitors own detection; Alerts own routing. Do not conflate monitor configuration with notification routing.
 - Missing Sentry evidence is a proof gap, not proof of no runtime error.
+
+## Suite Standard (2026-11-07)
+
+Organization `diane-defores`, region `https://de.sentry.io`, team `diane-defores`, one project per surface named `<project>-<surface>`. Errors only: no tracing, replay, screenshots or user data.
+
+| Surface | Integration | Environment |
+| --- | --- | --- |
+| Astro site | `@sentry/astro` integration, `sentry.client.config.ts` at the site root; `sentry.server.config.ts` when an adapter serves pages | `import.meta.env.PROD` |
+| Flutter app | `sentry_flutter`, `initSentry()` called after the app's own error handlers, no `appRunner` so no zone is added | `SENTRY_ENVIRONMENT`, otherwise `kReleaseMode` |
+| Browser extension | dependency-free `sentry-report` script in the service worker and popup, never the SDK and never in content scripts | manifest `update_url` present means production |
+| Node service | `@sentry/node`, imported first | `NODE_ENV` |
+
+- New client surfaces keep the public DSN in code, so dev and production builds report without Doppler, CI or Vercel wiring. Apps wired earlier read `SENTRY_DSN` from Doppler.
+- A site with a Content-Security-Policy must list `https://*.ingest.de.sentry.io` in `connect-src`.
+- A site or app that promises no data leaves the device must disclose Sentry or stay out of it: Claiire is the open case.
+- Convex backends use the native exception reporting integration, Pro plan only, configured per deployment in the dashboard; it sends the Convex `tokenIdentifier` as the Sentry user.
 
 ## Common Project-Local Fields
 
