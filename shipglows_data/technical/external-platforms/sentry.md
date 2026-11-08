@@ -96,7 +96,7 @@ Organization `diane-defores`, region `https://de.sentry.io`, team `diane-defores
 
 - New client surfaces keep the public DSN in code, so dev and production builds report without Doppler, CI or Vercel wiring. Apps wired earlier read `SENTRY_DSN` from Doppler.
 - A site with a Content-Security-Policy must list `https://*.ingest.de.sentry.io` in `connect-src`.
-- A site or app that promises no data leaves the device must disclose Sentry in its privacy page before reporting (done for Claiire and DreamGlows on 2026-11-07).
+- A site or app that promises no data leaves the device must disclose Sentry in its privacy page before reporting (DreamGlows on 2026-11-07, Claiire on 2026-11-08).
 - Convex backends use the native exception reporting integration, Pro plan only, configured per deployment in the dashboard; it sends the Convex `tokenIdentifier` as the Sentry user.
 
 ## Common Project-Local Fields
