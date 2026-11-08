@@ -3607,7 +3607,7 @@ function Test-SgBrowserExtensionManifest([string]$Path, [DateTime]$FreshSinceUtc
     } catch { return $false }
 }
 
-function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '', [string]$LogPath = '') {
+function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$TimeoutSeconds = 240, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '', [string]$LogPath = '') {
     $freshSince = [DateTime]::UtcNow.AddSeconds(-2)
     if ($ProcessEntry -and $ProcessEntry.PSObject.Properties['startTimeUtc'] -and $ProcessEntry.startTimeUtc) {
         try { $freshSince = ([DateTimeOffset]::Parse([string]$ProcessEntry.startTimeUtc, [Globalization.CultureInfo]::InvariantCulture)).UtcDateTime.AddSeconds(-2) } catch { }
@@ -5004,7 +5004,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     if ($sessionPortRole -in @('primary','none')) { [void](Write-SgProjectEnvironment $entry.path $(if ($sessionPortRole -eq 'primary') { $port } else { 0 }) $kind) }
     $readyTimeout = if ([int]$settings.ReadyTimeoutSeconds -gt 0) { [int]$settings.ReadyTimeoutSeconds } else { 0 }
     $tauriDesktopReadiness = if ($kind -eq 'tauri' -and -not $tauriAndroid -and $frontendMode -eq 'shared') { $launchPath } else { '' }
-    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterStartupReady $flutterLaunchDirectory $launchPath $entryData $resolvedFlutterDevice ([string]$settings.FlutterDevice)}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err $out}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid -or $tauriDesktopReadiness){1800}else{300}) $entryData $err $tauriAndroid $tauriDesktopReadiness}
+    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterStartupReady $flutterLaunchDirectory $launchPath $entryData $resolvedFlutterDevice ([string]$settings.FlutterDevice)}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port $(if($readyTimeout){$readyTimeout}else{240}) $entryData $err $out}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath $(if($readyTimeout){$readyTimeout}else{90}) $entryData $err}else{Wait-SgProjectReady $kind $port $out $(if($readyTimeout){$readyTimeout}elseif($tauriAndroid -or $tauriDesktopReadiness){1800}else{300}) $entryData $err $tauriAndroid $tauriDesktopReadiness}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         if ($kind -eq 'obsidian-plugin') {
