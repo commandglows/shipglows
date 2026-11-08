@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "0.2.0"
+artifact_version: "0.3.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-11-07"
+updated: "2026-11-08"
 status: draft
 source_skill: sg-docs
 scope: external-platform-sentry
@@ -83,18 +83,23 @@ Use `fresh-docs conflict` when current Sentry docs contradict local docs, alert 
 - Monitors own detection; Alerts own routing. Do not conflate monitor configuration with notification routing.
 - Missing Sentry evidence is a proof gap, not proof of no runtime error.
 
-## Suite Standard (2026-11-07)
+## Suite Standard (2026-11-07, production only since 2026-11-08)
 
 Organization `diane-defores`, region `https://de.sentry.io`, team `diane-defores`, one project per surface named `<project>-<surface>`. Errors only: no tracing, replay, screenshots or user data.
 
-| Surface | Integration | Environment |
-| --- | --- | --- |
-| Astro site | `@sentry/astro` integration, `sentry.client.config.ts` at the site root; `sentry.server.config.ts` when an adapter serves pages | `import.meta.env.PROD` |
-| Flutter app | `sentry_flutter`, `initSentry()` called after the app's own error handlers, no `appRunner` so no zone is added | `SENTRY_ENVIRONMENT`, otherwise `kReleaseMode` |
-| Browser extension | dependency-free `sentry-report` script in the service worker and popup, never the SDK and never in content scripts | manifest `update_url` present means production |
-| Node service | `@sentry/node`, imported first | `NODE_ENV` |
+**Production only.** No agent reacts to Sentry in real time, so dev errors serve no one and only consume the event budget. Every surface sends nothing outside production (decision of Diane, 2026-11-08).
 
-- New client surfaces keep the public DSN in code, so dev and production builds report without Doppler, CI or Vercel wiring. Apps wired earlier read `SENTRY_DSN` from Doppler.
+| Surface | Integration | Sends only when |
+| --- | --- | --- |
+| Astro site | `@sentry/astro` integration, `sentry.client.config.ts` at the site root; `sentry.server.config.ts` when an adapter serves pages | `enabled: import.meta.env.PROD` in `Sentry.init` |
+| Flutter app | `sentry_flutter`, `initSentry()` called after the app's own error handlers, no `appRunner` so no zone is added | `initSentry()` returns early unless `kReleaseMode`; environment from `SENTRY_ENVIRONMENT`, otherwise `production` |
+| Flutter app wired through Doppler (CommandGlows, NoCocaïne, ReplayGlows, ContentGlows) | `SENTRY_DSN` dart define | the managed dev recipe (`flutter_config.py` / `shipglows_flutter_config.py`, `.shipglows.flutter.json`) never forwards it, and Doppler `dev` no longer holds it; only `prd` and release lanes pass it. CommandGlows still requires it with `--release`; ContentGlows forwards it only from `--build --mode release` |
+| Browser extension | dependency-free `sentry-report` script in the service worker and popup, never the SDK and never in content scripts | the manifest has an `update_url` (store install); an unpacked load sends nothing |
+| Node service | `@sentry/node`, imported first | `enabled: NODE_ENV === "production"`; the ShipGlows runner also reads `SENTRY_ENABLED`, `false` in Doppler `shipglows_app/dev`, untouched in `prd_runner` |
+
+- New client surfaces keep the public DSN in code; the production gate above, not the DSN, decides whether a build reports. Apps wired earlier read `SENTRY_DSN` from Doppler `prd` or their release lane.
+- A distributed agent-worker must run with `NODE_ENV=production` to report.
+- Budget guards: the production-only gate is the only per-surface guard. A rate limit per DSN key is not available on the current `diane-defores` plan (Business/Enterprise only: `update_dsn` and the API return 200 but `rateLimit` stays null, tested 2026-11-08 on `beatglows-app`). Spike Protection is on for every project (confirmed by Diane).
 - A site with a Content-Security-Policy must list `https://*.ingest.de.sentry.io` in `connect-src`.
 - A site or app that promises no data leaves the device must disclose Sentry in its privacy page before reporting (DreamGlows on 2026-11-07, Claiire on 2026-11-08).
 - Convex backends use the native exception reporting integration, Pro plan only, configured per deployment in the dashboard; it sends the Convex `tokenIdentifier` as the Sentry user.
