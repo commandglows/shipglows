@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.33.2"
+artifact_version: "2.33.3"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-11-02"
+updated: "2026-11-11"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -230,11 +230,18 @@ sudo ./cli/install.sh
 - For each detected coding agent, native Windows atomically maintains a bounded
   ShipGlows block in the agent's official global instruction file: Codex
   `.codex\AGENTS.md`, Claude `.claude\CLAUDE.md`, OpenCode
-  `.config\opencode\AGENTS.md`, and Kilo `.config\kilo\AGENTS.md`. Content outside
+  `.config\opencode\AGENTS.md`, Kilo `.config\kilo\AGENTS.md`, and Gemini
+  `.gemini\GEMINI.md`. Content outside
   the block is preserved, unavailable agents receive no file, and malformed
   managed markers fail closed. Dynamic tool facts stay in
-  `.shipglows\environment.md`; the instruction block only defines discovery,
-  callability, purpose-built-tool preference, and `$shipglows context` recovery.
+  `.shipglows\environment.md`; the instruction block groups host/tool discovery,
+  managed-session evidence, configured backend/authentication, extension/build
+  boundaries, and proof/default authority. Operator rules take precedence over
+  these defaults: a named web provider disables the default discovery cascade,
+  and build/check/Git restrictions remain effective. Personal rules stay outside
+  the managed markers, so updates preserve model preferences and permissions.
+  The source is `cli/windows/ShipGlows.AgentInstructions.psm1`; editing only an
+  installed managed block is temporary because the next update replaces it.
   It also points to optional `.shipglows\workstation-context.json` hints for root,
   device role and init checkpoints. The existing updater remains the sole owner
   of this managed block; init does not append another doctrine block. Cached
