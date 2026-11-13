@@ -178,7 +178,7 @@ A site without this file does not follow the model. Tools report it as non-confo
 
 ## Shared Implementation
 
-The `taxonomy.yaml` loader, the wikilink resolvers, breadcrumb trails, `redirects.json` loading, the forbidden-field check and the graph live once in `@shipglows/astro-content` (`shipglows-astro-engine/packages/content`, see its README). Each site keeps its HTML, styling and Zod schema, wires `shipglowsContent()` and a wikilink plugin in `astro.config.mjs`, and reads the package by path (`tool/provide-engines.sh` clones the engine on Vercel and CI).
+The `taxonomy.yaml` loader, the wikilink resolvers, breadcrumb trails, `redirects.json` loading, the forbidden-field check and the graph live once in `@shipglows/astro-content` (`shipglows-astro-engine/packages/content`, see its README). Each site keeps its HTML, styling and Zod schema, wires `shipglowsContent()` and a wikilink plugin in `astro.config.mjs`, and reads the package by path (`tool/run-provide-engines.sh` clones the private engine on Vercel and CI with `ENGINE_DEPLOY_KEY_ASTRO_ENGINE`).
 
 ## Proof
 
