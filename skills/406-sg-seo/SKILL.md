@@ -1,6 +1,6 @@
 ---
 name: 406-sg-seo
-description: "SEO domain router for audits, launches, monitoring, and fixes."
+description: "SEO domain router for audits, launches, monitoring, fixes, and read-only GSC client data via shipglows-gsc."
 argument-hint: <mode|page|URL|content file|project>
 ---
 
@@ -53,6 +53,8 @@ Always load shared references only when their gate applies. Load skill-local ref
 ## Scope Gate
 
 Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
+
+When the user asks for Google Search Console or GSC data, performance, sitemaps, or URL inspection for a verified property, load `$SHIPGLOWS_ROOT/skills/references/client-measurement-clis.md` and `gsc-evidence-workflow.md` immediately and prefer `$SHIPGLOWS_ROOT/cli/shipglows-gsc.sh` over UI or third-party tools.
 
 Route by intent:
 

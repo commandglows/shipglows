@@ -14,6 +14,7 @@ Guidance for Claude Code when working in this repository.
 
 ### Core Files
 
+- **cli/shipglows-gsc.sh** — Read-only Google Search Console client data (`shipglows-gsc` / `gsc`); SEO agents load `skills/references/client-measurement-clis.md`
 - **cli/shipglows.sh** — Main entry point (interactive menu)
 - **cli/lib.sh** — Central library (ports, PM2 cache, Flox, Caddy, validation, logging)
 - **cli/config.sh** — All settings via env vars (ports, SSH, logging, cache TTL)

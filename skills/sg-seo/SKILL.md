@@ -1,6 +1,6 @@
 ---
 name: sg-seo
-description: Audit, launch, monitor, and fix SEO.
+description: Audit, launch, monitor, and fix SEO; read client Google Search Console (GSC) data via shipglows-gsc.
 ---
 
 # sg-seo
@@ -12,6 +12,8 @@ description: Audit, launch, monitor, and fix SEO.
 ## Scope Gate
 
 Resolve the product and search surface, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`, and retain ownership across content, technical, and measurement handoffs.
+
+When the request needs live or current Google Search Console evidence (GSC, Search Analytics, property performance, sitemaps, URL inspection), load `$SHIPGLOWS_ROOT/skills/references/client-measurement-clis.md` and execute GSC reads through `$SHIPGLOWS_ROOT/cli/shipglows-gsc.sh` per `gsc-evidence-workflow.md`. Do not default to the web UI, manual exports, or third-party GSC apps.
 
 ## Required References
 

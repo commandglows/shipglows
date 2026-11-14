@@ -82,7 +82,7 @@ Stop and ask the operator when:
 
 - the change would alter a public claim, pricing promise, or audience promise
 - the answer depends on target queries, markets, or regions not yet defined
-- the fix requires privileged analytics, search-console data, or another operator-only source
+- live search-console data is needed but OAuth is missing or the property is ambiguous (use `shipglows-gsc` per `client-measurement-clis.md` when authorized)
 - search improvements would conflict with broader product or editorial truth
 
 ## Forbidden Failure Modes

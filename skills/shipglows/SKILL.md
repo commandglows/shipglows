@@ -48,6 +48,10 @@ The engine owns conditional loaders; do not preload alias tables, domain skills
 or every reference here. For non-trivial outcomes it loads
 `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`.
 
+Google Search Console or GSC client-data requests route to `sg-seo` and
+`$SHIPGLOWS_ROOT/skills/references/client-measurement-clis.md` (CLI:
+`shipglows-gsc`), not third-party GSC tools or manual UI exports.
+
 Exception: when the request mentions the operator's projects or pitches ("mes
 projets", "mes pitchs", "par projet", a project name), read
 `$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` first — the portfolio index is

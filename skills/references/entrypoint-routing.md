@@ -211,6 +211,7 @@ The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-
 | ShipGlows Core execution-fidelity audit or public-plugin packaging readiness for ShipGlows itself | `900-shipglows-core audit <scope>` or `900-shipglows-core packaging <scope>` |
 | Translation quality, localized copy review, or locale tone and terminology | public `sg-content`; internal `407-sg-translate audit` |
 | i18n keys, locale files, fallbacks, or missing localized strings | public `sg-engineering`; internal `407-sg-translate sync` |
+| Live Google Search Console data, GSC performance, Search Analytics, property sitemaps, or API URL inspection for a client site | public `sg-seo` with mode `monitoring`; load `skills/references/client-measurement-clis.md` and run `$SHIPGLOWS_ROOT/cli/shipglows-gsc.sh` per `skills/406-sg-seo/references/gsc-evidence-workflow.md` |
 | One obvious audit domain only | that métier's audit mode (`sg-design audit`, `sg-content` audit, `sg-marketing` gtm, copy or copywriting, `sg-seo audit`, `sg-engineering audit`, `sg-experience audit`); audit is a mode, never a family |
 | Broad cross-domain audit | internal `400-sg-audit` |
 | One obvious focused lane: checks, docs, browser proof, auth diagnosis, manual QA, dependency posture, migration, final ship | focused owner skill |

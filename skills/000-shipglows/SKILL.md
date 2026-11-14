@@ -104,6 +104,10 @@ read the global environment, selected surface's ENVIRONMENT and matching registr
 Current-turn direct/deferred tools determine callability, not recorded installation.
 Never start a replacement server or guess a default URL.
 
+Client Search Console / GSC performance or property reads route to public `sg-seo`
+(`monitoring` when read-only). Load `client-measurement-clis.md` and prefer
+`$SHIPGLOWS_ROOT/cli/shipglows-gsc.sh`; never substitute UI scrape or third-party GSC apps.
+
 ## Mission
 
 ShipGlows maintenance targets `$SHIPGLOWS_ROOT`, not the current application unless explicitly
