@@ -198,11 +198,32 @@ function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation, [swi
 }
 
 function Get-SgCommandPath([string[]]$Names) {
+    $runtimeBin = $PSScriptRoot
     foreach ($name in $Names) {
         $command = Get-Command $name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($command) { return $command.Source }
+        if ($runtimeBin) {
+            $managed = Join-Path $runtimeBin $name
+            if (Test-Path -LiteralPath $managed -PathType Leaf) { return $managed }
+        }
+    }
+    if ($runtimeBin -and ($Names -contains 'doppler.exe')) {
+        $shim = Join-Path $runtimeBin 'doppler.cmd'
+        if (Test-Path -LiteralPath $shim -PathType Leaf) { return $shim }
     }
     return $null
+}
+
+function Get-SgManagedProcessPath([string]$CurrentPath) {
+    $runtimeBin = $PSScriptRoot
+    if ([string]::IsNullOrWhiteSpace($runtimeBin)) { return $CurrentPath }
+    if ([string]::IsNullOrWhiteSpace($CurrentPath)) { return $runtimeBin }
+    $canonicalRuntime = [IO.Path]::GetFullPath($runtimeBin).TrimEnd('\')
+    foreach ($segment in $CurrentPath -split ';') {
+        if ([string]::IsNullOrWhiteSpace($segment)) { continue }
+        if ([IO.Path]::GetFullPath($segment).TrimEnd('\') -ieq $canonicalRuntime) { return $CurrentPath }
+    }
+    return "$runtimeBin;$CurrentPath"
 }
 
 function Get-SgCliCapabilityRecords {
@@ -4959,6 +4980,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         throw
     }
     $launchEnvironment = @{}
+    $launchEnvironment['PATH'] = Get-SgManagedProcessPath ([Environment]::GetEnvironmentVariable('PATH', 'Process'))
     $launchEnvironment['PORT'] = [string]$port
     if ($kind -eq 'flutter-web') { $launchEnvironment['SHIPGLOWS_SUPERVISOR_TOKEN'] = $flutterToken }
     if ($apiProxy) {

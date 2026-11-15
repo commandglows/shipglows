@@ -118,7 +118,7 @@ function Get-SgFlutterConfiguration([string]$ProjectPath,[object]$Settings,[int]
         # A production-backend session receives only the public values the recipe script declares for
         # prd: it never runs Doppler, so no production secret scope reaches a development session.
         if ($recipe.doppler -cne 'NONE' -and $backendEnvironment -ne 'prd') {
-            $doppler = Get-SgCommandPath @('doppler.exe')
+            $doppler = Get-SgCommandPath @('doppler.exe', 'doppler.cmd')
             if (-not $doppler) { throw 'The declared Flutter recipe requires Doppler. No unauthenticated fallback is allowed.' }
             $arguments += @('run','--project',[string]$recipe.doppler.project,'--config',[string]$recipe.doppler.config,'--no-fallback','--no-check-version')
             if ($recipe.forbiddenTrueDefines.Count -gt 0) { $arguments += '--preserve-env=' + ($recipe.forbiddenTrueDefines -join ',') }
