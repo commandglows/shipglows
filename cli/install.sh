@@ -2096,6 +2096,7 @@ configure_skills() {
 
     mkdir -p "$target_home/.claude/skills"
     mkdir -p "$target_home/.agents/skills"
+    mkdir -p "$target_home/.gemini/config/skills"
     cleanup_legacy_skill_entries "$target_home/.claude/skills"
     cleanup_legacy_skill_entries "$target_home/.agents/skills"
 
@@ -2113,7 +2114,7 @@ configure_skills() {
         return 1
     fi
 
-    echo -e "  ${GREEN}✅ Skills liés :${NC} Claude + Codex synchronisés (entrée Codex: $SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED)"
+    echo -e "  ${GREEN}✅ Skills liés :${NC} Claude + Codex + Gemini synchronisés (entrée Codex: $SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED)"
     return 0
 }
 

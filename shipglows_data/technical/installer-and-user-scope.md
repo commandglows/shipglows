@@ -116,7 +116,7 @@ The current `shipglows update` command invokes full installer convergence; its `
 | Path | Role | Edit notes |
 | --- | --- | --- |
 | `cli/install.sh` | Root-level server bootstrap and per-user setup | Preserve idempotence and explicit root-only behavior |
-| `tools/shipglows_sync_skills.sh` | Shared Claude/Codex skill symlink sync helper | Reuse instead of duplicating skill-link repair logic |
+| `tools/shipglows_sync_skills.sh` | Shared Claude/Codex/Gemini skill symlink sync helper | Reuse instead of duplicating skill-link repair logic |
 | `README.md` | Operator install contract | Update when commands, privilege, or installed tooling changes |
 | `local/install.sh`, `local/install_local.ps1` | Workstation-side setup | Keep separate from root server install assumptions |
 | `install-shipglows.sh` | Canonical remote bootstrap and local/full mode selector | Resolve mode before privilege checks; preserve user home and repository ownership |

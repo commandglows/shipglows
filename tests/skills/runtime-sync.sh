@@ -48,16 +48,19 @@ if run_helper --check --skill 001-sg-alpha >/tmp/shipglows-sync-check.out 2>&1; 
 fi
 grep -q "missing runtime=claude skill=001-sg-alpha" /tmp/shipglows-sync-check.out
 grep -q "missing runtime=codex skill=001-sg-alpha" /tmp/shipglows-sync-check.out
+grep -q "missing runtime=gemini skill=001-sg-alpha" /tmp/shipglows-sync-check.out
 test ! -e "$TARGET_HOME_TEST/.claude/skills/001-sg-alpha"
 
 run_helper --repair --skill 001-sg-alpha >/tmp/shipglows-sync-repair.out
 assert_link "$TARGET_HOME_TEST/.claude/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
 assert_link "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
+assert_link "$TARGET_HOME_TEST/.gemini/config/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
 grep -q "summary mode=repair" /tmp/shipglows-sync-repair.out
 
 run_helper --check --skill 001-sg-alpha >/tmp/shipglows-sync-ok.out
 grep -q "ok runtime=claude skill=001-sg-alpha" /tmp/shipglows-sync-ok.out
 grep -q "ok runtime=codex skill=001-sg-alpha" /tmp/shipglows-sync-ok.out
+grep -q "ok runtime=gemini skill=001-sg-alpha" /tmp/shipglows-sync-ok.out
 
 ln -sfn "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha" "$TARGET_HOME_TEST/.agents/skills/002-sg-beta"
 if run_helper --check --skill 002-sg-beta --runtime codex >/tmp/shipglows-sync-stale.out 2>&1; then

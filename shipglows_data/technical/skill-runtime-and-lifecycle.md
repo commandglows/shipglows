@@ -458,7 +458,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/profile-activation.md` | Canonical profile resolution, precedence, fallback, and reporting contract | Load before changing named-profile semantics or examples |
 | `skills/references/profile-project-context.md` | Canonical project-context bundle mapping for named profiles | Load before changing how profiles consume project business/product/editorial/technical context |
 | `shipglows_data/business/agent-profiles/*.md` | Human-readable named operator profiles such as `Victoire` or `SEO Specialist` | Profiles bind a display name to one operator role and invocation syntax; they do not become separate skills |
-| `tools/shipglows_sync_skills.sh` | Unix current-user Claude/Codex skill runtime sync helper | Uses `~/.claude/skills` and Codex `~/.agents/skills` |
+| `tools/shipglows_sync_skills.sh` | Unix current-user Claude/Codex/Gemini skill runtime sync helper | Uses `~/.claude/skills`, Codex `~/.agents/skills`, and Antigravity/T3 `~/.gemini/config/skills` |
 | `tools/shipglows_sync_skills.ps1` | Native Windows source-tree skill sync helper | Uses directory junctions and keeps the public installer plugin-first |
 | `tools/audit_shipglows_skills.py` | Versioned ShipGlows skill execution-fidelity audit helper used by `900-shipglows-core` and conversation follow-through gates | Keep read-only by default; audit findings classify risk but do not authorize broad edits without scenario-first triage |
 | `tools/skill_code_index_lint.py` | Numeric skill-code index validator | Run after changing `skills/references/skill-code-index.md` or the skill set |
@@ -525,7 +525,7 @@ Operator roles and named profiles do not add new primary artifact types:
 - `601-sg-product-entitlements`: product access lifecycle contract (`identity/provider/access separation -> ledger ownership -> backend gates/support -> sync/auth handoff or 001-sg-build`).
 - `006-sg-design`: sole public visual-design entrypoint; `identity`, `interface`, `system`, `playground`, explicit `audit ui|tokens|components|a11y`, and `animation <audit|design|implement|tune> [scope]` modes keep brand identity, bounded UI composition, design-system authority, and motion distinct. GSAP is optional after project-fit, current-doc, licensing, lifecycle, reduced-motion, and performance checks.
 - `900-shipglows-core`: sole internal lifecycle owner for the `shipglows` DX system. It classifies skill/doctrine, CLI/DevServer/TUI runtime, cross-surface coherence, and packaging targets before loading one direct playbook. Skill refresh remains conservative and skill-specific; runtime work uses mapped runtime proof. `shipglows_app` remains the separate public-site/SaaS product repository. Core is repo-synced, not a public user plugin surface.
-- `tools/shipglows_sync_skills.sh --check|--repair`: reusable Unix helper for current-user Claude/Codex skill visibility and install-time selected-user linking.
+- `tools/shipglows_sync_skills.sh --check|--repair`: reusable Unix helper for current-user Claude, Codex, and Gemini/Antigravity skill visibility and install-time selected-user linking.
 - `tools/shipglows_sync_skills.ps1 -Mode check|repair`: native Windows developer helper for the same source-tree workflow without symbolic-link privilege requirements.
 - `005-sg-ship` and `405-sg-prod`: shipping and deployed verification.
 - `skills/references/master-delegation-semantics.md`: shared execution-topology doctrine for master/orchestrator skills.

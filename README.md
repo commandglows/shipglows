@@ -869,7 +869,7 @@ is a web preview path for browser testing through SSH tunnels, not native
 Android/iOS rendering.
 
 Per-user configuration includes:
-- optional `~/.claude/skills/*` and `~/.agents/skills/*` links for the default public ShipGlows skills when the public skill corpus is explicitly selected; the expert engine catalogue is opt-in
+- optional `~/.claude/skills/*`, `~/.agents/skills/*`, and `~/.gemini/config/skills/*` links for the default public ShipGlows skills when the public skill corpus is explicitly selected; the expert engine catalogue is opt-in
 - aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
@@ -889,7 +889,7 @@ tools/shipglows_sync_skills.sh --repair --skill sg-example
 tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog expert
 ```
 
-The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. `--codex-entrypoint linked` keeps the live developer `$shipglows` and fails when the plugin is simultaneously enabled; `--codex-entrypoint plugin` removes only the managed Codex router link and leaves the plugin as owner. `--catalog public` and `--catalog expert` are mutually exclusive; every complete repair removes the other ShipGlows catalogue automatically while preserving unrelated skills. The helper reports missing, stale, or excluded links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
+The helper links current-user `~/.claude/skills/<name>`, [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>`, and Antigravity/T3 Gemini skills at `~/.gemini/config/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. Gemini CLI also discovers the Codex user path. It is for an explicitly installed source corpus, not the default Codex plugin route. `--codex-entrypoint linked` keeps the live developer `$shipglows` and fails when the plugin is simultaneously enabled; `--codex-entrypoint plugin` removes only the managed Codex router link and leaves the plugin as owner. `--catalog public` and `--catalog expert` are mutually exclusive; every complete repair removes the other ShipGlows catalogue automatically while preserving unrelated skills. The helper reports missing, stale, or excluded links, blocks non-link collisions by default, and notes that an already-running Claude, Codex, Gemini, or Antigravity session may need a reload before repaired skills appear in the runtime list.
 
 On Windows, `-Mode repair -All -Catalog public|expert` automatically removes only
 the ShipGlows junctions excluded by the selected catalogue. The helper never

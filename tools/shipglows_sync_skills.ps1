@@ -10,7 +10,7 @@ param(
     [ValidatePattern('^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$')]
     [string]$Skill,
 
-    [ValidateSet('claude', 'codex', 'all')]
+    [ValidateSet('claude', 'codex', 'gemini', 'all')]
     [string]$Runtime = 'all',
 
     [ValidateSet('public', 'expert')]
@@ -42,6 +42,7 @@ function Get-SgRuntimeDirectory([string]$Name) {
     switch ($Name) {
         'claude' { return Join-Path $TargetHome '.claude\skills' }
         'codex' { return Join-Path $TargetHome '.agents\skills' }
+        'gemini' { return Join-Path $TargetHome '.gemini\config\skills' }
         default { throw "Unsupported runtime: $Name" }
     }
 }
@@ -284,7 +285,7 @@ $pairs = if ($PSCmdlet.ParameterSetName -eq 'Skill') {
     @(Get-SgExpertPairs)
 }
 
-$runtimes = if ($Runtime -eq 'all') { @('claude', 'codex') } else { @($Runtime) }
+$runtimes = if ($Runtime -eq 'all') { @('claude', 'codex', 'gemini') } else { @($Runtime) }
 $codexSelected = $runtimes -contains 'codex'
 if ($codexSelected) { Reconcile-SgCodexRouterChannel }
 $desiredNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
@@ -301,6 +302,6 @@ foreach ($runtimeName in $runtimes) {
 
 Write-Output "summary mode=$Mode runtime=$Runtime catalog=$Catalog codex_entrypoint=$CodexEntrypoint checked=$script:Checked ok=$script:Ok repaired=$script:Repaired skipped=$script:Skipped blocked=$script:Blocked"
 if ($Mode -eq 'repair') {
-    Write-Output 'note: already-running Claude or Codex sessions may need a reload or new session before repaired skills appear.'
+    Write-Output 'note: already-running Claude, Codex, Gemini, or Antigravity sessions may need a reload or new session before repaired skills appear.'
 }
 if ($script:Blocked -gt 0) { exit 1 }

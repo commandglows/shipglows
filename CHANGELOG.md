@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.16.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-11-07"
+updated: "2026-11-17"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -34,6 +34,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ## [Unreleased]
 
+- ShipGlows skills now link into `~/.gemini/config/skills`, the user scope read by the Antigravity app and by T3 Code's Gemini provider. Gemini CLI already sees the same skills through `~/.agents/skills`. A new Gemini or Antigravity session is required before they appear.
 - `s start -FlutterDevice android` no longer depends on `flutter devices` to choose a device: `adb devices` answers in a fraction of a second, with or without `-FlutterDeviceId`, and its serials are the ids `flutter run -d` takes. A failure on 2026-11-07 ("Flutter could not enumerate Android devices" with the emulator running, gone on retry) motivated this; its cause stays unproven because the message hid it. Flutter remains the fallback when adb is missing or does not reply, and its failure now says whether it timed out or which exit code it returned. One failed inventory no longer ends the wait for a booting emulator. With several emulators or several phones, automatic selection now orders by serial instead of by name.
 - Added `shipglows stack scan -ProjectPath <path> -Checks`, a read-only per-site report for Astro surfaces: site-owned copies of modules covered by the `@shipglows/astro-*` packages (with the replacement), the retired `@shipglows/astro-engine` dependency or imports, `link:`/`file:` dependencies leaving the repository (info), and content-tree conformity (manifest, flat `articles/<locale>/`, `taxonomy.yaml`, forbidden frontmatter fields). The default `stack scan` output is unchanged. See `shipglows_data/technical/runtime-cli.md`.
 - `s reload` keeps Flutter's reason instead of always blaming compile errors (a debug service timeout now reads `Hot reload timed out - received 1/2 responses`), and no longer reports failure for a reload that succeeds after 10 s: the supervisor waits 30 s and the CLI 40 s. Each reload, including the silent ones from the source watcher, is recorded with its time and source in `flutter.reload.log`, and an accepted reload clears the previous failure from the supervisor state.

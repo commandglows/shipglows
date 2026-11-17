@@ -22,12 +22,12 @@ usage() {
 Usage: tools/shipglows_sync_skills.sh [--check|--repair] (--all|--skill <name>) [options]
 
 Options:
-  --runtime claude|codex|all      Runtime directory to check or repair (default: all)
+  --runtime claude|codex|gemini|all  Runtime directory to check or repair (default: all)
   --catalog public|expert         Mutually exclusive public skills (default) or internal engines
   --codex-entrypoint linked|plugin
                                  Keep the live linked router (developer default), or defer the
                                  public router name to the installed Codex plugin
-  --target-home <path>            Home directory containing .claude/.agents (default: $HOME)
+  --target-home <path>            Home directory containing .claude/.agents/.gemini (default: $HOME)
   --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/.shipglows/runtime)
   --shipglows-root <path>          Legacy alias for --shipglows-root
   --backup-existing               Move non-symlink targets aside before repair
@@ -54,6 +54,7 @@ runtime_dir() {
     case "$1" in
         claude) printf '%s/.claude/skills' "$TARGET_HOME" ;;
         codex) printf '%s/.agents/skills' "$TARGET_HOME" ;;
+        gemini) printf '%s/.gemini/config/skills' "$TARGET_HOME" ;;
         *) return 1 ;;
     esac
 }
@@ -390,7 +391,7 @@ while [ "$#" -gt 0 ]; do
             shift 2
             ;;
         --runtime)
-            [ "$#" -ge 2 ] || fail "--runtime requires claude, codex, or all"
+            [ "$#" -ge 2 ] || fail "--runtime requires claude, codex, gemini, or all"
             RUNTIME="$2"
             shift 2
             ;;
@@ -422,7 +423,7 @@ done
 
 [ -n "$TARGET_HOME" ] || fail "HOME is unavailable; use --target-home"
 [ -n "$SHIPGLOWS_ROOT" ] || fail "SHIPGLOWS_ROOT is unavailable; use --shipglows-root"
-case "$RUNTIME" in claude|codex|all) ;; *) fail "invalid runtime: $RUNTIME" ;; esac
+case "$RUNTIME" in claude|codex|gemini|all) ;; *) fail "invalid runtime: $RUNTIME" ;; esac
 case "$CATALOG" in public|expert) ;; *) fail "invalid catalog: $CATALOG" ;; esac
 case "$CODEX_ENTRYPOINT" in linked|plugin) ;; *) fail "invalid Codex entrypoint: $CODEX_ENTRYPOINT" ;; esac
 [ -n "$SCOPE" ] || SCOPE="all"
@@ -437,8 +438,8 @@ else
 fi
 
 case "$RUNTIME" in
-    claude|codex) runtimes="$RUNTIME" ;;
-    all) runtimes="claude codex" ;;
+    claude|codex|gemini) runtimes="$RUNTIME" ;;
+    all) runtimes="claude codex gemini" ;;
 esac
 
 status=0
@@ -461,7 +462,7 @@ done
 
 log "summary mode=$MODE runtime=$RUNTIME scope=$SCOPE catalog=$CATALOG codex_entrypoint=$CODEX_ENTRYPOINT checked=$checked ok=$ok repaired=$repaired skipped=$skipped blocked=$blocked"
 if [ "$MODE" = "repair" ]; then
-    log "note: already-running Claude or Codex sessions may need a reload or new session before repaired skills appear in the skill list."
+    log "note: already-running Claude, Codex, Gemini, or Antigravity sessions may need a reload or new session before repaired skills appear in the skill list."
 fi
 
 [ "$blocked" -eq 0 ] || status=1
