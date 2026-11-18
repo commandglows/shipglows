@@ -72,6 +72,19 @@ class DesignContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, routing)
 
+    def test_tailwind_class_gate_stays_in_the_design_token_contract(self) -> None:
+        contract = normalized_text(TOKEN_CONTRACT)
+        skill = normalized_text(DESIGN_SKILL)
+        standalone = ROOT / ".agents" / "skills" / "tailwind-design-lint" / "SKILL.md"
+
+        self.assertIn("design-system-token-contract.md", skill)
+        self.assertIn("Tailwind v4 class checks stay in this contract", contract)
+        self.assertIn("@shadcn/lint", contract)
+        self.assertIn("shadcn/no-raw-colors", contract)
+        self.assertIn("Do not add a separate skill for this gate", contract)
+        self.assertIn("does not read `.astro` markup", contract)
+        self.assertFalse(standalone.exists())
+
     def test_shared_iconography_canon_is_functional_and_project_overridable(self) -> None:
         contract = normalized_text(TOKEN_CONTRACT)
         creation = normalized_text(SYSTEM_CREATION)

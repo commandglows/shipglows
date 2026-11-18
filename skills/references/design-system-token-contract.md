@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.1"
+artifact_version: "1.6.2"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-10-20"
+updated: "2026-11-18"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -41,6 +41,7 @@ evidence:
   - "Recovery verification 2026-08-23: content-availability, CSS-first, metadata, dependency, skill, topology, and runtime-sync checks passed on the current main baseline."
   - "Operator decision 2026-08-24: Phosphor is the default functional icon family, Unicon is a source-constrained web tool, and Simple Icons is reserved for brand marks."
   - "Operator decision 2026-08-24: visual conception adapts the shared functional-excellence dimensions; resemblance to an admired aesthetic never proves usefulness or understanding."
+  - "Operator correction 2026-11-18: Tailwind class checks belong in this design-system contract, not in a standalone skill."
 next_review: "2026-09-12"
 next_step: "Apply the gate to the next public or product-critical interface change."
 ---
@@ -125,6 +126,8 @@ Treat the existing project declaration as authoritative. If it is missing, infer
 
 - Web CSS: CSS custom properties in the central token/theme/global style layer.
 - Tailwind: theme variables/config tokens; for Tailwind v4 prefer `@theme` CSS variables and `var(--...)` runtime access.
+
+Tailwind v4 class checks stay in this contract. `@shadcn/lint` enforces them through the package ESLint config on Vue, JSX, and TypeScript. Enabled errors are `shadcn/no-arbitrary-values`, `shadcn/no-raw-colors`, `shadcn/no-inline-styles`, and `shadcn/no-unknown-classes`. `no-restyle` stays off. Do not add a separate skill for this gate. Oxlint does not read Vue templates. `@shadcn/lint` does not read `.astro` markup; those classes still follow this contract, without linter proof.
 - Astro and Vue (Tauri webview) components: consume tokens through CSS variables, variant systems, or typed theme objects, not local literals.
 - Flutter: `ThemeData`, `ColorScheme`, `TextTheme`, `ThemeExtension`, shared `EdgeInsets`/radius/duration/curve/constants, and component themes.
 - Native mobile: platform theme resources/tokens and adaptive layout APIs, not per-screen numeric drift.
