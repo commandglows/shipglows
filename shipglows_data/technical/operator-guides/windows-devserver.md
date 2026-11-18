@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.38.9"
+artifact_version: "1.39.1"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-11-07"
+updated: "2026-11-18"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -726,7 +726,13 @@ confond plus cette session avec une session active : si l'état Flutter dit
 puis relance normalement, au lieu de répondre « Already running » et d'échouer
 sur « unexpected status: stopped ». `s stop` d'une session Flutter Android éteint
 aussi l'app sur le téléphone (`adb shell am force-stop <applicationId>`, lu dans
-`android/app/build.gradle(.kts)`) et attend que `pidof` ne la trouve plus ;
+`android/app/build.gradle(.kts)`) et attend que `pidof` ne la trouve plus.
+`s start` et `s stop` sur un téléphone physique retirent la clause
+`immersive.navigation` de `settings global policy_control` (puis suppriment la
+clé s'il ne reste rien) : une session adb qui a masqué la barre de navigation
+est réparée au prochain démarrage ou arrêt géré. Les autres clauses
+(`immersive.status`, `immersive.full`) restent. Un émulateur n'est pas modifié,
+et un téléphone absent ne bloque pas.
 `s restart` et un changement de configuration refusent de relancer tant que
 l'app précédente tourne encore sur l'appareil, car le nouveau build la verrait
 sinon se terminer (« Application finished ») en pleine installation. Un téléphone
@@ -785,7 +791,7 @@ bornée depuis son lancement, même si une première réconciliation l'avait mar
 
 `s start -ProjectPath <app> -TauriDevice android` (ou `SHIPGLOWS_TAURI_DEVICE=android` dans `.shipglows.env`) lance `tauri android dev --host 127.0.0.1` sur un téléphone branché en USB ; jamais de build release. `-TauriDeviceId <serial adb>` (ou `SHIPGLOWS_TAURI_DEVICE_ID`) choisit l'appareil ; sinon un téléphone physique passe avant un émulateur, et aucun émulateur n'est démarré. Avec plusieurs appareils, ShipGlows transmet à Tauri le nom qu'il reconnaît (nom Bluetooth d'un téléphone, nom d'AVD d'un émulateur) et refuse deux appareils de même nom.
 
-Le téléphone joint le serveur Vite local par `adb reverse tcp:<port>`. Au démarrage, l'app est arrêtée sur le téléphone, puis la session devient `running` quand la nouvelle version y tourne (délai de compilation jusqu'à 30 min). Si l'app est installée mais ne tourne toujours pas 90 s plus tard, le démarrage échoue tout de suite, avec un renvoi vers `adb logcat` : elle plante probablement au lancement. `s open` rétablit `adb reverse` après un rebranchement du câble et le confirme ; si le téléphone est absent, il échoue avec un message clair. `s stop` retire `adb reverse` et arrête l'app sur le téléphone. Une session Android ne reçoit pas de raccourci Bureau.
+Le téléphone joint le serveur Vite local par `adb reverse tcp:<port>`. Au démarrage, l'app est arrêtée sur le téléphone, puis la session devient `running` quand la nouvelle version y tourne (délai de compilation jusqu'à 30 min). Si l'app est installée mais ne tourne toujours pas 90 s plus tard, le démarrage échoue tout de suite, avec un renvoi vers `adb logcat` : elle plante probablement au lancement. `s open` rétablit `adb reverse` après un rebranchement du câble et le confirme ; si le téléphone est absent, il échoue avec un message clair. `s stop` retire `adb reverse`, arrête l'app sur le téléphone et restaure la barre de navigation d'un téléphone physique comme une session Flutter. Une session Android ne reçoit pas de raccourci Bureau.
 
 Particularités du lancement Android :
 

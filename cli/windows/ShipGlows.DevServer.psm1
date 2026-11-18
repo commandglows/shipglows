@@ -4405,6 +4405,28 @@ function Get-SgFlutterAndroidApplicationId([string]$LaunchPath) {
     ''
 }
 
+# A raw adb session can leave settings global policy_control=immersive.navigation=*, which hides
+# the system navigation bar on a physical phone until the next swipe. Emulators are left alone.
+# Other clauses (immersive.status, immersive.full) stay. Never throws; a missing phone does not
+# block start or stop.
+function Restore-SgPhysicalAndroidNavigationBar([string]$Serial,[scriptblock]$Runner=$null) {
+    if($Serial-notmatch'^[A-Za-z0-9._:-]{1,128}$'-or$Serial-match'^emulator-'-or$Serial-in@('windows','chrome','web-server','android')){return}
+    try {
+        $adb=Get-SgAdbPath
+        if(-not$Runner){$Runner={param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 15}}
+        $current=& $Runner $adb @('-s',$Serial,'shell','settings','get','global','policy_control')
+        if(-not$current-or[int]$current.ExitCode-ne0){return}
+        $raw=([string]$current.Output).Trim()
+        if(-not$raw-or$raw-eq'null'){return}
+        $clauses=@($raw-split':'|ForEach-Object{$_.Trim()}|Where-Object{$_})
+        $kept=@($clauses|Where-Object{$_-notmatch'^immersive\.navigation='})
+        if($kept.Count-eq$clauses.Count){return}
+        if($kept.Count-eq0){[void](& $Runner $adb @('-s',$Serial,'shell','settings','delete','global','policy_control'))}
+        else{[void](& $Runner $adb @('-s',$Serial,'shell','settings','put','global','policy_control',($kept-join':')))}
+        Write-SgInfo "android ${Serial}: navigation bar restored (immersive.navigation removed)."
+    } catch { Write-SgWarn "android ${Serial}: navigation bar restore skipped: $($_.Exception.Message)" }
+}
+
 # After a stop, the Android app of a Flutter session must be gone from the device before the next
 # build installs and launches it, or the new session sees "Application finished" mid-build. Forces
 # the stop by applicationId and waits for pidof to come back empty. $true when the app is proven
@@ -4413,11 +4435,12 @@ function Get-SgFlutterAndroidApplicationId([string]$LaunchPath) {
 function Wait-SgFlutterAndroidAppStopped([object]$View,[string]$LaunchPath,[int]$TimeoutSeconds=15,[scriptblock]$Runner=$null,[scriptblock]$Waiter=$null) {
     $serial=[string](Get-SgOptionalValue $View 'flutterDeviceId')
     if(-not$serial-or$serial-in@('windows','chrome','web-server','android')){return $true}
+    if(-not$Runner){$Runner={param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 15}}
+    Restore-SgPhysicalAndroidNavigationBar $serial $Runner
     $appId=Get-SgFlutterAndroidApplicationId $LaunchPath
     if(-not$appId){return $true}
     $adb=try{Get-SgAdbPath}catch{''}
     if(-not$adb){return $true}
-    if(-not$Runner){$Runner={param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 15}}
     if(-not$Waiter){$Waiter={param($Milliseconds) Start-Sleep -Milliseconds $Milliseconds}}
     $probe={$result=& $Runner $adb @('-s',$serial,'shell','pidof',$appId);if(-not$result-or[int]$result.ExitCode-ne0){return 'absent'};if(([string]$result.Output).Trim()-match'^\d+'){'running'}else{'gone'}}
     if((& $probe)-ne'running'){return $true}
@@ -4551,6 +4574,7 @@ function Get-SgFlutterSessionReversePorts([object]$View) {
 function Stop-SgTauriAndroidLink([object]$Entry, [int]$Port) {
     $serial = [string](Get-SgOptionalValue $Entry 'tauriDeviceId')
     if (-not $serial) { return }
+    Restore-SgPhysicalAndroidNavigationBar $serial
     try {
         $adb = Get-SgAdbPath
         if ($Port -gt 0) { [void](Invoke-SgFlutterAndroidTool $adb @('-s',$serial,'reverse','--remove',"tcp:$Port") 15) }
@@ -4774,6 +4798,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         if ($liveTauriEnvironment -ne $TauriEnvironment) { throw "$label is running with the $liveTauriEnvironment environment, not $TauriEnvironment. Use s restart -ProjectPath `"$($entry.path)`" -TauriEnvironment $TauriEnvironment to switch it." }
     }
     if ($alreadyRunning -and -not $Restart -and $kind -ne 'flutter-web') {
+        if ($kind -eq 'tauri' -and $target -eq 'android') { Restore-SgPhysicalAndroidNavigationBar ([string]$settings.TauriDeviceId) }
         Write-SgInfo "Already running: $label on $(Get-SgSessionPortLabel $view)"
         return $view
     }
@@ -4782,6 +4807,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         $device = Resolve-SgTauriAndroidDevice ([string]$settings.TauriDeviceId)
         $tauriConfig = Get-Content -LiteralPath (Join-Path $entry.path 'src-tauri\tauri.conf.json') -Raw | ConvertFrom-Json
         $tauriAndroid = [pscustomobject]@{ Adb=$device.Adb; Serial=$device.Serial; Name=$device.Name; AppId=[string]$tauriConfig.identifier }
+        Restore-SgPhysicalAndroidNavigationBar ([string]$device.Serial)
         Write-SgInfo "Tauri Android target: $($device.Serial)"
     }
     $obsidianDescriptor = $null
@@ -4810,6 +4836,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
         [void](Assert-SgFlutterAndroidSdk $launchPath $flutterPath)
         $resolvedFlutterDevice=Resolve-SgFlutterAndroidDevice $flutterPath ([string]$settings.FlutterDeviceId)
         $settings.FlutterDeviceId=$resolvedFlutterDevice
+        Restore-SgPhysicalAndroidNavigationBar ([string]$settings.FlutterDeviceId)
     }
     if ($alreadyRunning -and $Restart -and $kind -ne 'flutter-web') {
         [void](Stop-SgProjectCore $Config $entry.path -PreserveBackend -Target $target -Reason 'restarted')
