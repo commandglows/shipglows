@@ -39,6 +39,9 @@ class ContextQualityContractTests(unittest.TestCase):
             "context_stale",
         ):
             self.assertIn(marker, doctrine)
+        self.assertIn("read receipt", doctrine)
+        self.assertIn("withheld", doctrine)
+        self.assertIn("no withheld body", doctrine)
 
     def test_evidence_states_do_not_silently_upgrade(self) -> None:
         doctrine = text(CONTRACT)

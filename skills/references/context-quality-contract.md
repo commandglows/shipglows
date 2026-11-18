@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-09-01"
+updated: "2026-11-18"
 status: active
 source_skill: 900-shipglows-core
 scope: context-quality-contract
@@ -61,6 +61,14 @@ Carry one compact `Context Capsule` across routing, readiness, execution, verifi
 - `next_action`: the next safe decision or execution step.
 
 The capsule is working state and may remain in a spec, mini-contract, or explicit handoff. Do not persist it separately when existing governed artifacts already contain the truth.
+
+Every capsule carries one `read receipt`. It is not a source of truth and it is not a second registry.
+
+- `served`: each source actually used, with a pointer, its evidence state, and a short reason code. No source body.
+- `withheld`: each considered source that was not served, with a pointer and a reason code (`not_needed`, `absent`, `unreadable`, `stale`, `private`, or `no_permission`). No withheld body, excerpt, or value.
+- `verdict`: exactly one of `context_ready`, `context_partial`, `context_conflict`, or `context_stale`.
+
+`context_ready` is forbidden while any material claim is `unknown`, `hypothesis`, `conflict`, or `stale`. A derived discovery capsule stays `context_partial` until those claims are revalidated against canonical sources. A receipt that copies served or withheld text is invalid. Public skills build this receipt from the project files and observed git or runtime state. They do not call a private application to learn the truth.
 
 For material work in an adopted repository, lifecycle owners obtain or refresh one bounded capsule automatically through `301-sg-context`. Every selected item carries deterministic reason codes plus authority, certainty and freshness. Missing seeds, unsupported relationships and truncation remain explicit gaps. Small exact tasks retain a cheaper targeted retrieval path, and task text is never automatically persisted in graph caches or evaluation telemetry.
 

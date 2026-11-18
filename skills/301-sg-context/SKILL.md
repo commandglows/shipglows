@@ -66,7 +66,7 @@ Use platform-equivalent commands if `rg` or Git is unavailable. Do not claim MCP
 
 ## Verdict And Handoff
 
-Return `context_ready`, `context_partial`, `context_conflict`, or `context_stale`, with target/outcome, qualified truths and source pointers, applicable constraints, inspected evidence, material gaps, invalidation signals, and next safe action. Keep user mode concise; detailed capsule data belongs to explicit agent handoff.
+Return `context_ready`, `context_partial`, `context_conflict`, or `context_stale`, with target/outcome, qualified truths and source pointers, applicable constraints, inspected evidence, material gaps, invalidation signals, and next safe action. Include the capsule `read receipt`: served pointer, state and reason; withheld pointer and reason; verdict. Never include served or withheld body text. Do not report `context_ready` while a material claim is `unknown`, `hypothesis`, `conflict`, or `stale`. Keep user mode concise; detailed capsule data belongs to explicit agent handoff.
 
 If the invoking owner and next action are already resolved, handoff directly without asking a generic permission question. A context verdict never authorizes mutation or bypasses plan approval, readiness, security, or product decisions.
 

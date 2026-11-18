@@ -13,6 +13,8 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Any, Iterable
 
+from tools.context_receipt import validate_read_receipt
+
 
 SCHEMA_VERSION = "shipglows.context-capsule/v1"
 TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_./:-]{2,}")
@@ -90,7 +92,41 @@ def rank_context(
         "missing_seeds": missing,
         "candidate_count": len(ranked),
         "truncated": len(ranked) > len(selected),
+        "withheld_paths": _withheld_paths(nodes, ranked, selected),
     }
+
+
+def _withheld_paths(nodes: dict[str, Any], ranked: list[str], selected: list[str]) -> list[str]:
+    chosen = {nodes[node_id].get("path") for node_id in selected}
+    withheld: list[str] = []
+    for node_id in ranked:
+        if node_id in selected:
+            continue
+        path = nodes[node_id].get("path")
+        if path and path not in chosen and path not in withheld:
+            withheld.append(path)
+    return withheld
+
+
+def _read_receipt(ranked: dict[str, Any], evidence: list[dict[str, Any]], gaps: list[dict[str, Any]]) -> dict[str, Any]:
+    served: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in evidence:
+        pointer = item.get("path")
+        if not isinstance(pointer, str) or pointer in seen:
+            continue
+        seen.add(pointer)
+        served.append({"pointer": pointer, "state": "evidence_backed", "reason": "selected"})
+    withheld: list[dict[str, str]] = []
+    for pointer in ranked.get("withheld_paths", []):
+        if pointer in seen:
+            continue
+        seen.add(pointer)
+        withheld.append({"pointer": pointer, "reason": "not_needed"})
+    for gap in gaps:
+        if gap.get("kind") == "missing_seed":
+            withheld.append({"pointer": f"seed:{gap['seed_fingerprint']}", "reason": "absent"})
+    return {"served": served, "withheld": withheld, "verdict": "context_partial"}
 
 
 def build_capsule(
@@ -131,7 +167,7 @@ def build_capsule(
                 "fallback": "targeted_canonical_retrieval",
             }
         )
-    return {
+    capsule = {
         "schema_version": SCHEMA_VERSION,
         "target": {
             "project": graph.get("project_root_name"),
@@ -147,7 +183,10 @@ def build_capsule(
         "gaps": gaps,
         "bounds": {"max_items": max_items, "candidate_count": ranked["candidate_count"], "truncated": ranked["truncated"]},
         "next_action": "revalidate decision-changing evidence against canonical sources",
+        "read_receipt": _read_receipt(ranked, evidence, gaps),
     }
+    validate_read_receipt(capsule)
+    return capsule
 
 
 def evaluate_selection(capsule: dict[str, Any], *, expected_paths: Iterable[str]) -> dict[str, Any]:

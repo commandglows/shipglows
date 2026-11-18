@@ -7,6 +7,7 @@ from pathlib import Path
 
 from tools.code_context_graph import build_graph
 from tools.context_capsule import build_capsule, evaluate_selection, write_evaluation
+from tools.context_receipt import ReceiptError, validate_read_receipt
 
 
 class ContextCapsuleTests(unittest.TestCase):
@@ -91,6 +92,24 @@ class ContextCapsuleTests(unittest.TestCase):
         gap = next(item for item in capsule["gaps"] if item["kind"] == "unsupported_languages")
         self.assertEqual(["ts"], gap["languages"])
         self.assertNotIn("secretBody", json.dumps(capsule))
+        receipt = capsule["read_receipt"]
+        self.assertEqual("context_partial", receipt["verdict"])
+        self.assertTrue(all("value" not in item and "body" not in item for item in receipt["served"] + receipt["withheld"]))
+        validate_read_receipt(capsule)
+        broken = dict(capsule)
+        broken.pop("read_receipt")
+        with self.assertRaises(ReceiptError) as missing:
+            validate_read_receipt(broken)
+        self.assertEqual("missing_receipt", missing.exception.code)
+        leaked = dict(capsule)
+        leaked["read_receipt"] = {
+            "served": [{"pointer": "extension.ts", "state": "evidence_backed", "reason": "selected", "body": "secretBody"}],
+            "withheld": [],
+            "verdict": "context_partial",
+        }
+        with self.assertRaises(ReceiptError) as body:
+            validate_read_receipt(leaked)
+        self.assertEqual("receipt_contains_body", body.exception.code)
         fallback = next(item for item in capsule["evidence"] if item["path"] == "extension.ts")
         self.assertIn("targeted_filename_fallback", fallback["reasons"])
 
