@@ -2250,6 +2250,8 @@ $environmentPath = Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightIn
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 $agentInstructionChanges = @(Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE -AgentReady @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady })
 if ($agentInstructionChanges.Count) { Write-Host "ShipGlows tool context installed for $($agentInstructionChanges.Count) coding agent(s)." -ForegroundColor Green }
+$antigravityRuleChanges = @(Sync-SgAntigravityRules -UserProfile $env:USERPROFILE -EnsureCanonicalRulesDir:$geminiReady)
+if ($antigravityRuleChanges.Count) { Write-Host "Antigravity/Gemini rules synchronized ($($antigravityRuleChanges.Count) update(s))." -ForegroundColor Green }
 
 Write-Host ''
 Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor Yellow

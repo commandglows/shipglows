@@ -135,4 +135,56 @@ function Install-SgAgentEnvironmentInstructions {
     }
 }
 
-Export-ModuleMember -Function Get-SgAgentEnvironmentInstructionBlock,Get-SgAgentInstructionTargets,Set-SgAgentEnvironmentInstructions,Install-SgAgentEnvironmentInstructions
+function Get-SgT3AntigravityConfigDirectories {
+    param([Parameter(Mandatory=$true)][string]$UserProfile)
+    $root = Join-Path $UserProfile '.t3\userdata\providers\antigravity'
+    if (-not (Test-Path -LiteralPath $root -PathType Container)) { return @() }
+    foreach ($providerDir in @(Get-ChildItem -LiteralPath $root -Directory -ErrorAction SilentlyContinue)) {
+        $configDir = Join-Path $providerDir.FullName 'config'
+        if (Test-Path -LiteralPath $configDir -PathType Container) { $configDir }
+    }
+}
+
+function Sync-SgAntigravityRules {
+    param(
+        [Parameter(Mandatory=$true)][string]$UserProfile,
+        [switch]$EnsureCanonicalRulesDir
+    )
+    $canonicalRulesDir = [IO.Path]::GetFullPath((Join-Path $UserProfile '.gemini\config\rules'))
+    $providerConfigs = @(Get-SgT3AntigravityConfigDirectories -UserProfile $UserProfile)
+    if (-not $EnsureCanonicalRulesDir -and $providerConfigs.Count -eq 0 -and -not (Test-Path -LiteralPath $canonicalRulesDir -PathType Container)) {
+        return @()
+    }
+    if (-not (Test-Path -LiteralPath $canonicalRulesDir -PathType Container)) {
+        New-Item -ItemType Directory -Path $canonicalRulesDir -Force | Out-Null
+    }
+    $envRulePath = Join-Path $canonicalRulesDir '20-shipglows-environment.md'
+    if (-not (Test-Path -LiteralPath $envRulePath -PathType Leaf)) {
+        $header = "---`ntrigger: always_on`n---`n`n"
+        [IO.File]::WriteAllText($envRulePath, $header, [Text.UTF8Encoding]::new($false))
+    }
+    if (Set-SgAgentEnvironmentInstructions -Path $envRulePath) { $envRulePath }
+
+    $normalizedTarget = $canonicalRulesDir.TrimEnd('\')
+    foreach ($configDir in $providerConfigs) {
+        $rulesLink = Join-Path $configDir 'rules'
+        if (Test-Path -LiteralPath $rulesLink) {
+            $item = Get-Item -LiteralPath $rulesLink -Force
+            $isConverged = $false
+            if ($item.LinkType -in @('Junction','SymbolicLink') -and $item.PSObject.Properties['Target']) {
+                $linkTargets = @($item.Target)
+                if ($linkTargets.Count -gt 0 -and $linkTargets[0]) {
+                    $isConverged = ([IO.Path]::GetFullPath([string]$linkTargets[0]).TrimEnd('\') -ieq $normalizedTarget)
+                }
+            }
+            if (-not $isConverged) {
+                throw "Refusing to overwrite existing non-converged Antigravity rules path: $rulesLink"
+            }
+            continue
+        }
+        New-Item -ItemType Junction -Path $rulesLink -Target $canonicalRulesDir | Out-Null
+        $rulesLink
+    }
+}
+
+Export-ModuleMember -Function Get-SgAgentEnvironmentInstructionBlock,Get-SgAgentInstructionTargets,Set-SgAgentEnvironmentInstructions,Install-SgAgentEnvironmentInstructions,Get-SgT3AntigravityConfigDirectories,Sync-SgAntigravityRules

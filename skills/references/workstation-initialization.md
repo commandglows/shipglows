@@ -210,6 +210,11 @@ provides defaults; pass the resolved actual target to
 exist before import/invocation. The existing `ShipGlows development environment`
 block points to the optional context cache, which supplies the verified root and
 role. Do not create a second root/doctrine block or another instruction writer.
+For T3 Code Antigravity providers (isolated `GEMINI_HOME` under
+`.t3/userdata/providers/antigravity/<id>/`), `Sync-SgAntigravityRules` keeps
+`.gemini/config/rules/20-shipglows-environment.md` updated (`trigger: always_on`)
+and links each provider `config/rules` directory via junction to
+`.gemini/config/rules`, failing closed on non-converged directories.
 
 Preflight every selected file and its parent path before any update: malformed,
 duplicate or reversed managed markers and symlink/junction/reparse paths block

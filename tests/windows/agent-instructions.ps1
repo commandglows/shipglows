@@ -98,6 +98,32 @@ try {
     Assert-Sg $failedClosed 'An unclosed managed block must fail closed.'
     Assert-Sg ([IO.File]::ReadAllText($brokenPath) -ceq $broken) 'Fail-closed handling overwrote the foreign file.'
     Assert-Sg (@(Get-ChildItem -LiteralPath $sandbox -Recurse -File -Filter '*.tmp').Count -eq 0) 'Atomic instruction temp files were left behind.'
+
+    $t3Config1 = Join-Path $sandbox '.t3\userdata\providers\antigravity\hash1\config'
+    New-Item -ItemType Directory -Path $t3Config1 -Force | Out-Null
+    $customRuleDir = Join-Path $sandbox '.gemini\config\rules'
+    New-Item -ItemType Directory -Path $customRuleDir -Force | Out-Null
+    $customRulePath = Join-Path $customRuleDir '00-diane-gemini-concision.md'
+    $customRuleText = "---`ntrigger: always_on`n---`nConcision test`n"
+    [IO.File]::WriteAllText($customRulePath, $customRuleText, [Text.UTF8Encoding]::new($false))
+
+    $agChanges = @(Sync-SgAntigravityRules -UserProfile $sandbox -EnsureCanonicalRulesDir)
+    Assert-Sg ($agChanges.Count -eq 2) 'Sync-SgAntigravityRules must create both the managed rule file and the T3 Antigravity junction.'
+    Assert-Sg ([IO.File]::ReadAllText($customRulePath) -ceq $customRuleText) 'Operator rule file in .gemini/config/rules was modified.'
+    $envRulePath = Join-Path $customRuleDir '20-shipglows-environment.md'
+    $envRuleContent = [IO.File]::ReadAllText($envRulePath)
+    Assert-Sg ($envRuleContent.StartsWith("---`ntrigger: always_on`n---", [StringComparison]::Ordinal)) 'Antigravity environment rule must keep always_on frontmatter.'
+    Assert-Sg (([regex]::Matches($envRuleContent, '(?m)^# >>> ShipGlows development environment >>>\r?$')).Count -eq 1) 'Managed block missing in 20-shipglows-environment.md.'
+    $rulesJunction = Get-Item -LiteralPath (Join-Path $t3Config1 'rules') -Force
+    Assert-Sg ($rulesJunction.LinkType -in @('Junction','SymbolicLink')) 'T3 Antigravity config/rules must be a junction.'
+    $agSecond = @(Sync-SgAntigravityRules -UserProfile $sandbox -EnsureCanonicalRulesDir)
+    Assert-Sg ($agSecond.Count -eq 0) 'Sync-SgAntigravityRules rerun must be idempotent.'
+
+    $t3Config2 = Join-Path $sandbox '.t3\userdata\providers\antigravity\hash2\config'
+    New-Item -ItemType Directory -Path (Join-Path $t3Config2 'rules') -Force | Out-Null
+    $agFailedClosed = $false
+    try { [void](Sync-SgAntigravityRules -UserProfile $sandbox) } catch { $agFailedClosed = $_.Exception.Message -match 'non-converged' }
+    Assert-Sg $agFailedClosed 'Sync-SgAntigravityRules must fail closed on a non-link directory.'
 }
 finally {
     if (Test-Path -LiteralPath $sandbox) { Remove-Item -LiteralPath $sandbox -Recurse -Force }
