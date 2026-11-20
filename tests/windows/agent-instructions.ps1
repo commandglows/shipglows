@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -41,36 +41,16 @@ try {
     foreach ($path in @($codexPath, $claudePath, $kiloPath, $geminiPath)) {
         $content = [IO.File]::ReadAllText($path)
         Assert-Sg (([regex]::Matches($content, '(?m)^# >>> ShipGlows development environment >>>\r?$')).Count -eq 1) "Managed block duplication in $path"
-        $backendRule=@((Get-SgAgentEnvironmentInstructionBlock) -split '\r?\n' | Where-Object { $_.StartsWith('Managed app launch, restart, session reuse and backend-dependent tests require') })
-        Assert-Sg ($backendRule.Count -eq 1 -and $content.Contains($backendRule[0])) "Backend-information rule was not projected intact into $path"
-        Assert-Sg ($content -match 'purpose-built tool') "Purpose-built tool guidance missing in $path"
-        Assert-Sg ($content -match 'deferred/searchable catalog') "Deferred tool catalog guidance missing in $path"
-        Assert-Sg ($content -match '\$shipglows context') "ShipGlows context recovery guidance missing in $path"
+        Assert-Sg ($content -match 'Explicit operator rules take precedence') "Operator precedence rule missing in $path"
         Assert-Sg ($content -match '%USERPROFILE%\\\.shipglows\\environment\.md') "Dynamic environment pointer missing in $path"
-        Assert-Sg ($content -match 'cli-capabilities\.v1\.json') "CLI capability snapshot pointer missing in $path"
-        Assert-Sg ($content -match 'must never execute the CLI') "CLI capability read-only boundary missing in $path"
-        Assert-Sg ($content -match 'Content-only changes \(articles, docs, Markdown, frontmatter, copy\) are never proved by a build') "Content-only no-build rule missing in $path"
-        Assert-Sg ($content -match 'registry-backed active development target') "Flutter active-target context guidance missing in $path"
-        Assert-Sg ($content -match 'available rather than active') "Flutter available-target distinction missing in $path"
-        Assert-Sg ($content -match 'managed live `flutter run` session') "Flutter live development priority missing in $path"
-        Assert-Sg ($content -match 'Short app launch/build requests include' -and $content -match '\.shipglows\.flutter\.json' -and $content -match 'never infer login from build success') "Default configured-launch and truthful auth proof guidance missing in $path"
-        Assert-Sg ($content -match 'Reserve standalone builds for releases or explicit package-sensitive checks') "Flutter standalone build boundary missing in $path"
-        Assert-Sg ($content -match 'ShipGlows_API_36.*wait for readiness') "Flutter Android live-emulator guidance missing in $path"
-        Assert-Sg ($content -match 'successful local Windows release or Android APK build') "Latest local build publication trigger missing in $path"
-        Assert-Sg ($content -match 'shipglows-build-artifacts\.ps1 register-local') "Official local build publisher guidance missing in $path"
-        Assert-Sg ($content -match 'keep Local and CI lanes distinct') "Local/CI build lane separation missing in $path"
-        Assert-Sg ($content -match 'Desktop shortcuts are created only by `shipglows-dev start`' -and $content -match 'Never create, copy or edit a Desktop shortcut by hand, and never for a build artifact or a worktree') "Managed-only Desktop shortcut rule missing in $path"
-        Assert-Sg ($content -notmatch 'refreshed official Desktop shortcut') "Obsolete build shortcut instruction remains in $path"
-        Assert-Sg ($content -match 'Once that registered build has been tested, delete the raw release output') "Tested build cleanup rule missing in $path"
-        Assert-Sg ($content -match 's extension-inspect -ProjectPath <path> -Json') "Extension inspection guidance missing in $path"
-        Assert-Sg ($content -match 's extension-lab -ProjectPath <path> -Headless -Json') "Isolated extension proof guidance missing in $path"
-        Assert-Sg ($content -match 'build-required') "Explicit extension build boundary missing in $path"
-        Assert-Sg ($content -match 'doppler run -- <project-declared command>') "Declared Doppler execution guidance missing in $path"
-        Assert-Sg ($content -match 'Never run commands that reveal or download Doppler secrets') "Doppler secret-output prohibition missing in $path"
-        Assert-Sg ($content -match 'production scope without explicit approval') "Doppler production boundary missing in $path"
-        Assert-Sg ($content -match 'authentication is not yet implemented' -and $content -match 'no protected data is exposed' -and $content -match 'state that exception explicitly') "Auth-free local exception must be evidenced and disclosed in $path"
-        Assert-Sg ($content -match 'Broken or misconfigured existing auth blocks the normal launch, never authorizes a bypass') "Broken auth must not become a launch bypass in $path"
-        Assert-Sg ($content -match 'A login screen is not login proof' -and $content -match 'Requested end-to-end validation must verify login and protected access' -and $content -match 'exact remaining proof and user-only step') "End-to-end auth proof boundary missing in $path"
+        Assert-Sg ($content -match 'cli-capabilities\.v1\.json' -and $content -match 'never execute the CLI') "CLI capability read-only boundary missing in $path"
+        Assert-Sg ($content -match '\$shipglows context') "ShipGlows context recovery guidance missing in $path"
+        Assert-Sg ($content -match '\.shipglows\.flutter\.json' -and $content -match '\.shipglows\.backend\.json' -and $content -match 'registry status is authoritative') "Managed session and config authority missing in $path"
+        Assert-Sg ($content -match 'never hand-run servers or `--release`') "Managed dev session boundary missing in $path"
+        Assert-Sg ($content -match 'never bypass broken auth' -and $content -match 'infer login from build success') "Auth safety boundary missing in $path"
+        Assert-Sg ($content -match 'reveal/download Doppler secrets' -and $content -match 'production scope requires explicit approval') "Doppler secret/production boundary missing in $path"
+        Assert-Sg ($content -match 'Content-only changes \(articles, docs, Markdown, copy\) are never proved by builds, lint, or tests') "Content-only no-build rule missing in $path"
+        Assert-Sg ($content -match 'Load the dedicated ShipGlows skill/reference on demand') "On-demand skill loading guidance missing in $path"
     }
     $codexAfter = [IO.File]::ReadAllText($codexPath)
     Assert-Sg ($codexAfter.StartsWith($foreignPrefix, [StringComparison]::Ordinal)) 'Foreign CRLF/Unicode content was not preserved byte-for-byte.'

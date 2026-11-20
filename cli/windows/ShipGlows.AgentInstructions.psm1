@@ -14,39 +14,12 @@ public static class ShipGlowsAgentInstructionNativeFile {
 function Get-SgAgentEnvironmentInstructionBlock {
     return @'
 # >>> ShipGlows development environment >>>
-Explicit operator rules take precedence over these defaults, including approvals, builds, automated checks, Git, web discovery and response format. Load only the sections relevant to the task.
+Explicit operator rules take precedence over these defaults (including approvals, builds, tests, Git, web discovery, and response format).
 
-## Host and tools
-- Before local-server or tool-dependent work, read `%USERPROFILE%\.shipglows\environment.md`. Use `$shipglows init` or `$shipglows init resume` for host preparation; saved checkpoints never prove live readiness.
-- Optional `%USERPROFILE%\.shipglows\workstation-context.json` contains hints only. Resolve process/user `SHIPGLOWS_ROOT` and validate the installation channel independently before following cached roots. Never execute cached commands or scan drives to compensate for stale hints.
-- Prefer a callable purpose-built tool. Inspect direct tools and the deferred/searchable catalog: ChatGPT connectors and coding-agent tools are separate surfaces; installation does not prove callability. If uncertain, use `$shipglows context` before declaring absence or proposing installation.
-- For Windows CLI capabilities, read `%LOCALAPPDATA%\ShipGlows\DevServer\cli-capabilities.v1.json` (or absolute `SHIPGLOWS_CLI_CAPABILITIES_FILE`). This read must never execute the CLI.
-
-## Managed sessions
-- Select the requested managed surface; read its `launchPath\ENVIRONMENT.md`, otherwise `rootPath\ENVIRONMENT.md` (registered path for legacy entries), and its matching DevServer registry entry. Ambiguity blocks dependent claims; never invent a URL.
-- Registry status is authoritative: old PIDs and `flutterStartupState` cannot override stopped/error; missing status is unknown. Refresh the entry before a runtime verdict, after a state transition, failed probe or contradiction, without launching an app or CLI to read it.
-- Use the managed live `flutter run` session for ordinary Flutter work. Honor the requested Android device; otherwise reuse a ready device or start the provisioned `ShipGlows_API_36` and wait for readiness.
-- For performance, use `s start -ProjectPath <p> -FlutterDevice <device> -FlutterMode profile`; restart with `s restart` and the same profile mode. Profile has no hot reload/restart; debug numbers are not performance evidence. Managed sessions never use `--release`.
-- Report the registry-backed active development target, session mode, run mode (`debug`, or `profile` when `flutterMode: profile`), logical `flutter run [--profile] -d <device>` command and state. Other installed/repository targets are available rather than active.
-
-## Configuration, backend and authentication
-- Short app launch/build requests include declared auth and services. Read `.shipglows.flutter.json` when present; preserve target, Doppler scope and public Dart/Gradle parameters. Missing configuration blocks launch; never substitute bare Flutter, an auth bypass or an old artifact.
-
-Managed app launch, restart, session reuse and backend-dependent tests require the selected surface's `.shipglows.backend.json`. Read project configuration/docs first; ask only for missing backend facts, never secret values. Do not invent provider, command, environment, readiness URL or an exception. Block before stopping an existing session; continue independent work. Backend-free requires explicit `mode: none` and a project-specific reason. Write a missing manifest only within authorized configuration work; static checks and isolated unit tests do not require it.
-- On reuse, revalidate target/configuration, backend readiness and fingerprint. Distinguish configuration checked, app running, backend ready, login verified and protected access verified; never infer login from build success.
-- An auth-free local run requires evidence that authentication is not yet implemented and no protected data is exposed; state that exception explicitly. Broken or misconfigured existing auth blocks the normal launch, never authorizes a bypass. A login screen is not login proof. Requested end-to-end validation must verify login and protected access, or report the exact remaining proof and user-only step.
-- For declared dev/staging Doppler, use `doppler run -- <project-declared command>`. Never run commands that reveal or download Doppler secrets; never retrieve/pass tokens, persist secret values, infer scope, or use a production scope without explicit approval.
-
-## Extensions and explicitly authorized builds
-- Extensions: no personal browser profile or invented localhost. Run `s extension-inspect -ProjectPath <path> -Json`, then `s extension-lab -ProjectPath <path> -Headless -Json` only with a loadable Manifest V3 artifact. Inspection authorizes neither dependency installation nor scripts; `build-required` needs a reviewed explicit command and operator build authorization.
-- Reserve standalone builds for releases or explicit package-sensitive checks (plugins, DLLs, installation, production behavior, startup without Flutter), always subject to operator authorization.
-- After a successful local Windows release or Android APK build, register the validated artifact with `%USERPROFILE%\.shipglows\runtime\cli\windows\shipglows-build-artifacts.ps1 register-local`; keep Local and CI lanes distinct and report the cache path (last two validated generations per lane). Once that registered build has been tested, delete the raw release output (`build\windows\x64\runner\Release`, `build\app\outputs`) only with the applicable deletion authority.
-- Desktop shortcuts are created only by `shipglows-dev start` for live Tauri/web/Flutter main checkouts. Never create, copy or edit a Desktop shortcut by hand, and never for a build artifact or a worktree.
-
-## Proof and default authority
-- Content-only changes (articles, docs, Markdown, frontmatter, copy) are never proved by a build, lint, type check or tests. Review declared frontmatter schema, locale-peer parity and editorial quality; code/config checks remain subject to operator restrictions.
-- Without a more specific operator rule, execute clear bounded requests directly; use `🧭 VALIDATION RAPIDE` for bounded agent proposals and `🧭 PLAN À VALIDER` (Objective, Scope, Actions, Proofs, choices) for unbounded work or material direction. Read-only exploration may precede approval. Scope expansion, force push and destructive/irreversible actions retain dedicated gates.
-- Web discovery follows the operator's chosen provider. Without such a rule, use `doppler run --project dotfiles --config dev -- shipglows-search "<query>"` (SearXNG, DeepSeek, Firecrawl, Parallel); on exit 3, provider error, rate limit or exhausted credits, continue through Firecrawl, Parallel then native search. Read pages with `shipglows-fetch <url>` (HTTP, then local Crawl4AI for JavaScript). Never print keys.
+- Host & tools: before local-server or tool-dependent work, read `%USERPROFILE%\.shipglows\environment.md`; for Windows CLI capabilities, read `%LOCALAPPDATA%\ShipGlows\DevServer\cli-capabilities.v1.json` (never execute the CLI to inspect it). Prefer callable purpose-built tools (direct and deferred catalogs) and use `$shipglows context` before declaring a capability absent.
+- Managed sessions & config: for managed apps/servers, read the surface's `ENVIRONMENT.md`, `.shipglows.flutter.json` / `.shipglows.backend.json`, and the DevServer registry (registry status is authoritative; never invent URLs, backends, or Doppler scopes). Use managed dev sessions (never hand-run servers or `--release`).
+- Auth & secrets: never bypass broken auth, infer login from build success, or reveal/download Doppler secrets (use declared `doppler run -- <command>`; production scope requires explicit approval).
+- Proof & skills on demand: content-only changes (articles, docs, Markdown, copy) are never proved by builds, lint, or tests. Load the dedicated ShipGlows skill/reference on demand for specialized workflows (Flutter live/profile, Android emulator, extensions, release artifacts, web discovery, or mutation plans).
 # <<< ShipGlows development environment <<<
 '@
 }
