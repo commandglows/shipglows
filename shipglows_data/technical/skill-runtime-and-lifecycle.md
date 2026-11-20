@@ -459,7 +459,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/profile-project-context.md` | Canonical project-context bundle mapping for named profiles | Load before changing how profiles consume project business/product/editorial/technical context |
 | `shipglows_data/business/agent-profiles/*.md` | Human-readable named operator profiles such as `Victoire` or `SEO Specialist` | Profiles bind a display name to one operator role and invocation syntax; they do not become separate skills |
 | `tools/shipglows_sync_skills.sh` | Unix current-user Claude/Codex/Gemini skill runtime sync helper | Uses `~/.claude/skills`, Codex `~/.agents/skills`, and Antigravity/T3 `~/.gemini/config/skills` |
-| `tools/shipglows_sync_skills.ps1` | Native Windows source-tree skill sync helper | Uses directory junctions and keeps the public installer plugin-first |
+| `tools/shipglows_sync_skills.ps1` | Native Windows source-tree skill sync helper | Uses directory junctions, maintains `~/.gemini/config/skills.json` for Antigravity on Windows, and keeps the public installer plugin-first |
 | `tools/audit_shipglows_skills.py` | Versioned ShipGlows skill execution-fidelity audit helper used by `900-shipglows-core` and conversation follow-through gates | Keep read-only by default; audit findings classify risk but do not authorize broad edits without scenario-first triage |
 | `tools/skill_code_index_lint.py` | Numeric skill-code index validator | Run after changing `skills/references/skill-code-index.md` or the skill set |
 | `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | Global workflow doctrine | Sequential shared file |

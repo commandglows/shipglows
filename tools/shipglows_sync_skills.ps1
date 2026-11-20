@@ -244,6 +244,112 @@ function Sync-SgSkill([string]$RuntimeName, [string]$Name, [string]$SourceName) 
     Write-Output "repaired runtime=$RuntimeName skill=$Name target=$targetPath reason=missing"
 }
 
+function Get-SgGeminiManifestPathValue([string]$SkillsSourcePath) {
+    $resolvedSkills = Resolve-SgPath $SkillsSourcePath
+    $resolvedHome = Resolve-SgPath $TargetHome
+    if ($resolvedSkills.Equals($resolvedHome, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return '~'
+    }
+    if ($resolvedSkills.StartsWith("$resolvedHome\", [System.StringComparison]::OrdinalIgnoreCase)) {
+        $relative = $resolvedSkills.Substring($resolvedHome.Length + 1).Replace('\', '/')
+        return "~/$relative"
+    }
+    return $resolvedSkills.Replace('\', '/')
+}
+
+function Test-SgManagedGeminiManifestEntry($Entry, [string]$DesiredPathValue) {
+    if (-not $Entry -or -not $Entry.PSObject.Properties['path']) { return $false }
+    $entryPath = [string]$Entry.path
+    if (-not $entryPath) { return $false }
+    if ($entryPath.Equals($DesiredPathValue, [System.StringComparison]::OrdinalIgnoreCase)) { return $true }
+    $expanded = if ($entryPath -eq '~') {
+        $TargetHome
+    } elseif ($entryPath.StartsWith('~/') -or $entryPath.StartsWith('~\')) {
+        Join-Path $TargetHome ($entryPath.Substring(2).Replace('/', '\'))
+    } else {
+        $entryPath.Replace('/', '\')
+    }
+    if ($expanded -match '(?:^|\\)(?:\.shipglows\\runtime|shipglows)\\skills$') { return $true }
+    return (Test-Path -LiteralPath (Join-Path $expanded '000-shipglows\SKILL.md') -PathType Leaf)
+}
+
+function Sync-SgGeminiSkillsManifest([object[]]$Pairs) {
+    if ($PSCmdlet.ParameterSetName -ne 'All') { return }
+    $configDir = Split-Path -Parent (Get-SgRuntimeDirectory 'gemini')
+    $manifestPath = Join-Path $configDir 'skills.json'
+    $desiredPathValue = Get-SgGeminiManifestPathValue (Join-Path $ShipGlowsRoot 'skills')
+    $desiredSources = @($Pairs | ForEach-Object { [string]$_.Source } | Select-Object -Unique)
+
+    $existingConfig = $null
+    $otherEntries = [System.Collections.Generic.List[object]]::new()
+    $currentMatches = $false
+
+    if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
+        try {
+            $existingConfig = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+        } catch {
+            $existingConfig = $null
+        }
+    }
+
+    if ($existingConfig -and $existingConfig.PSObject.Properties['entries'] -and $existingConfig.entries) {
+        $matchedEntries = 0
+        foreach ($entry in @($existingConfig.entries)) {
+            if (Test-SgManagedGeminiManifestEntry $entry $desiredPathValue) {
+                $matchedEntries++
+                $entryInclude = if ($entry.PSObject.Properties['include_only'] -and $entry.include_only) {
+                    @($entry.include_only | ForEach-Object { [string]$_ })
+                } else {
+                    @()
+                }
+                if ($matchedEntries -eq 1 -and
+                    ([string]$entry.path).Equals($desiredPathValue, [System.StringComparison]::OrdinalIgnoreCase) -and
+                    ($entryInclude.Count -eq $desiredSources.Count) -and
+                    (@(Compare-Object -ReferenceObject $desiredSources -DifferenceObject $entryInclude -CaseSensitive:$false).Count -eq 0)) {
+                    $currentMatches = $true
+                }
+            } else {
+                $otherEntries.Add($entry)
+            }
+        }
+        if ($matchedEntries -gt 1) { $currentMatches = $false }
+    }
+
+    $script:Checked++
+    if ($currentMatches) {
+        $script:Ok++
+        Write-Output "ok runtime=gemini skill=skills.json target=$manifestPath"
+        return
+    }
+
+    if ($Mode -eq 'check') {
+        $script:Blocked++
+        $reason = if (Test-Path -LiteralPath $manifestPath -PathType Leaf) { 'stale-manifest' } else { 'missing-manifest' }
+        Write-Output "drift runtime=gemini skill=skills.json target=$manifestPath reason=$reason"
+        return
+    }
+
+    New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+    $newEntry = [ordered]@{
+        path         = $desiredPathValue
+        include_only = @($desiredSources)
+    }
+    $allEntries = [System.Collections.Generic.List[object]]::new()
+    foreach ($other in $otherEntries) { $allEntries.Add($other) }
+    $allEntries.Add($newEntry)
+
+    $outputObj = [ordered]@{}
+    if ($existingConfig -and $existingConfig.PSObject.Properties['inherits'] -and $existingConfig.inherits) {
+        $outputObj['inherits'] = @($existingConfig.inherits)
+    }
+    $outputObj['entries'] = @($allEntries)
+
+    $json = ($outputObj | ConvertTo-Json -Depth 10) + "`n"
+    [IO.File]::WriteAllText($manifestPath, $json, [Text.UTF8Encoding]::new($false))
+    $script:Repaired++
+    Write-Output "repaired runtime=gemini skill=skills.json target=$manifestPath reason=updated-manifest"
+}
+
 function Reconcile-SgCatalogLinks([string]$RuntimeName, [System.Collections.Generic.HashSet[string]]$DesiredNames) {
     if ($PSCmdlet.ParameterSetName -ne 'All') { return }
     $runtimeDirectory = Get-SgRuntimeDirectory $RuntimeName
@@ -298,6 +404,9 @@ foreach ($pair in $pairs) {
 }
 foreach ($runtimeName in $runtimes) {
     Reconcile-SgCatalogLinks $runtimeName $desiredNames
+}
+if ($runtimes -contains 'gemini') {
+    Sync-SgGeminiSkillsManifest $pairs
 }
 
 Write-Output "summary mode=$Mode runtime=$Runtime catalog=$Catalog codex_entrypoint=$CodexEntrypoint checked=$script:Checked ok=$script:Ok repaired=$script:Repaired skipped=$script:Skipped blocked=$script:Blocked"
