@@ -21,7 +21,7 @@ linked_systems:
   - skills/202-sg-emailing/references/postmark-agent-integration-playbook.md
   - skills/202-sg-emailing/references/resend-agent-integration-playbook.md
   - CommandGlows central email service (commandglows repo)
-  - shipglows-astro-engine/src/email (@shipglows/astro-engine 0.5.0)
+  - shipglows-astro-engine/packages/email (@shipglows/astro-email)
   - shipglows-email-engine/packages/email_mailbox_client
 depends_on: []
 supersedes:
@@ -77,7 +77,7 @@ Sources: `commandglows/shipglows_data/technical/central-email-api-contract.md` a
 | Transactional and operational (receipts, access, alerts, service notices) | Each app's backend | Fixed notice: `POST /api/v1/email/messages/transactional` on the business's transactional stream, trusted service only. App-composed service content: `POST /api/v1/email/messages/service` (transactional stream, class `service`). |
 | Product updates | ShipGlows App | Central campaigns on the product's business, under its declared marketing purpose; explicit marketing consent only. Drafts go through the campaign bridge; approval stays with a human operator. One marketing purpose per business Broadcast stream (see `central-email-operations.md`). |
 | Content newsletters | ContentGlows | ContentGlows writes the content; central campaigns deliver it on the broadcast stream. The lab's `central` newsletter provider is available; its default stays `postmark` until the operator switches `NEWSLETTER_DELIVERY_PROVIDER`. |
-| Website signups (newsletter, waitlist) | Product site calls the central public subscribe endpoint, directly or through `@shipglows/astro-engine` `./email` | `POST /api/v1/email/public/subscriptions` with double opt-in; pending until confirmation. |
+| Website signups (newsletter, waitlist) | Product site calls the central public subscribe endpoint, directly or through `@shipglows/astro-email` (`NewsletterSignup.astro`) | `POST /api/v1/email/public/subscriptions` with double opt-in; pending until confirmation. |
 
 Route names come from `central-email-operations.md`. The v1 OpenAPI publishes the campaigns, imports, operations, public subscriptions, sequences, service messages and templates resources. Verify each route against `central-email-api-contract.md` before integration.
 
@@ -124,7 +124,7 @@ Existing:
 
 - `newsletter_studio_flutter`: composition UI in `shipglows-email-engine/packages`.
 - `email_mailbox_client` (`shipglows-email-engine/packages/email_mailbox_client`): Dart `CentralCampaignBridgeApi` for the campaign bridge.
-- `@shipglows/astro-engine` 0.5.0 (`shipglows-astro-engine`): `./email` exports the `NewsletterSignup.astro` component and `subscribe.ts`; `./email/client` is the server-side client. No separate `@shipglows/email-client` package was created.
+- `@shipglows/astro-email` (`shipglows-astro-engine/packages/email`): `./NewsletterSignup.astro` (signup form, `actions` slot, optional Turnstile), `./NewsletterArchive.astro` and `./archive` (public past-issues archive), `.` (browser `subscribe.ts`); `./client` is the server-side client. Businesses with `publicSubscribe.turnstile: true` need the shared Turnstile site key on the site and the site's domain on the widget. No separate `@shipglows/email-client` package was created.
 - Python client: `contentglows/lab/api/services/central_email/`.
 
 ## Exceptions
