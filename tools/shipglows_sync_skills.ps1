@@ -245,16 +245,8 @@ function Sync-SgSkill([string]$RuntimeName, [string]$Name, [string]$SourceName) 
 }
 
 function Get-SgGeminiManifestPathValue([string]$SkillsSourcePath) {
-    $resolvedSkills = Resolve-SgPath $SkillsSourcePath
-    $resolvedHome = Resolve-SgPath $TargetHome
-    if ($resolvedSkills.Equals($resolvedHome, [System.StringComparison]::OrdinalIgnoreCase)) {
-        return '~'
-    }
-    if ($resolvedSkills.StartsWith("$resolvedHome\", [System.StringComparison]::OrdinalIgnoreCase)) {
-        $relative = $resolvedSkills.Substring($resolvedHome.Length + 1).Replace('\', '/')
-        return "~/$relative"
-    }
-    return $resolvedSkills.Replace('\', '/')
+    # Antigravity on Windows requires a real absolute path in skills.json (rejects ~/... as non-absolute).
+    return (Resolve-SgPath $SkillsSourcePath)
 }
 
 function Test-SgManagedGeminiManifestEntry($Entry, [string]$DesiredPathValue) {
