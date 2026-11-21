@@ -155,6 +155,14 @@ try {
     New-Item -ItemType Directory -Path (Join-Path $wxt 'node_modules\wxt') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $wxt 'node_modules\wxt\package.json'), '{"name":"wxt","version":"0.21.4"}', [Text.UTF8Encoding]::new($false))
     Assert-Sg (& $module { param($Project) Test-SgDependencyArtifacts $Project 'browser-extension' } $wxt) 'Installed WXT extension still required @crxjs/vite-plugin.'
+    # A plain extension built by its own Node scripts, with no dependency, needs no node_modules.
+    $plain = Join-Path $fixture 'plain-extension'
+    New-Item -ItemType Directory -Path (Join-Path $plain 'dist') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $plain 'package.json'), '{"name":"plain-extension","scripts":{"build":"node scripts/build.mjs","dev:chrome":"node scripts/dev.mjs"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $plain 'dist\manifest.json'), '{"manifest_version":3,"name":"Plain","version":"0.1.0"}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg (& $module { param($Project) Test-SgDependencyArtifacts $Project 'browser-extension' } $plain) 'A dependency-free plain extension still required node_modules and @crxjs/vite-plugin.'
+    [IO.File]::WriteAllText((Join-Path $plain 'package.json'), '{"name":"plain-extension","scripts":{"dev:chrome":"vite"},"devDependencies":{"vite":"7.0.0"}}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg (-not (& $module { param($Project) Test-SgDependencyArtifacts $Project 'browser-extension' } $plain)) 'An extension with uninstalled dependencies passed the dependency check.'
     [void](Write-SgProjectEnvironment $wxt 32146 -Kind 'browser-extension')
     $wxtEnvironmentText = [IO.File]::ReadAllText((Join-Path $wxt 'ENVIRONMENT.md'))
     Assert-Sg ($wxtEnvironmentText -match 'Unpacked Chrome directory: `\.output/chrome-mv3-dev`') 'WXT extension environment did not name the WXT dev output.'

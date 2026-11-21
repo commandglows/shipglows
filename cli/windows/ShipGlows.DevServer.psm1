@@ -2870,6 +2870,12 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
 }
 
 function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
+    if ($Kind -eq 'browser-extension') {
+        # A plain extension (no WXT, no crxjs) built by its own Node scripts may declare no
+        # dependency at all: npm then writes no node_modules, and nothing else is expected.
+        $extensionPackage = Read-SgNodePackage $ProjectPath
+        if (-not (Get-SgBrowserExtensionFramework $extensionPackage) -and @(Get-SgNodeDependencyNames $extensionPackage).Count -eq 0) { return $true }
+    }
     if ($Kind -in @('astro','vite','browser-extension','tauri','obsidian-plugin')) {
         # Workspace members may own no node_modules; an npm workspace hoists every package to the root, and a pnpm workspace root holds .modules.yaml.
         $nodeModules = Join-Path $ProjectPath 'node_modules'

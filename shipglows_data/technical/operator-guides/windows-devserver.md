@@ -390,7 +390,8 @@ choisissez **Load unpacked**, puis sélectionnez le dossier qui contient le
 `manifest.json` produit : `dist\chrome` pour CRXJS, `dist` quand le build écrit
 le manifeste directement dans `dist\`, `.output\chrome-mv3-dev` pour WXT.
 ShipGlows lit ce dossier depuis le build réel et l'annonce dans `s status` et
-`ENVIRONMENT.md`. ShipGlows ouvre les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
+`ENVIRONMENT.md`. Une extension simple (ni WXT ni CRXJS) sans aucune dépendance
+npm n'a pas besoin de `node_modules` : son script `dev:chrome` suffit. ShipGlows ouvre les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
 dans votre profil personnel. La détection automatique actuelle couvre les
 projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
