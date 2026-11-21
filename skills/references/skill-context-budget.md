@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.15.1"
+artifact_version: "1.16.0"
 project: ShipGlows
 created: "2026-04-29"
-updated: "2026-09-06"
+updated: "2026-11-21"
 status: active
 source_skill: 300-sg-docs
 scope: skill-context-budget
@@ -75,6 +75,17 @@ portable guard; changing it requires a distinct approved migration.
 - A reference above 5,000 estimated tokens is a review signal: split only when multiple real loading decisions exist.
 
 Size is never authority to remove a stop condition, security gate, proof requirement, trace role, or reporting contract.
+
+## Root Context Budget
+
+Always-loaded instruction files are priced before any skill: the user-global
+`~/.claude/CLAUDE.md`, repo `CLAUDE.md` and repo `AGENT.md`. `skill_budget_audit.py`
+measures them (missing files are skipped) and warns above 12,000 characters per
+file or 30,000 characters in aggregate (about 3,000 / 7,500 estimated tokens).
+Warnings fail only with `--strict`; `--no-root-context` skips the measurement.
+Keep these files to what an agent cannot discover from code, with imperative
+on-demand pointers ("Before X, read Y"); never inject large indexes at session
+start when a pointer suffices.
 
 ## Progressive Loading
 

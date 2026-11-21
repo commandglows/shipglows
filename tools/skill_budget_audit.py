@@ -27,6 +27,8 @@ COMPATIBILITY_MAX = 500
 BODY_TOKEN_RISK = 5000
 NAME_MAX = 64
 DEFAULT_BATCH_SIZE = 8
+ROOT_CONTEXT_FILE_WARNING = 12000
+ROOT_CONTEXT_AGGREGATE_WARNING = 30000
 VALID_NAME = re.compile(r"^[a-z0-9-]+$")
 XML_TAG = re.compile(r"<[^>]+>")
 GENERIC_STARTS = {
@@ -110,6 +112,82 @@ class RuntimeReport:
     errors: list[str] = field(default_factory=list)
 
 
+@dataclass
+class RootContextFile:
+    label: str
+    path: Path
+    chars: int = 0
+    present: bool = False
+
+    @property
+    def token_estimate(self) -> int:
+        return (self.chars + 3) // 4
+
+
+@dataclass
+class RootContextReport:
+    files: list[RootContextFile]
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def total_chars(self) -> int:
+        return sum(item.chars for item in self.files if item.present)
+
+
+def root_context_candidates(repo_root: Path, home: Path | None) -> list[tuple[str, Path]]:
+    """Always-loaded instruction files: user-global CLAUDE.md, repo CLAUDE.md and AGENT.md."""
+
+    candidates: list[tuple[str, Path]] = []
+    if home is not None:
+        candidates.append(("~/.claude/CLAUDE.md", home / ".claude" / "CLAUDE.md"))
+    candidates.append(("CLAUDE.md", repo_root / "CLAUDE.md"))
+    candidates.append(("AGENT.md", repo_root / "AGENT.md"))
+    return candidates
+
+
+def audit_root_context(
+    repo_root: Path,
+    home: Path | None,
+    file_warning: int = ROOT_CONTEXT_FILE_WARNING,
+    aggregate_warning: int = ROOT_CONTEXT_AGGREGATE_WARNING,
+) -> RootContextReport:
+    """Measure always-loaded root context; missing files are skipped, never errors."""
+
+    report = RootContextReport(files=[])
+    for label, path in root_context_candidates(repo_root, home):
+        item = RootContextFile(label=label, path=path)
+        try:
+            item.chars = len(path.read_text(encoding="utf-8"))
+            item.present = True
+        except (OSError, UnicodeError):
+            item.present = False
+        report.files.append(item)
+        if item.present and item.chars > file_warning:
+            report.warnings.append(
+                f"root context {label} is {item.chars} chars (> {file_warning}); "
+                "move detail behind an on-demand pointer"
+            )
+    if report.total_chars > aggregate_warning:
+        report.warnings.append(
+            f"root context aggregate is {report.total_chars} chars (> {aggregate_warning})"
+        )
+    return report
+
+
+def root_context_lines(report: RootContextReport) -> list[str]:
+    lines = [
+        f"Root context (always loaded): {report.total_chars} chars "
+        f"(~{(report.total_chars + 3) // 4} tokens) / warn {ROOT_CONTEXT_AGGREGATE_WARNING}"
+    ]
+    for item in report.files:
+        if item.present:
+            lines.append(f"  {item.label}: {item.chars} chars (~{item.token_estimate} tokens)")
+        else:
+            lines.append(f"  {item.label}: absent (skipped)")
+    lines.extend(f"WARN: {warning}" for warning in report.warnings)
+    return lines
+
+
 def positive_int(value: str) -> int:
     try:
         parsed = int(value)
@@ -175,6 +253,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--check-paths",
         action="store_true",
         help="Compatibility flag; path checks always run.",
+    )
+    parser.add_argument(
+        "--repo-root",
+        help="Repository whose CLAUDE.md and AGENT.md are measured. Defaults to the skills root parent.",
+    )
+    parser.add_argument(
+        "--no-root-context",
+        action="store_true",
+        help="Skip the always-loaded root context measurement (~/.claude/CLAUDE.md, CLAUDE.md, AGENT.md).",
     )
     parser.add_argument(
         "--batch-size",
@@ -543,6 +630,7 @@ def print_text(
     budget: int,
     aggregate_errors: list[str],
     runtimes: list[RuntimeReport],
+    root_context: RootContextReport | None = None,
 ) -> None:
     totals = summary(audits)
     selected_totals = summary(selected)
@@ -563,6 +651,9 @@ def print_text(
     for runtime in runtimes:
         for message in runtime.errors:
             print(f"ERROR [{runtime.root}]: {message}")
+    if root_context is not None:
+        for line in root_context_lines(root_context):
+            print(line)
     print()
 
     for audit in audits:
@@ -595,6 +686,7 @@ def print_markdown(
     budget: int,
     aggregate_errors: list[str],
     runtimes: list[RuntimeReport],
+    root_context: RootContextReport | None = None,
 ) -> None:
     totals = summary(audits)
     selected_totals = summary(selected)
@@ -625,6 +717,9 @@ def print_markdown(
     for runtime in runtimes:
         for message in runtime.errors:
             print(f"- ERROR `{runtime.root}`: {message}")
+    if root_context is not None:
+        for line in root_context_lines(root_context):
+            print(f"- {line.strip()}")
     print()
     print(
         "| Batch | Skill | Implicit | Description chars | Listing chars | Sentences | "
@@ -666,6 +761,14 @@ def run(args: argparse.Namespace) -> int:
         )
         for runtime_root in args.runtime_skills_root
     ]
+    root_context = None
+    if not args.no_root_context:
+        repo_root = lexical_absolute(Path(args.repo_root)) if args.repo_root else skills_root.parent
+        try:
+            home: Path | None = Path.home()
+        except (RuntimeError, KeyError):
+            home = None
+        root_context = audit_root_context(repo_root, home)
 
     if args.format == "markdown":
         print_markdown(
@@ -676,6 +779,7 @@ def run(args: argparse.Namespace) -> int:
             args.budget,
             aggregate_errors,
             runtimes,
+            root_context,
         )
     else:
         print_text(
@@ -686,10 +790,13 @@ def run(args: argparse.Namespace) -> int:
             args.budget,
             aggregate_errors,
             runtimes,
+            root_context,
         )
 
     has_errors = any(audit.errors for audit in audits)
-    has_warnings = any(audit.warnings for audit in audits)
+    has_warnings = any(audit.warnings for audit in audits) or bool(
+        root_context and root_context.warnings
+    )
     runtime_errors = any(runtime.errors for runtime in runtimes)
     if has_errors or aggregate_errors or runtime_errors or (args.strict and has_warnings):
         return 1

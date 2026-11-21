@@ -74,7 +74,7 @@ That research-only configuration does not apply to project execution.
 
 ## Context Docs
 
-- `CLAUDE.md`: contraintes techniques et patterns critiques.
+- `CLAUDE.md`: contraintes minimales non deductibles du code (poste Windows, sessions gerees, pointeurs "Avant de modifier X, lire Y").
 - `shipglows_data/technical/context.md`: architecture, entry points, flux, hotspots, invariants, ou modifier quoi.
 - `shipglows_data/technical/context-function-tree.md`: arbre de fonctions des scripts principaux.
 - `shipglows_data/editorial/content-map.md`: surfaces de contenu, pages piliers, cocons semantiques, destinations de repurposing.

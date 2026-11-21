@@ -230,6 +230,9 @@ launcher active uniquement les MCP demandes pour la nouvelle session.
 - Invalider ensemble PM2, registre et index noms/paths via `invalidate_after_pm2_mutation` apres une mutation runtime.
 - Ne pas parser la structure JS/JSON a coups de grep si une voie fiable existe deja.
 - Ne pas editer manuellement des fichiers regeneres comme les configs d'ecosystem runtime.
+- Operations PM2 idempotentes (`pm2 delete "app" 2>/dev/null || true`), jamais check-then-act ; `validate_project_path()` exige des chemins absolus.
+- Sur un hote Linux ARM64, ne pas lancer de build Android release (APK/AAB) : les router vers Blacksmith ou un runner Linux x64.
+- Garder clones de reference et caches caches (`~/.local/share/.go`, `.fzf`, `.keyboard`), jamais en dossiers visibles de `~`.
 - Ne pas transformer une passe metadata en rewrite complet de documentation.
 - Un succes utilisateur doit etre observable ; un echec doit etre observable ou recuperable, sauf justification explicite.
 

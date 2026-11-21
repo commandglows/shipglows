@@ -255,6 +255,59 @@ class SkillBudgetAuditTests(unittest.TestCase):
 
         self.assertEqual(catalogs.errors, ("public catalog skill missing on disk: shipglows",))
 
+    def test_root_context_measures_present_files_and_skips_missing_home(self) -> None:
+        repo = self.root / "repo"
+        repo.mkdir()
+        (repo / "CLAUDE.md").write_text("a" * 100, encoding="utf-8")
+        (repo / "AGENT.md").write_text("b" * 50, encoding="utf-8")
+        home = self.root / "home-without-claude"
+        home.mkdir()
+
+        report = audit.audit_root_context(repo, home)
+
+        self.assertEqual(report.total_chars, 150)
+        self.assertEqual(report.warnings, [])
+        labels = {item.label: item.present for item in report.files}
+        self.assertEqual(labels, {"~/.claude/CLAUDE.md": False, "CLAUDE.md": True, "AGENT.md": True})
+
+    def test_root_context_warns_per_file_and_on_aggregate(self) -> None:
+        repo = self.root / "repo"
+        repo.mkdir()
+        (repo / "CLAUDE.md").write_text("a" * 40, encoding="utf-8")
+        home = self.root / "home"
+        (home / ".claude").mkdir(parents=True)
+        (home / ".claude" / "CLAUDE.md").write_text("g" * 80, encoding="utf-8")
+
+        report = audit.audit_root_context(repo, home, file_warning=60, aggregate_warning=100)
+
+        self.assertEqual(len(report.warnings), 2)
+        self.assertIn("~/.claude/CLAUDE.md", report.warnings[0])
+        self.assertIn("aggregate", report.warnings[1])
+
+    def test_root_context_warning_fails_only_in_strict_mode(self) -> None:
+        skills_root = self.root / "repo" / "skills"
+        self.make_skill(skills_root, "sg-alpha")
+        self.make_skill(skills_root, "shipglows")
+        registry_path, _ = self.make_registry(skills_root)
+        (skills_root.parent / "AGENT.md").write_text(
+            "x" * (audit.ROOT_CONTEXT_FILE_WARNING + 1), encoding="utf-8"
+        )
+        base = ["--skills-root", str(skills_root), "--registry", str(registry_path)]
+        home = self.root / "empty-home"
+        home.mkdir()
+
+        with mock.patch.object(Path, "home", return_value=home):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                relaxed = audit.run(audit.parse_args(base))
+            with contextlib.redirect_stdout(io.StringIO()):
+                strict = audit.run(audit.parse_args([*base, "--strict"]))
+                skipped = audit.run(audit.parse_args([*base, "--strict", "--no-root-context"]))
+
+        self.assertIn("Root context (always loaded)", output.getvalue())
+        self.assertIn("~/.claude/CLAUDE.md: absent (skipped)", output.getvalue())
+        self.assertEqual((relaxed, strict, skipped), (0, 1, 0))
+
 
 if __name__ == "__main__":
     unittest.main()

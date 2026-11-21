@@ -1,161 +1,29 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working in this repository.
+Contraintes non déductibles du code. La carte d'entrée canonique est `AGENT.md` :
+la lire avant toute tâche non triviale.
 
----
+## Poste et exécution
 
-## Project Overview
+- L'opératrice travaille sur Windows (PowerShell), racine
+  `C:\Users\Diane\ShipGlows\shipglows`, canal `linked`. Avant tout travail
+  dépendant d'un serveur ou d'un outil, lire `%USERPROFILE%\.shipglows\environment.md`.
+- Serveurs et applications : uniquement via les sessions gérées `shipglows-dev` / `s`.
+  Avant de toucher au DevServer Windows, lire
+  `shipglows_data/technical/operator-guides/windows-devserver.md`.
+- Ce projet s'exécute sans Doppler (`Doppler NONE`, voir `AGENT.md`).
+- Les scripts Bash `cli/*.sh` ciblent les hôtes Linux (Flox/PM2/Caddy) ; ils ne
+  décrivent pas le poste de l'opératrice.
 
-**ShipGlows** — CLI dev environment manager for servers. Automates deployment with **Flox** (isolation), **PM2** (processes), **Caddy** (HTTPS reverse proxy). Provides SSH tunnel access + public HTTPS URLs via DuckDNS.
+## Avant de modifier
 
----
-
-## Architecture
-
-### Core Files
-
-- **cli/shipglows-gsc.sh** — Read-only Google Search Console client data (`shipglows-gsc` / `gsc`); SEO agents load `skills/references/client-measurement-clis.md`
-- **cli/shipglows.sh** — Main entry point (interactive menu)
-- **cli/lib.sh** — Central library (ports, PM2 cache, Flox, Caddy, validation, logging)
-- **cli/config.sh** — All settings via env vars (ports, SSH, logging, cache TTL)
-- **cli/install.sh** — Server setup (Node.js, PM2, Flox, Caddy, gh, skills symlinks)
-
-### Key Patterns
-
-**Env Registry** (`~/.shipglows/envs.reg`) — Zero-subprocess dashboard data:
-```bash
-ensure_registry()    # Lazy refresh only when the registry is missing, invalidated, or stale
-scan_managed_projects() # Merges bounded Git catalogue discovery with existing Flox environments
-registry_sync()      # Atomically rebuild from catalogue/Flox discovery + one PM2 snapshot
-registry_update()    # Atomically update one env entry after lifecycle mutations
-# Format: name|status|port|environment_root|launch_path per line; cloned surfaces may be uninitialized
-# A valid last-known snapshot survives refresh or lock failures
-```
-
-`lib.sh` sourcing must not call PM2 or scan Flox. Cache-populating internals use
-destination-variable APIs (`pm2_data_load`, `environment_index_load`,
-`resolve_project_path_into`) in the parent shell; stdout wrappers exist only
-for compatibility and must not be used when later calls need the same cache.
-
-**PM2 Health Scan** — File-read health check, no subprocess:
-```bash
-pm2_health_scan()  # Reads ~/.pm2/dump.pm2 (~1ms), warns on >10 restarts
-# Runs at lib.sh source time + after env_start + refresh_menu_status_cache_sync (every 120s)
-```
-
-**Port Allocation** — Anti-collision in 3000-3100 range:
-```bash
-find_available_port()  # Checks active ports + PM2-reserved ports
-```
-
-**Idempotent Operations** — No check-then-act races:
-```bash
-pm2 delete "app" 2>/dev/null || true  # Safe to retry
-```
-
-**Input Validation** — `validate_project_path()` blocks `..`, `;`, `&`, `|`, `$`, backticks.
-
-**JSON Parsing** — Prefers jq (2-5x faster), falls back to python3.
-
-**Dashboard** — Numbered `[ 1]...[N]` layout with legend `🟢 online 🟡 stopped 🔴 error ⚪ unknown`:
-```bash
-show_dashboard()  # Reads envs.reg, displays environments + action bar
-# Action bar: [n] [s] [e] [o] [k] [x] — single-keypress (s/k/digits), multi-step (e/o + number)
-# Stdin drain: read -t 0.01 -n 10000 after action bar prevents key leakage to main menu
-```
-
-**Auto-Install Guards** — Fail-safe dependency recovery:
-```bash
-# Node.js: checks node_modules exists + non-empty; runs pnpm/npm install if missing
-# Python: checks venv/bin/python3 exists; creates venv + pip install -r requirements if missing
-# Doppler: tests connectivity; disables if unreachable
-```
-
-**Port Display** — `localhost:PORT` (no protocol prefix), `Port:` without double-colon.
-
----
-
-## Common Tasks
-
-```bash
-# Launch menu
-sg                    # or: shipglows, or: ./cli/shipglows.sh
-
-# Install dependencies (run as root)
-sudo ./cli/install.sh
-
-# Run tests
-./tests/cli/input-validation.sh       # Input validation
-./tests/cli/config-logging-cache.sh   # Caching, logging, config
-./tests/cli/json-error-handling.sh    # jq, error handling
-
-# Source library functions
-source cli/lib.sh
-env_start "myapp"     # Start environment (auto-installs deps, creates venv, validates doppler)
-env_stop "myapp"      # Stop (idempotent, silent)
-env_remove "myapp"    # Remove (destructive)
-get_pm2_status "myapp"
-get_port_from_pm2 "myapp"
-registry_sync         # Force rebuild envs.reg from pm2
-registry_update "name" "status" "port" "path"  # Update single entry
-show_dashboard        # Display dashboard (reads envs.reg, 0 subprocesses)
-```
-
----
-
-## Critical Rules
-
-1. **Always invalidate cache** after PM2 state changes (`invalidate_pm2_cache`)
-2. **Don't parse JS with grep** — use `node -e "require(...)"`
-3. **Don't use relative paths** — validation requires absolute paths
-4. **Don't manually edit ecosystem.config.cjs** — regenerated on each start
-5. **Use idempotent operations** — `pm2 delete || true`, not check-then-act
-6. **Do not run Android release builds on Linux ARM64** — on `aarch64`/`arm64` hosts, do not run `flutter build apk --release`, `flutter build appbundle --release`, `./gradlew assembleRelease`, or `./gradlew bundleRelease`; route APK/AAB release builds to Blacksmith or another Linux x64 CI runner. Local Flutter work is limited to `flutter analyze`, `flutter test`, and `flutter build web --release`.
-7. **Keep reference clones and caches hidden** — use `~/.local/share/.go`, `~/.local/share/.fzf`, and `~/.local/share/.keyboard` instead of visible top-level `~/go`, `~/fzf`, or `~/keyboard` directories.
-
----
-
-## Framework Auto-Configuration
-
-| Framework | Detection | Port Config |
-|-----------|-----------|-------------|
-| Astro | package.json | `server.port = PORT` in config |
-| Vite | package.json | `--port $PORT --host` |
-| Next.js | package.json | `-p $PORT` (automatic) |
-| Nuxt | package.json | `--port $PORT` |
-| Vue CLI | `@vue/cli-service` in package.json | `vue-cli-service serve --port $PORT --host 0.0.0.0` |
-| Expo | package.json | Tunnel mode, no fixed port |
-| Python/FastAPI | venv/bin/python3 | Via uvicorn in ecosystem config |
-
-## Renamed Environments
-
-| Original | Renamed | Path | Purpose |
-|----------|---------|------|---------|
-| `app` | `shipglows_app` | `/home/claude/shipglows_app/shipglows_app/` | Flutter dashboard (CI only) |
-| `site` | `shipglows-site` | `/home/claude/shipglows_app/site/` | ShipGlows marketing site (Astro) |
-| `contentflowz-app` (flox) | `shipglows-app` | — | Flox env for shipglows_app |
-
----
-
-## File Structure
-
-```
-shipglows/
-├── cli/
-│   ├── shipglows.sh            # Main menu
-│   ├── lib.sh                  # Core library
-│   ├── config.sh               # Configuration
-│   ├── install.sh              # Server installation
-│   ├── shipglows_devserver_bash.sh
-│   └── shipglows_devserver_gum.sh
-├── install-shipglows.sh        # Stable public bootstrap (Unix)
-├── install-shipglows.ps1       # Stable public bootstrap (Windows)
-├── skills/                     # ShipGlows skill library
-├── .claude/statusline-starship.sh  # Status bar
-├── local/                      # SSH tunnel scripts
-│   ├── dev-tunnel.sh
-│   ├── local.sh
-│   └── install.sh
-├── injectors/web-inspector.js  # Browser inspector
-└── tests/                      # Test suites grouped by ownership
-```
+- `cli/lib.sh` ou `cli/*.sh` : lire `shipglows_data/technical/context-function-tree.md`
+  puis `shipglows_data/technical/context.md` (invariants cache PM2, registre, sourcing
+  sans sous-processus).
+- Du code, un outil, une skill ou un template : lire
+  `shipglows_data/technical/code-docs-map.md` ; il désigne la doc primaire et les
+  vérifications ciblées à lancer.
+- Une skill ou une référence chargée par les agents : lire
+  `skills/references/skill-context-budget.md` et lancer
+  `python tools/skill_budget_audit.py --skills-root skills`.
+- Le bootstrap d'installation : lire `shipglows_data/technical/bootstrap-matrix.md`.
