@@ -15,7 +15,7 @@ Process role: `pilotage`.
 
 When exactly one spec-first chantier owns the run, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report, append the run to `Skill Run History`, and change `Current Chantier Flow` only if state changed. Otherwise write no spec and use a `(local)` chantier header.
 
-This skill may route non-trivial new work to `100-sg-spec`; it does not turn every continuation into a chantier source.
+Continuation does not turn every run into a chantier source.
 
 ## Mission And Boundary
 
@@ -36,7 +36,7 @@ Load shared references only at their decision boundary:
 - `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` before selecting, recommending, or overriding a delegated model;
 - `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` only for an attached chantier report;
 - `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` only before the final user report.
-- `$SHIPGLOWS_ROOT/skills/references/git-persistence-preflight.md` before resuming an interrupted mutating Git chantier; keep healthy state silent; when the preflight reports drift or an interrupted push, recover the last proven upstream commit, local remainder, proof, and next outcome.
+- `$SHIPGLOWS_ROOT/skills/references/git-persistence-preflight.md` before resuming an interrupted mutating Git chantier; keep healthy state silent; on drift or an interrupted push, recover the last proven upstream commit, local remainder, proof, and next outcome.
 
 Do not preload agent templates, model catalogues, or unrelated lifecycle skills.
 
@@ -52,16 +52,9 @@ A short confirmation such as “continue”, “vas-y”, or “poursuis” auth
 
 ## Execution Decision
 
-Classify the selected unit as one of:
+Classify the selected unit as `answer` (direct decision, explanation, or status), `local` (tiny action tightly coupled to the current thread), `investigate` (bounded read-only evidence missing), `implement` (bounded file work with clear ownership and validation), `lifecycle route` (another owner runs the next gate), or `blocked` (user decision, authority, or external state required).
 
-- `answer`: a direct decision, explanation, or status is sufficient;
-- `local`: a tiny action is tightly coupled to the current thread;
-- `investigate`: bounded read-only evidence is missing;
-- `implement`: bounded file work has clear ownership and validation;
-- `lifecycle route`: another owner must run the next gate;
-- `blocked`: a user decision, authority, or external state is required.
-
-Before any agent dispatch, follow `master-delegation-semantics.md`. Use main-only for one cohesive bounded stream, parallelize independent read-only scopes only for net time/coverage gain, and use delegated sequential execution when isolation materially helps; parallel writes require non-overlapping `Execution Batches` with one integration owner.
+Before any agent dispatch, follow `master-delegation-semantics.md`: main-only for one cohesive bounded stream; independent read-only scopes only for net time/coverage gain; delegated sequential execution when isolation materially helps; parallel writes need non-overlapping `Execution Batches` and one integration owner.
 
 Delegated missions must state the outcome, owned and forbidden surfaces, relevant evidence, chosen model status, validation, and stop condition. Do not paste shared skill bodies or reusable prompt templates into this activation contract.
 

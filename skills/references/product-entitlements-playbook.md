@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "2.4.1"
 project: ShipGlows
 created: "2026-05-29"
-updated: "2026-10-02"
+updated: "2026-11-21"
 status: active
 source_skill: 601-sg-product-entitlements
 scope: product-entitlements
@@ -24,10 +24,9 @@ depends_on: []
 supersedes: []
 evidence:
   - "Suite authentication separates global identity, product entitlements, and product data namespaces."
-  - "Wave 12 moved branch procedures to direct conditional leaves while preserving authorization doctrine here."
-  - "Operator decision 2026-08-22: trial-expiry UX must make suspended product value concrete while preserving data safety, eligible restarts, recovery, and non-coercive founder voice."
-  - "Operator decision 2026-08-22: govern the complete trial transition from calm pre-expiry reminders through expiration and recovery, with progressive clarity but no progressive pressure."
-  - "2026-09-11: linked the doctrine to the suite commerce, Stripe and AppSumo operational playbooks so provider work reuses the entitlement boundary instead of rediscovering it."
+  - "Wave 12 moved branch procedures to direct conditional leaves; authorization doctrine stayed here."
+  - "Operator decision 2026-08-22: govern the complete trial transition from pre-expiry reminders through recovery, with progressive clarity and no progressive pressure."
+  - "2026-09-11: linked the Stripe and AppSumo operational playbooks so provider work reuses this boundary."
   - "Operator decision on 2026-10-02: permit an approved CommunityGlows two-cycle/one-restart exception while retaining the three-cycle suite default."
 next_review: "2026-10-11"
 next_step: "Use the linked operational playbooks when a product is being prepared for sale or provider proof."
@@ -35,54 +34,51 @@ next_step: "Use the linked operational playbooks when a product is being prepare
 
 # Product Entitlements Playbook
 
-Use this primary doctrine for product access, plans, trials, activation codes, provider events, grants, refunds, revocations, quotas, premium gates, and missing-access support. It decides authorization invariants and which one direct branch `601-sg-product-entitlements` must load next.
+Primary doctrine for product access, plans, trials, activation codes, provider events, grants, refunds, revocations, quotas, premium gates and missing-access support. It decides authorization invariants and the one direct branch `601-sg-product-entitlements` loads next.
 
 ## Core Doctrine
 
-Keep identity, provider events, durable product entitlements, and product-local mirrors separate. Authentication proves identity; it never grants access. Providers and marketplaces report events; they are not runtime authorization sources. Fail closed: protected product behavior reads a server-owned entitlement ledger and denies when identity, verification, lookup, environment, namespace, or mirror state is missing or malformed.
+Keep identity, provider events, durable entitlements and product-local mirrors separate. Authentication proves identity; it never grants access. Providers and marketplaces report events; they are not runtime authorization sources. Fail closed: protected behavior reads a server-owned entitlement ledger and denies when identity, verification, lookup, environment, namespace or mirror state is missing or malformed.
 
-For suite products, extend the canonical suite ledger with one stable `product_id`, ingestion path, bridge, UI, and product gate. Do not create a second durable ledger unless the product is explicitly standalone or a ready spec documents a temporary adapter and retirement path. Product-local state is a cache, mirror, migration adapter, or compatibility fallback only.
+Suite products extend the canonical suite ledger with one stable `product_id`, ingestion path, bridge, UI and product gate. No second durable ledger unless the product is explicitly standalone or a ready spec documents a temporary adapter and retirement path. Product-local state is cache, mirror, migration adapter or compatibility fallback only.
 
-Normalize and allowlist product, plan, source, environment, status, and owner before an authorizing write. External customer, order, subscription, license, event, and identity ids remain references, never access truth. Client claims, cookies, local storage, UI state, and client-owned database paths never authorize premium reads or writes.
+Normalize and allowlist product, plan, source, environment, status and owner before any authorizing write. External customer, order, subscription, license, event and identity ids are references, never access truth. Client claims, cookies, local storage, UI state and client-owned database paths never authorize premium reads or writes.
 
 ## Operational Playbook Layer
 
-This reference is the entitlement doctrine. It is not the launch checklist and does not replace provider-specific execution playbooks.
+This is the entitlement doctrine, not the launch checklist, and it does not replace provider-specific playbooks. Below it, in order:
 
-Use this hierarchy:
+1. `shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md`: active suite commercial contract and provider policy.
+2. `shipglows_data/workflow/playbooks/digital-product-commerce-launch-playbook.md`: reusable method from sellable offer to delivery; instantiate with the project's policy.
+3. `shipglows_data/workflow/playbooks/stripe-payments-commerce-playbook.md`: Stripe sales.
+4. `shipglows_data/workflow/playbooks/appsumo-licensing-commerce-playbook.md`: AppSumo Licensing, an external license channel feeding the same ledger.
 
-1. `skills/references/product-entitlements-playbook.md` defines the authorization boundary: identity, provider events, durable entitlements, mirrors, gates and proof.
-2. `shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md` records the active suite commercial contract and current provider policy.
-3. `shipglows_data/workflow/playbooks/digital-product-commerce-launch-playbook.md` explains a reusable method from sellable offer to customer delivery; instantiate it with the project's own policy.
-4. `shipglows_data/workflow/playbooks/stripe-payments-commerce-playbook.md` handles Stripe sales.
-5. `shipglows_data/workflow/playbooks/appsumo-licensing-commerce-playbook.md` handles AppSumo Licensing as an external license channel feeding the same ledger.
-
-When provider work discovers reusable execution lessons, update the operational playbooks. When it changes what product access means, update this doctrine and the active suite contract.
+Reusable execution lessons go to the operational playbooks; changes to what product access means go to this doctrine and the active suite contract.
 
 ## Suite Commercial Contract
 
-The suite default is a server-owned 30-day initial trial, at most two user-triggered 30-day restarts after expiry, at most three cycles or 90 days total, mandatory purchase afterward, no permanent freemium or authentication grant, and Stripe Managed Payments as the only direct-payment provider. Apply a product-specific cycle cap only when the operator explicitly approves it and the current product policy registry and governing spec both record it. CommunityGlows has one such approved exception: at most two 30-day cycles, with one restart.
+Suite default: server-owned 30-day initial trial, at most two user-triggered 30-day restarts after expiry, at most three cycles or 90 days total, mandatory purchase afterward, no permanent freemium or authentication grant, and Stripe Managed Payments as the only direct-payment provider. A product-specific cycle cap needs explicit operator approval recorded in both the product policy registry and the governing spec; CommunityGlows has one approved exception (two 30-day cycles, one restart).
 
-Managed Payments must be explicit per checkout. Keep the ledger source-neutral internally, but allowlist exactly `stripe` for active suite ingestion. Historical/manual/migration sources remain auditable but non-granting unless canonical policy permits them. Never invent prices: resolve a named server-side Stripe Price ID. If current official eligibility, API, webhook, refund, availability, or terms are unknown or incompatible, apply the freshness gate and stop for an operator decision; do not choose a fallback provider.
+Managed Payments are explicit per checkout. Keep the ledger source-neutral internally, but allowlist exactly `stripe` for active suite ingestion. Historical, manual and migration sources stay auditable but non-granting unless canonical policy permits. Never invent prices: resolve a named server-side Stripe Price ID. If official eligibility, API, webhook, refund, availability or terms are unknown or incompatible, apply the freshness gate and stop for an operator decision; never choose a fallback provider.
 
 ## Direct Branch Map
 
 After this doctrine, load at most one branch before the next substantive action:
 
-- Ledger creation/adoption, statuses, backend authorization, product namespace, quota, or mirror/cache: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-ledger-and-authorization.md`.
-- Checkout, provider webhooks, manual/LTD/activation codes, refunds, revocations, replay, or ingestion: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-ingestion.md`.
-- UI access states, pre-expiry reminders, trial-transition conversion, operator support, reconciliation, redaction, or completion proof: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-support-and-proof.md`.
+- Ledger creation/adoption, statuses, backend authorization, product namespace, quota, mirror/cache: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-ledger-and-authorization.md`.
+- Checkout, provider webhooks, manual/LTD/activation codes, refunds, revocations, replay, ingestion: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-ingestion.md`.
+- UI access states, pre-expiry reminders, trial-transition conversion, operator support, reconciliation, redaction, completion proof: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-support-and-proof.md`.
 
-For suite ids/defaults/sync eligibility, load `$SHIPGLOWS_ROOT/skills/references/winflowz-suite-product-registry.md` directly from the skill. For current provider semantics, load `documentation-freshness-gate.md` and official sources directly from the skill. Branch files never load one another.
+Suite and provider-semantics loaders are owned by the skill. Branch files never load one another.
 
 ## Activation-Critical Stops
 
-Stop for identity/entitlement conflation; duplicate durable ledgers; unknown product/plan/environment/owner; client-authorized access; raw activation-code or secret exposure; unverified, replayed, malformed, cross-environment, or unknown-provider events; mirrors that can stay active after revoke/refund/expiry; missing backend authorization; stale provider truth; or behavior-changing work without a ready contract.
+Stop for identity/entitlement conflation; duplicate durable ledgers; unknown product, plan, environment or owner; client-authorized access; raw activation-code or secret exposure; unverified, replayed, malformed, cross-environment or unknown-provider events; mirrors that can stay active after revoke/refund/expiry; missing backend authorization; stale provider truth; or behavior-changing work without a ready contract.
 
-Unknown and `pending_review` states never grant access. Revocation, refund, expiry, cancellation, chargeback, and failed renewal remove access without deleting identity. Product-safe UI may offer recovery or support but cannot promote an unverified state.
+Unknown and `pending_review` states never grant access. Revocation, refund, expiry, cancellation, chargeback and failed renewal remove access without deleting identity. Product-safe UI may offer recovery or support but cannot promote an unverified state.
 
 ## Proof Boundary
 
-Completion requires representative grant and denial evidence through the normal backend access query, plus idempotency/replay, revoke/refund/expiry propagation, cross-user isolation, and redacted support diagnostics as applicable. UI-only evidence is partial. The canonical scenario family `SPE-001` through `SPE-010` lives in the support-and-proof branch.
+Completion requires representative grant and denial evidence through the normal backend access query, plus idempotency/replay, revoke/refund/expiry propagation, cross-user isolation and redacted support diagnostics as applicable. UI-only evidence is partial. The canonical scenario family `SPE-001` through `SPE-010` lives in the support-and-proof branch.
 
-This doctrine does not replace legal, tax, accounting, invoicing, revenue-recognition, or app-store policy review.
+Does not replace legal, tax, accounting, invoicing, revenue-recognition or app-store policy review.

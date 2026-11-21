@@ -38,26 +38,24 @@ Concise does not mean vague. State the blocking gate, redacted concrete evidence
 
 ## Unfinished Chantier Choice
 
-Continue a safely executable authorized unit before returning control; do not ask
-for permission to continue it. If an operator decision, missing authority or
-requested steering is needed, end the message
+Continue a safely executable authorized unit without asking permission. If an
+operator decision, missing authority or requested steering is needed, end the message
 with a numbered, plain-language choice block. Apply the strategic-choice contract
 already selected by the reporting owner; offer two or three genuine choices and recommend
 the strongest responsible business direction. Choices must never expose skill names,
 slash commands, lifecycle labels, internal owners, or agent topology.
 
-For an external wait or unavailable proof with no operator choice, report the
-evidence, remaining limit and recovery action without inventing alternatives.
-Incomplete work stays incomplete. Unknown targets and new effects still require
-resolution before execution; continuation never expands authority.
+An external wait or unavailable proof with no operator choice reports evidence,
+remaining limit and recovery action, never invented alternatives; incomplete work
+stays incomplete; unknown targets and new effects still need resolution before
+execution, and continuation never expands authority.
 
 Use `Questionner` or `Réorienter` only for requested steering with useful guided
-follow-up, not a generic continuation gate. Follow the reporting owner's response
-instruction and compact layout. Completed work receives no unfinished-choice block.
+follow-up, not a generic continuation gate. Completed work receives no unfinished-choice block.
 
 ## Audit Reports
 
-Audit skills report findings first. In user mode include scope, clear/issues/blocked result, the few highest-severity findings, proof gaps, and `Chantier potentiel` when applicable. Keep large domain matrices only when comparison changes the decision. Detailed scoring, commands, assumptions, and handoff notes belong to agent mode.
+Audit skills report findings first. In user mode include scope, clear/issues/blocked result, the few highest-severity findings, proof gaps, and `Chantier potentiel` when applicable; matrices only when comparison changes the decision. Scoring, commands, assumptions and handoff notes belong to agent mode.
 
 When the invocation asks for a `shipglows-verdict` block or names a health dimension scope (`seo: 406-sg-seo audit`), load `$SHIPGLOWS_ROOT/skills/references/audit-verdict-contract.md` and end the final message with exactly one verdict block, after the report, in every report mode.
 

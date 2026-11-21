@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-27"
+updated: "2026-11-21"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-facing-strategic-choices
@@ -38,13 +38,13 @@ next_step: "/103-sg-verify strategic operator choices"
 
 ## Purpose
 
-Operator-facing choices steer the business, product, customer promise, risk posture, investment, or durable priority. They do not outsource technical workflow supervision to the operator.
+Operator-facing choices steer business, product, customer promise, risk posture, investment, or durable priority; they never outsource technical workflow supervision to the operator.
 
-Apply this contract to material choices in mutation plans, user questions, unfinished or blocked chantier reports, and any final report that returns a decision to the operator. Keep routine reversible micro-decisions proportional; do not invent a strategy exercise when no business consequence differs.
+Apply it to material choices in mutation plans, user questions, unfinished or blocked chantier reports, and final reports returning a decision. Keep routine reversible micro-decisions proportional; invent no strategy exercise when no business consequence differs.
 
 ## Material Choice Shape
 
-When credible options lead to materially different futures, each primary option represents a distinct business direction rather than a task or internal next step. Explain proportionally:
+When credible options lead to materially different futures, each primary option is a distinct business direction, not a task or internal step. Explain proportionally:
 
 - the business or product outcome sought;
 - the customer, market, revenue, trust, cost, risk, or organizational effect that materially differs;
@@ -52,34 +52,34 @@ When credible options lead to materially different futures, each primary option 
 - the material trade-off, constraint, or opportunity cost;
 - the condition that would make this direction preferable.
 
-Name the recommended direction and explain why it best serves the governed product and current evidence. Do not recommend the easiest implementation merely because it is faster to execute.
+Name the recommended direction and why it best serves the governed product and current evidence. Never recommend the easiest implementation merely because it is faster.
 
-Do not expose commands, files, packages, skills, lifecycle phases, agent topology, or technical implementation variants as operator choices unless they directly change a material business consequence; translate that consequence into plain language first.
+Do not expose commands, files, packages, skills, lifecycle phases, agent topology, or implementation variants as choices unless they change a material business consequence; translate that consequence into plain language first.
 
 ## Interaction Controls
 
-Short interaction labels such as `Questionner`, `Approfondir`, and `Réorienter` are allowed. Their value comes from the guided follow-up after selection, so the initial label does not need to contain the full brief.
+Short labels (`Questionner`, `Approfondir`, `Réorienter`) are allowed; their value lies in the guided follow-up after selection, so the label need not carry the full brief.
 
-- After `Questionner`, ask one focused decision brief or a compact sequence of inseparable questions that reveals missing business truth, tests assumptions, or distinguishes the credible directions. Explain why the answer matters and recommend a default when evidence supports one.
+- After `Questionner`, ask one focused decision brief or a compact sequence of inseparable questions that reveals missing business truth, tests assumptions, or separates credible directions; explain why the answer matters and recommend a default when evidence supports one.
 - After `Approfondir`, examine evidence-backed opportunities, risks, assumptions, and lessons in the delivered result, then recommend the most valuable deeper question or extension. Do not silently reopen the completed chantier.
-- After `Réorienter`, proactively offer two or three concrete business or product directions with their outcome, horizon, and material trade-off. The agent must not ask the operator to invent the next direction from a blank page.
+- After `Réorienter`, proactively offer two or three concrete business or product directions with their outcome, horizon, and material trade-off; the agent must not ask the operator to invent the next direction from a blank page.
 - After any control, continue guiding until a concrete direction is selected or the operator pauses or cancels. Selecting a control never grants approval for mutation.
 
-`Mettre en pause` and `Annuler` may also remain short when their immediate consequence is obvious. They are state controls, not strategic alternatives, and must not displace useful business directions when a material decision exists.
+`Mettre en pause` and `Annuler` may stay short when obvious; they are state controls, not strategic alternatives, and must not displace useful directions when a material decision exists.
 
 ## Plan And Chantier Application
 
-For a mutation plan whose objective already embodies one settled direction, the approval choice may stay concise while naming the business or product outcome being authorized. If the direction itself is unresolved, ask the strategic choice before presenting an implementation plan; do not hide competing visions behind one approval button.
+For a mutation plan whose objective embodies one settled direction, the approval choice may stay concise while naming the business or product outcome authorized. If the direction is unresolved, ask the strategic choice before presenting an implementation plan; never hide competing visions behind one approval button.
 
-For an unfinished or blocked chantier, propose specific business directions whenever evidence supports them. Generic continue, redirect, or pause controls are insufficient as the only choices when the run has revealed a real product, market, investment, scope, trust, or release decision.
+For an unfinished or blocked chantier, propose specific business directions when evidence supports them; generic continue, redirect, or pause controls alone are insufficient when the run revealed a real product, market, investment, scope, trust, or release decision.
 
-For a completed chantier, offer `Approfondir` and `Réorienter` only when the delivered result has a useful continuation surface. These controls continue the conversation without changing the truthful completed state; omit them when they would be ceremonial.
+For a completed chantier, offer `Approfondir` and `Réorienter` only when the delivered result has a useful continuation surface; they leave the truthful completed state unchanged, so omit them when ceremonial.
 
 ## Pressure Scenarios
 
-- `SC-BUSINESS-VISIONS`: competing directions state materially different outcomes, affected stakeholders, horizons, and trade-offs; package or workflow variants alone fail.
-- `SC-QUESTIONNER`: selecting the short `Questionner` label produces focused, decision-relevant questions and useful framing before any mutation.
-- `SC-APPROFONDIR`: selecting the short `Approfondir` label deepens evidence-backed opportunities, risks, assumptions, and lessons without silently reopening completed delivery.
-- `SC-REORIENTER`: selecting the short `Réorienter` label produces concrete alternative directions and a recommendation rather than “what do you want?”.
-- `SC-NO-BLANK-PAGE`: the operator is never asked to invent strategy, alternatives, or implementation mechanics without agent-provided framing.
-- `SC-PROPORTIONALITY`: a clear bounded request executes from its own authority with no approval choices; bounded agent-proposed actions keep compact confirmation, while unknown, unbounded, or materially directional work gets contextual choices and never fabricates alternatives.
+- `SC-BUSINESS-VISIONS`: competing directions differ in outcome, stakeholders, horizon, and trade-off; package or workflow variants alone fail.
+- `SC-QUESTIONNER`: `Questionner` yields focused, decision-relevant questions and framing before any mutation.
+- `SC-APPROFONDIR`: `Approfondir` deepens evidence-backed opportunities, risks, assumptions, and lessons without silently reopening completed delivery.
+- `SC-REORIENTER`: `Réorienter` yields concrete alternative directions and a recommendation, not “what do you want?”.
+- `SC-NO-BLANK-PAGE`: the operator is never asked to invent strategy, alternatives, or mechanics without agent framing.
+- `SC-PROPORTIONALITY`: clear bounded requests execute with no approval choices; bounded agent-proposed actions keep compact confirmation; unknown, unbounded, or materially directional work gets contextual choices, never fabricated alternatives.

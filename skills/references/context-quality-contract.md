@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-11-18"
+updated: "2026-11-21"
 status: active
 source_skill: 900-shipglows-core
 scope: context-quality-contract
@@ -33,11 +33,11 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator decision 2026-08-22: context capsules resolve business, brand, product, outcome, surface, and work item rather than a software-only feature chain."
-  - "Operator approval 2026-08-13: context quality is a shared lifecycle requirement and contextual MCP capabilities require a portable native fallback."
-  - "Operator approval 2026-08-21: material context drift routes through the shared conversation-continuity and restart-handoff contract."
-  - "Operator approval 2026-08-25: a bounded worktree-local Context Head may accelerate resume when derived from immutable significant events and revalidated against canonical truth."
-  - "Operator correction 2026-09-01: closure must refresh invalidated context and map task-owned code changes before classifying documentation impact."
+  - "Operator decision 2026-08-22: context capsules resolve business, brand, product, outcome, surface, and work item, not a software-only chain."
+  - "Operator approval 2026-08-13: context quality is shared lifecycle work; contextual MCP capabilities need a portable native fallback."
+  - "Operator approval 2026-08-21: material context drift routes through the conversation-continuity and restart-handoff contract."
+  - "Operator approval 2026-08-25: a bounded worktree-local Context Head may accelerate resume when derived from immutable events and revalidated against canonical truth."
+  - "Operator correction 2026-09-01: closure refreshes invalidated context and maps task-owned code changes before documentation impact."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify context quality contract"
 ---
@@ -46,7 +46,7 @@ next_step: "/103-sg-verify context quality contract"
 
 ## Purpose
 
-Use the minimum sufficient context for a correct decision, scaled by consequence. This contract qualifies working context; it does not create a new durable truth registry, require exhaustive reading, or make a cache authoritative.
+Use the minimum sufficient context for a correct decision, scaled by consequence. This contract qualifies working context without creating a truth registry, requiring exhaustive reading, or making a cache authoritative.
 
 ## Context Capsule
 
@@ -60,17 +60,17 @@ Carry one compact `Context Capsule` across routing, readiness, execution, verifi
 - `gaps`: material unknowns, stale claims, conflicts, proof limits, and their owner/action;
 - `next_action`: the next safe decision or execution step.
 
-The capsule is working state and may remain in a spec, mini-contract, or explicit handoff. Do not persist it separately when existing governed artifacts already contain the truth.
+The capsule is working state; do not persist it separately when governed artifacts already hold the truth.
 
-Every capsule carries one `read receipt`. It is not a source of truth and it is not a second registry.
+Every capsule carries one `read receipt`: not a source of truth, not a second registry.
 
 - `served`: each source actually used, with a pointer, its evidence state, and a short reason code. No source body.
 - `withheld`: each considered source that was not served, with a pointer and a reason code (`not_needed`, `absent`, `unreadable`, `stale`, `private`, or `no_permission`). No withheld body, excerpt, or value.
 - `verdict`: exactly one of `context_ready`, `context_partial`, `context_conflict`, or `context_stale`.
 
-`context_ready` is forbidden while any material claim is `unknown`, `hypothesis`, `conflict`, or `stale`. A derived discovery capsule stays `context_partial` until those claims are revalidated against canonical sources. A receipt that copies served or withheld text is invalid. Public skills build this receipt from the project files and observed git or runtime state. They do not call a private application to learn the truth.
+`context_ready` is forbidden while any material claim is `unknown`, `hypothesis`, `conflict`, or `stale`. A derived discovery capsule stays `context_partial` until those claims are revalidated against canonical sources. A receipt that copies served or withheld text is invalid. Public skills build it from project files and observed git or runtime state, never from a private application.
 
-For material work in an adopted repository, lifecycle owners obtain or refresh one bounded capsule automatically through `301-sg-context`. Every selected item carries deterministic reason codes plus authority, certainty and freshness. Missing seeds, unsupported relationships and truncation remain explicit gaps. Small exact tasks retain a cheaper targeted retrieval path, and task text is never automatically persisted in graph caches or evaluation telemetry.
+For material work in an adopted repository, lifecycle owners obtain or refresh one bounded capsule automatically through `301-sg-context`; each selected item keeps reason codes, authority, certainty and freshness, and missing seeds, unsupported relationships and truncation stay explicit gaps. Small exact tasks keep a cheaper targeted retrieval path. Task text is never persisted in graph caches or evaluation telemetry.
 
 ## Evidence States
 
@@ -80,23 +80,23 @@ Qualify every material statement as exactly one of:
 - `evidence_backed`: supported by an inspected canonical source or observed state;
 - `hypothesis`: useful inference awaiting proof or confirmation;
 - `unknown`: materially unresolved;
-- `stale`: previously supported but invalidated or outside its freshness boundary;
+- `stale`: once supported, now invalidated or outside its freshness boundary;
 - `conflict`: applicable authoritative sources disagree.
 
-Preserve state through summaries and handoffs. Never upgrade a hypothesis, unknown, stale claim, or cache preview to confirmed/evidence-backed merely by repetition. A downstream owner may upgrade only with new evidence and must retain its source.
+Preserve states through summaries and handoffs. Never upgrade a hypothesis, unknown, stale claim, or cache preview by repetition; a downstream owner upgrades only with new evidence and keeps its source.
 
 ## Authority And Sufficiency
 
-Resolve claims through the applicable owners, normally: canonical project truth; observed repository and runtime state; explicit operator decisions; current official documentation for external behavior; then memory and cache for discovery. Claim type matters: observed code cannot prove product intent, and a stale document cannot override current runtime behavior. A new operator decision that changes canonical truth triggers its owned update rather than silently creating two truths.
+Resolve claims through the applicable owners, normally: canonical project truth; observed repository and runtime state; explicit operator decisions; current official documentation for external behavior; then memory and cache for discovery. Claim type matters: observed code cannot prove product intent, and a stale document cannot override current runtime behavior. A new operator decision that changes canonical truth triggers its owned update, never a second truth.
 
-Memory and cache never becomes a source of truth. When it contradicts an applicable owner, keep `conflict` visible until the owner is reconciled. Private context stays redacted and follows its storage/retention authority.
+Memory and cache never becomes a source of truth. When it contradicts an applicable owner, keep `conflict` visible until reconciled. Private context stays redacted and follows its storage/retention authority.
 
 Select sources by decision impact, authority, freshness, and risk. File count and token count are ceilings, not evidence of sufficiency. An explicit prototype uses stage-appropriate context; production-only ceremony is not added unless its risk or promised outcome requires it.
 
 ## Verdicts
 
-- `context_ready`: target and outcome are resolved; all material claims are sufficiently authoritative and fresh for the next action.
-- `context_partial`: bounded exploration or reversible diagnosis may continue, but a named gap blocks any dependent claim or mutation.
+- `context_ready`: target and outcome resolved; every material claim authoritative and fresh enough for the next action.
+- `context_partial`: bounded exploration or reversible diagnosis may continue, but a named gap blocks dependent claims or mutation.
 - `context_conflict`: applicable authoritative sources disagree; dependent decisions and mutation stop until reconciled.
 - `context_stale`: an invalidation signal affects a material claim; revalidate it before dependent work.
 
@@ -104,20 +104,20 @@ An unresolved target blocks dependent mutation. Do not call context ready merely
 
 ## Invalidation And Refresh
 
-Re-evaluate the capsule when relevant Git `HEAD`/branch or dirty state, spec/version/status, dependency/lockfile, environment/runtime, confirmed product decision, external source/version, or validation target changes. Revalidate only dependent claims and consumers; do not reload the whole repository. Preserve unaffected claims and their evidence.
+Re-evaluate the capsule when Git `HEAD`/branch or dirty state, spec/version/status, dependency/lockfile, environment/runtime, confirmed product decision, external source/version, or validation target changes. Revalidate only dependent claims and consumers; do not reload the whole repository. Preserve unaffected claims.
 
-When the selected project adopts `skills/references/context-history-and-head.md`, check its worktree-local `CONTEXT_HEAD` before broader reconstruction. A fresh head is a bounded discovery projection, never canonical truth. A stale or missing head is regenerated only with applicable mutation authority; otherwise render the same bounded view without persistence or use the native targeted fallback. Branch, `HEAD`, worktree, staged, unstaged, and untracked fingerprint changes invalidate the cache mechanically.
+When the selected project adopts `skills/references/context-history-and-head.md`, check its worktree-local `CONTEXT_HEAD` before broader reconstruction. A fresh head is a bounded discovery projection, never canonical truth. A stale or missing head is regenerated only with mutation authority, otherwise rendered without persistence or replaced by the native targeted fallback. Branch, `HEAD`, worktree, and fingerprint changes invalidate it mechanically.
 
 ## Lifecycle Application
 
-- Routing resolves the target/outcome and loads this contract only when sufficiency, authority, freshness, or conflict can change the route.
+- Routing resolves target and outcome, loading this contract only when sufficiency, authority, freshness, or conflict can change the route.
 - Readiness blocks material `unknown`, `stale`, or `conflict` states and requires a capsule sufficient for a fresh agent.
 - Execution revalidates invalidated claims before writes and preserves stage, invariants, authority, and proof boundaries.
-- Verification compares the accepted capsule with actual implementation and evidence; technically valid work serving the wrong outcome is not verified.
+- Verification compares the accepted capsule with the implementation and evidence; valid work serving the wrong outcome is not verified.
 - Documentation reflection, closure and full-close shipping resolve task-owned changed paths, refresh only invalidated capsule claims, and use `code-docs-map.md` before documentation classification. A stale/absent derived view uses the targeted canonical fallback; it never permits an optimistic verdict.
 - Explicit agent handoff carries the capsule or an exact pointer plus deltas; compaction preserves evidence states and source pointers.
-- When context quality itself may justify ending the active conversation, load `conversation-continuity-contract.md`; length or compaction alone is never sufficient.
+- Load `conversation-continuity-contract.md` when context quality may justify ending the active conversation; length or compaction alone is never sufficient.
 
 ## Stop Conditions
 
-Stop or downgrade when the target/outcome is unreliable; a material source is inaccessible, stale, or contradictory; private context would be exposed; available tools cannot establish equivalent evidence; or further reading no longer changes a decision. Ask only for an operator-owned truth that safe inspection cannot establish.
+Stop or downgrade when the target is unreliable; a material source is inaccessible, stale, or contradictory; private context would be exposed; tools cannot establish equivalent evidence; or further reading no longer changes a decision. Ask only for operator-owned truth that safe inspection cannot establish.

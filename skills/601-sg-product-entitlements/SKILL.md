@@ -16,15 +16,13 @@ Attach only to one unique spec and apply `$SHIPGLOWS_ROOT/skills/references/chan
 
 ## Mission And Boundary
 
-`601-sg-product-entitlements` owns product-access lifecycle and authorization design. Keep identity (who), provider events (what happened), durable entitlement (what is authorized), and product-local mirror/cache (availability optimization) distinct.
+`601` owns product-access lifecycle and authorization design. Keep identity (who), provider events (what happened), durable entitlement (what is authorized), and product-local mirror/cache (availability optimization) distinct.
 
-Route sync/hydration/promotion/reinstall recovery to `600`; OAuth/session/callback/cookie/provider identity failure to `109`; behavior-changing implementation through `100 -> 101 -> 102/001`; final proof to `103`, deployment/manual proof to `405`/`107`, and affected docs/claims to `300`.
+Route sync/hydration/promotion/reinstall recovery to `600`; OAuth/session/callback/cookie/provider identity failure to `109`; behavior change through `100 -> 101 -> 102/001`; final proof to `103`; deployment/manual proof to `405`/`107`; affected docs and claims to `300`.
 
 ## Mode And Progressive Authorities
 
-Accept read-only contract/audit, provider/manual grant/LTD/activation code, backend premium guard/quota, local mirror/cache, trial-transition UX, support runbook, sync precondition, auth debug, or implementation intent.
-
-The accounting profile lives in `skill-invocation-registry.json`; runtime loaders here remain authoritative.
+Accepts read-only audit, provider/manual grant/LTD/activation code, backend premium guard/quota, mirror/cache, trial-transition UX, support runbook, sync precondition, auth debug, or implementation. The accounting profile lives in `skill-invocation-registry.json`; runtime loaders here remain authoritative.
 
 - Before an ownership/proof choice, load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`.
 - Once entitlement work is selected, load `$SHIPGLOWS_ROOT/skills/references/product-entitlements-playbook.md` as primary doctrine.
@@ -32,15 +30,15 @@ The accounting profile lives in `skill-invocation-registry.json`; runtime loader
 - WinFlowz suite/free/default-access/sync eligibility loads `$SHIPGLOWS_ROOT/skills/references/winflowz-suite-product-registry.md`.
 - Non-trivial behavior change loads `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before output or mutation.
 - Current provider/webhook/API semantics load `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` and official sources.
-- When access work crosses identity linking, consent or central email, load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md`; unrelated entitlement work does not activate email/provider playbooks. Actual Auth0 diagnosis remains owned by `109`.
+- Access work crossing identity linking, consent or central email loads `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md`; unrelated entitlement work does not activate email/provider playbooks. Actual Auth0 diagnosis stays with `109`.
 - Load `$SHIPGLOWS_ROOT/skills/references/product-access-and-license-ui-contract.md` when designing or auditing how plans, features, quotas, activations, dates, or access errors appear in product UI.
 - Load `$SHIPGLOWS_ROOT/skills/references/portfolio-commercial-catalog-contract.md` when portfolio-wide offer or entitlement authority is in scope.
 
-Load at most one entitlement doctrine before the first substantive action; load a branch only after the primary doctrine has selected it.
+Load at most one entitlement doctrine before the first substantive action; a branch only after the primary doctrine selects it.
 
 ## Activation-Critical Entitlement Gates
 
-- Authentication proves identity only; it never grants product access.
+- Authentication proves identity only, never access.
 - Providers/marketplaces are event sources, not runtime authorization sources.
 - Prefer one canonical suite ledger; product-local state is cache/mirror/adapter/compatibility only.
 - Durable writes normalize product, plan, source, environment, status, and ownership.
@@ -49,7 +47,7 @@ Load at most one entitlement doctrine before the first substantive action; load 
 - Activation/redemption codes are bearer credentials: never raw-log or persist them client-side.
 - Mirrors require TTL/refresh and revocation/refund/expiry propagation; stale divergence never remains active.
 - Backend/provider authorization owns premium reads/writes; UI and client claims are non-authoritative.
-- Trial-transition UX preserves pre-expiry calm, progressive clarity, data truth, valid restart/recovery actions, evidenced value showcases, governed offer terms, and non-coercive founder voice.
+- Trial-transition UX keeps pre-expiry calm, progressive clarity, data truth, valid restart/recovery, evidenced value, governed offer terms, and non-coercive founder voice.
 
 ## Stop Conditions
 
@@ -57,7 +55,7 @@ Stop or reroute when identity and entitlement are conflated; a duplicate durable
 
 ## Proof And Report Boundary
 
-Use scenario-first proof covering suite adaptation, standalone model, identity/claims denial, provider safety, code handling, mirror fail-closed behavior, backend gates, sync/auth routing, support grant/revoke/refund/expiry paths, and the complete trial-transition journey. The authorization scenario family remains `SPE-001` through `SPE-010`; trial-transition UX uses `TEX-001` through `TEX-010` in the support-and-proof branch.
+Scenario-first proof covers suite adaptation, standalone model, identity/claims denial, provider safety, code handling, mirror fail-closed, backend gates, sync/auth routing, support grant/revoke/refund/expiry, and the complete trial-transition journey. The authorization family is `SPE-001` through `SPE-010`; trial-transition UX is `TEX-001` through `TEX-010` in the support-and-proof branch.
 
 Report result, route, proof limit, and documentation status. Never claim access correctness from UI state, local claims, or an unverified provider event.
 
