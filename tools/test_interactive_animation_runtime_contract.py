@@ -121,11 +121,12 @@ class InteractiveAnimationRuntimeContractTests(unittest.TestCase):
             "https://rive.app/docs/runtimes/web/web-js",
             "https://rive.app/docs/runtimes/flutter/flutter",
             "https://dotlottie.io/spec/2.0/",
-            "https://motion.dev/docs/react-use-reduced-motion",
             "https://www.w3.org/WAI/WCAG22/Techniques/css/C39",
             "https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html",
         ):
             self.assertIn(value, self.contract)
+        # React guidance was removed from skills (eb614acf); no React hook source.
+        self.assertNotIn("react-use-reduced-motion", self.contract)
         self.assertIn("interactive-animation-runtime-contract.md", text(PLAYBOOK))
         if SPEC.is_file():  # the spec lives in the private data corpus
             spec = text(SPEC)

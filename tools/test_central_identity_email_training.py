@@ -117,7 +117,8 @@ class CentralIdentityEmailTrainingTests(unittest.TestCase):
         for marker in (
             "issuer + subject", "Authorization Code with PKCE", "never embed a client secret",
             "ID token as a generic API bearer token", "official Auth0 adapter has its own token/audience contract",
-            "useConvexAuth", "getUserIdentity", "Logout alone does not revoke",
+            "confirm backend authentication before protected queries",
+            "reproduce that backend-authenticated signal", "getUserIdentity", "Logout alone does not revoke",
             "authenticated-but-unlicensed denial", "configuration checked, app running, login verified",
         ):
             self.assertIn(marker, body)

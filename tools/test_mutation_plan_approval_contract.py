@@ -182,12 +182,20 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
             self.assertIn(expected, self.text)
 
     def test_direct_authority_is_propagated_to_primary_runtime_surfaces(self) -> None:
-        for path in (ROUTER, WINDOWS_AGENT_INSTRUCTIONS, PUBLIC_PLUGIN):
+        for path in (ROUTER, PUBLIC_PLUGIN):
             surface = path.read_text(encoding="utf-8")
             self.assertIn("clear bounded request", surface, str(path))
             self.assertIn("few", surface, str(path))
             self.assertIn("material direction", surface, str(path))
             self.assertIn("does not authorize a chantier", surface, str(path))
+        # The Windows environment block carries universal rules only (2bd082ec):
+        # it defers authority to explicit operator rules and loads the mutation
+        # plan doctrine on demand instead of restating it.
+        block = WINDOWS_AGENT_INSTRUCTIONS.read_text(encoding="utf-8")
+        self.assertIn("Explicit operator rules take precedence over these defaults", block)
+        self.assertIn("approvals", block)
+        self.assertIn("mutation plans", block)
+        self.assertNotIn("VALIDATION RAPIDE", block)
 
     def test_classification_is_invariant_across_reasoning_effort(self) -> None:
         for expected in (

@@ -28,7 +28,7 @@ class CreationSurfacePresetContract(unittest.TestCase):
             "WXT, strict TypeScript, pnpm and Manifest V3",
             "Keep simple UI native.",
             "Use Vue 3 only for rich reactive UI",
-            "React is not the default",
+            "React is not used",
             "Disable WXT's automatic browser startup",
             "`PSP-008 sparse browser extension`",
         ):

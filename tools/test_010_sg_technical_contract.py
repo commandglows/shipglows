@@ -352,7 +352,7 @@ class TechnicalContractTests(unittest.TestCase):
         markers = {
             "audit": ("workflow integrity", "trust boundaries", "Business metadata", "traffic-first"),
             "deps": ("VULNERABILITY SCAN", "Supply chain checks", "LICENSE COMPLIANCE", "partial proof"),
-            "performance": ("BUNDLE & LOADING", "CORE WEB VITALS READINESS", "DATABASE & BACKEND", "unmeasured optimization guess"),
+            "performance": ("PHASE 1: FLUTTER APPLICATION", "Core Web Vitals readiness", "PHASE 4: DATA AND CONVEX BACKEND", "unmeasured optimization guess"),
             "migrate": ("Migration Matrix", "distinct apply approval", "Never auto-stash", "incompatible peer/dependent package"),
         }
         audit_text = "\n".join(path.read_text(encoding="utf-8") for path in AUDIT_BRANCHES.values())
@@ -363,7 +363,7 @@ class TechnicalContractTests(unittest.TestCase):
     def test_tech_performance_06_perceived_latency_requires_atomic_transition_proof(self) -> None:
         performance = " ".join(self.playbooks["performance"].split())
         for phrase in (
-            "Perceived Latency And Atomic Transitions",
+            "PERCEIVED LATENCY AND ATOMIC TRANSITIONS",
             "first stable paint",
             "transition never substitutes for atomic visual commit.",
             "mount it behind the stable state",
@@ -408,12 +408,13 @@ class TechnicalContractTests(unittest.TestCase):
             "105-sg-check": "proportional typecheck",
             "405-sg-prod": "hosted/live deployment",
             "406-sg-seo": "SEO ranking",
-            "407-sg-translate": "translation and i18n",
+            "407-sg-translate": "i18n keys, locale files, fallbacks, and missing strings",
         }
         for owner, purpose in boundaries.items():
             self.assertIn(owner, self.skill)
             self.assertIn(purpose, self.skill)
             self.assertTrue((ROOT / "skills" / owner / "SKILL.md").is_file())
+        self.assertIn("translation quality to `sg-content`", self.skill)
         self.assertIn("single public owner", self.skill)
         self.assertIn("sequence the required internal engines", self.skill)
         for engine in ("600-sg-local-cloud-sync", "601-sg-product-entitlements", "602-sg-platform-parity"):

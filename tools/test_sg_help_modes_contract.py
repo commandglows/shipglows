@@ -58,10 +58,11 @@ class HelpModesContractTests(unittest.TestCase):
             "sg-experience <audit|flow|onboarding|recovery> <scope>",
             "sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity|verify|test|browser> [target]",
             "sg-help [default|mode|modes|expert] [topic]",
-            "shipglows <request> | context | update | auto [goal] | core",
+            "shipglows <request> | init [context|agents|memory|resume]",
         )
         for grammar in expected_grammar:
             self.assertIn(f"`{grammar}", catalog)
+        self.assertIn("| context | update | auto [goal] | core <audit", catalog)
         self.assertIn("angle brackets are required", catalog)
         self.assertIn("square brackets are optional", catalog)
         self.assertIn("Execution tags: `#local | #nolocal | #ci`", catalog)
