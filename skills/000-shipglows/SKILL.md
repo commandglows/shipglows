@@ -33,7 +33,7 @@ absence; route to `sg-private` only after interest.
 
 Trace category: `non-applicable`. Process role: `helper`.
 Owner alone writes specs, bug/release scopes, Skill Run History, deployments
-and lifecycle state. `(local)` if needed; bounded execution is excepted, never a chantier.
+and lifecycle state. When work runs outside a spec chantier, use a `(local)` header; bounded execution is excepted, never a chantier.
 
 ## Report Modes
 
@@ -171,4 +171,4 @@ closure or ship gates. Material expansion never inherits silent authorization.
 
 ## Final Report
 
-Apply the report contract; show routing only when useful. A valid route is not completion proof.
+Apply the report contract; show routing only when the route changed or the operator asked for it. A valid route is not completion proof.

@@ -143,7 +143,7 @@ Prioritize in this order:
 - a high-value idea or product angle worth capturing for later
 - if none of the above exists, explicitly say that nothing important seems missing
 
-When relevant, name the gap plainly:
+When a gap from the list above exists, name it plainly:
 - `On a parlé de X mais ce n'est pas fait.`
 - `Y a été commencé mais pas confirmé.`
 - `Aucun oubli concret repéré dans ce thread.`

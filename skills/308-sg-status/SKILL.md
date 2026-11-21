@@ -20,7 +20,7 @@ This skill does not write to chantier specs. If invoked inside a spec-first flow
 
 Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
-Default to `report=user`: concise dashboard, attention items, limits, and `Chantier: non applicable` only when useful. Use `report=agent` when another skill needs the full project matrix, skipped paths, and command evidence.
+Default to `report=user`: concise dashboard, attention items, limits, and `Chantier: non applicable` only when a chantier header was expected but none applies. Use `report=agent` when another skill needs the full project matrix, skipped paths, and command evidence.
 
 ## Required References
 

@@ -27,4 +27,4 @@ When persistence intent is absent, treat the supplied value as transient and con
 
 ## Report Modes
 
-Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before reporting. Keep private values in the operator conversation only when needed and keep internal engine names out of user-facing reports.
+Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before reporting. Keep private values in the operator conversation only when the request requires that exact value, and keep internal engine names out of user-facing reports.

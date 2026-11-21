@@ -24,7 +24,7 @@ Use it when the operator wants to:
 
 Default to read-only analysis unless the operator explicitly asks to edit, install, update, or publish a plugin or skill.
 
-A clear bounded request is authority for its few coherent enumerable actions and targets when the agent does not need to choose a material direction; execute it without another prompt. It can include a targeted file modification, exact-scope commit, ordinary resolved push, or small explicit sequence, and it does not authorize a chantier. Local versus remote and model reasoning effort never change this classification. Use a one- or two-sentence `🧭 VALIDATION RAPIDE` for a bounded agent-proposed action or almost-clear intent. Use `🧭 PLAN À VALIDER` with Objective, Scope, Actions, Proofs, and contextual choices when the outcome, actions, or targets are unbounded or the agent must substantially analyze, propose, or select a direction. A material expansion requires a newly appropriate validation or replacement plan. Force push and destructive or irreversible actions retain stricter dedicated gates.
+A clear bounded request is authority for its few coherent enumerable actions and targets; it does not authorize a chantier. An unbounded outcome, or one where the agent must choose a material direction, needs a short plan before mutation. Force push and destructive or irreversible actions keep stricter dedicated gates. With a verified complete corpus, the canonical approval contract governs instead (see Canonical Router Delegation).
 
 This plugin is the distribution nucleus. It must not assume that the full private ShipGlows source tree exists on the user's machine.
 
@@ -36,6 +36,18 @@ ${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
 ```
 
 If that path is missing, explain that the plugin is installed but local source-tree packaging checks cannot run.
+
+## Canonical Router Delegation
+
+This file is the plugin-only router: it serves help, packs, packaging, corpus
+setup and portable guidance when no complete corpus exists. It is not a second
+copy of the canonical router. Resolve `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`;
+if it contains `skills/shipglows/SKILL.md` and `skills/000-shipglows/SKILL.md`,
+load `skills/shipglows/SKILL.md` from that root and follow it for every
+routing, authority, validation and reporting decision outside the plugin-only
+modes below (packs, packaging audit, pack staging, corpus or maintainer setup).
+When routing, authority or validation rules change, edit the canonical router
+first; mirror here only what plugin-only mode needs without a corpus.
 
 ## Required Reference
 

@@ -36,7 +36,7 @@ Load shared references only at their decision boundary:
 - `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` before selecting, recommending, or overriding a delegated model;
 - `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` only for an attached chantier report;
 - `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` only before the final user report.
-- `$SHIPGLOWS_ROOT/skills/references/git-persistence-preflight.md` before resuming an interrupted mutating Git chantier; keep healthy state silent and recover the last proven upstream commit, local remainder, proof, and next outcome when needed.
+- `$SHIPGLOWS_ROOT/skills/references/git-persistence-preflight.md` before resuming an interrupted mutating Git chantier; keep healthy state silent; when the preflight reports drift or an interrupted push, recover the last proven upstream commit, local remainder, proof, and next outcome.
 
 Do not preload agent templates, model catalogues, or unrelated lifecycle skills.
 

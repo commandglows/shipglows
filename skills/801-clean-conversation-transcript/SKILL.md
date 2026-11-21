@@ -15,7 +15,7 @@ Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/
 Trace category: `non-applicable`.
 Process role: `helper`.
 
-This skill edits a submitted transcript for readability and does not write to chantier specs. If invoked inside a spec-first flow, do not modify `Skill Run History`; use a `(local)` chantier header only when useful.
+This skill edits a submitted transcript for readability and does not write to chantier specs. If invoked inside a spec-first flow, do not modify `Skill Run History`; use a `(local)` chantier header only when the flow's report contract requires one.
 
 ## Mission
 
@@ -100,7 +100,7 @@ Use `007-sg-content repurpose <source>` as the source-faithful route when the us
 
 1. Read the whole file or enough chunks to understand the conversation.
 2. Identify the actual conversation boundaries and remove only non-conversational chrome.
-3. Choose or rewrite the top title for the cleaned transcript when useful.
+3. If the transcript has no title or its title does not describe the conversation, choose or rewrite the top title.
 4. Insert the `/* CONTENT ANGLES */` block.
 5. Rewrite the transcript into labeled turns:
    - `Diane:` followed by her message.

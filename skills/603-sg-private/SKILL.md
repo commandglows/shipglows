@@ -35,6 +35,6 @@ When persistence is implicit, keep the supplied value transient and continue the
 
 ## Proof And Reporting
 
-Validate with synthetic path/URL lifecycle tests, Vivaldi bridge tests, invocation/routing contracts, metadata, and a staged anti-leak scan. Real private values may appear only in the active operator exchange when needed; omit them from public evidence and durable reports.
+Validate with synthetic path/URL lifecycle tests, Vivaldi bridge tests, invocation/routing contracts, metadata, and a staged anti-leak scan. Real private values may appear only in the active operator exchange, and only when the operator's request requires that exact value; omit them from public evidence and durable reports.
 
 Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before reporting. Use `(local)` unless one unique governed spec owns the work.

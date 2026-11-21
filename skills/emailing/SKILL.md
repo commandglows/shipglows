@@ -60,7 +60,7 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 - Preserve governed business, product, brand, and GTM claims; do not invent proof, urgency, or conversion data.
 - Use the editorial content map when a sequence is actually a public content, landing-page, FAQ, or repurposing request.
 - When using a source email as inspiration, extract structure, angle, proof pattern, CTA, and sequence role; do not copy distinctive phrasing or unsupported claims.
-- Surface opt-out, consent, and compliance consequences when relevant.
+- When a send targets marketing recipients, a new list, or personal data, surface opt-out, consent, and compliance consequences.
 - Route product email through the central CommandGlows service (Postmark transport); apps hold no provider token, and marketing needs explicit consent.
 - Treat accessibility as a drafting constraint: preserve language, direction, semantic structure, descriptive links, image alternatives, contrast, and a usable non-visual reading order through the writing playbook.
 - Do not claim an email accessible from automated checks alone; technical email work must use the technical playbook's transformed-markup, manual, client-matrix, and fallback verification.

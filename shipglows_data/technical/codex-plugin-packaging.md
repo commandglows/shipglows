@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.4.0"
+artifact_version: "2.5.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-10-29"
+updated: "2026-11-21"
 status: active
 source_skill: 300-sg-docs
 scope: codex-plugin-packaging
@@ -79,6 +79,7 @@ removes the need for a plugin release during source iteration.
 - `/home/claude/shipglows/plugins/shipglows/` is the publishable plugin source mirrored into the repository.
 - `/home/claude/plugins/shipglows/.codex-plugin/plugin.json` declares the plugin identity, public homepage, repository, and version.
 - `/home/claude/plugins/shipglows/skills/shipglows/SKILL.md` routes public plugin workflows, optional packs, docs links, and bootstrap guidance.
+- `plugins/shipglows/skills/shipglows/SKILL.md` is the plugin-only router, maintained by hand, not a copy of `skills/shipglows/SKILL.md`. When a verified complete corpus exists it delegates every routing, authority, validation and reporting decision to the canonical router (`## Canonical Router Delegation`, guarded by `tools/test_shipglows_entrypoint_channels.py`); routing or authority changes land in the canonical router first, and only plugin-only needs are mirrored.
 - `/home/claude/plugins/shipglows/skills/shipglows/references/pack-catalog.md` describes planned packs and their current readiness.
 - `/home/claude/plugins/shipglows/skills/shipglows/references/reference-strategy.md` defines local versus hosted reference rules.
 - `/home/claude/plugins/shipglows/assets/docs-links.json` records the public docs base URL.

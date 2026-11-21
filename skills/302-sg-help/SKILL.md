@@ -67,7 +67,7 @@ Parse `$ARGUMENTS` and choose the smallest safe mode as defined by `decision-qua
 What workflow, skill, mode, or doctrine does the operator need explained right now?
 ```
 
-- If the user asks a direct help question, answer concisely from the top-level route and the indexed local reference as needed.
+- If the user asks a direct help question, answer concisely from the top-level route; if the answer depends on a mode, owner, or doctrine detail absent from that route, load its indexed local reference first.
 - If the exact request is `mode` or `modes`, load `references/help-modes-catalog.md` and return its list verbatim: one line per public métier plus `shipglows`, followed by the distinct execution-tag line, preserving the six-domain order.
 - If the exact request is `mode --expert`, `modes --expert`, or asks for internal engines, load `references/help-modes-expert-catalog.md` and return its complete runtime list verbatim.
 - If the user asks for skill codes, numeric prefixes, or shortcut lookup, load `skill-code-index.md` and answer from the code table without renaming canonical skills.

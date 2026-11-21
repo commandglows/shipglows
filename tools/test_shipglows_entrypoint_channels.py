@@ -35,6 +35,13 @@ class ShipGlowsEntrypointChannelContract(unittest.TestCase):
         ):
             self.assertIn(fragment, plugin)
 
+    def test_public_plugin_delegates_to_canonical_router_when_corpus_exists(self) -> None:
+        plugin = (ROOT / "plugins/shipglows/skills/shipglows/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("## Canonical Router Delegation", plugin)
+        self.assertIn("load `skills/shipglows/SKILL.md` from that root", plugin)
+        self.assertIn("edit the canonical router\nfirst", plugin)
+        self.assertTrue((ROOT / "skills/shipglows/SKILL.md").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

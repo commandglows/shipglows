@@ -15,7 +15,7 @@ Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/
 Trace category: `non-applicable`.
 Process role: `helper`.
 
-This skill captures a local terminal transcript and does not write to chantier specs. If invoked inside a spec-first flow, do not modify `Skill Run History`; use a `(local)` chantier header only when useful.
+This skill captures a local terminal transcript and does not write to chantier specs. If invoked inside a spec-first flow, do not modify `Skill Run History`; use a `(local)` chantier header only when the flow's report contract requires one.
 
 ## Core Rule
 
@@ -70,7 +70,7 @@ When no destination is supplied, prefer the project that the captured conversati
 For `docs` or no preset:
 
 - project-root destinations write under `<project-root>/shipglows_data/workflow/conversations/` by default.
-- create that directory if needed.
+- if that directory does not exist, create it.
 - write directly under `$HOME` only when the transcript has no identifiable project and the command was actually run from `$HOME`.
 
 For `000-shipglows` preset, resolve `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}` and write under `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/`.
