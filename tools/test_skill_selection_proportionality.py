@@ -12,6 +12,7 @@ FIDELITY = ROOT / "skills" / "references" / "skill-execution-fidelity.md"
 CONTENT = ROOT / "skills" / "007-sg-content" / "SKILL.md"
 ENRICH = ROOT / "skills" / "201-sg-enrich" / "SKILL.md"
 ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
+REGISTER_UPDATES = ROOT / "skills" / "references" / "reference-register-updates.md"
 MAX_ROUTER_LINES = 160
 ENTRYPOINT = ROOT / "skills" / "references" / "entrypoint-routing.md"
 START = ROOT / "skills" / "102-sg-start" / "SKILL.md"
@@ -29,6 +30,7 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
         cls.content = CONTENT.read_text(encoding="utf-8")
         cls.enrich = ENRICH.read_text(encoding="utf-8")
         cls.router = ROUTER.read_text(encoding="utf-8")
+        cls.register_updates = REGISTER_UPDATES.read_text(encoding="utf-8")
         cls.entrypoint = ENTRYPOINT.read_text(encoding="utf-8")
         cls.start = START.read_text(encoding="utf-8")
         cls.public_docs = [
@@ -88,10 +90,12 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
             self.assertIn(reference, self.router)
 
     def test_bounded_internal_reference_updates_short_circuit_to_a_focused_registry_edit(self) -> None:
+        # The router keeps the trigger and loads the rules on demand.
         self.assertIn("Bounded internal reference-register updates", self.router)
-        self.assertIn("one focused local lookup", self.router)
-        self.assertIn("one primary-source check per supplied reference", self.router)
-        self.assertIn("without launching source intake, market study, or documentation topology work", self.router)
+        self.assertIn("load `reference-register-updates.md`", self.router)
+        self.assertIn("one focused local lookup", self.register_updates)
+        self.assertIn("one primary-source check per supplied reference", self.register_updates)
+        self.assertIn("without launching source intake, market study, or documentation topology work", self.register_updates)
 
     def test_reference_keywords_define_a_stable_url_shorthand(self) -> None:
         for phrase in (
@@ -100,7 +104,9 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
             "`veille` takes precedence",
             "analyzes without persistence",
         ):
-            self.assertIn(phrase, self.router)
+            self.assertIn(phrase, self.register_updates)
+        for trigger in ("`veille <URL>`", "`concurrent <URL>`", "`inspiration <URL>`"):
+            self.assertIn(trigger, self.router)
 
     def test_operator_cheatsheet_explains_reference_keyword_outcomes(self) -> None:
         cheatsheet = CHEATSHEET.read_text(encoding="utf-8")

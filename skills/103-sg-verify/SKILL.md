@@ -29,9 +29,9 @@ excellence: Once readiness passes, what material quality gap remains?
 - `verified`: standard métier and ship-readiness gates pass; no excellence claim.
 - `verified_with_excellence_gaps`: standard readiness passes first; a material evidenced excellence gap has a bounded repair/owner route.
 - `excellent`: standard readiness passes first, the fresh second pass is complete, and no material excellence gap remains.
-- Proof, correctness, security, and blocking-risk verdicts (`partial`, `not verified`, `blocked`) take precedence over excellence verdicts; when one applies, `excellent` is forbidden.
+- `partial`, `not verified`, and `blocked` take precedence over excellence verdicts; when one applies, `excellent` is forbidden.
 
-`partial` means complete-looking implementation lacks proof. Preserve `102-sg-start: implemented` vs `103-sg-verify: partial`. Route gaps with owner, proof type, scenario and target; unknown hosted targets to `405-sg-prod`. Hosted/provider gaps use `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`.
+`partial` means complete-looking implementation lacks proof (`102-sg-start: implemented` vs `103-sg-verify: partial`). Route gaps with owner, proof type, scenario and target; unknown hosted targets go to `405-sg-prod`; hosted/provider gaps use `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`.
 
 ## Progressive Verification Packs
 
@@ -41,11 +41,11 @@ Local leaves never chain. `references/verification-gates.md` is only a compatibi
 
 - Load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-baseline.md` and `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for every run; its `Decision Quality Baseline` applies in every mode.
 - Only after standard readiness passes, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-excellence.md` for the detailed excellence pass; `Excellence Focus Verdict` applies only when the selected mode is `excellence`.
-- For security/data, UI/visual, runtime, auth/browser, hosted, Sentry, or device proof, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-security-ui-runtime.md`, then only applicable `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`, `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`, `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md`, and `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`. Managed app launch/restart/reuse, backend-dependent tests, or Flutter, Android, or Windows desktop proof also loads `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before selecting the active target and proof lane. Flutter proof selection loads `$SHIPGLOWS_ROOT/skills/references/flutter-quality-playbook.md` (proof mapping); Astro site proof loads `$SHIPGLOWS_ROOT/skills/references/astro-site-playbook.md`.
-- For docs/closure/tracker, skill, Atlas, product, editorial, language, dependency, or cross-contract coherence, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-coherence.md`, then applicable `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`, `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`, and `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md`.
-- For bug/manual or CI/workflow scope, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-release-proof.md` or `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-ci.md` respectively.
+- Security/data, UI/visual, runtime, auth/browser, hosted, Sentry, or device proof loads `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-security-ui-runtime.md`, then only applicable `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`, `design-system-token-contract.md`, `sentry-observability.md`, and `runtime-diagnostics-surface.md`. Managed app launch/restart/reuse, backend-dependent tests, or Flutter, Android, or Windows desktop proof also loads `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before choosing target and lane; Flutter proof mapping uses `flutter-quality-playbook.md`, Astro site proof uses `astro-site-playbook.md`.
+- Docs/closure/tracker, skill, Atlas, product, editorial, language, dependency, or cross-contract coherence loads `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-coherence.md`, then applicable `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`, `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`, and `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md`.
+- Bug/manual or CI/workflow scope loads `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-release-proof.md` or `references/verification-ci.md` respectively.
 
-Conditional shared gates load from `$SHIPGLOWS_ROOT/skills/references/`: `project-delivery-policy.md`, `project-development-mode.md`, `documentation-freshness-gate.md`, `email-work-routing.md`, `spec-driven-development-discipline.md`, `task-application-loop.md`, `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `zombies-edge-case-heuristic.md` for named scopes; `implementation-excellence-preflight.md` and `clean-code-quality-contract.md` for changed code. Delivery posture controls release safeguards; development mode controls evidence authority; neither waives remote persistence.
+Conditional shared gates load from `$SHIPGLOWS_ROOT/skills/references/` for named scopes: `project-delivery-policy.md`, `project-development-mode.md`, `documentation-freshness-gate.md`, `email-work-routing.md`, `spec-driven-development-discipline.md`, `task-application-loop.md`, `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `zombies-edge-case-heuristic.md`; changed code adds `implementation-excellence-preflight.md` and `clean-code-quality-contract.md`. Delivery posture controls release safeguards; development mode controls evidence authority; neither waives remote persistence.
 
 ## Standard Contract
 
@@ -53,15 +53,7 @@ Verify outcome, completeness, correctness, coherence, dependencies, risks, and r
 
 Always report `Success Behavior`, `Error Behavior`, `Proof Path Fit`, development/validation surface, fresh-docs verdict, documentation coherence, bug gate, and `Decision Quality Baseline`.
 
-Report applicable named gates:
-
-- `Task Application Loop Fit` and `Closure Archive Guard Fit`
-- `Structure Replacement Fit` and `Fast Fix Shortcut Gate`
-- `Clean Code Gate` pass/partial/fail/not applicable
-- `Implementation Excellence Gate` pass/partial/fail/not applicable
-- `OWASP Security Gate` pass/partial/fail/not applicable
-- `UI Design-System Shortcut Gate`, `Design-System Drift Check`, `Flutter Mobile Proof Ladder`
-- `Runtime Diagnostics Gate`, `Operator Autonomy Gate`, `Atlas Protection Gate`, `Product Decision Chain`
+Report applicable named gates: `Task Application Loop Fit`, `Closure Archive Guard Fit`, `Structure Replacement Fit`, `Fast Fix Shortcut Gate`, `Clean Code Gate` pass/partial/fail/not applicable, `Implementation Excellence Gate` pass/partial/fail/not applicable, `OWASP Security Gate` pass/partial/fail/not applicable, `UI Design-System Shortcut Gate`, `Design-System Drift Check`, `Flutter Mobile Proof Ladder`, `Runtime Diagnostics Gate`, `Operator Autonomy Gate`, `Atlas Protection Gate`, `Product Decision Chain`.
 
 For changed code, independently reconstruct preflight scope and enforce it on the diff. Passing technical checks never substitutes for implementation-excellence, product, security, visual, hosted, manual, auth, device, or production proof.
 

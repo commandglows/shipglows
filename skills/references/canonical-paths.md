@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.8.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-10-30"
+updated: "2026-11-21"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
@@ -30,22 +30,20 @@ next_step: "/103-sg-verify canonical path policy"
 
 # ShipGlows Canonical Paths
 
-Resolve paths by ownership, never by filename coincidence or cwd. Before mutation, load `skills/references/mutation-plan-approval.md` from the resolved root and obtain its defined authority; a clear bounded request supplies authority for its few coherent enumerable actions and targets when no material direction must be chosen, and does not authorize a chantier. Read-only resolution may precede classification.
+Resolve paths by ownership, never by filename coincidence or cwd. Mutation authority stays with `skills/references/mutation-plan-approval.md` from the resolved root; read-only resolution may precede classification.
 
 ## Mandatory Roots
 
-- ShipGlows root: resolve `$SHIPGLOWS_ROOT` from the process. On Windows, if empty, read its current-user environment value, then `%USERPROFILE%\.shipglows\development-channel.json`; a valid absolute `channel: linked` root containing `skills/000-shipglows/SKILL.md` wins. This supports an already running agent that missed environment updates. Otherwise use the user's `.shipglows/runtime`; Linux uses the exported value, then that default.
+- ShipGlows root: `$SHIPGLOWS_ROOT` from the process. On Windows, if empty, its current-user value, then `%USERPROFILE%\.shipglows\development-channel.json`, where a valid absolute `channel: linked` root containing `skills/000-shipglows/SKILL.md` wins (agents may miss environment updates). Otherwise use the user's `.shipglows/runtime`.
 - Project root: the current working directory unless the operator selects another project.
-- Governance root: the repository root for a single project, or the monorepo root rather than an app/package subdirectory.
+- Governance root: the repository root, or the monorepo root rather than an app/package subdirectory.
 
 Treat values as paths, preserve spaces, and reject `..`, symlink, junction, shadow-directory, or nearby-checkout inference outside the owned root.
 
 ## Ownership Rules
 
-- ShipGlows skills, references, tools, templates, workflow docs, and scripts resolve from `$SHIPGLOWS_ROOT`; project-local names never shadow them.
-- A project-local `skills/`, `tools/`, or `templates/` directory never shadows the installation.
-- Skill `references/foo.md` means `$SHIPGLOWS_ROOT/skills/<skill>/references/foo.md`.
-- Project source uses the selected project root; governance uses its root `shipglows_data/`.
+- ShipGlows skills, references, tools, templates, workflow docs, and scripts resolve from `$SHIPGLOWS_ROOT`. A project-local `skills/`, `tools/`, or `templates/` directory never shadows the installation.
+- Skill `references/foo.md` means `$SHIPGLOWS_ROOT/skills/<skill>/references/foo.md`; project source uses the selected project root; governance uses its root `shipglows_data/`.
 - If an owned file is absent from `$SHIPGLOWS_ROOT`, report an installation gap. Do not substitute a project copy, continue from memory, or search the project.
 
 ## ShipGlows-Owned Tool Preflight

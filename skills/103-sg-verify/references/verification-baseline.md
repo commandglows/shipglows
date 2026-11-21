@@ -29,7 +29,7 @@ next_step: "/103-sg-verify progressive lifecycle activation compaction wave 4"
 
 # Verification Baseline
 
-Perform the standard pass after scope/mode selection; the activation contract supplies applicable shared gates.
+Run the standard pass; the activation contract supplies shared gates.
 
 ## Order
 
@@ -39,28 +39,28 @@ Perform the standard pass after scope/mode selection; the activation contract su
 4. Run proportional checks and applicable risk, quality, docs, and routing gates.
 5. Return the strongest supported verdict; missing proof stays `partial` or worse.
 
-For material work, consume or refresh the bounded capsule; compare it with implementation/evidence and verify reasons, invalidated dependents, gaps and truncation. Small exact verification may stay targeted. Work serving the wrong accepted outcome is `not verified`.
+For material work, refresh the bounded capsule and check its reasons, invalidated dependents, gaps and truncation against evidence. Small exact verification may stay targeted. Work serving the wrong accepted outcome is `not verified`.
 
 ## Success And Error
 
-Report observable success/error behavior and evidence. Unproven moderate risk is `partial`; high-risk security, data, money, destructive, or critical-integration gaps are `not verified` or `blocked`.
+Report observable success/error behavior and evidence. Unproven moderate risk is `partial`; unproven high-risk security, data, money, destructive or critical-integration gaps are `not verified` or `blocked`.
 
 ## Proof Path Fit
 
-Confirm the selected proof path fits the surface. Unrelated checks cannot upgrade the verdict; atomic work may use focused evidence.
+The proof path must fit the surface. Unrelated checks cannot upgrade the verdict; atomic work may use focused evidence.
 
 ## Development And External Proof
 
-Classify the validation surface. Missing required hosted/browser/manual proof prevents ship readiness and routes to its proof owner. Use the canonical `fresh-docs` verdicts for external behavior.
+Classify the validation surface. Missing required hosted/browser/manual proof blocks ship readiness and routes to its owner. Use canonical `fresh-docs` verdicts.
 
 ## Requirement Stickiness
 
-Read the change from `git status` and `git diff --stat`, then the diff itself, never the implementer's summary; flag edited assertions that pinned a requirement. For each critical or counter-intuitive requirement, a distinct agent that did not implement it writes a property-level check after implementation, unseen by the implementer, that tests the requirement itself across inputs rather than one example. Measure claimed memory, time or size externally. A failing check or a dropped requirement is `partial` or `not verified`, never closure.
+Review `git status`, `git diff --stat`, then the diff itself, never the implementer's summary; flag edited assertions that pinned a requirement. For each critical or counter-intuitive requirement, a distinct agent that did not implement it writes, after implementation and unseen by the implementer, a property-level check of the requirement itself across inputs, not one example. Measure claimed memory, time or size externally. A failing check or dropped requirement is `partial` or `not verified`, never closure.
 
 ## Decision And Structure
 
-Challenge shortcuts; require the intended outcome, owner boundaries, durable structure, and proportional behavior-focused code quality.
+Challenge shortcuts; require intended outcome, owner boundaries, durable structure, and proportional behavior-focused code quality.
 
 ## Baseline Result
 
-Summarize outcome, success/error, proof fit, correctness, validation surface, risks, docs, and owner routes. Standard success is `verified`, never `excellent`.
+Summarize outcome, success/error, proof fit, correctness, validation surface, risks, docs, owner routes. Standard success is `verified`, never `excellent`.

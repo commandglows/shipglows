@@ -16,19 +16,12 @@ The engine selects the smallest safe route and continues in this conversation.
 
 ## Required References
 
-Normalize a current first-person arrival/setup intent on this operator's new
-host/device, addressed to ShipGlows with no more specific outcome (e.g. « je viens
-d'arriver sur un nouvel ordi », new phone/tablet/VM), to init. Questions, quotes,
+A current first-person arrival/setup intent on this operator's new host/device,
+addressed to ShipGlows with no more specific outcome (e.g. « je viens d'arriver
+sur un nouvel ordi », new phone/tablet/VM), normalizes to init. Questions, quotes,
 hypothetical/third-party discussion, project/repository onboarding and concrete
-app/bug tasks merely mentioning a device do not trigger it. Clarify an ambiguous
-host versus project environment before writes. Preserve constraints/tags and init's
-existing authority limits.
-
-For explicit `init` on a host without filesystem access, establish the device versus
-execution host and consult/remote intent from exposed context; provide available
-guidance and report session-only progress. Finish this portable branch without root
-resolution; do not require installation for consult or claim persistence. Other
-init work uses the verified engine below.
+app/bug tasks merely mentioning a device do not. Clarify an ambiguous host versus
+project environment before writes; preserve constraints/tags and init's authority limits.
 
 Resolve `$SHIPGLOWS_ROOT` from the process. On Windows, if empty, read its
 current-user environment value, then `%USERPROFILE%\.shipglows\development-channel.json`.
@@ -36,33 +29,23 @@ A valid absolute `channel: linked` root containing `skills/000-shipglows/SKILL.m
 wins before the installed default `$HOME/.shipglows/runtime`. Verify root and
 engine, then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`.
 If missing or invalid, stop root-dependent work with a visible error; never fall
-back to a sibling runtime path or a guessed checkout. Explicit init can still use
-its portable guidance below.
-For explicit `init` with no valid runtime, continue available consult/remote guidance
-and report the missing root for dependent work. Local development uses the official
-bootstrap guidance `https://shipglows.com/shipglows-script` (native Windows:
-`?format=powershell`); installation mode/execution stay explicit.
-Discussing or implementing init never initializes the current machine implicitly.
+back to a sibling runtime path or a guessed checkout.
+Explicit `init` without a valid runtime or filesystem access establishes device versus
+execution host and consult/remote intent from exposed context, gives available guidance,
+reports session-only progress and the missing root, and never claims persistence.
+Local development uses the official bootstrap guidance
+`https://shipglows.com/shipglows-script` (native Windows: `?format=powershell`);
+installation mode/execution stay explicit. Discussing or implementing init never
+initializes the current machine implicitly.
 
-The engine owns conditional loaders; do not preload alias tables, domain skills
-or every reference here. For non-trivial outcomes it loads
-`$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`.
-
-Google Search Console or GSC client-data requests route to `sg-seo` and
-`$SHIPGLOWS_ROOT/skills/references/client-measurement-clis.md` (CLI:
-`shipglows-gsc`), not third-party GSC tools or manual UI exports.
-
-Exception: when the request mentions the operator's projects or pitches ("mes
-projets", "mes pitchs", "par projet", a project name), read
-`$SHIPGLOWS_PRIVATE_DATA_DIR/projects/index.md` first — the portfolio index is
-standing read-only context, no namespace or capability gate.
+The engine owns conditional loaders (portfolio index, GSC,
+`intent-to-outcome-autonomy.md`); do not preload alias tables, domain skills or every reference here.
 
 ## Validation
 
 Keep one owner, proof and authority limits. Clear bounded requests do not authorize
 a chantier. Material uncertainty or scope growth stops for an operator-owned decision.
-Content-only changes prove by frontmatter/schema conformity and locale parity; never run a
-build, type check, lint, or test for them unless code also changed or the operator asks.
+The engine owns proof selection, including content-only changes.
 
 ## Stop Conditions
 
