@@ -49,6 +49,10 @@ Load only what the decision needs:
 6. Record availability evidence and application status separately from the recommendation.
 7. Name the exact next owner or invocation. Do not prolong routing once one defensible policy is clear.
 
+## Risk-Path Override
+
+After the mission-type choice, apply the `Risk-path escalation` section of `model-routing.md`: a mission that writes authentication, payments/billing, data migrations, or secrets routes to the strongest model of the active provider (Opus in Claude), overriding cheap subagent defaults and any relay cost cap. Path matching is a floor, not a ceiling: escalate a small-looking change whose effect reaches those surfaces.
+
 ## Runtime Application Boundary
 
 Every recommendation must choose exactly one status:
@@ -82,6 +86,7 @@ Before reporting, verify that the recommendation:
 
 - follows the current `model-routing.md` and quality contract;
 - separates model choice from reasoning effort;
+- applies the risk-path override when the mission writes a risk surface;
 - identifies freshness and availability evidence;
 - states application status truthfully;
 - includes upgrade and downgrade conditions based on risk, not prestige;

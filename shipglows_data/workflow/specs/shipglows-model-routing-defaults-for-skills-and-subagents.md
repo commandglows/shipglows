@@ -61,6 +61,8 @@ ShipGlows Model Routing Defaults For Skills And Subagents
 
 Ready; implementation applied through `sg-skill-build` on 2026-05-14.
 
+> Historical record (note added 2026-11-21): the model IDs below (`gpt-5.5`, `gpt-5.4-mini`, `gpt-5.3-codex`) were current in May 2026 and are superseded. Current IDs, subagent defaults, relay, and the risk-path escalation live only in `skills/704-sg-model/references/model-routing.md`.
+
 # User Story
 
 En tant qu'operateur ShipGlows, je veux que les skills choisissent automatiquement le modele le plus adapte pour la conversation principale et les sous-agents, afin de reduire les erreurs de routage, le cout inutile, et les changements manuels de modele.
