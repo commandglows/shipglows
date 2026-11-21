@@ -349,6 +349,28 @@ agent/browser/MCP process without proving it is stale and outside the current se
 before/after measurements, unresolved risks, and the next weekly review date.
 ```
 
+## Windows DevServer Host
+
+A Windows development workstation has no separate server-operations role, so the
+ShipGlows DevServer owns cache and runtime retention there. Evidence: the
+2026-11-21 workstation cleanup recovered about 133 GB of npm, uv, Gradle and
+virtual-disk growth that no tool had ever pruned.
+
+- `s disk` measures free space, package caches, Gradle, pub, Playwright and
+  Docker/WSL virtual disks, then prints the cleanup plan without changing anything.
+- `s disk clean` applies it after confirmation; `s disk schedule` registers a daily
+  unattended run. The plan stops dev sessions running 24 h+, removes Git-ignored,
+  untracked build outputs of projects idle 14+ days, removes Gradle versions no
+  registered wrapper pins, and prunes npm/uv/pnpm caches through their own
+  commands when over budget or under pressure.
+- Pub cache, Playwright browsers and `.vhdx` virtual disks stay measure-only;
+  compacting a virtual disk remains an operator action.
+- On large disks the percentage thresholds above only apply while less than 50 GB
+  remain; the absolute free-space floors always apply.
+
+Operator reference: `shipglows_data/technical/operator-guides/windows-devserver.md`
+("Espace disque et ménage automatique").
+
 ## Linked Checklists
 
 - [server-disk-hygiene-and-migration-checklist.md](/home/claude/shipglows/shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md)

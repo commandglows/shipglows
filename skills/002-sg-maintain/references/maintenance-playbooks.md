@@ -87,6 +87,8 @@ unique or ambiguous state, and records a terminal disposition.
 
 Tidy never archives, rewrites history, force-pushes, or uses expiring-now Git commands.
 
+**Machine lane (Windows DevServer host):** tidy also runs `s disk` (read-only) and reports free space, cache sizes, forgotten dev sessions, stale ignored build outputs, and unpinned Gradle versions. Its plan joins the same approval packet and is applied only through `s disk clean`; never delete caches, stores, or virtual disks by path. When `s disk schedule` is not registered, propose it once.
+
 ## Full Lane Order
 
 For broad maintenance, collect independent read-only evidence first, then sequence dependent owner work:

@@ -29,6 +29,7 @@ param(
     [switch]$Open,
     [switch]$Full,
     [switch]$Missing,
+    [switch]$Unattended,
     [ValidateSet('','1','2','3','4','5','6','7','8','9','n','a','r','t','u','0')]
     [string]$InitialMenuSelection = '',
     [string]$MenuSessionRequestPath = '',
@@ -170,6 +171,10 @@ function Show-SgShortcutHelp {
     Write-Host '  s doctor [-Json]  List managed PowerShell processes and the registry lock; offer to stop orphans after confirmation'
     Write-Host '  s unlock          Name the registry lock holder and stop it after confirmation'
     Write-Host '  s capabilities    Print the closed CLI capability snapshot as JSON'
+    Write-Host '  s disk [-Json]    Show free space, cache sizes and the cleanup plan (read-only)'
+    Write-Host '  s disk clean      Apply the plan after confirmation: stop dev sessions running 24h+, remove ignored build outputs of projects idle 14+ days,'
+    Write-Host '                    remove Gradle versions no registered project pins, prune npm/uv/pnpm caches over budget (or under disk pressure)' -ForegroundColor DarkGray
+    Write-Host '  s disk schedule   Register the daily 04:00 task that runs s disk clean -Unattended' -ForegroundColor DarkGray
     Write-Host '  s private-data ...              Manage the explicit private-data connection and capability'
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
     Write-Host '  s u      Update ShipGlows from the active stable or linked channel'
@@ -285,7 +290,7 @@ function Resolve-SgExtensionSurfacePath([string]$Path, [string]$Browser) {
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','doctor','unlock','help','exit')
+    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','doctor','unlock','disk','disk-clean','disk-schedule','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -305,6 +310,8 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'tools status' = 'tools-status'
         'tools update' = 'tools-update'
         'update tools' = 'tools-update'
+        'disk clean' = 'disk-clean'
+        'disk schedule' = 'disk-schedule'
         'h'   = 'help'
         'x'   = 'exit'
     }
@@ -532,6 +539,12 @@ function Show-SgWindowsDashboard {
     Write-Host 'ShipGlows DevServer Windows' -ForegroundColor Yellow
     Write-Host '============================' -ForegroundColor Yellow
     Show-SgShipGlowsStatus
+    try {
+        $drive = [IO.DriveInfo]::new($env:SystemDrive)
+        $freeGb = $drive.AvailableFreeSpace / 1GB
+        $usedPercent = (1 - ($drive.AvailableFreeSpace / [double]$drive.TotalSize)) * 100
+        if (($usedPercent -ge 75 -and $freeGb -lt 50) -or $freeGb -lt 20) { Write-SgWarn ("Disk {0}: {1:N1} GB free ({2:N0}% used). Run s disk to see what can be cleaned." -f $drive.Name, $freeGb, $usedPercent) }
+    } catch { }
     if ($items.Count -eq 0) { Write-Host 'No projects discovered in the ShipGlows workspace.'; return }
     $index = 1
     foreach ($entry in $items) {
@@ -844,6 +857,73 @@ function Invoke-SgDoctor {
     if ($stale.Count) { Write-SgWarn "$($stale.Count) process(es) belong to an ended session; stop them with the s stop command shown, which proves their extinction." }
     if (-not $orphans.Count) { Write-SgInfo 'No orphan ShipGlows process. Each running session normally owns a supervisor and an exit watcher.'; return }
     [void](Confirm-SgProcessStop $orphans "Stop $($orphans.Count) orphan process(es) and their children?")
+}
+
+function Import-SgDiskHygieneModule {
+    if (-not (Get-Command Get-SgDiskHygienePlan -ErrorAction SilentlyContinue)) {
+        Import-Module (Join-Path $PSScriptRoot 'ShipGlows.DiskHygiene.psm1') -Force -DisableNameChecking
+    }
+}
+
+# s disk measures; s disk clean applies the plan after confirmation, or unattended from the scheduled task.
+function Invoke-SgDisk([switch]$Clean) {
+    Import-SgDiskHygieneModule
+    $entries = @((Read-SgRegistry $config).projects)
+    $report = Get-SgDiskHygienePlan $entries
+    $reportPath = Join-Path $config.RuntimeDirectory 'disk-hygiene.json'
+    if ($Json -and -not $Clean) { $report | ConvertTo-Json -Depth 6; return }
+    $volume = $report.Volume
+    $color = switch ($volume.State) { 'healthy' { 'Green' } 'warning' { 'Yellow' } default { 'Red' } }
+    if (-not $Unattended) {
+        Write-Host ''
+        Write-Host ("Disk {0}  {1} free of {2}  ({3}% used, {4})" -f $volume.Drive, (Format-SgBytes $volume.FreeBytes), (Format-SgBytes $volume.TotalBytes), $volume.UsedPercent, $volume.State) -ForegroundColor $color
+        Write-Host ''
+        Write-Host 'Caches' -ForegroundColor Cyan
+        foreach ($cache in @($report.Caches | Sort-Object Bytes -Descending)) {
+            $over = if ($cache.Budget -gt 0 -and $cache.Bytes -gt $cache.Budget) { "  over budget ($(Format-SgBytes $cache.Budget))" } else { '' }
+            Write-Host ('  {0,10}  {1}{2}' -f (Format-SgBytes $cache.Bytes), $cache.Label, $over) -ForegroundColor $(if ($over) { 'Yellow' } else { 'Gray' })
+        }
+        if (@($report.VirtualDisks).Count) {
+            Write-Host 'Virtual disks (grow but never shrink on their own; compact them manually when far above their content)' -ForegroundColor Cyan
+            foreach ($disk in @($report.VirtualDisks)) { Write-Host ('  {0,10}  {1}' -f (Format-SgBytes $disk.Bytes), $disk.Label) -ForegroundColor Gray }
+        }
+        Write-Host ''
+        Write-Host 'Cleanup plan' -ForegroundColor Cyan
+        if (-not @($report.Plan).Count) { Write-SgInfo 'Nothing to clean: no forgotten session, stale build output, unused Gradle version or cache over budget.' }
+        foreach ($item in @($report.Plan)) {
+            $size = if ($item.Bytes -gt 0) { Format-SgBytes $item.Bytes } else { '' }
+            Write-Host ('  {0,10}  {1}' -f $size, $item.Label)
+        }
+        if (@($report.Plan).Count) { Write-Host ("  Measured reclaimable: {0}" -f (Format-SgBytes $report.ReclaimableBytes)) -ForegroundColor DarkGray }
+    }
+    if (-not $Clean) {
+        if (@($report.Plan).Count) { Write-SgInfo 'Run s disk clean to apply this plan.' }
+        return
+    }
+    if (-not @($report.Plan).Count) {
+        if ($Unattended) { $report | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8 }
+        return
+    }
+    if (-not $Unattended) {
+        if (-not [Environment]::UserInteractive -or [Console]::IsInputRedirected) { Write-SgWarn 'Nothing was cleaned: run s disk clean in an interactive console, or the scheduled task (s disk schedule).'; return }
+        $choice = Read-Host "Apply these $(@($report.Plan).Count) action(s)? [y/N]"
+        if ($choice.Trim().ToLowerInvariant() -notin @('y','yes','o','oui')) { Write-SgInfo 'Cancelled; nothing was changed.'; return }
+    }
+    $stop = { param($Path, $Target) Stop-SgProject $config $Path -Target $Target -Reason 'disk-hygiene' }
+    $outcome = Invoke-SgDiskHygienePlan $report $entries $stop -Unattended:$Unattended
+    [pscustomobject]@{ Report=$report; Outcome=$outcome } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8
+    if ($Unattended) { return }
+    foreach ($result in @($outcome.Results)) {
+        if ($result.Status -eq 'done') { Write-SgInfo "Done: $($result.Label)" } else { Write-SgWarn "Failed: $($result.Label) $($result.Detail)" }
+    }
+    Write-SgInfo ("Freed {0}; {1} now free." -f (Format-SgBytes ([Math]::Max(0, $outcome.FreedBytes))), (Format-SgBytes $outcome.Volume.FreeBytes))
+}
+
+function Invoke-SgDiskSchedule {
+    Import-SgDiskHygieneModule
+    $launcher = Join-Path $env:USERPROFILE '.shipglows\runtime\bin\s.cmd'
+    $name = Register-SgDiskHygieneTask $launcher
+    Write-SgInfo "Scheduled task '$name' registered: daily at 04:00 (or at next logon if missed), runs s disk clean -Unattended. Last result: $(Join-Path $config.RuntimeDirectory 'disk-hygiene.json')"
 }
 
 # s unlock names the registry lock holder and stops it only after confirmation.
@@ -1273,6 +1353,9 @@ try {
         'auth' { Invoke-SgAuthenticationMenu }
         'doctor' { Invoke-SgDoctor }
         'unlock' { Invoke-SgUnlock }
+        'disk' { Invoke-SgDisk }
+        'disk-clean' { Invoke-SgDisk -Clean }
+        'disk-schedule' { Invoke-SgDiskSchedule }
         'capabilities' { Read-SgCliCapabilitySnapshot $config | ConvertTo-Json -Depth 5 -Compress }
         'update' { Invoke-SgUpdate }
         'update-status' { Show-SgUpdateStatus }

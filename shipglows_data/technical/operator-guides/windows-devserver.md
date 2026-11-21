@@ -962,6 +962,34 @@ exposé au lieu de dire qu'il est absent.
    ssh -N -L 3001:localhost:3001 shipglows
    ```
 
+### Espace disque et ménage automatique
+
+Les caches de paquets, les distributions Gradle, les sessions de dev oubliées et les
+builds de projets inactifs ne se nettoient jamais seuls. ShipGlows les borne :
+
+```powershell
+s disk          # lecture seule : espace libre, taille des caches, disques virtuels, plan de ménage
+s disk -Json    # même rapport en JSON
+s disk clean    # applique le plan après confirmation
+s disk schedule # tâche planifiée quotidienne (04:00, rattrapée à l'ouverture de session)
+```
+
+Le plan contient uniquement :
+
+- l'arrêt (via `s stop`, avec preuve d'identité) des sessions de dev lancées depuis plus de 24 h ;
+- la suppression des sorties de build (`build`, `dist`, `.astro`, `.next`, `target`, `android\app\build`…)
+  des projets arrêtés depuis plus de 14 jours, seulement si Git les déclare ignorées et non suivies ;
+- la suppression des versions Gradle (distribution, `caches\<version>`, `daemon\<version>`) qu'aucun
+  projet enregistré n'épingle dans son wrapper, jamais pendant qu'un démon Gradle tourne ;
+- `npm cache clean`, `uv cache prune` et `pnpm store prune` quand le cache dépasse son budget
+  (5 Go, 15 Go pour pnpm) ou quand le disque est sous pression ; `docker builder prune` (plus de 7 jours).
+
+Le cache pub, les navigateurs Playwright et les disques virtuels Docker/WSL sont seulement mesurés :
+un `.vhdx` grossit mais ne rétrécit jamais seul, son compactage reste manuel.
+Seuils (`s d` affiche une alerte) : moins de 20 Go libres, ou 75 % utilisés quand il reste moins de 50 Go.
+Réglages : `SHIPGLOWS_SESSION_MAX_AGE_HOURS`, `SHIPGLOWS_BUILD_STALE_DAYS`, `SHIPGLOWS_CACHE_BUDGET_GB`,
+`SHIPGLOWS_PNPM_STORE_BUDGET_GB`. Dernier résultat : `%LOCALAPPDATA%\ShipGlows\DevServer\disk-hygiene.json`.
+
 ---
 
 ## 🔧 Option 2: Git Bash (facultatif)
