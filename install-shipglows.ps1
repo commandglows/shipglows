@@ -146,7 +146,7 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/(?:private_data\.py|shipglows_readwise\.py|readwise_oauth\.py|environment/(?:__init__\.py|adapters\.py|core\.py|mise_backend\.py|preparation\.py|shipglows_environment\.py|tool_catalog\.py|versions\.py|windows_tauri_backend\.py|schemas/shipglows-environment-v1\.schema\.json))$' })
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/install-turso-cloud\.sh$' })
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/shipglows-version\.json$' })
-        if ($entries.Count -ne 49) { Fail 'The ShipGlows archive is missing the native CLI launcher, Flutter configuration, Windows DevServer, runtime status, version metadata, ShipGlows command, build-artifact helper, Extension/Obsidian Lab, managed PowerShell runtime, MCP catalog, WSL/Turso bootstrap, developer corpus channel, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, provider, environment control-plane, or private-data control-plane files.' }
+        if ($entries.Count -ne 50) { Fail 'The ShipGlows archive is missing the native CLI launcher, Flutter configuration, Windows DevServer, runtime status, version metadata, ShipGlows command, build-artifact helper, Extension/Obsidian Lab, managed PowerShell runtime, MCP catalog, WSL/Turso bootstrap, developer corpus channel, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, provider, environment control-plane, or private-data control-plane files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
