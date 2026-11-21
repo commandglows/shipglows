@@ -487,7 +487,7 @@ function Get-SgBrowserExtensionDescriptor([string]$ProjectPath, [string]$Browser
             return [pscustomobject]@{ProjectPath=$root;ExtensionPath=[IO.Path]::GetFullPath((Split-Path $manifestPath -Parent));ManifestPath=[IO.Path]::GetFullPath($manifestPath);RelativeManifestPath=$relative.Replace('\','/');ManifestVersion=[int]$manifest.manifest_version;Name=[string]$manifest.name;Version=[string]$manifest.version;Mode='built';Framework='wxt'}
         }
     }
-    $platformCandidates = if ($browserName -eq 'firefox') { @('dist\firefox\manifest.json','build\firefox\manifest.json','output\firefox\manifest.json') } else { @('dist\chrome\manifest.json','build\chrome\manifest.json','output\chrome\manifest.json') }
+    $platformCandidates = if ($browserName -eq 'firefox') { @('dist\firefox\manifest.json','build\firefox\manifest.json','output\firefox\manifest.json') } else { @('dist\chrome\manifest.json','build\chrome\manifest.json','output\chrome\manifest.json','.output\chrome-mv3\manifest.json') }
     $relativeCandidates = @('manifest.json') + $platformCandidates + @('dist\manifest.json','build\manifest.json')
     $matches = New-Object 'System.Collections.Generic.List[object]'
     foreach ($relative in $relativeCandidates) {
@@ -850,9 +850,18 @@ function Get-SgExtensionManagerBrowser {
 }
 
 function Get-SgBrowserExtensionUnpackedDirectory([string]$ProjectPath) {
-    # WXT dev writes its unpacked package to .output; crxjs projects keep dist\chrome.
+    # The unpacked directory is the folder that actually holds the generated manifest.json, so evidence beats a fixed guess.
+    # WXT dev writes its unpacked package to .output; crxjs projects keep dist\chrome until a build proves otherwise.
     if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
         try { if ((Get-SgBrowserExtensionFramework (Read-SgNodePackage $ProjectPath)) -eq 'wxt') { return '.output\chrome-mv3-dev' } } catch { }
+        try {
+            $descriptor = Get-SgBrowserExtensionDescriptor $ProjectPath
+            if ($descriptor -and $descriptor.Mode -in @('built','static')) {
+                $manifestRelative = ([string]$descriptor.RelativeManifestPath).Replace('/','\')
+                $directory = Split-Path $manifestRelative -Parent
+                return $(if ($directory) { $directory } else { '.' })
+            }
+        } catch { }
     }
     return 'dist\chrome'
 }

@@ -556,7 +556,12 @@ function Show-SgProjectStatus([object]$Entry) {
     if ($Entry.status -in @('starting','running')) {
         Write-Host "Next: $($experience.OpenNextAction)"
     } elseif (Test-SgProjectSurfaceMissing $Entry) {
-        Write-Host "Next: the folder is gone; run s unregister -ProjectPath `"$($Entry.path)`"."
+        $surfacePath = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path }
+        if (Test-Path -LiteralPath $surfacePath -PathType Container) {
+            Write-Host "Next: the folder exists but no longer matches its registered $([string]$Entry.kind) surface; check its manifest or build output, then run s status again, or s unregister -ProjectPath `"$($Entry.path)`"."
+        } else {
+            Write-Host "Next: the folder is gone; run s unregister -ProjectPath `"$($Entry.path)`"."
+        }
     } else {
         Write-Host "Next: run s start -ProjectPath `"$($Entry.path)`"."
     }

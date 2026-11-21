@@ -163,6 +163,18 @@ try {
     Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145 '' '' $extension).Artifact -eq 'dist\chrome') 'CRXJS extension status lost its dist\chrome directory.'
     Assert-Sg ((Get-SgProjectExperience 'browser-extension' 32145).Artifact -eq 'dist\chrome') 'Extension status without a project path changed its default directory.'
 
+    # A build that writes its unpacked extension straight into dist\ (no dist\chrome, no root manifest.json) is still that surface.
+    $flat = Join-Path $fixture 'flat-dist-extension'
+    New-Item -ItemType Directory -Path (Join-Path $flat 'dist') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $flat 'package.json'), '{"name":"flat-dist","scripts":{"build":"node scripts/build.mjs"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $flat 'dist\manifest.json'), '{"name":"FlatDist","version":"0.1.0","manifest_version":3}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg ((Get-SgProjectKind $flat) -eq 'browser-extension') 'A build output at dist\manifest.json was not classified as a browser extension.'
+    Assert-Sg ((& $module { param($Project) Get-SgBrowserExtensionUnpackedDirectory $Project } $flat) -eq 'dist') 'The unpacked directory ignored the dist\manifest.json build output.'
+    Assert-Sg ((Get-SgProjectExperience 'browser-extension' 0 '' '' $flat).Artifact -eq 'dist') 'Extension status named a directory that holds no manifest.json.'
+    Assert-Sg (-not (Test-SgProjectSurfaceMissing ([pscustomobject]@{ path=$flat; launchPath=$flat; kind='browser-extension'; status='stopped'; port=0 }))) 'A built extension whose manifest moved into dist was reported as missing.'
+    [void](Write-SgProjectEnvironment $flat 0 -Kind 'browser-extension')
+    Assert-Sg ([IO.File]::ReadAllText((Join-Path $flat 'ENVIRONMENT.md')) -match 'Unpacked Chrome directory: `dist`') 'Extension environment did not name the real dist directory.'
+
     # Open must launch a browser executable: chrome:// has no Windows handler and blocks on Open With.
     $wxtOutput = Join-Path $wxt '.output\chrome-mv3-dev'
     New-Item -ItemType Directory -Path $wxtOutput -Force | Out-Null

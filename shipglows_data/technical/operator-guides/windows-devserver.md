@@ -386,8 +386,11 @@ Start exacte au lieu de laisser croire qu'une URL manque.
 
 Pour une extension Chrome, le port affiché sert au HMR : ce n'est pas l'adresse
 d'un site. Après Open, activez **Developer mode** dans `chrome://extensions`,
-choisissez **Load unpacked**, puis sélectionnez `dist\chrome`. ShipGlows ouvre
-les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
+choisissez **Load unpacked**, puis sélectionnez le dossier qui contient le
+`manifest.json` produit : `dist\chrome` pour CRXJS, `dist` quand le build écrit
+le manifeste directement dans `dist\`, `.output\chrome-mv3-dev` pour WXT.
+ShipGlows lit ce dossier depuis le build réel et l'annonce dans `s status` et
+`ENVIRONMENT.md`. ShipGlows ouvre les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
 dans votre profil personnel. La détection automatique actuelle couvre les
 projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
