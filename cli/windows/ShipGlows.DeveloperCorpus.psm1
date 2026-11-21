@@ -160,7 +160,8 @@ function Enable-SgWindowsDeveloperChannel {
     }
     $root = Assert-SgDeveloperCheckout -Path $ShipGlowsRoot -RepositoryUrl $RepositoryUrl -GitPath (Resolve-SgGitCommand)
     $syncHelper = Join-Path $root 'tools\shipglows_sync_skills.ps1'
-    $codex = Get-Command codex.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    # ShipGlows installs Codex behind .cmd wrappers (npm shim, runtime bin priority wrapper), never only codex.exe.
+    $codex = Get-Command codex.cmd, codex.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $codex) { throw 'Codex CLI is required to switch the ShipGlows developer channel.' }
 
     $plugins = @(Get-SgEnabledShipGlowsPluginIds -TargetHome $TargetHome)
