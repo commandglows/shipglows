@@ -74,10 +74,9 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 - Do not emit any closure result without the shared visual closure card and its one-line `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📰 CHANGELOG` classifications.
 - Do not mutate tracker/changelog when proof or docs status is materially incomplete unless closure mode is partial.
 - Do not mark product work as complete if documentation, editorial, or changelog status is materially `needs review`.
-- Do not include internal file paths in user `report=user`.
 - Do not claim shipping, release, or implementation truth from closure alone.
 - Never commit or push; git shipping belongs to `005-sg-ship`.
-- Do not present an otherwise clean completed chantier as terminal before final commit/push succeeds; local-only intent or a blocker remains explicitly delivery pending.
+- Do not present a clean completed chantier as terminal before final commit/push succeeds; local-only or blocked delivery stays explicitly delivery pending.
 - In `summary-only`, do not mutate any project or ShipGlows-owned artifact.
 
 ## Validation
@@ -89,8 +88,6 @@ Run closure in this order:
 3. prepare changelog/tracker state, classify changelog impact, and append at most one significant event when adopted,
 4. revalidate the bounded capsule, map task-owned changes, run documentation reflection, then classify editorial impact independently; apply mapped updates and expose all three results,
 5. route a clean completed daily chantier directly to bounded shipping, otherwise emit the concrete delivery limit and next owner clearly.
-
-For `summary-only`, run read-only classification and reporting only; skip steps that write bookkeeping.
 
 ## Activation Map
 

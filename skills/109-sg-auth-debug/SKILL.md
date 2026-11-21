@@ -6,7 +6,7 @@ argument-hint: <bug auth, URL, provider, ou flow à diagnostiquer>
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and scripts resolve from `$SHIPGLOWS_ROOT`, never the project repo; project artifacts and source files resolve from the project root.
 
 Primary artifact type: `specialist-workflow`.
 
@@ -21,10 +21,7 @@ Process role: `source-de-chantier`.
 
 Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. If attached to one unique chantier spec, write the run trace there. If no unique chantier exists, do not write to a spec.
 
-## Chantier Potential Intake
-
-Apply the chantier-potential threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report.
-For `109-sg-auth-debug`, use it when auth/session/callback findings reveal non-trivial future work and no unique chantier already owns that work.
+Chantier potential: apply that file's threshold before the final report. For `109-sg-auth-debug`, use it when auth/session/callback findings reveal non-trivial future work and no unique chantier already owns that work.
 
 ## Report Modes
 
@@ -52,8 +49,8 @@ It does not own generic browser proof, full manual QA logging, deployment discov
 
 Load shared references only at their gate and local references by mode:
 
-- `references/auth-debug-workflow.md`: mandatory compact first-decision core and compatibility index.
-- `references/auth-intake-and-authority.md`: intake, development-mode authority, automation limits, and escalation.
+- `references/auth-debug-workflow.md`: mandatory compact first-decision core.
+- `references/auth-intake-and-authority.md`: intake, authority, automation limits, escalation.
 - `references/auth-provider-routing.md`: provider/stack detection and minimum code inspection.
 - `references/auth-browser-proof.md`: browser reproduction, Playwright runtime, redacted evidence, and Sentry/PM2 correlation.
 - `references/auth-diagnosis-and-report.md`: cause classification, verdict, handoff, and report fields.
@@ -83,7 +80,7 @@ Load leaves directly and only when their gate applies. No leaf may load a siblin
 
 - Preserve auth/session/callback/provider, tenant, cookie, redirect, token, secret, and redaction safety rules.
 - Before asking the operator for logs, screenshots, callback traces, or browser repro steps, apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md`.
-- When the agent can safely navigate the app with Playwright or any other browser/tooling path, proactively look for diagnostics/log-copy UI, use it as redacted evidence, and confirm the commit/build + Paris/UTC build-time header before asking the operator for logs.
+- When the agent can safely navigate the app with Playwright or another browser tool, proactively look for diagnostics/log-copy UI, use it as redacted evidence, and confirm the commit/build + Paris/UTC build-time header before asking the operator for logs.
 - Evaluate `Chantier potentiel` for auth/session/callback/provider/tenant risk beyond a direct local fix.
 - Never log secrets, cookies, tokens, OTPs, private env values, or unredacted user auth data.
 - Never bypass auth, weaken authorization, use a primary account as test infrastructure, or mutate provider/production state without explicit authority and the owning workflow.
@@ -100,8 +97,8 @@ Stop and report blocked when:
 
 ## Validation
 
-Validate this skill after edits with:
+Validate after edits:
 
-- `rg -n "Trace category|Process role|Chantier Potential|ShipGlows-Owned Preflight|canonical ShipGlows path|auth|session|provider|Playwright|Sentry|redaction|references/|operator for logs|runtime surface" skills/109-sg-auth-debug/SKILL.md`
+- `rg -n "Trace category|Process role|Chantier|ShipGlows-Owned Preflight|canonical ShipGlows path|auth|session|provider|Playwright|Sentry|redaction|references/|operator for logs|runtime surface" skills/109-sg-auth-debug/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - `tools/shipglows_sync_skills.sh --check --skill 109-sg-auth-debug`
