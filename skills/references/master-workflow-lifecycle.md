@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.14.0"
+artifact_version: "2.15.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-10-20"
+updated: "2026-11-21"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -248,6 +248,29 @@ name the new owner or operational reason, scope, and review/stop condition.
 An untracked, unreachable, or still-running managed process blocks clean closure
 and removal of any directory it uses. A final report may omit healthy lifecycle
 detail, but it must expose a non-terminal disposition as a concrete limit.
+
+### 5.2 Disk Footprint
+
+Every byte an agent adds to the development surface outlives the chantier unless
+someone removes it, and package managers, SDKs and virtual disks never shrink on
+their own. Work economically:
+
+- Reuse a running managed session for the same surface and target; start a new one
+  only when none exists. Sessions you started follow 5.1 and are stopped at closure.
+- Install dependencies only through the project's declared lockfile manager
+  (`pnpm`, `yarn`, `npm ci`, `uv sync`, `flutter pub get`). Never run another
+  manager in the same project, never install globally for one project, and never
+  delete `node_modules`, `.venv` or caches to "fix" an install before diagnosing it.
+- Do not introduce a new SDK, Gradle, Node, Python, Playwright browser or Docker
+  image version unless the work requires it; prefer the version already installed
+  and pinned by sibling projects. A version bump is a dependency decision, not a
+  side effect.
+- Keep temporary files in the session scratch directory. Before closure, delete
+  what this work created outside the repository: clones, downloads, extracted
+  archives, recordings, and raw build outputs (release artifacts follow
+  `LATEST-BUILD-ACCESS` in `agent-runtime-awareness.md`).
+- Machine-level caches are owned by `s disk` on Windows (report, `s disk clean`,
+  daily task); never delete caches, package stores or virtual disks by path.
 
 ### 6. Validation And Evidence Routing
 
