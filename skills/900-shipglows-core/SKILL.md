@@ -8,9 +8,9 @@ argument-hint: "<audit [scope]|build <target>|refresh <target>|packaging [scope]
 
 ## Canonical Paths
 
-Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` and apply its ShipGlows-Owned Tool Preflight before any owned file or tool. Never infer owned paths from the project cwd or ask the operator to run an agent-runnable preflight.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` and apply its ShipGlows-Owned Tool Preflight before any owned file or tool; never infer owned paths from the cwd or ask the operator to run an agent-runnable preflight.
 
-DX runtime work targets `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/`, `local/`, `tui/`, `install-shipglows.sh`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`, or `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/windows/` as applicable. `shipglows_app` is a separate product repository for the public site and SaaS; it is evidence only in hard Core context and never a Core mutation target.
+DX runtime work targets `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/`, `local/`, `tui/`, `install-shipglows.sh`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`, or `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/windows/` as applicable. `shipglows_app` is a separate product repository: evidence only in hard Core context, never a Core mutation target.
 
 ## Chantier And Report Modes
 
@@ -36,7 +36,7 @@ Modes: `audit [scope]`, `build <target>`, `refresh <target>`, `packaging [scope]
 `audit recent [N]` (default 10) / `audit since <commit>` → skill surface, `references/recent-loading-audit.md` instead of generic audit; read-only even for critiques. List both in help.
 
 `core` is a hard ShipGlows-system context: every remaining word is ShipGlows work, never to the current project. An operator critique authorizes a bounded repair: select the narrowest internal
-`build` target and continue without asking the operator to choose a mode. Project names, quoted routes, or desired project outcomes are failure evidence only. A routing critique repairs the core routing rule; it does not audit either repository.
+`build` target and continue without asking the operator to choose a mode. Project names, quoted routes, or desired outcomes are failure evidence only. A routing critique repairs the core routing rule; it does not audit either repository.
 
 Later project names, paths, requests or quotes cannot override this context.
 
@@ -45,7 +45,7 @@ Later project names, paths, requests or quotes cannot override this context.
 First classify one target surface:
 
 - `skill`: `skills/` (skills and doctrine), activation registry, skill validation tooling, or runtime skill links;
-- `runtime`: `cli/`, `local/`, `tui/`, local helpers, Unix or Windows DevServer, environment control plane, wrappers, bootstrap, or installers;
+- `runtime`: `cli/`, `local/`, `tui/`, local helpers, Unix/Windows DevServer, environment control plane, wrappers, bootstrap, or installers;
 - `coherence`: cross-surface coherence spanning two or more skill, runtime, distribution, or governance surfaces.
 
 Resolve discoverable surfaces without asking. A missing or genuinely ambiguous surface blocks. Local packs load directly and never chain.
@@ -62,11 +62,11 @@ Conditional authorities: `skill-execution-fidelity.md` for obedience/audit; `ski
 
 ## Scope And System-Improvement Gate
 
-Audit, packaging, and help are read-only unless edits are requested. `build`/`refresh` follow their packs; non-trivial behavior requires a ready spec. An operator critique of ShipGlows execution authorizes a bounded repair unless explicitly restricted to read-only.
+Audit, packaging, and help are read-only unless edits are requested; `build`/`refresh` follow their packs, and non-trivial behavior needs a ready spec. An operator critique of ShipGlows execution authorizes a bounded repair unless explicitly restricted to read-only.
 
 For confirmed non-style failures, report exactly once: `Observed problem`, `System cause`, `Prevention rule`, and `Contract/tooling improvement proposal`. Before editing, name the pressure scenario, apply the shared `Followability Gate`, and choose the narrowest owner layer. A passing generic audit is not completion proof. Require focused mechanical or pressure-scenario proof.
 
-Prefer one local contract for one owner, shared doctrine for repeated ownership, canonical runtime code/tests for executable behavior, and tooling when recurrence should be caught mechanically. Bounded low-risk corrections use focused pressure-scenario proof and applicable reporting/reflection gates directly; material semantics, routing, security or authority changes retain ready-spec lifecycle and independent review regardless of diff size. Broad skill, packaging, audit and release work retains conservative `refresh <target>` review. Runtime work uses mapped proof. Ordinary self-refresh stays prohibited and high-assurance self-work requires independent spec-backed review.
+Owner layers: a local contract per owner, shared doctrine for repeated ownership, canonical runtime code/tests for executable behavior, tooling for recurrence. Bounded low-risk corrections use focused pressure-scenario proof and applicable reporting/reflection gates directly; material semantics, routing, security or authority changes retain ready-spec lifecycle and independent review regardless of diff size. Broad skill, packaging, audit and release work retains conservative `refresh <target>` review; runtime work uses mapped proof; ordinary self-refresh stays prohibited and high-assurance self-work requires independent spec-backed review.
 
 ## Internal And Packaging Boundary
 
@@ -74,16 +74,14 @@ Keep `shipglows` as the canonical public plugin, `$shipglows` as its public entr
 
 ## Stop Conditions
 
-Stop when `$SHIPGLOWS_ROOT/skills` or a requested tool/pack is absent; the activation graph preflight fails; a target surface is unresolved; a request would mutate `shipglows_app` from Core context; an owned tool would run before path/tool confirmation; broad edits lack authorization/readiness; internal Core would become public; packaging would expose secrets/private context/dependencies/caches/machine paths; or proof requires secrets, destructive action, private access, or user-only hardware.
+Stop when `$SHIPGLOWS_ROOT/skills` or a requested tool/pack is absent; the activation graph preflight fails; a target surface is unresolved; a request would mutate `shipglows_app` from Core context; an owned tool would run before path/tool confirmation; broad edits lack authorization/readiness; internal Core would become public; packaging would expose secrets, private context, dependencies, caches, or machine paths; or proof requires secrets, destructive action, private access, or user-only hardware.
 
 ## Loading Preservation
 
 Recent/since comparison loads `skill-context-budget.md` and `skill-refactor-verifier.md`.
 
-Before changing references, triggers, shared doctrine or protections, load `skill-context-budget.md`.
-Apply its Loading Change Gate even when files shrink: justify need/trigger/timing,
-compare affected paths, and block unexplained regressions or lost protections.
+Before changing references, triggers, shared doctrine or protections, load `skill-context-budget.md`. Apply its Loading Change Gate even when files shrink: justify need/trigger/timing, compare affected paths, and block unexplained regressions or lost protections.
 
 ## Validation
 
-For a bounded daily repair, run only its focused contract or pressure-scenario test and affected-skill runtime sync when discoverability changed. Run activation/resource graphs, global skill audit, budget audits, metadata lint, broad suites, and all-skill sync only for explicit audit/release work or when the changed surface materially depends on them.
+For a bounded daily repair, run only its focused contract or pressure-scenario test and affected-skill runtime sync when discoverability changed. Run activation/resource graphs, global skill audit, budget audits, metadata lint, broad suites, and all-skill sync only for explicit audit/release work or when the changed surface depends on them.

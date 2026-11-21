@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-05"
-updated: "2026-10-20"
+updated: "2026-11-21"
 status: active
 source_skill: 000-shipglows
 scope: codex-expert-mode-aliases
@@ -34,22 +34,11 @@ next_step: "/103-sg-verify expert mode aliases"
 
 # Codex Expert Mode Aliases
 
-These aliases are interpreted by the `shipglows` Codex router only. They are
-not shell commands and must not be added to `cli/shipglows.sh`. The canonical
-mapping lives in `skills/references/skill-invocation-registry.json`; this
-reference explains how to apply it.
+These aliases are read only by the `shipglows` Codex router, never as shell commands; do not add them to `cli/shipglows.sh`. The canonical mapping lives in `skills/references/skill-invocation-registry.json`; this reference explains how to apply it.
 
-Use the form:
+Form: `shipglows <alias> <instruction>`.
 
-```text
-shipglows <alias> <instruction>
-```
-
-The alias is resolved before natural-language routing and before numeric skill
-lookup. Resolution follows `public owner -> owner mode -> internal engine`.
-The remainder of the instruction is passed unchanged. An alias owns no
-workflow rules, proof rules, or stop conditions: those remain with its public
-owner and selected internal engine.
+The alias is resolved before natural-language routing and numeric skill lookup, following `public owner -> owner mode -> internal engine`. The rest of the instruction passes unchanged; workflow, proof, and stop rules stay with the public owner and internal engine.
 
 | Alias | Public owner | Owner mode | Internal engine |
 | --- | --- | --- | --- |
@@ -60,11 +49,11 @@ owner and selected internal engine.
 | `resume` | `sg-planning` | `resume` | `303-sg-resume` |
 | `build` | `sg-development` | `build` | `001-sg-build` |
 | `fix` | `sg-bug` | `fix` | `106-sg-fix` |
-| `verify` | `sg-engineering` by default; specialist owner when explicit | `verify` or specialist audit mode | `103-sg-verify` or specialist proof engine |
+| `verify` | `sg-engineering` by default; specialist when explicit | `verify` or specialist audit mode | `103-sg-verify` or specialist proof engine |
 | `test` | `sg-engineering` | `test` | `107-sg-test` |
 | `browser` | `sg-engineering` | `browser` | `108-sg-browser` |
 | `git` | `sg-engineering` | `github` | `010-sg-technical` |
-| `hygiene` | `sg-maintenance` by default; `sg-engineering` for explicit Git scope | `hygiene` or `github clean` | `002-sg-maintain` or `010-sg-technical` |
+| `hygiene` | `sg-maintenance` (`sg-engineering` for explicit Git scope) | `hygiene` or `github clean` | `002-sg-maintain` or `010-sg-technical` |
 | `tidy`, `ménage` | `sg-maintenance` | `tidy` | `002-sg-maintain` |
 | `capture` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
 | `tmux` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
@@ -72,28 +61,12 @@ owner and selected internal engine.
 | `deploy` | `sg-release` | `deploy` | `004-sg-deploy` |
 | `prod` | `sg-release` | `prod` | `405-sg-prod` |
 
-`shipglows hygiene` is current-project-only and read-only. It returns one
-grouped proposal across maintenance families; corrections require a new exact
-approval. `shipglows hygiene git` specializes exactly to the safe
-`shipglows git clean` skill workflow. It never invokes native `git clean`.
-Workspace or multi-project hygiene is rejected rather than silently widened.
+`shipglows hygiene` is current-project-only and read-only: one grouped proposal across maintenance families; corrections need a new exact approval. `shipglows hygiene git` runs only the safe `shipglows git clean` skill workflow, never native `git clean`. Workspace or multi-project hygiene is rejected, not widened.
 
-`shipglows tidy` (alias `ménage`) is the current-project cleanup: workflow docs and specs, Git resting state, Git storage upkeep, and, inside ShipGlows itself, orphan skill documentation. It returns one consolidated approval packet and deletes rather than archives; Git history is the archive.
+`shipglows tidy` (alias `ménage`) cleans the current project: workflow docs and specs, Git resting state and storage, and, inside ShipGlows, orphan skill docs. It returns one approval packet and deletes rather than archives; Git history is the archive.
 
-`verify` preserves specialist ownership when its scope is explicit: design,
-accessibility, UI, or animation routes to `sg-design`; SEO or search routes to
-`sg-seo`; release, deploy, preview, live, or production routes to `sg-release`;
-a bug, regression, reproduction, or retest routes to `sg-bug`; otherwise
-implementation-quality proof uses `sg-engineering verify`. The shortcut never
-lets generic `103-sg-verify` replace an applicable specialist audit.
+`verify` keeps specialist ownership for explicit scopes: design, accessibility, UI, or animation (`sg-design`); SEO or search (`sg-seo`); release, deploy, preview, live, or production (`sg-release`); bug, regression, reproduction, or retest (`sg-bug`). Otherwise implementation-quality proof uses `sg-engineering verify`; generic `103-sg-verify` never replaces an applicable specialist audit.
 
-The other aliases select the owner and mode declared above. A normal
-natural-language request remains free to route by intent; an alias is selected
-only when it is the first token after `shipglows`.
+Other aliases use their declared owner and mode. Natural-language requests still route by intent; an alias applies only as the first token after `shipglows`.
 
-`core` is a hard context switch: every word after `shipglows core` concerns the
-ShipGlows system. It may request a repair, audit, design, documentation, or
-other Core work, but it never targets the current project. Project names,
-quoted routes, and desired project outcomes are evidence about the ShipGlows
-behavior being discussed. Exit `core` and invoke another mode or métier for
-actual project work.
+`core` is a hard context switch: every word after `shipglows core` concerns the ShipGlows system, never the current project. It may request a repair, audit, design, or other Core work; project names, quoted routes, and desired outcomes are evidence about ShipGlows, not targets. Exit `core` to invoke another mode or métier for project work.
