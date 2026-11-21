@@ -186,7 +186,10 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(nolocal["runtime_engine"], "000-shipglows")
         self.assertEqual(nolocal["mode"], "default")
         self.assertEqual(nolocal["mode_alias"], "nolocal")
-        self.assertEqual(nolocal["effective_execution_tags"], ["#nolocal"])
+        self.assertEqual(
+            nolocal["effective_execution_tags"],
+            ["#nobuild", "#nocommit", "#nolocal", "#noserver", "#notest"],
+        )
         self.assertEqual(nolocal["selected_internal_engine"], "000-shipglows")
 
         docs_auto = check("sg-docs auto")

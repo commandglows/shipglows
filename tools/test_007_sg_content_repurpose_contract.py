@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -51,6 +52,18 @@ HISTORICAL_FILES = {
 
 def read(relative: str) -> str:
     return (ROOT / relative).read_text(encoding="utf-8")
+
+
+def active_surface_files() -> list[Path]:
+    """Tracked and non-ignored files; git-ignored local caches are not a surface."""
+    try:
+        listed = subprocess.run(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            cwd=ROOT, capture_output=True, check=True,
+        ).stdout.decode("utf-8", errors="replace")
+    except (OSError, subprocess.CalledProcessError):
+        return list(ROOT.rglob("*"))
+    return [ROOT / name for name in listed.split("\0") if name]
 
 
 class RepurposeModeContractTest(unittest.TestCase):
@@ -118,7 +131,7 @@ class RepurposeModeContractTest(unittest.TestCase):
 
     def test_no_retired_name_in_active_surface(self) -> None:
         violations: list[str] = []
-        for path in ROOT.rglob("*"):
+        for path in active_surface_files():
             if not path.is_file() or path.suffix not in ACTIVE_SUFFIXES:
                 continue
             relative = path.relative_to(ROOT).as_posix()

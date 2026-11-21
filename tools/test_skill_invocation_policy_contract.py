@@ -57,8 +57,8 @@ class SkillInvocationPolicyContractTests(unittest.TestCase):
 
     def test_registry_drives_exact_public_and_expert_partitions(self) -> None:
         self.assertEqual(15, len(self.public))
-        self.assertEqual(68, len(self.installed))
-        self.assertEqual(53, len(self.expert))
+        self.assertEqual(69, len(self.installed))
+        self.assertEqual(54, len(self.expert))
         self.assertFalse(self.public & self.expert)
         self.assertEqual(self.installed, self.public | self.expert)
         self.assertTrue(self.registry["internal_catalog"]["include_all_runtime_skills"])
@@ -91,8 +91,11 @@ class SkillInvocationPolicyContractTests(unittest.TestCase):
             self.assertIn(canonical, body, public_skill)
             self.assertIn("root", body.lower(), public_skill)
             self.assertIn("file", body.lower(), public_skill)
-            self.assertIn("stop with a visible error", body, public_skill)
-            self.assertIn("never fall back to a sibling runtime path", body, public_skill)
+            flat = " ".join(body.split())
+            # The router scopes the stop to root-dependent work because explicit
+            # init keeps a portable branch without a runtime (38ce5cbe).
+            self.assertRegex(flat, r"stop (?:root-dependent work )?with a visible error", public_skill)
+            self.assertIn("never fall back to a sibling runtime path", flat, public_skill)
             self.assertNotRegex(body, r"\.\./(?:\d{3}-[^/]+|emailing)/SKILL\.md", public_skill)
 
 

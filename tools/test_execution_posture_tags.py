@@ -14,6 +14,13 @@ CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-
 FOCUS_CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "focus-tags-cheatsheet.md"
 
 
+# `#nolocal` implies the four granular negative tags (d007fcfa), and `#ci`
+# implies `#nolocal`, so effective tags are the full closure; requested and
+# implied tags stay exactly what the operator or mode supplied.
+NOLOCAL_EFFECTIVE = ["#nobuild", "#nocommit", "#nolocal", "#noserver", "#notest"]
+CI_EFFECTIVE = ["#ci", *NOLOCAL_EFFECTIVE]
+
+
 class ExecutionPostureTagTests(unittest.TestCase):
     def test_nolocal_is_position_independent_for_public_commands(self) -> None:
         for invocation in (
@@ -24,7 +31,7 @@ class ExecutionPostureTagTests(unittest.TestCase):
             payload = check(invocation)
             self.assertEqual("valid", payload["status"], invocation)
             self.assertEqual(["#nolocal"], payload["requested_execution_tags"])
-            self.assertEqual(["#nolocal"], payload["effective_execution_tags"])
+            self.assertEqual(NOLOCAL_EFFECTIVE, payload["effective_execution_tags"])
             self.assertEqual("nolocal", payload["execution_posture"])
 
     def test_local_is_explicit_permission_not_a_forced_workload(self) -> None:
@@ -37,7 +44,7 @@ class ExecutionPostureTagTests(unittest.TestCase):
         payload = check("sg-engineering verify checkout #ci")
         self.assertEqual("valid", payload["status"])
         self.assertEqual(["#ci"], payload["requested_execution_tags"])
-        self.assertEqual(["#ci", "#nolocal"], payload["effective_execution_tags"])
+        self.assertEqual(CI_EFFECTIVE, payload["effective_execution_tags"])
         self.assertEqual("ci", payload["execution_posture"])
         self.assertEqual("ci", payload["deferred_proof_target"])
 
@@ -54,12 +61,12 @@ class ExecutionPostureTagTests(unittest.TestCase):
         implicit = check("shipglows blitz until=18:00")
         self.assertEqual("valid", implicit["status"])
         self.assertEqual([], implicit["requested_execution_tags"])
-        self.assertEqual(["#nolocal"], implicit["effective_execution_tags"])
+        self.assertEqual(NOLOCAL_EFFECTIVE, implicit["effective_execution_tags"])
         self.assertEqual(["#nolocal"], implicit["implied_execution_tags"])
 
         ci = check("shipglows blitz #ci until=18:00")
         self.assertEqual("valid", ci["status"])
-        self.assertEqual(["#ci", "#nolocal"], ci["effective_execution_tags"])
+        self.assertEqual(CI_EFFECTIVE, ci["effective_execution_tags"])
 
         local = check("shipglows blitz #local")
         self.assertEqual("invalid", local["status"])
@@ -70,7 +77,7 @@ class ExecutionPostureTagTests(unittest.TestCase):
         self.assertEqual("valid", payload["status"])
         self.assertEqual("default", payload["mode"])
         self.assertEqual("nolocal", payload["mode_alias"])
-        self.assertEqual(["#nolocal"], payload["effective_execution_tags"])
+        self.assertEqual(NOLOCAL_EFFECTIVE, payload["effective_execution_tags"])
         self.assertEqual("shipglows improve checkout #nolocal", payload["normalized_invocation"])
 
         bare = check("shipglows nolocal")
@@ -80,7 +87,7 @@ class ExecutionPostureTagTests(unittest.TestCase):
     def test_tags_apply_to_expert_invocations_without_consuming_focus_tags(self) -> None:
         expert = check("103-sg-verify excellence checkout #ci")
         self.assertEqual("valid", expert["status"])
-        self.assertEqual(["#ci", "#nolocal"], expert["effective_execution_tags"])
+        self.assertEqual(CI_EFFECTIVE, expert["effective_execution_tags"])
 
         focus = check("sg-development feature checkout #docs")
         self.assertEqual("valid", focus["status"])

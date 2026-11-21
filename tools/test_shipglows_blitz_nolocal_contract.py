@@ -55,7 +55,7 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertIn("nolocal", router_entry["legacy_execution_aliases"])
         self.assertIn("708-sg-blitz", router_entry["internal_engines"])
         self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", self.public_flat)
-        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `blitz`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", self.router_flat)
+        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `profile`, `blitz`, `auto`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", self.router_flat)
         self.assertIn("shipglows blitz", self.special_flat)
         self.assertIn("`shipglows nolocal <objective>`", self.special_flat)
         self.assertIn("`708-sg-blitz`", self.special_flat)
@@ -69,7 +69,7 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertEqual("valid", nolocal["status"])
         self.assertEqual("default", nolocal["mode"])
         self.assertEqual("nolocal", nolocal["mode_alias"])
-        self.assertEqual(["#nolocal"], nolocal["effective_execution_tags"])
+        self.assertEqual(["#nobuild", "#nocommit", "#nolocal", "#noserver", "#notest"], nolocal["effective_execution_tags"])
         self.assertEqual("000-shipglows", nolocal["selected_internal_engine"])
 
         docs_auto = check("sg-docs auto")

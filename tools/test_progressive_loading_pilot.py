@@ -89,7 +89,9 @@ class ProgressiveLoadingPilotTests(unittest.TestCase):
         self.assertEqual("invalid", check("shipglows blitz #local")["status"])
         self.assertEqual("invalid", check("shipglows nolocal")["status"])
         result = check("shipglows nolocal inspect current project")
-        self.assertEqual(["#nolocal"], result["effective_execution_tags"])
+        self.assertEqual(["#nolocal"], result["implied_execution_tags"])
+        self.assertIn("#nolocal", result["effective_execution_tags"])
+        self.assertIn("#nobuild", result["effective_execution_tags"])
         self.assertIn("loads `no-local-execution-policy.md`", self.router)
 
     def test_advisory_and_document_validity_never_authorize_eager_reads(self):
