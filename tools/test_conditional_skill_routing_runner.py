@@ -9,6 +9,12 @@ from unittest.mock import patch
 
 from tools import conditional_skill_routing_runner as r
 
+# The OpenCode profile probes drive the real installed OpenCode binary against a
+# local fake provider; hosts without it skip rather than fail.
+OPENCODE_INSTALLED = os.name == "nt" and (
+    Path(os.environ.get("APPDATA", "")) / "npm" / "node_modules" / "opencode-ai" / "bin" / "opencode.exe"
+).is_file()
+
 
 def bundle():
     return {"schema_version": 1, "turns": [{"id": "U1", "role": "user", "content": "Explain."}],
@@ -823,6 +829,7 @@ class BoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(r.RunnerError, "before its release"):
             r.PrivateFixtureConversation(value, gate)
 
+    @unittest.skipUnless(OPENCODE_INSTALLED, "installed OpenCode executable (%APPDATA%\npm opencode-ai) is required")
     def test_opencode_private_control_plane_mock_roundtrip(self):
         result = r.probe_opencode_profile(private=True)
         self.assertEqual(result["enabled_native_tools"], 0)
@@ -1241,6 +1248,7 @@ class BoundaryTests(unittest.TestCase):
         self.assertIn("unified_exec", str(caught.exception))
         self.assertIn("tool_search_always_defer_mcp_tools", str(caught.exception))
 
+    @unittest.skipUnless(OPENCODE_INSTALLED, "installed OpenCode executable (%APPDATA%\npm opencode-ai) is required")
     def test_opencode_deny_all_profile_mock_subject_uses_only_fixture_mcp(self):
         result = r.probe_opencode_profile()
         self.assertGreater(result["native_tools"], 0)

@@ -30,6 +30,10 @@ FIRECRAWL_OK = {"success": True, "data": {"web": [{"url": "https://example.fr/",
 PARALLEL_OK = {"search_id": "s", "results": [{"url": "https://example.org/", "title": "PL", "excerpts": []}]}
 
 
+def attempt(output, provider):
+    """Return one provider's attempt; skipped local/optional providers come first."""
+    return next(item for item in output["attempts"] if item["provider"] == provider)
+
 class SearchFallbackTests(unittest.TestCase):
     def setUp(self):
         env = patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "FIRECRAWL_API_KEY": "fc-key", "PARALLEL_API_KEY": "pl-key",
@@ -68,7 +72,7 @@ class SearchFallbackTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(output["provider"], "parallel")
         self.assertEqual(calls["firecrawl"], 1)
-        self.assertIn("(1 attempt)", output["attempts"][0]["reason"])
+        self.assertIn("(1 attempt)", attempt(output, "firecrawl")["reason"])
         self.sleep.assert_not_called()
 
     def test_gateway_error_is_retried_on_firecrawl(self):
@@ -87,7 +91,7 @@ class SearchFallbackTests(unittest.TestCase):
         status, output, calls = self.run_search(["coach"], [TimeoutError("timed out")] * 3)
         self.assertEqual(output["provider"], "parallel")
         self.assertEqual(calls["firecrawl"], 3)
-        self.assertIn("TimeoutError: timed out) after 3 attempts", output["attempts"][0]["reason"])
+        self.assertIn("TimeoutError: timed out) after 3 attempts", attempt(output, "firecrawl")["reason"])
 
     def test_timeout_flag_applies_to_every_provider(self):
         _, _, calls = self.run_search(["coach", "--timeout", "9"], [self.http(402)])

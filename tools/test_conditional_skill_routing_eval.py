@@ -7,7 +7,7 @@ campaigns below are independently constructed, disposable unit-test inputs.
 from __future__ import annotations
 
 import base64
-from contextlib import redirect_stdout
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from copy import deepcopy
 import hashlib
 import io
@@ -995,16 +995,67 @@ class CampaignInfrastructureTests(unittest.TestCase):
         self.assertNotIn("heldout_reused_across_campaigns_exposure_not_reset", result["campaigns"][-1]["blockers"])
 
 
+@contextmanager
+def frozen_live_sources():
+    """Serve the manifest's frozen selected sources in place of live repository bytes.
+
+    Live skills evolve after the experiment was frozen; the live drift guard is
+    covered by ``test_live_source_drift_fails_closed``. Structural preflight tests
+    must exercise the evaluator against the exact bytes the manifest froze.
+    """
+    manifest = evaluator.load_json(FIXTURES / "manifest.json")
+    frozen_paths = {source["path"] for source in manifest["sources"]}
+    original = evaluator.confined_path
+    with evaluator.frozen_sources(manifest) as frozen:
+        def confined(root, relative):
+            if relative in frozen_paths and Path(root).resolve() == ROOT.resolve():
+                return original(frozen, relative)
+            return original(root, relative)
+        with patch.object(evaluator, "confined_path", side_effect=confined):
+            yield
+
+
+def live_source_drift() -> list[str]:
+    manifest = evaluator.load_json(FIXTURES / "manifest.json")
+    selected = set(manifest["subject_resources"]["baseline"]["source_ids"])
+    selected.update(manifest["subject_resources"]["candidate"]["source_ids"])
+    drifted = []
+    for source in manifest["sources"]:
+        live = ROOT / source["path"]
+        if source["id"] in selected and live.is_file():
+            if hashlib.sha256(live.read_bytes()).hexdigest() != source["source_sha256"]:
+                drifted.append(source["id"])
+    return drifted
+
+
 class PreflightInfrastructureTests(unittest.TestCase):
     def invoke(self, extra=(), format_name="json"):
+        argv = ["--cases", str(FIXTURES / "cases.json"), "--manifest", str(FIXTURES / "manifest.json"),
+                "--format", format_name, *extra]
+        output, errors = io.StringIO(), io.StringIO()
+        with frozen_live_sources(), redirect_stdout(output), redirect_stderr(errors):
+            code = evaluator.main(argv)
+        # Never include raw evaluator output in assertion diagnostics.
+        self.assertEqual(errors.getvalue(), "", "Evaluator emitted unexpected stderr (payload suppressed)")
+        return code, json.loads(output.getvalue()) if format_name == "json" else output.getvalue()
+
+    def test_live_source_drift_fails_closed(self):
+        drifted = live_source_drift()
         result = subprocess.run([sys.executable, "-B", "tools/conditional_skill_routing_eval.py",
                                  "--cases", "tools/fixtures/conditional_skill_routing/cases.json",
                                  "--manifest", "tools/fixtures/conditional_skill_routing/manifest.json",
-                                 "--format", format_name, *extra], cwd=ROOT,
+                                 "--format", "json"], cwd=ROOT,
                                 capture_output=True, text=True, encoding="utf-8", timeout=35)
-        # Never include raw subprocess output in assertion diagnostics.
         self.assertEqual(result.stderr, "", "Evaluator emitted unexpected stderr (payload suppressed)")
-        return result.returncode, json.loads(result.stdout) if format_name == "json" else result.stdout
+        report = json.loads(result.stdout)
+        if drifted:
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(report["structural"], "invalid")
+            self.assertEqual(report["error"], "mandatory selected live source drift: " + sorted(drifted)[0])
+            self.assertEqual(report["recommendation"], "no-go")
+        else:
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(report["preflight"]["structural"], "valid")
 
     def test_valid_preflight_cli_all_three_not_evaluated(self):
         code, report = self.invoke()
@@ -1042,7 +1093,7 @@ class PreflightInfrastructureTests(unittest.TestCase):
                 def cli_path(value):
                     return path if value == path else original_path(value)
                 output = io.StringIO()
-                with patch.object(evaluator, "_cli_path", side_effect=cli_path), redirect_stdout(output):
+                with frozen_live_sources(), patch.object(evaluator, "_cli_path", side_effect=cli_path),                         redirect_stdout(output):
                     code = evaluator.main(["--cases", str(FIXTURES / "cases.json"),
                                            "--manifest", str(FIXTURES / "manifest.json"),
                                            "--runs", str(path), "--format", "json"])
@@ -1067,7 +1118,7 @@ class PreflightInfrastructureTests(unittest.TestCase):
             self.assertNotEqual(root.resolve(), ROOT.resolve())
             self.assertTrue(root.exists())
             return original(registry, root=root)
-        with patch.object(evaluator, "audit_scenarios", side_effect=audit):
+        with frozen_live_sources(), patch.object(evaluator, "audit_scenarios", side_effect=audit):
             result = evaluator.validate_contract(cases, manifest, ROOT)
         self.assertEqual(result["behavior"], "not_evaluated")
         self.assertFalse(result["static_is_observed_baseline"])

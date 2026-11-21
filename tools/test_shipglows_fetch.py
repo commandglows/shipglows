@@ -265,7 +265,9 @@ class AgentBrowserTierTests(unittest.TestCase):
 
 class HtmlConversionTests(unittest.TestCase):
     def test_short_static_page_is_not_a_shell(self):
-        html = "<html><body><h1>Example</h1><p>This domain is for documentation examples only.</p></body></html>"
+        # The real example.com body: genuine short HTML above the 50-character floor.
+        html = ("<html><body><h1>Example Domain</h1><p>This domain is for use in illustrative examples "
+                "in documents. You may use this domain in literature without prior coordination.</p></body></html>")
         _, markdown = shipglows_html.html_to_markdown(html, "https://example.com/")
         self.assertFalse(shipglows_html.looks_like_js_shell(html, markdown))
 
