@@ -30,6 +30,13 @@ def read(rid="help", spans=None):
 
 
 class BoundaryTests(unittest.TestCase):
+    def setUp(self):
+        # Importing conditional_skill_routing_shared rebinds r.run_worker to its
+        # in-process worker; boundary tests always exercise the isolated worker.
+        worker = patch.object(r, "run_worker", r.ISOLATED_RUN_WORKER)
+        worker.start()
+        self.addCleanup(worker.stop)
+
     def test_codex_probe_gate_requires_complete_explicit_boolean_false_before_thread(self):
         features = [{"name": "unified_exec", "enabled": True},
                     {"name": "apps", "enabled": False}]

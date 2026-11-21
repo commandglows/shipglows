@@ -523,6 +523,11 @@ def run_worker(bundle, requests, timeout=15):
     return report
 
 
+# Stable handle on the isolated worker: shared-host tooling rebinds `run_worker`
+# to an in-process worker at import time.
+ISOLATED_RUN_WORKER = run_worker
+
+
 def codex_dynamic_tool_specs():
     """Build the installed app-server DynamicToolSpec shape; static only."""
     def function(name, description, properties, required):
