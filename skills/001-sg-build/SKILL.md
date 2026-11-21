@@ -6,65 +6,60 @@ argument-hint: "[spark|codex|mini|agents|sous-agent|no-agents] <story, bug, or g
 
 ## Canonical Paths
 
-Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Project artifacts resolve from the current project root.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`); project artifacts resolve from the project root. Bare shared-reference names below resolve under `$SHIPGLOWS_ROOT/skills/references/`.
 
 ## Public Métier Ownership
 
-Public label: `sg-development`. `001-sg-build` owns product-change orchestration from outcome intake through readiness, implementation, proof, documentation, closure, and authorized ship. It does not own existing-project upkeep (`002-sg-maintain`), a single bug loop (`003-sg-bug`), already-implemented release confidence (`004-sg-deploy`), or narrow proof (`107-sg-test`, `108-sg-browser`, `109-sg-auth-debug`, `405-sg-prod`).
+Public label: `sg-development`. `001-sg-build` owns product-change orchestration from intake through readiness, implementation, proof, docs, closure, and authorized ship. Upkeep is `002-sg-maintain`, one bug loop `003-sg-bug`, release confidence `004-sg-deploy`, narrow proof `107-sg-test`, `108-sg-browser`, `109-sg-auth-debug`, or `405-sg-prod`.
 
-Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lifecycle selection. Keep interaction outcome-level; do not ask the operator to schedule internal owners.
+Before clarification or lifecycle selection, load `intent-to-outcome-autonomy.md`. Keep interaction outcome-level; never ask the operator to schedule internal owners.
 
 ## Chantier And Reporting
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before execution, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. Continue one matching active spec and update its history/flow; without a unique spec, do not write one and use a `(local)` chantier header. Before the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. Default `report=user` is concise and outcome-first; detailed internal evidence is `report=agent` or handoff only.
-
-Before launching, restarting or reusing a managed app, or selecting a test that needs its backend, load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` and apply its backend-information gate.
+Before execution, load `chantier-tracking.md`: continue one matching active spec and update its flow; without a unique spec, write none and use a `(local)` chantier header. Before the final report, load `reporting-contract.md`; `report=user` is concise and outcome-first, while detailed evidence is `report=agent` or handoff only.
 
 ## Mission And Early Route
 
-Answer: what product change should be built now, and how is it carried to verified ship without losing lifecycle discipline?
+Answer: which product change to build now, and how it reaches verified ship with lifecycle discipline.
 
-Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+Before parsing an explicit invocation, load `skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
 
-Before selecting the route, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-lifecycle-workflow.md`. Check existing chantier ownership before creating a spec. Route dominant maintenance, bug, release, or proof work early; do not load greenfield or delivery packs for an early reroute.
+Before selecting the route, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-lifecycle-workflow.md`. Check chantier ownership before creating a spec; route dominant maintenance, bug, release, or proof work early, without greenfield or delivery packs.
 
-For a product change, continue every safe agent-runnable stage. Do not stop after spec, governance bootstrap, readiness, implementation, or verification and make the operator infer the next internal command. Ask only for a material operator decision or external/safety approval. Once the chantier is validated, run spec -> ready -> start -> verify -> end -> milestone commits to completion in one turn chain: no per-phase "ok", no progress question, no stop on solvable obstacles (see `mutation-plan-approval.md` Approved chantier continuation).
+For a product change, run every safe agent-runnable stage; never make the operator infer internal commands. Ask only for a material operator decision or external/safety approval. Once the chantier is validated, run spec -> ready -> start -> verify -> end -> milestone commits in one turn chain: no per-phase "ok", no stop on solvable obstacles (`mutation-plan-approval.md`, Approved chantier continuation).
 
 ## Delegation And Lifecycle Policy
 
-Before topology selection, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`, `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md`, and `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`.
+Before topology selection, load `master-delegation-semantics.md`, `master-workflow-lifecycle.md`, and `decision-quality-contract.md`.
 
-`main-only` is conversational/no-agent work. `no-agents` selects main-only/no-subagent execution when compatible, but never bypasses lifecycle, readiness, proof, or ship gates. Delegated sequential is the mutation default. Two or more independent read-only scopes use `read-only parallel`; parallel writes require a ready spec with non-overlapping `Execution Batches` and one integration owner. `spark`, `codex`, `mini`, `agents`, `subagent`, and `sous-agent` force delegated sequential execution; unavailable requested delegation reports degraded or stops. Retain a receipt and report `Agents: <count> · <mode>`.
+`main-only` is conversational/no-agent work. `no-agents` selects main-only/no-subagent execution when compatible, but never bypasses lifecycle, readiness, proof, or ship gates. Mutations default to delegated sequential execution. Two or more independent read-only scopes use `read-only parallel`; parallel writes require a ready spec with non-overlapping `Execution Batches` and one integration owner. `spark`, `codex`, `mini`, `agents`, `subagent`, and `sous-agent` force delegated sequential execution; unavailable requested delegation reports degraded or stops. Retain a receipt and report `Agents: <count> · <mode>`.
 
 ## Progressive Route Packs
 
-Local references are loaded directly here and never chain locally.
+Packs load directly from here and never chain.
 
-- For a greenfield product only, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-greenfield-route.md`; resolve platform footprint, preferred stack, blueprint, and material technology decisions before freezing the spec.
-- After route selection and before implementation readiness, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-readiness-route.md` for spec/readiness, governance, documentation, profiles, questions, and model gates.
-- Once the contract is ready, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-delivery-route.md` for `102-sg-start`, proof ownership, verification, onboarding, closure, and ship. Feature and refactor implementation inherit the mandatory pre-write classification, `🛡️ GARDE-FOUS` receipt, and final `Implementation Excellence Gate` from `102-sg-start`; orchestration cannot bypass them.
+- Greenfield product only: load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-greenfield-route.md`; resolve platform footprint, preferred stack, blueprint, and material technology decisions before freezing the spec.
+- After route selection, before implementation readiness: load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-readiness-route.md` for spec, governance, docs, profiles, questions, and model gates.
+- Once the contract is ready: load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-delivery-route.md` for `102-sg-start`, proof, verification, onboarding, closure, and ship. Feature and refactor inherit `102-sg-start`'s pre-write classification, `🛡️ GARDE-FOUS` receipt, and final `Implementation Excellence Gate`; orchestration cannot bypass them.
 
-Conditional shared loaders remain conditional: `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` before a material question; `$SHIPGLOWS_ROOT/skills/references/profile-activation.md` for named profiles; `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` for UI; `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` for email work; `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` for a failure handoff; `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before choosing build or proof lanes for Flutter, Android, Windows desktop, or Firebase Device Streaming. Before readiness, when an application change introduces or materially changes a common journey, navigation model, interaction, or visual direction, load `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` and its shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md`; route selected observations into the experience, design, and specification owners rather than letting implementation browse independently.
+Conditional loaders: `question-contract.md` and `operator-partnership-contract.md` before a material question; `profile-activation.md` for named profiles; `design-system-token-contract.md` for UI; `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` for email work; `actionable-failure-contract.md` for a failure handoff; `agent-runtime-awareness.md` before launching, restarting or reusing a managed app, selecting a backend-dependent test, or choosing build or proof lanes for Flutter, Android, Windows desktop, or Firebase Device Streaming, then apply its backend-information gate.
 
-For matching product work, load the relevant shared contract: `interactive-3d-experience-contract.md` for 3D/WebGL; `interactive-animation-runtime-contract.md` for animation runtimes; `web-image-performance-contract.md` for web image delivery; `web-typography-contract.md` for fonts; `product-iconography-contract.md` for icon systems; `product-color-system-contract.md` for themes and semantic colors; `flutter-engineering-playbook.md` for Flutter application code and `flutter-quality-playbook.md` for Flutter UI, tests, accessibility, localization, or release; `astro-site-playbook.md` for Astro site work; `flutter-app-zoom.md` for app-wide Flutter web or desktop zoom; `creative-asset-provenance-contract.md` when adopting or redistributing creative assets; and `human-centered-interaction-heuristics.md` when recommendations use named heuristics or pattern libraries. Load `blog-and-cms-experience-contract.md` for a new or materially changed publishing system, and `authenticated-experience-ui-contract.md` for account or signed-in UI.
+Before readiness, for an application change that materially changes a common journey, navigation, interaction, or visual direction, load `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` and `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md`; route observations to experience, design, and spec owners, never to implementation browsing.
+
+For matching product work, load:`interactive-3d-experience-contract.md` for 3D/WebGL; `interactive-animation-runtime-contract.md` for animation runtimes; `web-image-performance-contract.md` for web images; `web-typography-contract.md` for fonts; `product-iconography-contract.md` for icons; `product-color-system-contract.md` for themes and semantic colors; `creative-asset-provenance-contract.md` when adopting or redistributing creative assets. Flutter, Astro, publishing, signed-in UI, heuristics, consent, and interface-voice loaders are listed in `build-readiness-route.md`.
 
 ## Readiness And Proof Owners
 
-Before defining user-facing interface copy and interactions for implementation, load `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` and carry its criteria into implementation and review; infrastructure-only work does not activate it.
-Load `$SHIPGLOWS_ROOT/skills/references/interface-voice-examples.md` directly only when drafting or revising interface wording.
-
-When creating or changing cookie-consent banners, preference panels, or their copy and interactions, load `$SHIPGLOWS_ROOT/skills/references/consent-experience.md` before defining copy, UI, and implementation behavior.
-
-For central identity/consent/email integration, load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md` before selecting the service boundary. When the task changes or diagnoses the selected Auth0 integration, load `$SHIPGLOWS_ROOT/skills/references/auth0-integration-playbook.md` directly. Mere email fields or unrelated feature work do not activate these references; email-work-routing selects newsletter and provider leaves independently.
+Central identity/consent/email integration: load `$SHIPGLOWS_ROOT/skills/references/identity-consent-access-contract.md` before selecting the service boundary; when the task changes or diagnoses the selected Auth0 integration, load `$SHIPGLOWS_ROOT/skills/references/auth0-integration-playbook.md` directly. Mere email fields or unrelated feature work do not activate these.
 
 Non-trivial work must pass `100-sg-spec -> 101-sg-ready` before `102-sg-start`; allow one bounded correction loop, otherwise stop. A trivial local mini-contract is allowed only when decision quality and safety are clear.
 
-Proof routing remains explicit: `108-sg-browser` for non-auth browser evidence; `109-sg-auth-debug` for auth/session/provider/protected-route evidence; `405-sg-prod` for hosted runtime/deployment truth; `107-sg-test` for durable manual QA. Preview-required modes ship before hosted proof. `102-sg-start` local auto-verify is only an implementation optimization; `001-sg-build` still owns `103-sg-verify -> 104-sg-end -> 005-sg-ship`.
+Proof routing: `108-sg-browser` for non-auth browser evidence, `109-sg-auth-debug` for auth/session/provider/protected-route evidence, `405-sg-prod` for hosted runtime truth, `107-sg-test` for durable manual QA; preview-required modes ship before hosted proof. `102-sg-start` local auto-verify only optimizes implementation; `001-sg-build` still owns `103-sg-verify -> 104-sg-end -> 005-sg-ship`.
 
-After verification passes, orchestrate `104-sg-end` and bounded `005-sg-ship`; never stage `all-dirty`/`ship-all` without explicit authority and never commit or push directly from this skill. Do not make the user manually run closure or ship after success unless a named stop condition blocks continuation.
+After verification passes, orchestrate `104-sg-end` and bounded `005-sg-ship`; never stage `all-dirty`/`ship-all` without explicit authority, and never commit or push directly from this skill. Closure and ship need no manual operator step unless a stop condition blocks them.
 
 ## Stop Conditions
 

@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: shipglows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-11-21"
 status: active
 source_skill: 001-sg-build
 scope: build-readiness-route
@@ -31,3 +31,11 @@ Before `102-sg-start`, ensure the technical and editorial governance corpus is p
 Before a material question, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md`. Ask only when the answer changes behavior, security, permissions, money, side effects, public claims, proof, closure, or ship risk; present consequences and one recommendation.
 
 Resolve model/topology only after readiness, loading `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` and the canonical delegation contract. Prepared parallel writes require the ready spec's non-overlapping batches and integration owner.
+
+Product loaders, each only for matching work:
+
+- Before defining user-facing interface copy and interactions for implementation, load `$SHIPGLOWS_ROOT/skills/references/interface-voice-and-care.md` and carry its criteria into implementation and review; infrastructure-only work does not activate it. Load `$SHIPGLOWS_ROOT/skills/references/interface-voice-examples.md` only when drafting or revising interface wording.
+- For cookie-consent banners, preference panels, or their copy and interactions, load `$SHIPGLOWS_ROOT/skills/references/consent-experience.md` before defining copy, UI, and implementation behavior.
+- For Flutter application code, load `$SHIPGLOWS_ROOT/skills/references/flutter-engineering-playbook.md`; for Flutter UI, tests, accessibility, localization, or release, load `$SHIPGLOWS_ROOT/skills/references/flutter-quality-playbook.md`; for app-wide Flutter web or desktop zoom, load `$SHIPGLOWS_ROOT/skills/references/flutter-app-zoom.md`.
+- For Astro site work, load `$SHIPGLOWS_ROOT/skills/references/astro-site-playbook.md`; for a new or materially changed publishing system, load `$SHIPGLOWS_ROOT/skills/references/blog-and-cms-experience-contract.md`; for account or signed-in UI, load `$SHIPGLOWS_ROOT/skills/references/authenticated-experience-ui-contract.md`.
+- When recommendations use named heuristics or pattern libraries, load `$SHIPGLOWS_ROOT/skills/references/human-centered-interaction-heuristics.md`.
