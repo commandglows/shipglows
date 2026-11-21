@@ -45,7 +45,12 @@ def main() -> None:
     # Design gets only the sync UI contract, not merge/queue authority.
     design = read("skills/006-sg-design/SKILL.md")
     assert "sync-guidance-overlay-ui.md" in design
-    require("skills/600-sg-local-cloud-sync/SKILL.md", "sync-guidance-overlay-ui.md", "post-auth-sync-orchestration.md", "sync-queue-and-payload-safety.md", "sync-guidance-proof-and-docs.md")
+    # 600 routes the overlay through its bounded index (82244eb9), which owns the direct leaves.
+    require("skills/600-sg-local-cloud-sync/SKILL.md", "sync-guidance-overlay-and-merge-pattern.md")
+    index = read("skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-and-merge-pattern.md")
+    for leaf in ("sync-guidance-overlay-ui.md", "post-auth-sync-orchestration.md", "sync-queue-and-payload-safety.md", "sync-guidance-proof-and-docs.md"):
+        assert leaf in index, f"overlay index does not route {leaf}"
+        read(f"skills/600-sg-local-cloud-sync/references/{leaf}")
     assert "different remembered account" in read("skills/600-sg-local-cloud-sync/references/post-auth-sync-orchestration.md")
     print("PASS: bounded reference-loading scenarios")
 
