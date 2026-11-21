@@ -47,7 +47,7 @@ Apply widget architecture, responsive UX, platform parity, safe areas, and IME b
 
 ## Validation
 
-Prove UI behavior in the managed `shipglows-dev` session on the active target. Run `flutter analyze` or focused tests only when the operator asks or a bug is confirmed, choosing them from the proof mapping in `flutter-quality-playbook.md`.
+Prove UI behavior in the managed `shipglows-dev` session on the active target. Run `flutter analyze` and focused tests without asking, chosen by risk from the proof mapping in `flutter-quality-playbook.md`.
 
 ## Boundary
 

@@ -86,6 +86,7 @@ After classifying a conversation, automatically run a ShipGlows skill-contract a
 - `weak_follow_through`
 - `missed_delegation`
 - `false_agents_receipt`
+- `requirement_rationalized`
 
 Preferred route:
 
@@ -121,6 +122,11 @@ When a conversation finding names specific owner skills, map the ShipGlows Core 
 - `user_friction`
 - `unsafe_ship_or_dirty_scope`
 - `weak_follow_through`
+- `requirement_rationalized`: the agent understood a requirement, then dropped, weakened or reverted it, typically after reasoning about graders, tests or likelihood instead of the request.
+
+### Requirement Rationalization Signals
+
+Search the cleaned transcript (FR+EN) for: `grader`, `grading`, `pass rate`, `hidden tests`, `follow the tests` / `follow tests`, `unlikely`, `peu probable`, `les tests attendent`, `probablement pas testé`, `self-reported`. A match is a lead, not proof: the verdict still requires verifying that a stated requirement was understood and then dropped or weakened (compare the request with the diff, tests and final report). Also flag an edited assertion that pinned a requirement and a metric the program printed about itself used as proof.
 
 ### Evidence Heuristics
 
@@ -147,6 +153,7 @@ When a conversation finding names specific owner skills, map the ShipGlows Core 
 - `weak_follow_through` → `001-sg-build`
 - `missed_delegation` → `001-sg-build`
 - `false_agents_receipt` → `103-sg-verify`
+- `requirement_rationalized` → `103-sg-verify`
 
 ## Owner Handoff
 

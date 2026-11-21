@@ -39,7 +39,7 @@ supersedes: []
 evidence:
   - "Flutter Agent Skills (MIT License, Copyright (c) 2026 Zakaria Fatahi), installed locally in the Claude plugin cache. Rules were distilled and paraphrased from testing-strategy, widget-golden-and-a11y-testing, seeded-determinism-and-golden-vectors, accessibility-as-code, adaptive-layout, i18n-rtl-l10n, ui-states-and-feedback, forms-and-input, motion-and-haptics, design-system-structure, design-review-workflow, custom-canvas-and-gestures, release-and-store-shipping, ci-pipeline-and-gates, ads-and-iap-monetization, local-notifications-scheduler, data-export-and-restore and value-objects-money-and-units. Nothing was copied wholesale."
   - "Operator correction 2026-10-20: the portfolio uses Flutter, Astro, Tauri and Convex only. Flutter quality rules are ShipGlows-owned; the managed dev server replaces hand-run flutter commands."
-  - "Operator directive 2026-10-20: no builds, tests, goldens or analyze unless requested or a bug is confirmed; CI is manual; Git per mutation-git-authority.md."
+  - "Operator directive 2026-11-21 (supersedes 2026-10-20): builds need approval; analyze, tests and goldens verification run without asking, proportionate to risk; CI is manual; Git per mutation-git-authority.md."
   - "Operator context 2026-10-20: the portfolio is French-first for copy."
   - "Sibling playbook skills/references/flutter-engineering-playbook.md is being written in parallel; this file links to it by path and does not cover its topics."
 next_review: "2026-11-20"
@@ -63,7 +63,7 @@ The MIT-licensed Flutter Agent Skills pack is a source of rules, not an authorit
 | `flutter run`, `flutter drive`, `flutter run --profile` by hand | Only `s start -ProjectPath <p> -FlutterDevice windows\|android\|chrome\|web-server`, then `s reload`, `s open`, `s stop`. Profile: `s start ... -FlutterMode profile`. Profile has no hot reload; rebuild with `s restart ... -FlutterMode profile`. |
 | Release-build screenshot sweep | Visual proof comes from the running managed session (screenshots; Browser pane for Web). A release-build sweep waits for an operator-approved build. |
 | `flutter build` in any form, including `--analyze-size` and `--trace-startup` builds | No builds unless the operator asks. |
-| `flutter analyze`, `flutter test`, goldens, pre-PR scripts | Run only when the operator asks or a bug is confirmed. No automatic pre-commit or pre-PR gate. |
+| `flutter analyze`, `flutter test`, goldens, pre-PR scripts | Run without asking, chosen by the risk of the change. Critical or counter-intuitive requirements get a failing test first, never edited to pass. |
 | `--update-goldens` | Never silently. Re-bless only through the rebaseline ritual in section 3.1, with operator approval. |
 | Pull requests, branches, worktrees, push | Git and GitHub persistence follows `$SHIPGLOWS_ROOT/skills/references/mutation-git-authority.md`; the operator's own instructions (for example no branches, worktrees or pull requests) take precedence. |
 | CI on push, pull_request or schedule | Forbidden. CI is manual; `gh workflow run` needs approval. |

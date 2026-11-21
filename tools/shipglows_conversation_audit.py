@@ -82,6 +82,19 @@ CATEGORY_RULES = {
         r"\bwe'll do this later\b",
         r"\bTODO\b",
     ],
+    # Leads only: a match still needs proof that a stated requirement was
+    # understood and then dropped or weakened.
+    "requirement_rationalized": [
+        r"\bgrad(?:er|ers|ing)\b",
+        r"\bpass rate\b",
+        r"\bhidden tests?\b",
+        r"\bfollow (?:the )?tests\b",
+        r"\bunlikely\b",
+        r"\bpeu probable\b",
+        r"\bles tests attendent\b",
+        r"\bprobablement pas test[ée]\b",
+        r"\bself[- ]reported\b",
+    ],
 }
 
 CATEGORY_RE = {name: re.compile("|".join(patterns), re.IGNORECASE) for name, patterns in CATEGORY_RULES.items()}
@@ -97,6 +110,7 @@ OWNER_BY_CATEGORY = {
     "user_friction": "sg-build",
     "unsafe_ship_or_dirty_scope": "sg-spec",
     "weak_follow_through": "sg-build",
+    "requirement_rationalized": "sg-verify",
     "false_agents_receipt": "sg-verify",
     "missed_delegation": "sg-build",
 }

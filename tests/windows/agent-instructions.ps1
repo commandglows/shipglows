@@ -50,6 +50,7 @@ try {
         Assert-Sg ($content -match 'never bypass broken auth' -and $content -match 'infer login from build success') "Auth safety boundary missing in $path"
         Assert-Sg ($content -match 'reveal/download Doppler secrets' -and $content -match 'production scope requires explicit approval') "Doppler secret/production boundary missing in $path"
         Assert-Sg ($content -match 'Content-only changes \(articles, docs, Markdown, copy\) are never proved by builds, lint, or tests') "Content-only no-build rule missing in $path"
+        Assert-Sg ($content -match 'Lint, analyze, type checks and tests run without asking' -and $content -match 'builds need operator approval') "Check-versus-build policy missing in $path"
         Assert-Sg ($content -match 'Load the dedicated ShipGlows skill/reference on demand') "On-demand skill loading guidance missing in $path"
     }
     $codexAfter = [IO.File]::ReadAllText($codexPath)

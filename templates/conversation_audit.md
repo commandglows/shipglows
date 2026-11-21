@@ -24,6 +24,7 @@ categories:
   - user_friction
   - unsafe_ship_or_dirty_scope
   - weak_follow_through
+  - requirement_rationalized
 findings: []
 owner_routes:
   - sg-skill-build

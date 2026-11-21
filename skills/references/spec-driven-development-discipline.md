@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-05-18"
-updated: "2026-08-07"
+updated: "2026-11-21"
 status: active
 source_skill: 102-sg-start
 scope: spec-driven-development-discipline
@@ -42,6 +42,7 @@ evidence:
   - "User decision 2026-06-11: UI/design implementation must not create local visual decisions outside the centralized design-system authority."
   - "User decision 2026-07-18: technical checks may establish an implemented visual repair, but rendered validation is required before resolution claims."
   - "User decision 2026-08-07: non-trivial behavior uses the shared ZOMBIES heuristic proportionally to expose edge cases."
+  - "User decision 2026-11-21: lint, analyze, type checks and tests run without asking; builds need approval; critical or counter-intuitive requirements are pinned test-first and never weakened to fit a test."
 next_review: "2026-06-18"
 next_step: "/103-sg-verify shipglows-skill-reporting-and-proof-hardening"
 ---
@@ -76,6 +77,15 @@ may be reported as `implemented` after those technical checks, but it is not
 resolved, fixed, verified, or closed until a person validates the relevant
 post-fix rendered result. An artifact or trace exception waives only that
 artifact; it never waives behavior proof.
+
+## Requirements That Must Stick
+
+Agents tend to understand a requirement, then revert or weaken it because they guess what a test, grader or reviewer expects. Close that path:
+
+- For a critical or counter-intuitive requirement, `test-first` is mandatory: write a test that pins the requirement itself and watch it fail, then implement until it passes. Lint, analyze, type checks and tests run without asking; only builds need approval.
+- Never edit the test to make it pass. Before claiming done, check `git diff` on test files; any change to an assertion pinning a requirement is a requirement change and needs the operator's decision.
+- Never drop, soften or defer a stated requirement because it seems unlikely to be tested or graded. If it truly conflicts with another constraint, stop and report the conflict.
+- Verify claims externally: measure memory, time, size, calls or logs from outside the program (OS tools, profiler, harness, independent script), and never trust numbers the program prints about itself.
 
 ## Stack-Agnostic Test and Proof Contract
 
@@ -167,6 +177,7 @@ Stop, reroute, or report `partial`/`not verified` when:
 
 - non-trivial work has no ready spec, bug file, release scope, or mini-contract
 - testable behavior changes without a test-first path or a recorded exception
+- a test pinning a requirement was edited to pass, or a requirement was weakened without operator decision
 - a bug fix lacks reproduction or cause-root evidence
 - a skill contract change lacks pressure scenarios or mechanical checks
 - evidence-first work names no concrete evidence surface

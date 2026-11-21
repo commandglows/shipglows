@@ -184,7 +184,7 @@ class ReportingContractTests(unittest.TestCase):
             r"(?:✨ (?:OBJECTIF|RÉSULTAT)|📐 PÉRIMÈTRE|🛡️ GARDE-FOUS|"
             r"🧪 (?:PREUVES|PREUVES ATTENDUES)|📖 (?:DOCUMENTATION|DOCUMENTATION PRÉVUE)|"
             r"✏️ ÉDITORIAL|📰 CHANGELOG|📦 (?:LIVRAISON|PERSISTANCE)|"
-            r"🧠 CONTEXTE|⚠️ LIMITES|🧭 SUITE)\n"
+            r"🧠 CONTEXTE|⚠️ LIMITES|📋 EXIGENCES|🧭 SUITE)\n"
         )
         for path in (*((ROOT / "skills").rglob("*.md")), *((ROOT / "templates").rglob("*.md"))):
             if any(parent.is_symlink() for parent in path.parents):
@@ -208,6 +208,7 @@ class ReportingContractTests(unittest.TestCase):
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         ordered_blocks = (
             "✨ RÉSULTAT",
+            "📋 EXIGENCES",
             "🧪 PREUVES",
             "📖 DOCUMENTATION",
             "✏️ ÉDITORIAL",
@@ -225,7 +226,8 @@ class ReportingContractTests(unittest.TestCase):
             "insert exactly one blank line between sections",
             "Keep proof items, statuses, scopes, and reasons compact on their section line",
             "separate them with ` · `",
-            "`⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory",
+            "`📋 EXIGENCES` is mandatory",
+            "`🧭 SUITE` is mandatory",
         ):
             self.assertIn(rule, core)
         self.assertIn("SSRP-019 visual closure card", scenarios)

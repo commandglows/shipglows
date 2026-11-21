@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-30"
+updated: "2026-11-21"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-baseline
@@ -23,6 +23,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Baseline gates extracted from the former monolithic verification-gates reference."
+  - "User decision 2026-11-21: verification reads the diff itself and checks critical requirements with an independent property-level check."
 next_step: "/103-sg-verify progressive lifecycle activation compaction wave 4"
 ---
 
@@ -51,6 +52,10 @@ Confirm the selected proof path fits the surface. Unrelated checks cannot upgrad
 ## Development And External Proof
 
 Classify the validation surface. Missing required hosted/browser/manual proof prevents ship readiness and routes to its proof owner. Use the canonical `fresh-docs` verdicts for external behavior.
+
+## Requirement Stickiness
+
+Read the change from `git status` and `git diff --stat`, then the diff itself, never the implementer's summary; flag edited assertions that pinned a requirement. For each critical or counter-intuitive requirement, a distinct agent that did not implement it writes a property-level check after implementation, unseen by the implementer, that tests the requirement itself across inputs rather than one example. Measure claimed memory, time or size externally. A failing check or a dropped requirement is `partial` or `not verified`, never closure.
 
 ## Decision And Structure
 

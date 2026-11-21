@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-05"
-updated: "2026-09-05"
+updated: "2026-11-21"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-closure
@@ -19,6 +19,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Approved progressive loading pilot preserves the existing behavior in directly selected references."
+  - "User decision 2026-11-21: a mandatory requirement ledger replaces the conditional limits row so no requirement silently disappears."
 next_review: "2026-10-05"
 next_step: none
 ---
@@ -36,6 +37,8 @@ Before rendering the documentation line, apply `documentation-reflection-gate.md
 ```text
 ✨ RÉSULTAT : <one compact outcome paragraph>
 
+📋 EXIGENCES 1 ✅ <requirement> (<proof>) · 2 ❌ <requirement> · 3 ⛔ <requirement> : <reason>
+
 🧪 PREUVES ✅ <proof 1> · <proof 2> · <proof 3>
 
 📖 DOCUMENTATION ✅ updated · <aligned documentation scope>
@@ -47,7 +50,9 @@ Before rendering the documentation line, apply `documentation-reflection-gate.md
 📦 LIVRAISON ✅ Commit local : `<sha>` · ➖ Push : non effectué
 ```
 
-Translate the six labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
+Translate the seven labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `📋 EXIGENCES`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON` are mandatory for closure; `🧭 SUITE` is mandatory.
+
+`📋 EXIGENCES` is mandatory and replaces the former conditional limits row: it enumerates every requirement of the request, numbered in request order, each as `✅` done with its proof, `❌` not done, or `⛔` deliberately not done with its reason. Never merge, omit, soften or reword a requirement into an easier one; a `❌` or an unjustified `⛔` forbids closure language. Keep each item to a few words. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
 
 
 The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
