@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-10-20"
+updated: "2026-11-21"
 status: active
 source_skill: 900-shipglows-core
 scope: project-delivery-policy
@@ -28,11 +28,9 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Implementation proof 2026-09-01: required CI workflows target both production main and resolved live integration dev."
-  - "Operator correction 2026-09-01: product delivery posture belongs in canonical business context, never in pitch, runtime environment state, or agent instructions."
-  - "Operator decision 2026-09-01: non-live projects integrate directly to main; live projects use canonical dev for integration/staging and retain main for production."
-  - "Operator decision 2026-08-21: use development, published, and sensitive-production as human-facing project delivery postures."
-  - "Operator correction 2026-08-21: development never means local-only; remote Git persistence remains mandatory."
+  - "Implementation proof 2026-09-01: required CI workflows target production main and resolved live integration dev."
+  - "Operator decisions 2026-09-01: posture lives only in canonical business context; non-live projects integrate into main, live projects use canonical dev for integration/staging and keep main for production."
+  - "Operator decisions 2026-08-21: development, published and sensitive-production are the human-facing postures; development never means local-only and remote Git persistence stays mandatory."
 next_review: "2026-11-21"
 next_step: /103-sg-verify project-delivery-policy
 ---
@@ -51,7 +49,7 @@ Store product maturity exactly once in the frontmatter of the governance-root `s
 delivery_posture: development | published | sensitive-production
 ```
 
-This business fact is the only authority for whether a product is non-live or live. `PITCH.md` summarizes identity and never owns operational truth. `ENVIRONMENT.md` and the DevServer registry describe runtime assignment and whether a process is currently active; runtime `live` never means product `published`. `CLAUDE.md`, `SHIPGLOWS.md`, and `AGENT.md` carry agent constraints or compatibility guidance and never own delivery posture.
+This business fact is the only authority for live versus non-live. `PITCH.md` never owns operational truth. `ENVIRONMENT.md` and the DevServer registry describe runtime assignment and active processes; runtime `live` never means product `published`. `CLAUDE.md`, `SHIPGLOWS.md` and `AGENT.md` never own delivery posture.
 
 Never infer missing posture from a production URL, running process, provider, or branch name. Ask the product owner before choosing a branch.
 
@@ -67,7 +65,7 @@ All branch and release fields are derived rather than duplicated in another gove
 
 ## Dev/Live Launch Protection Projection
 
-Status surfaces render `development` as `Dev` and both live postures as `Live`. A reminder never claims that a public surface is protected; hosted evidence is required.
+Status surfaces render `development` as `Dev` and both live postures as `Live`; no reminder claims public protection without hosted evidence.
 
 ## Separate Axes
 
@@ -80,7 +78,7 @@ One axis never overrides another. A local validation surface does not waive remo
 
 ## Migration And Inference
 
-Existing `ShipGlows Delivery Policy` blocks in `CLAUDE.md` or `SHIPGLOWS.md` are migration evidence only. Read them to formulate the recommendation, but do not treat them as authority. Existing `ShipGlows Development Mode` remains separate validation-surface truth.
+Old `ShipGlows Delivery Policy` blocks in `CLAUDE.md` or `SHIPGLOWS.md` are migration evidence only, never authority. Existing `ShipGlows Development Mode` remains separate validation-surface truth.
 
 If canonical business context or its field is absent, ShipGlows reports `delivery policy unknown` and asks the product question before choosing an integration branch. It may recommend `development` only when no published-product evidence exists. Published status, production sensitivity, revenue exposure, real-user data, payments, auth, webhooks, migrations, and production permissions are material evidence and must not be downgraded silently.
 
@@ -95,7 +93,7 @@ If canonical business context or its field is absent, ShipGlows reports `deliver
 
 ## Managed GitHub Protection
 
-Every active ShipGlows-managed GitHub repository follows `managed-project-ci-policy.md`: protect the production branch with the exact always-on `ShipGlows required gate`, never directly require a routinely path-filtered job, and install plus prove the workflow before enabling its ruleset requirement. For live projects, required workflows trigger on both production `main` and canonical integration `dev`, and both branches retain the applicable required-check protection. This applies to `development`, `published`, and `sensitive-production`; maturity changes proof depth, not the existence of baseline protection. Non-GitHub, archived, generated-mirror, or intentionally unprotected repositories require an explicit reviewed exception.
+Every active ShipGlows-managed GitHub repository follows `managed-project-ci-policy.md`: protect the production branch with the exact always-on `ShipGlows required gate`, never directly require a routinely path-filtered job, and install plus prove the workflow before enabling its ruleset requirement. Live projects trigger required workflows on production `main` and canonical `dev`, with protection on both. Every posture (`development`, `published`, `sensitive-production`) keeps baseline protection; maturity changes proof depth only. Non-GitHub, archived, generated-mirror or intentionally unprotected repositories need an explicit reviewed exception.
 
 ## Pressure Scenarios
 

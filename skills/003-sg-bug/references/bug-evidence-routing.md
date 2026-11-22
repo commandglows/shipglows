@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-11-21"
 status: active
 source_skill: 003-sg-bug
 scope: bug-evidence-routing
@@ -48,7 +48,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md`, 
 - `evidence-first`: browser, manual, runtime, redacted diagnostics, screenshot, or retest is authoritative.
 - `exception-with-proof`: regression automation is impractical; record why and name the alternate proof.
 
-Visual work retains the stricter gate in the activation contract. A build, HTTP response, file signature, deployment, or code diff cannot substitute for rendered validation.
+Visual work keeps the stricter gate of the activation contract: a build, HTTP response, file signature, deployment or code diff never substitutes for rendered validation.
 
 ## Apply Development Mode
 
@@ -59,11 +59,11 @@ Load `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` before deci
 - `hybrid`: use the preview route for auth callbacks, webhooks, deployment environment, edge/serverless behavior, Vercel routing/data, or remotely reproducible bugs.
 - Missing mode plus Vercel signals: classify `unknown-vercel`; do not claim preview authority.
 
-Do not ask the operator to perform proof that the available agent tools can obtain safely.
+Never ask the operator for proof the agent tools can obtain safely.
 
 ## Evidence Pressure Cases
 
-- Auth-like symptom on a public route: choose by the actual session/protection dependency, not by visual appearance.
-- A crash has a raw payload: redact before attaching; never persist bulk observability data.
-- Hosted-only bug passes locally: keep it unresolved until the matching preview route produces evidence.
-- A third repair is proposed without cause evidence: return to diagnosis.
+- Auth-like symptom on a public route: choose by the real session/protection dependency, not visual appearance.
+- Crash with a raw payload: redact before attaching; never persist bulk observability data.
+- Hosted-only bug passing locally: stays unresolved until the matching preview route produces evidence.
+- A third repair without cause evidence: return to diagnosis.

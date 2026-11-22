@@ -12,18 +12,18 @@ Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving Shi
 
 ## Public Métier Ownership
 
-Public label: `sg-bug`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lifecycle routing. Resolve `project -> business/brand/product -> outcome -> surface -> work item` and retain ownership through proportional proof and authorized closure or ship.
+Public label: `sg-bug`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lifecycle routing. Resolve `project -> business/brand/product -> outcome -> surface -> work item`; keep ownership through proof and authorized closure or ship.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before reporting when exactly one spec-first chantier owns the run. Otherwise use a `(local)` chantier header and do not mutate a spec. Apply its chantier-potential threshold when the bug reveals non-trivial future work not already owned by a chantier.
+Load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before reporting when exactly one spec-first chantier owns the run; otherwise use a `(local)` chantier header and do not mutate a spec. Apply its chantier-potential threshold to non-trivial future work not owned by a chantier.
 
 ## Report Modes
 
-Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before reporting. Default to concise, outcome-first `report=user`; use `report=agent` only for an explicit handoff or detailed request. Blocked user reports stay plain-language and offer safe recovery choices.
+Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before reporting. Default to concise `report=user`; use `report=agent` only for an explicit handoff or detailed request. Blocked user reports stay plain-language with safe recovery choices.
 
 ## Mission
 
@@ -45,7 +45,7 @@ It interprets state, selects proof, delegates each phase to its owner, integrate
 - `005-sg-ship`: bounded commit and push.
 - `003-sg-bug`: one-bug state interpretation, safety gates, topology, routing, continuation, and final integration.
 
-Do not repair code or write bug records directly in this master thread. Use the phase owner. Stop with a next command only when an actual stop condition, unavailable proof surface, missing approval, unavailable agent, or explicit user request prevents continuation.
+Do not repair code or write bug records in this master thread; use the phase owner. Stop with a next command only for an actual stop condition, unavailable proof surface, missing approval, unavailable agent or explicit user request.
 
 ## Required References
 
@@ -61,7 +61,7 @@ For a defect in Flutter code, load `$SHIPGLOWS_ROOT/skills/references/flutter-en
 
 Load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` only before choosing execution topology. Load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` before interpreting durable bug state. Load `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before fix, retest, verification, or closure claims.
 
-A missing required playbook blocks its mode. Local playbooks map to shared doctrine; they do not replace it or chain to another local playbook.
+A missing required playbook blocks its mode; local playbooks never chain to another local playbook.
 
 ## Mode Detection
 
@@ -110,18 +110,18 @@ Stop and report `blocked` when:
 
 ## Final Report
 
-In user mode, report observable state, compact proof, and only material risk under the shared chantier/verdict header. Keep internal owners, commands, paths, and lifecycle mechanics out of the user report. Add the chantier-potential decision required by chantier tracking.
+In user mode, report observable state, compact proof, and only material risk under the shared chantier/verdict header, plus the chantier-potential decision. Keep owners, commands, paths and lifecycle mechanics out of it.
 
-In `report=agent`, include BUG-ID, durable record, classification, development mode, proof path, redacted diagnostics, security posture, internal route, lifecycle state, remaining evidence, and exact next command.
+In `report=agent`, include BUG-ID, durable record, classification, development mode, proof path, redacted diagnostics, security posture, internal route, lifecycle state, remaining evidence and exact next command.
 
 ## Validation
 
-After edits, run the owner contract, visual-proof contract, master-delegation contract, reporting contract, skill audit, budget audit, and runtime sync check.
+After edits, run the owner, visual-proof, master-delegation and reporting contracts, the skill audit, the budget audit and the runtime sync check.
 
 ## Rules
 
-- Execute through owner skills and bounded agents; never overstate closure from intent, code diff, checks, or deployment alone.
-- Parallelize independent read-only evidence by default; mutations remain sequential unless a ready spec defines non-overlapping write batches.
+- Execute through owner skills and bounded agents; never overstate closure from intent, code diff, checks or deployment alone.
+- Parallelize independent read-only evidence; mutations stay sequential unless a ready spec defines non-overlapping write batches.
 - Continue the next safe lifecycle action instead of handing agent-runnable work back to the operator.
-- Ask only when the answer changes severity, state, destructive risk, closure, or ship risk.
+- Ask only when the answer changes severity, state, destructive risk, closure or ship risk.
 - Do not commit or push.

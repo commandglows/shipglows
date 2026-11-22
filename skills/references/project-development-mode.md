@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.3.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-19"
+updated: "2026-11-21"
 status: active
 source_skill: manual-doctrine-update
 scope: project-development-mode
@@ -31,12 +31,10 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Operator decision 2026-09-04: Vercel Hobby remains the portable baseline; Pro may exist only for private organization repository deployment while discretionary usage stays measured and economical."
-  - "Operator decision 2026-09-01: validation surface stays separate from the non-live main versus live dev integration-branch policy."
-  - "Some projects validate changes locally while others require Vercel preview deployments before meaningful tests."
-  - "User directive 2026-06-11: runtime projects should document Sentry and a safe diagnostics/log-copy surface."
-  - "User directive 2026-06-11: diagnostics/logs must start with commit/build identity and build time in Europe/Paris and UTC."
-  - "Operator decision 2026-08-21: validation surface remains separate from product delivery posture and mandatory remote Git persistence."
+  - "Operator decisions 2026-09-04 and 2026-09-01: Vercel Hobby stays the portable baseline (Pro only for private organization repositories, measured use); validation surface stays separate from the main/dev integration policy."
+  - "Some projects validate locally while others require Vercel preview deployments before meaningful tests."
+  - "User directives 2026-06-11: runtime projects document Sentry and a safe diagnostics/log-copy surface whose logs start with commit/build identity and build time in Europe/Paris and UTC."
+  - "Operator decision 2026-08-21: validation surface stays separate from product delivery posture and mandatory remote Git persistence."
 next_review: "2026-06-25"
 next_step: "/103-sg-verify project development mode doctrine"
 ---
@@ -45,7 +43,7 @@ next_step: "/103-sg-verify project development mode doctrine"
 
 Every project should document how ShipGlows agents are expected to validate changes. The project-local source of truth is the `## ShipGlows Development Mode` section in `CLAUDE.md`. If a project has no `CLAUDE.md`, use `SHIPGLOWS.md` with the same section.
 
-This contract answers where evidence is authoritative. It does not describe product maturity or choose the Git integration branch. Load `project-delivery-policy.md` separately: non-live status integrates into `main`, live status integrates/stages through canonical `dev`, and every validated milestone plus clean chantier end require autonomous remote persistence.
+This contract answers where evidence is authoritative. It does not describe product maturity or choose the Git integration branch; load `project-delivery-policy.md` separately for that.
 
 ## Canonical Section
 
@@ -78,12 +76,12 @@ This contract answers where evidence is authoritative. It does not describe prod
 - `vercel-preview-push`: local static checks are allowed, but browser, integration, auth, webhook, deployed-runtime, or manual user-flow tests are not authoritative until the change has been pushed and the matching Vercel deployment is ready. The required sequence is `005-sg-ship` -> `405-sg-prod` -> test the returned deployment URL.
 - `hybrid`: use local validation for purely local UI, unit, and static checks. Use the `vercel-preview-push` sequence for anything that depends on hosted environment variables, OAuth/callback URLs, edge/serverless behavior, webhooks, production-like data, Vercel routing, or deployment configuration.
 
-For Vercel projects, load `skills/references/vercel-cost-conscious-operations.md`. Keep Hobby compatible as the portable baseline. A declared Pro plan may be retained solely to deploy private organization repositories; it never implies Turbo builds, unrestricted concurrency, paid add-ons, or a goal to consume included credit.
+For Vercel projects, load `skills/references/vercel-cost-conscious-operations.md`. Hobby stays the portable baseline; a declared Pro plan never implies Turbo builds, unrestricted concurrency, paid add-ons or a credit-consumption goal.
 
 ## Agent Rules
 
-- `102-sg-start` and `106-sg-fix` must read the project development mode before deciding how to validate a code change.
-- If the mode is `vercel-preview-push`, the agent may run quick local checks before shipping, but must not ask the user to manually test or claim browser/user-flow validation until `005-sg-ship` has pushed and `405-sg-prod` has confirmed the matching deployment.
+- `102-sg-start` and `106-sg-fix` read the development mode before choosing how to validate a code change.
+- In `vercel-preview-push`, quick local checks are allowed, but do not ask for manual testing or claim browser/user-flow validation until `005-sg-ship` has pushed and `405-sg-prod` has confirmed the matching deployment.
 - After a successful `005-sg-ship` in `vercel-preview-push` or preview-required `hybrid` mode, the immediate next action is `405-sg-prod`.
 - `405-sg-prod` must wait for the matching deployment with Vercel MCP when Vercel is the provider. GitHub commit statuses are fallback evidence, not the primary source when MCP is available.
 - `107-sg-test --preview` should use the deployment URL confirmed by `405-sg-prod`. If code changes are still dirty or unpushed, route to `005-sg-ship` first.

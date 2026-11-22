@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-07"
-updated: "2026-08-07"
+updated: "2026-11-21"
 status: active
 source_skill: 100-sg-spec
 scope: zombies-edge-case-heuristic
@@ -31,7 +31,7 @@ next_step: "/103-sg-verify zombies-edge-case-contract"
 
 # ZOMBIES Edge-Case Heuristic
 
-Use ZOMBIES to challenge non-trivial behavioral contracts and proof plans without turning every letter into a mandatory separate test.
+Use ZOMBIES to challenge non-trivial contracts and proof plans, without a mandatory separate test per letter.
 
 ## Heuristic
 
@@ -47,12 +47,10 @@ Treat `Z → O → M` as a progression from simple to complex. Apply `B`, `I`, a
 
 ## Applicability Gate
 
-Apply the heuristic when behavior includes collections, state transitions, validation/parsing, interfaces, permissions, data, money, retries, queues, synchronization, capacity, migration, or failure recovery.
-
-For copy-only, formatting-only, exact-value configuration, or similarly branch-free micro-edits, record `ZOMBIES: not applicable — <reason>` instead of inventing artificial cases.
+Apply it when behavior includes collections, state transitions, validation, interfaces, permissions, data, money, retries, queues, synchronization, capacity, migration or failure recovery. For copy-only, formatting-only or branch-free micro-edits, record `ZOMBIES: not applicable — <reason>` instead of inventing cases.
 
 ## Expected Evidence
 
-In a spec, bug contract, test plan, or verification note, retain a compact `ZOMBIES coverage` record. Name the meaningful cases and mark genuinely irrelevant categories `not applicable` with a reason. Several letters may be proven by one scenario; coverage matters more than test count.
+In a spec, bug contract, test plan or verification note, keep a compact `ZOMBIES coverage` record: name the meaningful cases and mark irrelevant categories `not applicable` with a reason. One scenario may prove several letters; coverage matters more than test count.
 
-Stop and repair the contract when a meaningful category exposes undefined expected behavior, an unsafe boundary, an unowned interface, or an unproven exceptional path.
+Stop and repair the contract when a meaningful category exposes undefined behavior, an unsafe boundary, an unowned interface or an unproven exceptional path.
