@@ -17,7 +17,7 @@ living spec refuses the whole merge.
 Usage:
     python tools/spec_delta_merge.py <change-spec.md> [--check] [--create]
                                      [--capabilities-dir DIR] [--date YYYY-MM-DD]
-    python tools/spec_delta_merge.py --validate <capability.md> [...]
+    python tools/spec_delta_merge.py --validate <capability.md|capabilities dir> [...]
 
 Exit codes: 0 merged / valid / no delta, 1 refused, 2 usage error.
 """
@@ -198,7 +198,10 @@ def parse_change_spec(text: str) -> list[CapabilityDelta]:
                 declared_none = True
                 continue
             if not CAPABILITY_SLUG.match(name):
-                errors.append(f"Capability '{name}' must be a lowercase slug (a-z, 0-9, '-')")
+                errors.append(
+                    f"Capability '{name}' is not a lowercase slug (a-z, 0-9, '-'); "
+                    "fill the '- Capability:' line with a domain or 'none, because ...'"
+                )
                 continue
             current = next((delta for delta in deltas if delta.capability == name), None)
             if current is None:
@@ -456,7 +459,7 @@ def merge_change_spec(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("paths", nargs="+", type=Path, help="change spec, or capability specs with --validate")
+    parser.add_argument("paths", nargs="+", type=Path, help="change spec; with --validate, capability specs or their directory")
     parser.add_argument("--validate", action="store_true", help="validate living capability specs; merge nothing")
     parser.add_argument("--check", action="store_true", help="validate the merge without writing")
     parser.add_argument("--create", action="store_true", help="allow an ADDED delta to create a new capability spec")
@@ -465,7 +468,15 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.validate:
         failed = False
-        for path in args.paths:
+        paths = [
+            item
+            for path in args.paths
+            for item in (sorted(path.glob("*.md")) if path.is_dir() else [path])
+        ]
+        if not paths:
+            print("REFUSED: no capability spec to validate", file=sys.stderr)
+            return 1
+        for path in paths:
             if not path.is_file():
                 print(f"REFUSED {path}: file not found", file=sys.stderr)
                 failed = True

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: "ShipGlows"
 created: "2026-06-27"
-updated: "2026-06-27"
+updated: "2026-11-22"
 status: active
 source_skill: 104-sg-end
 scope: closure-archive-guard
@@ -29,6 +29,7 @@ supersedes: []
 evidence:
   - "Extracted from auditing OpenSpec's archive-change skill as a reusable closure guard."
   - "Extended from auditing OpenSpec's bulk-archive-change skill for batch closure, conflict detection, and partial-result handling."
+  - "Operator decision 2026-11-22: closure merges the change spec's capability delta into the living capability spec with tools/spec_delta_merge.py."
 next_review: "2026-07-27"
 next_step: "Use before closure, archive, changelog, tracker-done, or full-close ship claims."
 ---
@@ -64,6 +65,17 @@ Examples:
 - skill behavior change -> runtime skill links, help/discovery docs, and relevant shared references
 
 If a delta exists, either sync it, route it to the owner skill, or report a named closure limit. Do not silently archive, mark done, or ship full-close while the durable source of truth is stale.
+
+## Capability Delta Merge
+
+When the closing spec has a `## Capability Delta` naming a capability, its `ADDED`, `MODIFIED`, and `REMOVED` requirements are a source delta for the living spec `shipglows_data/workflow/specs/capabilities/<domain>.md`. Load `$SHIPGLOWS_ROOT/skills/references/capability-spec-delta.md` and, only once the change is implemented and verified:
+
+- run `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/spec_delta_merge.py" <spec> --check`, then the same command without `--check`; add `--create` only for a new capability;
+- `ADDED` appends, `MODIFIED` replaces the same-name requirement, `REMOVED` deletes with its recorded reason;
+- a refusal (unknown `MODIFIED`/`REMOVED` requirement, duplicate `ADDED`, malformed requirement, already merged) writes nothing and is a named closure limit: status stays `partial` until the delta or living spec is corrected. Never hand-edit the living spec to bypass it;
+- `partial`, `deferred`, `blocked`, or abandoned work merges nothing; in batch closure, merge oldest-to-newest so later deltas apply to the already merged state.
+
+`Capability: none, because ...` or a spec without the section needs no merge.
 
 ## Archive Safety
 
@@ -107,6 +119,7 @@ Verification should check:
 - closure target was unique
 - batch closure targets, conflicts, and per-item outcomes were listed when multiple work items were closed together
 - source-of-truth deltas were synced or explicitly routed
+- a capability delta was merged by the tool into its living spec, or its refusal is reported as a closure limit
 - tracker/changelog/docs wording does not claim stronger proof than exists
 - archive target collision was checked when files were moved
 - closure status and proof status are not conflated

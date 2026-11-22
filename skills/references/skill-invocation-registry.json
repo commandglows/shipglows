@@ -944,6 +944,9 @@
           "coherence": [
             "skills/103-sg-verify/references/verification-coherence.md"
           ],
+          "living-spec": [
+            "skills/103-sg-verify/references/living-spec-conformance.md"
+          ],
           "product-coherence": [
             "skills/references/product-decision-chain.md"
           ],

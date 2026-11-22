@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-10-20"
+updated: "2026-11-22"
 status: active
 source_skill: 104-sg-end
 scope: closure-bookkeeping-playbook
@@ -25,6 +25,7 @@ evidence:
   - "Operator approval 2026-08-30: changelog impact is classified visibly for every managed-repository closure and significant history capture is bounded to one event."
   - "Operator correction 2026-09-01: closure documentation status must come from changed-path mapping and refreshed context, not report prose."
   - "Operator correction 2026-09-01: closure must classify editorial alignment separately from editorial/product opportunity."
+  - "Operator decision 2026-11-22: closure merges the capability delta into the living capability spec before `closed`."
 next_step: none
 ---
 
@@ -63,6 +64,7 @@ If proof or ship is not complete, never set `closed`.
 
 - Set `closed` only if evidence, proof, and sync are complete.
 - On `closed` with one owning spec, record `delivery: closed` and `closed_at: "<YYYY-MM-DD>"` in its frontmatter (outside `summary-only`) so later tidy runs recognize delivered work without inference.
+- Before `closed`, when the owning spec has a `## Capability Delta` naming a capability, apply `Capability Delta Merge` from `closure-archive-guard.md`: run `spec_delta_merge.py <spec> --check`, then merge into `shipglows_data/workflow/specs/capabilities/<domain>.md`. A refused merge keeps the result `partial` with the tool's reason; `summary-only`, `partial`, `deferred`, and `blocked` merge nothing.
 - Use `partial` when residual risk or stale docs remain.
 - Use `blocked` on missing context, missing tests, or unresolved safety gates.
 

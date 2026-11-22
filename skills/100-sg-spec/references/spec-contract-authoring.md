@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-11-22"
 status: active
 source_skill: 100-sg-spec
 scope: spec-contract-authoring
@@ -19,12 +19,13 @@ depends_on: []
 supersedes: []
 evidence:
   - "Wave 6 extracted the autonomous contract authoring schema."
+  - "Operator decision 2026-11-22: change specs carry a capability delta merged into living capability specs at closure."
 next_step: none
 ---
 
 # Spec Contract Authoring
 
-Write the canonical metadata plus these sections: `Title`, `Status`, `User Story`, `Minimal Behavior Contract`, `Success Behavior`, `Error Behavior`, `Problem`, `Solution`, `Scope In`, `Scope Out`, `Constraints`, `Test Contract`, `Dependencies`, `Invariants`, `Links & Consequences`, `Documentation Coherence`, `Edge Cases`, `Implementation Tasks`, `Acceptance Criteria`, `Test Strategy`, `Risks`, `Execution Notes`, `Open Questions`, `Skill Run History`, and `Current Chantier Flow`.
+Write the canonical metadata plus these sections: `Title`, `Status`, `User Story`, `Minimal Behavior Contract`, `Success Behavior`, `Error Behavior`, `Problem`, `Solution`, `Scope In`, `Scope Out`, `Constraints`, `Test Contract`, `Dependencies`, `Invariants`, `Links & Consequences`, `Documentation Coherence`, `Edge Cases`, `Implementation Tasks`, `Acceptance Criteria`, `Capability Delta` (with `ADDED`/`MODIFIED`/`REMOVED Requirements`), `Test Strategy`, `Risks`, `Execution Notes`, `Open Questions`, `Skill Run History`, and `Current Chantier Flow`.
 
 ## Behavioral core
 
@@ -33,6 +34,10 @@ The minimal behavior paragraph states trigger/input, observable result, failure 
 ## Tasks and acceptance
 
 Each ordered task names target, explicit action, user-story link, dependency, exact validation, and constraints. Acceptance criteria cover success, failure, boundaries, integrations, misuse/abuse where relevant, and compact proportional `ZOMBIES coverage`.
+
+## Capability delta
+
+Before writing `Capability Delta`, load `$SHIPGLOWS_ROOT/skills/references/capability-spec-delta.md` and read the living spec `shipglows_data/workflow/specs/capabilities/<domain>.md` when it exists. Name the capability or `none, because ...`; write each changed behavior as an `ADDED`, `MODIFIED` (full new text, same name), or `REMOVED` (with `**Reason**`) requirement using SHALL/MUST and at least one `WHEN`/`THEN` scenario. `MODIFIED` and `REMOVED` must name a requirement that exists in the living spec. Every new or modified scenario maps to an acceptance criterion or named test.
 
 ## Proof and consequences
 

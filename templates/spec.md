@@ -121,6 +121,35 @@ En tant que [actor], je veux [capability], afin de [value].
 
 - [ ] AC 1: Given [precondition], when [action], then [observable result].
 
+## Capability Delta
+
+- Capability: [`domain-slug` of `shipglows_data/workflow/specs/capabilities/<domain>.md` | none, because ...]
+
+Requirements state what stays true after this change; `AC n` above prove this change. Format and merge rules: `skills/references/capability-spec-delta.md`. `MODIFIED` carries the full new text under the same name; `REMOVED` is the heading plus a `**Reason**: ...` line. Each added or modified requirement uses SHALL or MUST and has at least one scenario:
+
+```markdown
+### Requirement: [name]
+
+The [actor/system] SHALL [observable obligation].
+
+#### Scenario: [name]
+
+- **WHEN** [trigger or state]
+- **THEN** [observable result]
+```
+
+## ADDED Requirements
+
+None
+
+## MODIFIED Requirements
+
+None
+
+## REMOVED Requirements
+
+None
+
 ## Test Strategy
 
 - Unit: [tests or `None, because ...`]

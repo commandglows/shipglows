@@ -338,5 +338,65 @@ class RequirementShapeTests(unittest.TestCase):
         self.assertEqual(1, sdm.main(["--validate", str(bad)]))
 
 
+ROOT = Path(__file__).resolve().parents[1]
+CAPABILITIES = ROOT / "shipglows_data" / "workflow" / "specs" / "capabilities"
+
+
+class RepositoryContractTests(unittest.TestCase):
+    """The format is wired into the template, closure, verification, and seeded capabilities."""
+
+    def read(self, relative: str) -> str:
+        return (ROOT / relative).read_text(encoding="utf-8")
+
+    def test_seeded_living_specs_are_valid(self) -> None:
+        seeded = sorted(CAPABILITIES.glob("*.md"))
+        self.assertGreaterEqual(len(seeded), 1)
+        for path in seeded:
+            text = path.read_text(encoding="utf-8")
+            self.assertEqual([], sdm.validate_capability_text(text), path.name)
+            self.assertTrue(sdm.parse_capability(text).requirements, path.name)
+            self.assertIn(f"# Capability: {path.stem}", text)
+        self.assertEqual(0, sdm.main(["--validate", str(CAPABILITIES)]))
+
+    def test_template_carries_delta_blocks_and_keeps_acceptance_criteria(self) -> None:
+        template = self.read("templates/spec.md")
+        order = [
+            "## Acceptance Criteria",
+            "## Capability Delta",
+            "## ADDED Requirements",
+            "## MODIFIED Requirements",
+            "## REMOVED Requirements",
+            "## Test Strategy",
+        ]
+        positions = [template.index(heading) for heading in order]
+        self.assertEqual(sorted(positions), positions)
+        for marker in ("- [ ] AC 1: Given", "### Requirement:", "#### Scenario:", "- **WHEN**", "- **THEN**", "SHALL"):
+            self.assertIn(marker, template)
+
+    def test_unfilled_template_is_refused_and_filled_none_is_a_no_op(self) -> None:
+        template = self.read("templates/spec.md")
+        with self.assertRaises(sdm.DeltaError):
+            sdm.parse_change_spec(template)
+        placeholder = next(line for line in template.splitlines() if line.startswith("- Capability:"))
+        filled = template.replace(placeholder, "- Capability: none, because documentation only.")
+        self.assertEqual([], sdm.parse_change_spec(filled))
+
+    def test_closure_and_verification_point_to_the_merge_and_living_spec(self) -> None:
+        guard = self.read("skills/references/closure-archive-guard.md")
+        for marker in ("## Capability Delta Merge", "spec_delta_merge.py", "capability-spec-delta.md", "--check"):
+            self.assertIn(marker, guard)
+        self.assertIn("capability delta merge", self.read("skills/104-sg-end/SKILL.md"))
+        self.assertIn("spec_delta_merge.py", self.read("skills/104-sg-end/references/closure-bookkeeping-playbook.md"))
+        verify = self.read("skills/103-sg-verify/SKILL.md")
+        self.assertIn("loads `references/living-spec-conformance.md`", verify)
+        leaf = self.read("skills/103-sg-verify/references/living-spec-conformance.md")
+        for marker in ("not only the delta", "Living Spec Fit", "spec_delta_merge.py", "untouched requirement"):
+            self.assertIn(marker, leaf)
+        self.assertNotIn("verification-", leaf)
+        reference = self.read("skills/references/capability-spec-delta.md")
+        for marker in ("## ADDED Requirements", "## MODIFIED Requirements", "## REMOVED Requirements", "**Reason**"):
+            self.assertIn(marker, reference)
+
+
 if __name__ == "__main__":
     unittest.main()

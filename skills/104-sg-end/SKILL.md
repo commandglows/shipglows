@@ -84,7 +84,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 Run closure in this order:
 
 1. select execution mode, then classify the result (`closed`, `partial`, `deferred`, `blocked`, `not applicable`),
-2. apply `closure-archive-guard.md`,
+2. apply `closure-archive-guard.md`, including its capability delta merge,
 3. prepare changelog/tracker state, classify changelog impact, and append at most one significant event when adopted,
 4. revalidate the bounded capsule, map task-owned changes, run documentation reflection, then classify editorial impact independently; apply mapped updates and expose all three results,
 5. route a clean completed daily chantier directly to bounded shipping, otherwise emit the concrete delivery limit and next owner clearly.
