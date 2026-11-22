@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.30.0"
+artifact_version: "0.31.0"
 project: ShipGlows
 created: "2026-04-22"
-updated: "2026-09-01"
+updated: "2026-11-22"
 status: draft
 source_skill: 300-sg-docs
 scope: spec-driven-workflow
@@ -30,6 +30,8 @@ linked_systems:
   - skills/references/operator-partnership-contract.md
   - templates/
   - tools/shipglows_metadata_lint.py
+  - tools/spec_delta_merge.py
+  - skills/references/capability-spec-delta.md
   - skills/references/canonical-paths.md
   - shipglows_data/technical/
   - shipglows_data/editorial/
@@ -429,6 +431,27 @@ source skill -> Chantier potentiel -> 100-sg-spec -> 101-sg-ready -> 102-sg-star
 When a source skill finds non-trivial future work without one unique chantier, it must not write into a guessed spec. It should add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, proposed title, reason, severity, scope, evidence, and a recommended `/100-sg-spec ...` command. `100-sg-spec` then consumes that block and turns it into the durable chantier contract.
 
 No skill should create a separate chantier registry in `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` (legacy), `shipglows_data`, or `shipglows_data/workflow/specs` registry. If a spec cannot be identified or multiple specs match, the skill must stop or report non-trace instead of guessing.
+
+## Living Capability Specs And Delta Merge
+
+A chantier spec describes one change. Reading the current behavior of a feature from N change specs does not scale, so each capability also has one living spec:
+
+- change spec: `shipglows_data/workflow/specs/<slug>.md`, the contract and run history of one chantier;
+- living spec: `shipglows_data/workflow/specs/capabilities/<domain>.md`, the requirements in force for one behavior domain, with a `Change History` naming the change specs that shaped it.
+
+The change spec carries its delta in the template blocks `## Capability Delta`, `## ADDED Requirements`, `## MODIFIED Requirements`, and `## REMOVED Requirements`. Every requirement is written `### Requirement: <name>` with a SHALL/MUST statement and at least one `#### Scenario:` using `- **WHEN** ...` and `- **THEN** ...` bullets. Acceptance criteria (`AC n`) remain the proof of the change; requirements are what stays true afterwards. A change without capability behavior writes `- Capability: none, because ...`.
+
+Lifecycle:
+
+1. `100-sg-spec` writes the delta against the current living spec, when one exists.
+2. `103-sg-verify` compares code with the living spec plus the pending delta, not only with the change spec (`skills/103-sg-verify/references/living-spec-conformance.md`).
+3. `104-sg-end` merges the delta at closure through `closure-archive-guard.md`: `ADDED` appends, `MODIFIED` replaces the requirement of the same name, `REMOVED` deletes with its reason.
+
+The merge is deterministic and all-or-nothing: `python3 tools/spec_delta_merge.py <spec> [--check] [--create]`. It refuses a `MODIFIED` or `REMOVED` requirement that the living spec does not contain, a duplicate `ADDED`, a malformed requirement, and a second merge of the same change spec. `--validate <capability.md>` checks a living spec alone.
+
+This keeps two ideas from OpenSpec (delta specs, living specs) without its tooling: no CLI to install, no change folders, no proposal/design files, no extra lifecycle stage. The OpenSpec skills removed on 2026-03-23 stay removed. Capabilities are seeded one at a time from behavior proven in force; existing change specs are never rewritten in bulk. Living specs are not chantiers: lifecycle skills never write run history into them, and `300-sg-docs tidy` classifies them `living`, never removable.
+
+Format, authoring, and merge rules: `skills/references/capability-spec-delta.md`.
 
 ## Artifact Doctrine
 
@@ -928,6 +951,7 @@ The spec is expected to be autonomous and structured. It must include:
 - `Edge Cases`
 - `Implementation Tasks`
 - `Acceptance Criteria`
+- `Capability Delta` with its `ADDED`, `MODIFIED`, and `REMOVED Requirements` blocks
 - `Test Strategy`
 - `Risks`
 - `Execution Notes`
@@ -1014,7 +1038,7 @@ If it reveals a new side effect outside the contract, that is a reroute signal, 
 `103-sg-verify` is now both a verifier and a controlled remediation orchestrator.
 
 It verifies in this order:
-1. spec compliance
+1. spec compliance, including the living capability spec plus the pending delta when the change touches a capability
 2. traceability from spec to code/tests
 3. linked systems and downstream consequences
 4. code quality, dependencies, and risks
@@ -1074,6 +1098,7 @@ It should:
 - mark completed tasks as done
 - keep partial work explicit
 - record drift from the spec when it happened
+- merge the spec's capability delta into the living capability spec with `tools/spec_delta_merge.py`, or keep closure `partial` when the merge is refused
 - move the spec to `implemented` or `closed`
 - prepare the next priorities cleanly
 

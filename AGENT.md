@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.8.2"
+artifact_version: "0.8.3"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-10-07"
+updated: "2026-11-22"
 status: draft
 source_skill: manual
 scope: "agent-entrypoint"
@@ -64,6 +64,7 @@ That research-only configuration does not apply to project execution.
 - Si la tache touche les tunnels SSH locaux, lire `local/local.sh`, `local/dev-tunnel.sh`, puis `shipglows_data/technical/context-function-tree.md`.
 - Si la tache touche Blacksmith, runners CI, Testboxes, logs CI, APK/AAB Android, SSH Access runner ou debugging de build GitHub Actions, lire `shipglows_data/technical/blacksmith.md`; pour une verification deploy/logs, router via `skills/405-sg-prod/SKILL.md`, et pour une release complete via `skills/004-sg-deploy/SKILL.md`.
 - Si la tache touche les skills, lire `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, puis les `skills/*/SKILL.md` concernes.
+  - Si la tache touche une spec, son delta `ADDED/MODIFIED/REMOVED` ou sa cloture, lire `skills/references/capability-spec-delta.md`; les exigences en vigueur par capacite sont dans `shipglows_data/workflow/specs/capabilities/`.
   - Si la tache touche la metadata des docs, lire `$SHIPGLOWS_ROOT/shipglows_data/technical/metadata-migration-guide.md`, `$SHIPGLOWS_ROOT/tools/shipglows_metadata_lint.py`, puis `$SHIPGLOWS_ROOT/skills/300-sg-docs/SKILL.md`.
 - Si la tache touche un code area mappe, lire `shipglows_data/technical/code-docs-map.md`, puis le doc primaire dans `shipglows_data/technical/`. `AGENT.md` reste canonique; `AGENTS.md` ne doit etre qu'un symlink de compatibilite vers `AGENT.md`.
 - Si la tache touche contenu, repurposing, blog, docs publiques, landing pages ou cocons semantiques, lire `shipglows_data/editorial/content-map.md`, puis `skills/007-sg-content/references/repurpose-playbook.md` si la demande transforme une source en contenu.
