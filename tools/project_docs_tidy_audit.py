@@ -21,6 +21,8 @@ Classes:
   test coupling as debt (tests should not depend on workflow artifacts);
 - ``untracked``: not in the git index, so deleting it would be unrecoverable;
   never removable until committed or explicitly discarded by the operator.
+- ``living``: a capability spec under ``specs/capabilities/``; it states the
+  requirements in force, so age and closure evidence never make it removable.
 
 Operational trigger (``--check``): tidy is due when the removable backlog
 (delivered + retired + dormant + archived) reaches ``--max-candidates`` files, when it
@@ -47,6 +49,7 @@ WORK_DIRS = (
     "repurpose-packs", "email", "archives",
 )
 REMOVABLE = ("delivered", "retired", "dormant", "archived")
+LIVING_SPECS = ("specs", "capabilities")
 LIVE = ("open", "recent")
 CLOSED_BUG = {"closed", "fixed", "verified", "wontfix", "wont-fix", "duplicate", "invalid"}
 TOKEN = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*")
@@ -198,8 +201,9 @@ def audit_project(root: Path, dormant_days: int = 90, today: date | None = None)
                 dates.append(touched[rel])
             last = max(dates) if dates else None
             mentioning = [row for row in rows if any(needle in row for needle in needles)]
+            parts = path.relative_to(workflow).parts
             item_class = "untracked" if tracked is not None and rel not in tracked else (
-                "archived" if "archives" in path.relative_to(workflow).parts else None
+                "living" if parts[:2] == LIVING_SPECS else "archived" if "archives" in parts else None
             ) or classify(
                 text,
                 mentions_open=any(OPEN_MARK.search(row) for row in mentioning),

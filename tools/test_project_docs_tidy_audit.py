@@ -69,6 +69,25 @@ class ProjectDocsTidyAuditTests(unittest.TestCase):
             self.assertEqual(classes["closed-login-bug"], "dormant")
             self.assertEqual(classes["frozen-by-test-spec"], "pinned")
 
+    def test_living_capability_specs_are_never_removal_candidates(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            wf = "shipglows_data/workflow"
+            _write(root, f"{wf}/TASKS.md",
+                   "✅ task: old | status: done | spec: specs/capabilities/closed-looking-capability.md\n")
+            _write(root, f"{wf}/specs/capabilities/untouched-capability.md", _spec("2020-01-01"))
+            _write(root, f"{wf}/specs/capabilities/closed-looking-capability.md", _spec(
+                "2020-01-01", "delivery: closed\n", "| 2026-10-01 | 104-sg-end | m | close | closed | none |\n"))
+            _write(root, f"{wf}/specs/forgotten-idea-spec.md", _spec("2020-01-01"))
+            payload = audit_project(root, dormant_days=90, today=date(2026, 10, 20))
+            classes = {Path(item["path"]).stem: item["class"] for item in payload["items"]}
+            self.assertEqual(classes, {
+                "untouched-capability": "living",
+                "closed-looking-capability": "living",
+                "forgotten-idea-spec": "dormant",
+            })
+            self.assertEqual(tidy_pressure(payload)["removable_files"], 1)
+
     def test_tidy_pressure_fires_on_activity_not_time(self) -> None:
         light = {"totals": {"recent": {"files": 30, "bytes": 9000}, "delivered": {"files": 3, "bytes": 900}},
                  "trackers": {"TASKS.md": {"done_rows": 10}}}
