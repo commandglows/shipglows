@@ -1311,7 +1311,13 @@ function Get-SgFlutterAndroidSdkVerdict([string]$ProjectPath,[string]$FlutterRoo
         $problem=if($requirements.CompileSdk-gt0-or$requirements.NdkVersion){'No Android SDK was found (android\local.properties sdk.dir, ANDROID_HOME, ANDROID_SDK_ROOT, %LOCALAPPDATA%\Android\Sdk); the ShipGlows installer provisions one.'}else{''}
         return [pscustomobject]@{Ready=(-not$problem);SdkRoot='';Requirements=$requirements;Missing=@();Problem=$problem;Command=''}
     }
-    if($requirements.CompileSdk-gt0-and-not(Test-Path -LiteralPath (Join-Path $SdkRoot "platforms\android-$($requirements.CompileSdk)\android.jar") -PathType Leaf)){$missing.Add("platforms;android-$($requirements.CompileSdk)");$details.Add("platform android-$($requirements.CompileSdk) ($($requirements.CompileSdkSource))")}
+    # sdkmanager names base platforms android-<N> up to API 36 and android-<N>.0 from API 37
+    # (android-36.1, 37.1... are separate minor platforms that do not satisfy compileSdk = <N>).
+    if($requirements.CompileSdk-gt0){
+        $api=$requirements.CompileSdk
+        $installed=@("android-$api","android-$api.0")|Where-Object{Test-Path -LiteralPath (Join-Path $SdkRoot "platforms\$_\android.jar") -PathType Leaf}
+        if(-not$installed){$platform=if($api-ge37){"android-$api.0"}else{"android-$api"};$missing.Add("platforms;$platform");$details.Add("platform $platform ($($requirements.CompileSdkSource))")}
+    }
     if($requirements.NdkVersion-and-not(Test-Path -LiteralPath (Join-Path $SdkRoot "ndk\$($requirements.NdkVersion)\source.properties") -PathType Leaf)){$missing.Add("ndk;$($requirements.NdkVersion)");$details.Add("NDK $($requirements.NdkVersion) ($($requirements.NdkSource))")}
     $sdkManager=Join-Path $SdkRoot 'cmdline-tools\latest\bin\sdkmanager.bat'
     $tool=if(Test-Path -LiteralPath $sdkManager -PathType Leaf){"`"$sdkManager`""}else{'sdkmanager'}

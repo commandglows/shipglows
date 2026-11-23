@@ -744,7 +744,11 @@ absent ne bloque pas l'arrêt : il est seulement signalé.
 
 Toujours avant le build, `s start` vérifie que le SDK Android installé contient
 déjà ce que le build Gradle va demander : la plateforme `platforms/android-<compileSdk>`
-et le NDK `ndk/<ndkVersion>`. `compileSdk` et `ndkVersion` sont lus dans
+(ou `platforms/android-<compileSdk>.0`) et le NDK `ndk/<ndkVersion>`. Depuis l'API 37,
+sdkmanager nomme la plateforme de base `platforms;android-37.0` (et non
+`android-37`) ; `android-36.1`, `android-37.1`… sont des plateformes mineures
+distinctes qui ne satisfont pas `compileSdk = 37`. Le paquet proposé suit cette
+convention : `platforms;android-<N>` jusqu'à 36, `platforms;android-<N>.0` ensuite. `compileSdk` et `ndkVersion` sont lus dans
 `android/app/build.gradle.kts` (ou `build.gradle`) ; les valeurs
 `flutter.compileSdkVersion` et `flutter.ndkVersion` sont résolues dans le
 `FlutterExtension.kt` du SDK Flutter du projet (`flutter.sdk` de
