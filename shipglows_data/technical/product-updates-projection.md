@@ -68,6 +68,10 @@ write drafts and hidden items; the operator publishes after review.
 - `products`: 1 to 8 product keys written into `products` of each update entry
   (and of created roadmap items); the first one prefixes generated update ids.
   The site must accept these keys in its updates/roadmap configuration.
+  One site, one product: a site shows only the updates and the roadmap of its own product,
+  and its votes go to that product's Convex deployment (see
+  `shipglows-app-engine/typescript/shipglows_feedback_convex/README.md`, "Activation per product").
+  The wired sites declare their own key: `commandglows` and `communityglows`.
 - At most 8 sites; unknown keys, absolute paths and missing directories are refused.
 - Without the file, `append` reports `projection.status: not-configured` and
   writes nothing outside the history.
@@ -88,7 +92,7 @@ CLI: `--roadmap <id>:<status>` (repeatable) next to the `--public-*` and
 `--delivery-*` options, or `--public-file <json>` for the whole object
 (creation copy included). `--no-project` skips the projection.
 
-`shipglows_app/site/scripts/export-public-changelog.mjs` still validates the
+`../shipglows_app/site/scripts/export-public-changelog.mjs` (ShipGlows workspace, next to this repository) still validates the
 v1 changelog-only allowlist; an event of the ShipGlows repository carrying
 `roadmap` would be rejected by that exporter.
 
