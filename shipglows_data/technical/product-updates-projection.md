@@ -76,8 +76,9 @@ write drafts and hidden items; the operator publishes after review.
 - Without the file, `append` reports `projection.status: not-configured` and
   writes nothing outside the history.
 
-Wired on 2026-11-23: `commandglows` (`site`, `commandglows`) and
-`communityglows` (`site`, `communityglows`).
+Wired on 2026-11-23: `commandglows` (`site`, `commandglows`),
+`communityglows` (`site`, `communityglows`) and `shipglows_app`
+(`site`, `shipglows`, the ShipGlows site's own `updates` collection).
 
 ## Event `public` object
 
@@ -92,9 +93,7 @@ CLI: `--roadmap <id>:<status>` (repeatable) next to the `--public-*` and
 `--delivery-*` options, or `--public-file <json>` for the whole object
 (creation copy included). `--no-project` skips the projection.
 
-`../shipglows_app/site/scripts/export-public-changelog.mjs` (ShipGlows workspace, next to this repository) still validates the
-v1 changelog-only allowlist; an event of the ShipGlows repository carrying
-`roadmap` would be rejected by that exporter.
+The former ShipGlows exporter (`shipglows_app/site/scripts/export-public-changelog.mjs`, the v1 changelog-only JSON) was removed on 2026-11-23. The ShipGlows site is now wired like the others: its events project into `shipglows_app/site/src/content/updates/`, and `roadmap` items are accepted there too.
 
 ## What the projection writes
 

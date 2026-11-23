@@ -90,6 +90,8 @@ SECRET_PATTERNS = (
     re.compile(r"\bAIza[A-Za-z0-9_-]{20,}\b"),
     re.compile(r"\bBearer\s+[A-Za-z0-9._~+/-]{16,}", re.IGNORECASE),
 )
+# Local machine paths never leave the repository through public copy (the former exporter refused them too).
+PRIVATE_PATH_PATTERN = re.compile(r"(?:[A-Za-z]:\\|/(?:home|Users|var|tmp)/)")
 
 
 class ContextHistoryError(RuntimeError):
@@ -201,7 +203,7 @@ def _relative_reference(value: Any) -> str:
 
 def _contains_secret_like_text(values: Iterable[str]) -> bool:
     combined = "\n".join(values)
-    return any(pattern.search(combined) for pattern in SECRET_PATTERNS)
+    return any(pattern.search(combined) for pattern in (*SECRET_PATTERNS, PRIVATE_PATH_PATTERN))
 
 
 def _safe_link(value: Any) -> str:
@@ -291,7 +293,7 @@ def _validate_public(value: Any) -> dict[str, Any]:
         for item in normalized["roadmap"]:
             texts.extend((*item.get("title", {}).values(), *item.get("summary", {}).values()))
     if _contains_secret_like_text(texts):
-        raise ContextHistoryError("Public changelog copy contains secret-like text.")
+        raise ContextHistoryError("Public changelog copy contains secret-like or local-path text.")
     return normalized
 
 

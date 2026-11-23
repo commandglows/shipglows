@@ -104,6 +104,26 @@ class ContextHistoryTests(unittest.TestCase):
             with self.assertRaisesRegex(ContextHistoryError, "English and French"):
                 append_event(root, "fixture", "CONTEXT_CHANGE", "Invalid public", public=public)
 
+    def test_local_path_public_copy_is_rejected(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository(root)
+            for proof in ("C:\\Users\\Diane\\ShipGlows", "/home/diane/shipglows"):
+                with self.subTest(proof=proof):
+                    with self.assertRaisesRegex(ContextHistoryError, "local-path"):
+                        append_event(
+                            root,
+                            "fixture",
+                            "CONTEXT_CHANGE",
+                            "Internal summary",
+                            public={
+                                "category": "CHANGELOG_FIX",
+                                "title": {"en": "Safe title", "fr": "Titre sûr"},
+                                "summary": {"en": f"Logs in {proof}", "fr": "Journaux"},
+                                "delivery": {"state": "DELIVERY_SHIPPED", "proof": "release"},
+                            },
+                        )
+
     def test_secret_like_public_copy_is_rejected(self) -> None:
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
