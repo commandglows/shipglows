@@ -71,14 +71,18 @@ write drafts and hidden items; the operator publishes after review.
   One site, one product: a site shows only the updates and the roadmap of its own product,
   and its votes go to that product's Convex deployment (see
   `shipglows-app-engine/typescript/shipglows_feedback_convex/README.md`, "Activation per product").
-  The wired sites declare their own key: `commandglows` and `communityglows`.
+  Each wired site declares only its own product key (list below).
 - At most 8 sites; unknown keys, absolute paths and missing directories are refused.
 - Without the file, `append` reports `projection.status: not-configured` and
   writes nothing outside the history.
 
-Wired on 2026-11-23: `commandglows` (`site`, `commandglows`),
-`communityglows` (`site`, `communityglows`) and `shipglows_app`
-(`site`, `shipglows`, the ShipGlows site's own `updates` collection).
+Wired on 2026-11-23 (repository: site root, product key): `commandglows`
+(`site`, `commandglows`), `communityglows` (`site`, `communityglows`),
+`replayglows` (`site`, `replayglows`), `shipglows_app` (`site`, `shipglows`),
+`nococaine` (`site`, `nococaine`, updates only), `gocharbon` (`site`, `gocharbon`),
+`dreamglows` (`site`, `dreamglows`), `contentglows`, `beatglows` and `claiire`
+(`site`, own key, read-only roadmap) and `notefinderz` (`site`, `notefinderz`,
+updates only).
 
 ## Event `public` object
 
