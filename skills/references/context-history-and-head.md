@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-25"
 updated: "2026-11-23"
@@ -15,6 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - tools/context_history.py
+  - tools/product_updates.py
   - tools/code_context_graph.py
   - skills/references/context-quality-contract.md
   - skills/301-sg-context/SKILL.md
@@ -31,6 +32,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-11-23: append auto-projects public events (updates and roadmap) into sites declared by .shipglows.product-updates.json; operator gate pending/publish."
   - "2026-11-23: public events project into draft update entries of @shipglows/astro-updates sites; agent roadmap writes stay hidden and append-only."
   - "Operator correction 2026-09-01: closure refreshes bounded context after Git-state changes and uses exact changed paths plus the canonical code-docs map before documentation classification."
   - "Operator approval on 2026-08-25 selected date-segmented immutable history, branch/worktree-aware Context Head, automatic normal-path capture, and a public bilingual allowlisted projection."
@@ -97,6 +99,8 @@ Events are internal by default. Add a `public` object only when all of these are
 - a compact delivery proof is present;
 - wording does not expose internal summaries, branches, worktrees, paths, logs, vulnerabilities, customer data, secrets, or unshipped roadmap promises.
 
+A roadmap-only `public` object (`public.roadmap` without changelog copy) skips the bilingual copy rules, never the proof rule for `shipped`.
+
 `DELIVERY_SITE_BUILD` is valid only when the announced site behavior ships in the same build. `DELIVERY_SHIPPED` and `DELIVERY_AVAILABLE` require corresponding evidence. Ambiguous entries stay internal without blocking other eligible daily updates.
 
 The public site reads only the public allowlist. Raw history objects never become page props, HTML, JSON endpoints, or client payloads.
@@ -105,13 +109,11 @@ The closure report classifies the changelog projection separately: `public-ready
 
 ## Product Updates And Roadmap
 
-When a closure, ship or release records a public-ready event and the product site declares `@shipglows/astro-updates` (collection `src/content/updates/`, `content-tree-model.md`), project it into draft update entries:
+When a closure, ship or release records a public-ready event, include its `public` object in the same `append`; add `public.roadmap` (`--roadmap <item id>:<status>`, repeatable, or `--public-file <json>` for new-item copy) when the work moves a roadmap item. A roadmap-only `public` (no changelog copy) may omit `delivery`, but `shipped` always requires `public.delivery` proof: `append` refuses it otherwise.
 
-`python $SHIPGLOWS_ROOT/tools/context_history.py --project-root <history repo> project-updates --site-root <site> --product <key> --event-id <evt_...> [--dry-run]`
+Projection is automatic: when the repository has `.shipglows.product-updates.json`, `append` projects the event into each declared site and returns the report in `projection` (event kept even when a site fails). Report `created`, `unchanged`, `skipped-edited`, `already-projected`, `missing`, `skipped-stale`; never force them. Re-run with `project --event-id <evt_...> [--dry-run]`; a site without the config uses `project-updates --site-root <site> --product <key>`.
 
-It writes one `src/content/updates/<locale>/<id>.md` per manifest locale (`fr`, `en`) with the same `id`, `status: draft`, `source: { producer: agent, ref: <event id> }`, mapped by the `shared/updates` contract README. It never overwrites: an existing file is `unchanged`, `skipped-edited` or `already-projected`; report those, never force them. Agents never set `status: published`; a human, or `sg-release` after explicit review, does. `shipglows_app/site` still exports `shipglows.public-changelog/v1` from the same public objects.
-
-Roadmap items (`src/content/roadmap/`, `@shipglows/astro-roadmap`): an agent creates or updates them only with `visibility: hidden` and `source.producer: agent`, appends to `statusHistory` (never rewrites it) and keeps its last `to` equal to `status`. When an update delivers an item, add the item id to the update's `relatedRoadmap[]` and the update id to the item's `shippedIn[]` in every locale. Never write vote counts or requester identities.
+The tool writes `src/content/updates/<locale>/<id>.md` with `status: draft`, `source: { producer: agent, ref: <event id> }` (`shared/updates` contract) and never overwrites. Roadmap: it appends to `statusHistory` (never rewrites it), sets `status`, and on `shipped` links `relatedRoadmap[]` and `shippedIn[]` in every locale; a new item needs `title`/`summary` copy and is created `visibility: hidden`. Agents never set `status: published` nor `visibility: public`, nor write vote counts or requester identities: the operator reviews `pending` and runs `publish --id <id>` or `--all`, or `sg-release` after explicit review. `shipglows_app/site` still exports `shipglows.public-changelog/v1` and accepts changelog-only `public` objects.
 
 ## Recovery And Growth
 
@@ -121,6 +123,6 @@ Keep events compact and significant. The year/month/day layout supports future y
 
 ## Proof
 
-- `python -m unittest tools.test_context_history tools.test_context_history_contract`
+- `python -m unittest tools.test_context_history tools.test_context_history_contract tools.test_product_updates`
 - Run project-local public-projection tests and build when a public changelog consumer changes.
 - Recheck cache freshness after any relevant Git state change.

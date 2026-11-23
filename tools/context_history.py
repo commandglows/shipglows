@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Append collision-free ShipGlows context events, build a bounded Context Head,
-and project public events into draft product update entries."""
+and project public events into draft product update entries and roadmap items
+(automatically after ``append`` when the repository has .shipglows.product-updates.json)."""
 
 from __future__ import annotations
 
@@ -76,6 +77,10 @@ UPDATE_SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 UPDATE_HREF_RE = re.compile(r"^(?:/(?![/\\])[^\s]*|#[^\s]*|https://[^\s/@]+(?:[/?#][^\s]*)?)$")
 MAX_PRODUCT_KEY = 40
 MAX_UPDATE_SLUG_BODY = 60
+# Roadmap status vocabulary (shipglows-app-engine/shared/roadmap/roadmap-statuses.json).
+ROADMAP_STATUSES = ("considering", "planned", "in_progress", "shipped", "declined")
+MAX_ROADMAP_CHANGES = 16
+MAX_ROADMAP_ID = 100
 MAX_UPDATE_SCAN_FILES = 5_000
 UPDATE_HEAD_BYTES = 64 * 1024
 SECRET_PATTERNS = (
@@ -209,46 +214,84 @@ def _safe_link(value: Any) -> str:
     return link
 
 
+def _bilingual(value: Any, field: str, maximum: int) -> dict[str, str]:
+    if not isinstance(value, dict) or set(value) != {"en", "fr"}:
+        raise ContextHistoryError(f"{field} must contain English and French values.")
+    return {locale: _bounded_string(value[locale], f"{field}.{locale}", 1, maximum) for locale in ("en", "fr")}
+
+
+def _validate_delivery(value: Any) -> dict[str, str]:
+    if not isinstance(value, dict) or set(value) != {"state", "proof"}:
+        raise ContextHistoryError("public.delivery must contain state and proof.")
+    if value.get("state") not in DELIVERY_STATES:
+        raise ContextHistoryError("public.delivery.state is not a canonical delivery code.")
+    return {"state": value["state"], "proof": _bounded_string(value.get("proof"), "public.delivery.proof", 1, 200)}
+
+
+def _validate_roadmap(value: Any) -> list[dict[str, Any]]:
+    """``public.roadmap``: roadmap items whose status this event changes, optional creation copy."""
+    if not isinstance(value, list) or not 1 <= len(value) <= MAX_ROADMAP_CHANGES:
+        raise ContextHistoryError(f"public.roadmap must list 1 to {MAX_ROADMAP_CHANGES} item changes.")
+    changes: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict) or set(item) - {"id", "status", "title", "summary"}:
+            raise ContextHistoryError("public.roadmap items accept only id, status, title and summary.")
+        item_id = _bounded_string(item.get("id"), "public.roadmap.id", 1, MAX_ROADMAP_ID)
+        if not UPDATE_SLUG_RE.fullmatch(item_id):
+            raise ContextHistoryError("public.roadmap.id must be a lowercase slug.")
+        if any(change["id"] == item_id for change in changes):
+            raise ContextHistoryError(f"public.roadmap lists {item_id} twice.")
+        if item.get("status") not in ROADMAP_STATUSES:
+            raise ContextHistoryError("public.roadmap.status is not a roadmap status.")
+        change: dict[str, Any] = {"id": item_id, "status": item["status"]}
+        if ("title" in item) != ("summary" in item):
+            raise ContextHistoryError("public.roadmap title and summary are given together (creation copy).")
+        if "title" in item:
+            change["title"] = _bilingual(item["title"], "public.roadmap.title", 120)
+            change["summary"] = _bilingual(item["summary"], "public.roadmap.summary", 300)
+        changes.append(change)
+    return changes
+
+
 def _validate_public(value: Any) -> dict[str, Any]:
+    """Validate the public allowlist: changelog copy, roadmap changes, or both.
+
+    A roadmap-only object (no changelog copy) may omit ``delivery``; a roadmap
+    change to ``shipped`` always requires ``delivery`` proof.
+    """
     if not isinstance(value, dict):
         raise ContextHistoryError("public must be an object.")
-    allowed = {"category", "title", "summary", "delivery", "link"}
+    allowed = {"category", "title", "summary", "delivery", "link", "roadmap"}
     if set(value) - allowed:
         raise ContextHistoryError("public contains unsupported fields.")
-    category = value.get("category")
-    if category not in PUBLIC_CATEGORIES:
-        raise ContextHistoryError("public.category is not a canonical changelog code.")
-    title = value.get("title")
-    summary = value.get("summary")
-    if not isinstance(title, dict) or set(title) != {"en", "fr"}:
-        raise ContextHistoryError("public.title must contain English and French values.")
-    if not isinstance(summary, dict) or set(summary) != {"en", "fr"}:
-        raise ContextHistoryError("public.summary must contain English and French values.")
-    normalized_title = {
-        "en": _bounded_string(title["en"], "public.title.en", 1, 120),
-        "fr": _bounded_string(title["fr"], "public.title.fr", 1, 120),
-    }
-    normalized_summary = {
-        "en": _bounded_string(summary["en"], "public.summary.en", 1, 400),
-        "fr": _bounded_string(summary["fr"], "public.summary.fr", 1, 400),
-    }
-    delivery = value.get("delivery")
-    if not isinstance(delivery, dict) or set(delivery) != {"state", "proof"}:
-        raise ContextHistoryError("public.delivery must contain state and proof.")
-    if delivery.get("state") not in DELIVERY_STATES:
-        raise ContextHistoryError("public.delivery.state is not a canonical delivery code.")
-    proof = _bounded_string(delivery.get("proof"), "public.delivery.proof", 1, 200)
-    public_text = (*normalized_title.values(), *normalized_summary.values(), proof)
-    if _contains_secret_like_text(public_text):
+    normalized: dict[str, Any] = {}
+    texts: list[str] = []
+    changelog = bool({"category", "title", "summary", "link"} & set(value)) or "roadmap" not in value
+    if changelog:
+        category = value.get("category")
+        if category not in PUBLIC_CATEGORIES:
+            raise ContextHistoryError("public.category is not a canonical changelog code.")
+        normalized["category"] = category
+        normalized["title"] = _bilingual(value.get("title"), "public.title", 120)
+        normalized["summary"] = _bilingual(value.get("summary"), "public.summary", 400)
+        normalized["delivery"] = _validate_delivery(value.get("delivery"))
+        if value.get("link") is not None:
+            normalized["link"] = _safe_link(value["link"])
+        texts.extend((*normalized["title"].values(), *normalized["summary"].values()))
+    elif value.get("delivery") is not None:
+        normalized["delivery"] = _validate_delivery(value["delivery"])
+    if "delivery" in normalized:
+        texts.append(normalized["delivery"]["proof"])
+    if "roadmap" in value:
+        normalized["roadmap"] = _validate_roadmap(value["roadmap"])
+        if "delivery" not in normalized and any(item["status"] == "shipped" for item in normalized["roadmap"]):
+            raise ContextHistoryError(
+                "public.roadmap sets status shipped without delivery proof; add public.delivery (state and proof)."
+            )
+        for item in normalized["roadmap"]:
+            texts.extend((*item.get("title", {}).values(), *item.get("summary", {}).values()))
+    if _contains_secret_like_text(texts):
         raise ContextHistoryError("Public changelog copy contains secret-like text.")
-    normalized: dict[str, Any] = {
-        "category": category,
-        "title": normalized_title,
-        "summary": normalized_summary,
-        "delivery": {"state": delivery["state"], "proof": proof},
-    }
-    if value.get("link") is not None:
-        normalized["link"] = _safe_link(value["link"])
     return normalized
 
 
@@ -641,16 +684,29 @@ def update_entry_id(product: str, event: dict[str, Any]) -> str:
     return f"{product}-{base}"
 
 
-def build_update_entry(event: dict[str, Any], product: str, locale: str, entry_id: str) -> dict[str, Any]:
+def has_update_copy(event: dict[str, Any]) -> bool:
+    """True when the event's public object carries changelog copy (not only roadmap changes)."""
+    return "category" in event.get("public", {})
+
+
+def build_update_entry(
+    event: dict[str, Any],
+    product: str | Iterable[str],
+    locale: str,
+    entry_id: str,
+    *,
+    related_roadmap: Iterable[str] = (),
+) -> dict[str, Any]:
     """Map one public context event to one draft update-entry contract object."""
     public = event["public"]
     kind, group = UPDATE_KIND_BY_CATEGORY[public["category"]]
+    products = [product] if isinstance(product, str) else list(dict.fromkeys(product))
     entry: dict[str, Any] = {
         "id": entry_id,
         "title": public["title"][locale],
         "summary": public["summary"][locale],
         "publishedAt": event["occurredAt"][:10],
-        "products": [product],
+        "products": products,
         "locale": locale,
         "status": "draft",
         "kind": kind,
@@ -659,6 +715,9 @@ def build_update_entry(event: dict[str, Any], product: str, locale: str, entry_i
     link = public.get("link")
     if link is not None and UPDATE_HREF_RE.fullmatch(link):
         entry["cta"] = {"label": UPDATE_CTA_LABELS[locale], "href": link}
+    related = list(dict.fromkeys(related_roadmap))
+    if related:
+        entry["relatedRoadmap"] = related
     entry["source"] = {"producer": "agent", "ref": event["id"]}
     return entry
 
@@ -683,12 +742,14 @@ def render_update_markdown(entry: dict[str, Any]) -> str:
         lines.extend(f"      - {quoted(item)}" for item in change["items"])
     if "cta" in entry:
         lines.append(f"cta: {{ label: {quoted(entry['cta']['label'])}, href: {quoted(entry['cta']['href'])} }}")
+    if entry.get("relatedRoadmap"):
+        lines.append(f"relatedRoadmap: [{', '.join(entry['relatedRoadmap'])}]")
     lines.append(f"source: {{ producer: {entry['source']['producer']}, ref: {quoted(entry['source']['ref'])} }}")
     lines.extend(["---", ""])
     return "\n".join(lines)
 
 
-def _require_updates_package(site: Path) -> None:
+def site_declares_package(site: Path, package_name: str) -> bool:
     manifest = site / "package.json"
     try:
         package = json.loads(manifest.read_text(encoding="utf-8"))
@@ -698,7 +759,11 @@ def _require_updates_package(site: Path) -> None:
     for section in ("dependencies", "devDependencies"):
         if isinstance(package.get(section), dict):
             declared.update(package[section])
-    if UPDATES_PACKAGE not in declared:
+    return package_name in declared
+
+
+def _require_updates_package(site: Path) -> None:
+    if not site_declares_package(site, UPDATES_PACKAGE):
         raise ContextHistoryError(f"Site does not declare {UPDATES_PACKAGE}; no update entry is projected.")
 
 
@@ -796,56 +861,114 @@ def project_updates(
 
     entries: list[dict[str, str]] = []
     not_public: list[str] = []
+    roadmap_only: list[str] = []
     for event in chosen:
         if "public" not in event:
             not_public.append(event["id"])
             continue
-        entry_id = update_entry_id(product, event)
-        for locale in selected_locales:
-            existing = _updates_directory(site, locale) / f"{entry_id}.md"
-            if existing.exists() and event["id"] not in _frontmatter_head(existing):
-                entry_id = f"{entry_id}-{event['id'][4:12]}"
-                break
-        for locale in selected_locales:
-            directory = _updates_directory(site, locale)
-            target = directory / f"{entry_id}.md"
-            content = render_update_markdown(build_update_entry(event, product, locale, entry_id))
-            elsewhere = _projected_elsewhere(directory, target, event["id"])
-            if elsewhere is not None:
-                action, path = "already-projected", elsewhere
-            elif target.exists():
-                same = target.read_text(encoding="utf-8", errors="replace") == content
-                action, path = ("unchanged" if same else "skipped-edited"), target
-            elif dry_run:
-                action, path = "would-create", target
-            else:
-                directory.mkdir(parents=True, exist_ok=True)
-                _updates_directory(site, locale)
-                try:
-                    with target.open("x", encoding="utf-8", newline="\n") as handle:
-                        handle.write(content)
-                    action = "created"
-                except FileExistsError:
-                    action = "skipped-edited"
-                path = target
-            entries.append({
-                "eventId": event["id"],
-                "id": entry_id,
-                "locale": locale,
-                "action": action,
-                "path": path.relative_to(site).as_posix(),
-            })
+        if not has_update_copy(event):
+            roadmap_only.append(event["id"])
+            continue
+        plan = plan_update_projection(site, event, product, selected_locales)
+        entries.extend(write_update_projection(site, event, [product], plan, dry_run=dry_run))
     return {
         "dryRun": dry_run,
         "siteRoot": str(site),
         "entries": entries,
         "notPublic": not_public,
+        "roadmapOnly": roadmap_only,
         "skippedLocales": skipped_locales,
     }
 
 
+@dataclass(frozen=True)
+class UpdatePlan:
+    """Where one event's update entry lands in one locale, before anything is written."""
+
+    locale: str
+    entry_id: str
+    target: Path
+    elsewhere: Path | None
+
+    @property
+    def effective_id(self) -> str:
+        """Id the site actually uses for this event in this locale (a renamed file keeps its name)."""
+        return self.elsewhere.stem if self.elsewhere is not None else self.entry_id
+
+
+def plan_update_projection(site: Path, event: dict[str, Any], product: str, locales: Iterable[str]) -> list[UpdatePlan]:
+    """Choose the entry id (suffixed on a foreign collision) and detect earlier projections."""
+    locales = list(locales)
+    entry_id = update_entry_id(product, event)
+    for locale in locales:
+        existing = _updates_directory(site, locale) / f"{entry_id}.md"
+        if existing.exists() and event["id"] not in _frontmatter_head(existing):
+            entry_id = f"{entry_id}-{event['id'][4:12]}"
+            break
+    plans: list[UpdatePlan] = []
+    for locale in locales:
+        directory = _updates_directory(site, locale)
+        target = directory / f"{entry_id}.md"
+        plans.append(UpdatePlan(locale, entry_id, target, _projected_elsewhere(directory, target, event["id"])))
+    return plans
+
+
+def write_update_projection(
+    site: Path,
+    event: dict[str, Any],
+    products: list[str],
+    plans: list[UpdatePlan],
+    *,
+    related_roadmap: dict[str, list[str]] | None = None,
+    dry_run: bool = False,
+) -> list[dict[str, str]]:
+    """Create missing draft files; never overwrite an existing or renamed one."""
+    entries: list[dict[str, str]] = []
+    for plan in plans:
+        related = (related_roadmap or {}).get(plan.locale, [])
+        content = render_update_markdown(
+            build_update_entry(event, products, plan.locale, plan.entry_id, related_roadmap=related)
+        )
+        target = plan.target
+        if plan.elsewhere is not None:
+            action, path = "already-projected", plan.elsewhere
+        elif target.exists():
+            same = target.read_text(encoding="utf-8", errors="replace") == content
+            action, path = ("unchanged" if same else "skipped-edited"), target
+        elif dry_run:
+            action, path = "would-create", target
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            _updates_directory(site, plan.locale)
+            try:
+                with target.open("x", encoding="utf-8", newline="\n") as handle:
+                    handle.write(content)
+                action = "created"
+            except FileExistsError:
+                action = "skipped-edited"
+            path = target
+        entries.append({
+            "eventId": event["id"],
+            "id": plan.entry_id,
+            "locale": plan.locale,
+            "action": action,
+            "path": path.relative_to(site).as_posix(),
+        })
+    return entries
+
+
+def _roadmap_from_args(values: Iterable[str]) -> list[dict[str, str]]:
+    changes: list[dict[str, str]] = []
+    for value in values:
+        item_id, separator, status = value.rpartition(":")
+        if not separator or not item_id or not status:
+            raise ContextHistoryError("--roadmap expects <item id>:<status>, for example export-pdf:shipped.")
+        changes.append({"id": item_id, "status": status})
+    return changes
+
+
 def _public_from_args(args: argparse.Namespace) -> dict[str, Any] | None:
-    supplied = any(
+    changelog_supplied = any(
         value is not None
         for value in (
             args.public_category,
@@ -853,20 +976,46 @@ def _public_from_args(args: argparse.Namespace) -> dict[str, Any] | None:
             args.public_title_fr,
             args.public_summary_en,
             args.public_summary_fr,
-            args.delivery_state,
-            args.delivery_proof,
             args.public_link,
         )
     )
-    if not supplied:
-        return None
-    return {
-        "category": args.public_category,
-        "title": {"en": args.public_title_en, "fr": args.public_title_fr},
-        "summary": {"en": args.public_summary_en, "fr": args.public_summary_fr},
-        "delivery": {"state": args.delivery_state, "proof": args.delivery_proof},
-        **({"link": args.public_link} if args.public_link is not None else {}),
-    }
+    delivery_supplied = args.delivery_state is not None or args.delivery_proof is not None
+    roadmap = _roadmap_from_args(args.roadmap)
+    if args.public_file is not None:
+        if changelog_supplied or delivery_supplied or roadmap:
+            raise ContextHistoryError("--public-file replaces the --public-*, --delivery-* and --roadmap options.")
+        try:
+            loaded = json.loads(Path(args.public_file).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise ContextHistoryError(f"--public-file is unreadable JSON: {args.public_file}") from error
+        if not isinstance(loaded, dict):
+            raise ContextHistoryError("--public-file must contain one JSON object.")
+        return loaded
+    public: dict[str, Any] = {}
+    if changelog_supplied:
+        public.update({
+            "category": args.public_category,
+            "title": {"en": args.public_title_en, "fr": args.public_title_fr},
+            "summary": {"en": args.public_summary_en, "fr": args.public_summary_fr},
+            **({"link": args.public_link} if args.public_link is not None else {}),
+        })
+    if changelog_supplied or delivery_supplied:
+        public["delivery"] = {"state": args.delivery_state, "proof": args.delivery_proof}
+    if roadmap:
+        public["roadmap"] = roadmap
+    return public or None
+
+
+def _product_updates_module() -> Any:
+    # Script execution runs this file as __main__: expose it under its module name
+    # so product_updates shares the same classes (ContextHistoryError) instead of a copy.
+    if __name__ == "__main__":
+        sys.modules.setdefault("context_history", sys.modules[__name__])
+    try:
+        from tools import product_updates
+    except ModuleNotFoundError:
+        import product_updates  # type: ignore[no-redef]
+    return product_updates
 
 
 def main() -> int:
@@ -891,6 +1040,15 @@ def main() -> int:
     append.add_argument("--delivery-state", choices=sorted(DELIVERY_STATES))
     append.add_argument("--delivery-proof")
     append.add_argument("--public-link")
+    append.add_argument(
+        "--roadmap", action="append", default=[], metavar="ID:STATUS",
+        help="Roadmap item status change carried by public.roadmap (repeatable).",
+    )
+    append.add_argument("--public-file", help="JSON file holding the whole public object (creation copy included).")
+    append.add_argument(
+        "--no-project", action="store_true",
+        help="Do not project the public object into the sites of .shipglows.product-updates.json.",
+    )
 
     head = commands.add_parser("head")
     head.add_argument("--max-events", type=int, default=DEFAULT_HEAD_EVENTS)
@@ -912,6 +1070,25 @@ def main() -> int:
     updates.add_argument("--locale", action="append", default=[])
     updates.add_argument("--dry-run", action="store_true")
 
+    project = commands.add_parser(
+        "project",
+        help="Project public events into every site of .shipglows.product-updates.json (updates and roadmap).",
+    )
+    project.add_argument("--event-id", action="append", default=[])
+    project.add_argument("--since")
+    project.add_argument("--dry-run", action="store_true")
+
+    pending = commands.add_parser("pending", help="List draft updates and hidden roadmap items awaiting review.")
+    pending.add_argument("--format", choices=("json", "text"), default="json")
+
+    publish = commands.add_parser(
+        "publish", help="Publish reviewed drafts (status: published) and hidden items (visibility: public), all locales.",
+    )
+    publish.add_argument("--id", action="append", default=[], dest="ids")
+    publish.add_argument("--all", action="store_true", dest="publish_all")
+    publish.add_argument("--kind", choices=("update", "roadmap"))
+    publish.add_argument("--dry-run", action="store_true")
+
     args = parser.parse_args()
     try:
         if args.command == "append":
@@ -927,7 +1104,33 @@ def main() -> int:
                 public=_public_from_args(args),
                 event_id=args.event_id,
             )
-            output: dict[str, Any] = {"status": "ok", "eventPath": str(path), "eventId": _read_event_file(path)["id"]}
+            event = _read_event_file(path)
+            output: dict[str, Any] = {"status": "ok", "eventPath": str(path), "eventId": event["id"]}
+            if args.no_project:
+                output["projection"] = {"status": "disabled"}
+            else:
+                output["projection"] = _product_updates_module().project_after_append(args.project_root, event)
+        elif args.command == "project":
+            output = {
+                "status": "ok",
+                **_product_updates_module().project_configured(
+                    args.project_root, event_ids=args.event_id, since=args.since, dry_run=args.dry_run,
+                ),
+            }
+        elif args.command == "pending":
+            report = _product_updates_module().pending(args.project_root)
+            if args.format == "text":
+                print(_product_updates_module().render_pending_text(report))
+                return 0
+            output = {"status": "ok", **report}
+        elif args.command == "publish":
+            output = {
+                "status": "ok",
+                **_product_updates_module().publish(
+                    args.project_root, ids=args.ids, publish_all=args.publish_all, kind=args.kind,
+                    dry_run=args.dry_run,
+                ),
+            }
         elif args.command == "head":
             result = generate_context_head(
                 args.project_root,
