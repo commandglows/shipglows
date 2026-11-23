@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-25"
 updated: "2026-11-23"
@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - tools/context_history.py
   - tools/product_updates.py
+  - tools/feedback_triage.py
   - tools/code_context_graph.py
   - skills/references/context-quality-contract.md
   - skills/301-sg-context/SKILL.md
@@ -32,6 +33,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-11-23: feedback triage (tools/feedback_triage.py) creates hidden roadmap items through this projection; pointer to product-feedback-triage.md."
   - "2026-11-23: append auto-projects public events (updates and roadmap) into sites declared by .shipglows.product-updates.json; operator gate pending/publish."
   - "2026-11-23: public events project into draft update entries of @shipglows/astro-updates sites; agent roadmap writes stay hidden and append-only."
   - "Operator correction 2026-09-01: closure refreshes bounded context after Git-state changes and uses exact changed paths plus the canonical code-docs map before documentation classification."
@@ -114,6 +116,8 @@ When a closure, ship or release records a public-ready event, include its `publi
 Projection is automatic: when the repository has `.shipglows.product-updates.json`, `append` projects the event into each declared site and returns the report in `projection` (event kept even when a site fails). Report `created`, `unchanged`, `skipped-edited`, `already-projected`, `missing`, `skipped-stale`; never force them. Re-run with `project --event-id <evt_...> [--dry-run]`; a site without the config uses `project-updates --site-root <site> --product <key>`.
 
 The tool writes `src/content/updates/<locale>/<id>.md` with `status: draft`, `source: { producer: agent, ref: <event id> }` (`shared/updates` contract) and never overwrites. Roadmap: it appends to `statusHistory` (never rewrites it), sets `status`, and on `shipped` links `relatedRoadmap[]` and `shippedIn[]` in every locale; a new item needs `title`/`summary` copy and is created `visibility: hidden`. Agents never set `status: published` nor `visibility: public`, nor write vote counts or requester identities: the operator reviews `pending` and runs `publish --id <id>` or `--all`, or `sg-release` after explicit review. `shipglows_app/site` still exports `shipglows.public-changelog/v1` and accepts changelog-only `public` objects.
+
+Triage of one product's stored feedback, requests and votes (`tools/feedback_triage.py`, items created hidden through this projection): `product-feedback-triage.md`.
 
 ## Recovery And Growth
 

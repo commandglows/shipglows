@@ -83,6 +83,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `google-search-console-cli.md` | `tools/shipglows_gsc.py`, `cli/shipglows-gsc.sh`, OAuth setup, read-only GSC commands, and evidence limits |
 | `serpapi-google-serp-cli.md` | `tools/shipglows_serp.py`, `cli/shipglows-serp.sh`, environment-only API key handling, localized SERP queries, quota, and distinction from GSC metrics |
 | `parallel-web-search-cli.md` | `tools/shipglows_parallel.py`, `cli/shipglows-parallel.sh`, Parallel Search, Extract, Task, and Monitor APIs; environment-only key handling and limits |
+| `product-feedback-triage.md` | `tools/feedback_triage.py`, per-product `inbox`/`apply` triage of `@shipglows/feedback-convex` feedback, requests and votes through the declared Doppler scope; hidden roadmap items via the projection |
 | `product-updates-projection.md` | `tools/product_updates.py`, `.shipglows.product-updates.json`, automatic projection of public context events into site updates and roadmap, `pending`/`publish` review gate |
 | `readwise-cli.md` | `shipglows readwise`, official Reader/highlights commands, maintained dynamic-port OAuth, Doppler NONE, setup and authentication proof limits |
 | `runtime-cli.md` | `shipglows.sh`, `lib.sh`, `config.sh`, PM2/Flox/Caddy/DuckDNS flows |

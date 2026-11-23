@@ -146,6 +146,9 @@ validates the whole selection before writing (an unknown id writes nothing),
 flips `status: draft` to `published` and `visibility: hidden` to `public` in
 every locale, and warns when a published update links a still-hidden item.
 
+Feedback triage (`tools/feedback_triage.py apply`, `product-feedback-triage.md`) creates
+items through this projection with one `CONTEXT_DECISION` event; they stay hidden.
+
 ## Limits
 
 - Only `en` and `fr` copy exists; other site locales are reported in `skippedLocales`.
