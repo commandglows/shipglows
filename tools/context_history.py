@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Append collision-free ShipGlows context events and build a bounded Context Head."""
+"""Append collision-free ShipGlows context events, build a bounded Context Head,
+and project public events into draft product update entries."""
 
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from hashlib import sha256
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
@@ -15,6 +16,7 @@ import os
 import re
 import subprocess
 import sys
+import unicodedata
 import uuid
 
 
@@ -56,6 +58,26 @@ DELIVERY_STATES = {
     "DELIVERY_AVAILABLE",
     "DELIVERY_SITE_BUILD",
 }
+# Projection of public events into the shared update-entry contract
+# (shipglows-app-engine/shared/updates, rendered by @shipglows/astro-updates).
+UPDATE_KIND_BY_CATEGORY = {
+    "CHANGELOG_FEATURE": ("feature", "added"),
+    "CHANGELOG_IMPROVEMENT": ("improvement", "improved"),
+    "CHANGELOG_FIX": ("fix", "fixed"),
+    "CHANGELOG_SECURITY": ("security", "security"),
+    "CHANGELOG_CONTENT": ("announcement", "improved"),
+}
+UPDATES_PACKAGE = "@shipglows/astro-updates"
+UPDATES_RELATIVE = Path("src/content/updates")
+CONTENT_MANIFEST = ".shipglows.content.json"
+PUBLIC_LOCALES = ("en", "fr")
+UPDATE_CTA_LABELS = {"en": "Learn more", "fr": "En savoir plus"}
+UPDATE_SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+UPDATE_HREF_RE = re.compile(r"^(?:/(?![/\\])[^\s]*|#[^\s]*|https://[^\s/@]+(?:[/?#][^\s]*)?)$")
+MAX_PRODUCT_KEY = 40
+MAX_UPDATE_SLUG_BODY = 60
+MAX_UPDATE_SCAN_FILES = 5_000
+UPDATE_HEAD_BYTES = 64 * 1024
 SECRET_PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----", re.IGNORECASE),
     re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b"),
@@ -600,6 +622,228 @@ def cache_status(project_root: str | Path) -> dict[str, Any]:
     return {"stale": bool(changed), "reason": "changed" if changed else "fresh", "changed": changed}
 
 
+def _slugify(text: str) -> str:
+    folded = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii").lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", folded).strip("-")
+    if len(slug) > MAX_UPDATE_SLUG_BODY:
+        cut = slug[:MAX_UPDATE_SLUG_BODY]
+        slug = (cut.rsplit("-", 1)[0] if "-" in cut else cut).strip("-")
+    return slug
+
+
+def update_entry_id(product: str, event: dict[str, Any]) -> str:
+    """Deterministic readable id: ``<product>-<english title slug>``."""
+    base = _slugify(event["public"]["title"]["en"])
+    if not base:
+        return f"{product}-{event['id'][4:12]}"
+    if base == product or base.startswith(f"{product}-"):
+        return base
+    return f"{product}-{base}"
+
+
+def build_update_entry(event: dict[str, Any], product: str, locale: str, entry_id: str) -> dict[str, Any]:
+    """Map one public context event to one draft update-entry contract object."""
+    public = event["public"]
+    kind, group = UPDATE_KIND_BY_CATEGORY[public["category"]]
+    entry: dict[str, Any] = {
+        "id": entry_id,
+        "title": public["title"][locale],
+        "summary": public["summary"][locale],
+        "publishedAt": event["occurredAt"][:10],
+        "products": [product],
+        "locale": locale,
+        "status": "draft",
+        "kind": kind,
+        "changes": [{"group": group, "items": [public["summary"][locale]]}],
+    }
+    link = public.get("link")
+    if link is not None and UPDATE_HREF_RE.fullmatch(link):
+        entry["cta"] = {"label": UPDATE_CTA_LABELS[locale], "href": link}
+    entry["source"] = {"producer": "agent", "ref": event["id"]}
+    return entry
+
+
+def render_update_markdown(entry: dict[str, Any]) -> str:
+    """Render the site Markdown file: path carries id and locale, the rest is frontmatter."""
+    def quoted(value: str) -> str:
+        return json.dumps(value, ensure_ascii=False)
+
+    lines = [
+        "---",
+        f"title: {quoted(entry['title'])}",
+        f"summary: {quoted(entry['summary'])}",
+        f"publishedAt: {quoted(entry['publishedAt'])}",
+        f"products: [{', '.join(quoted(item) for item in entry['products'])}]",
+        f"status: {entry['status']}",
+        f"kind: {entry['kind']}",
+        "changes:",
+    ]
+    for change in entry["changes"]:
+        lines.extend([f"  - group: {change['group']}", "    items:"])
+        lines.extend(f"      - {quoted(item)}" for item in change["items"])
+    if "cta" in entry:
+        lines.append(f"cta: {{ label: {quoted(entry['cta']['label'])}, href: {quoted(entry['cta']['href'])} }}")
+    lines.append(f"source: {{ producer: {entry['source']['producer']}, ref: {quoted(entry['source']['ref'])} }}")
+    lines.extend(["---", ""])
+    return "\n".join(lines)
+
+
+def _require_updates_package(site: Path) -> None:
+    manifest = site / "package.json"
+    try:
+        package = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ContextHistoryError(f"Site package.json is unreadable: {manifest}") from error
+    declared: set[str] = set()
+    for section in ("dependencies", "devDependencies"):
+        if isinstance(package.get(section), dict):
+            declared.update(package[section])
+    if UPDATES_PACKAGE not in declared:
+        raise ContextHistoryError(f"Site does not declare {UPDATES_PACKAGE}; no update entry is projected.")
+
+
+def _update_locales(site: Path, requested: Iterable[str]) -> tuple[list[str], list[str]]:
+    locales = list(dict.fromkeys(requested))
+    if not locales:
+        manifest = site / CONTENT_MANIFEST
+        if not manifest.is_file():
+            raise ContextHistoryError(f"Site has no {CONTENT_MANIFEST}; pass --locale explicitly.")
+        try:
+            declared = json.loads(manifest.read_text(encoding="utf-8")).get("locales")
+        except (OSError, json.JSONDecodeError, AttributeError) as error:
+            raise ContextHistoryError(f"{CONTENT_MANIFEST} is unreadable.") from error
+        if not isinstance(declared, list) or not all(isinstance(item, str) for item in declared):
+            raise ContextHistoryError(f"{CONTENT_MANIFEST} must declare a locales array.")
+        locales = list(dict.fromkeys(declared))
+    supported = [locale for locale in locales if locale in PUBLIC_LOCALES]
+    if not supported:
+        raise ContextHistoryError("Public events only carry English and French copy; no site locale matches.")
+    return supported, [locale for locale in locales if locale not in PUBLIC_LOCALES]
+
+
+def _frontmatter_head(path: Path) -> str:
+    with path.open("r", encoding="utf-8", errors="replace") as handle:
+        text = handle.read(UPDATE_HEAD_BYTES)
+    if not text.startswith("---"):
+        return ""
+    end = text.find("\n---", 3)
+    return text[: end if end != -1 else len(text)]
+
+
+def _updates_directory(site: Path, locale: str) -> Path:
+    directory = site / UPDATES_RELATIVE / locale
+    for parent in (directory, *directory.parents):
+        if parent == site:
+            break
+        if parent.is_symlink():
+            raise ContextHistoryError("The updates collection cannot use symbolic links.")
+    return directory
+
+
+def _projected_elsewhere(directory: Path, target: Path, event_id: str) -> Path | None:
+    if not directory.is_dir():
+        return None
+    for index, candidate in enumerate(sorted(directory.glob("*.md"))):
+        if index >= MAX_UPDATE_SCAN_FILES:
+            raise ContextHistoryError(f"Updates collection exceeds {MAX_UPDATE_SCAN_FILES} files per locale.")
+        if candidate != target and candidate.is_file() and event_id in _frontmatter_head(candidate):
+            return candidate
+    return None
+
+
+def project_updates(
+    project_root: str | Path,
+    site_root: str | Path,
+    product: str,
+    *,
+    event_ids: Iterable[str] = (),
+    since: str | None = None,
+    locales: Iterable[str] = (),
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Write one draft update entry per site locale for each selected public event.
+
+    Never overwrites: an existing file is reported ``unchanged`` when identical,
+    ``skipped-edited`` otherwise, and ``already-projected`` when another file of
+    the locale already references the event id.
+    """
+    root = resolve_project_root(project_root)
+    requested_ids = list(dict.fromkeys(event_ids))
+    if not requested_ids and since is None:
+        raise ContextHistoryError("Select events with --event-id or --since.")
+    if len(product) > MAX_PRODUCT_KEY or not UPDATE_SLUG_RE.fullmatch(product):
+        raise ContextHistoryError("product must be a lowercase slug of at most 40 characters.")
+    if since is not None:
+        try:
+            date.fromisoformat(since)
+        except ValueError as error:
+            raise ContextHistoryError("since must be an ISO calendar date (YYYY-MM-DD).") from error
+    site = Path(site_root).expanduser().resolve()
+    if not site.is_dir():
+        raise ContextHistoryError(f"Site root is unavailable: {site}")
+    _require_updates_package(site)
+    selected_locales, skipped_locales = _update_locales(site, locales)
+
+    events = load_events(root)
+    by_id = {event["id"]: event for event in events}
+    chosen: list[dict[str, Any]] = []
+    for event_id in requested_ids:
+        if event_id not in by_id:
+            raise ContextHistoryError(f"Unknown event id: {event_id}")
+        chosen.append(by_id[event_id])
+    if since is not None:
+        chosen.extend(event for event in events if event["occurredAt"][:10] >= since and event not in chosen)
+
+    entries: list[dict[str, str]] = []
+    not_public: list[str] = []
+    for event in chosen:
+        if "public" not in event:
+            not_public.append(event["id"])
+            continue
+        entry_id = update_entry_id(product, event)
+        for locale in selected_locales:
+            existing = _updates_directory(site, locale) / f"{entry_id}.md"
+            if existing.exists() and event["id"] not in _frontmatter_head(existing):
+                entry_id = f"{entry_id}-{event['id'][4:12]}"
+                break
+        for locale in selected_locales:
+            directory = _updates_directory(site, locale)
+            target = directory / f"{entry_id}.md"
+            content = render_update_markdown(build_update_entry(event, product, locale, entry_id))
+            elsewhere = _projected_elsewhere(directory, target, event["id"])
+            if elsewhere is not None:
+                action, path = "already-projected", elsewhere
+            elif target.exists():
+                same = target.read_text(encoding="utf-8", errors="replace") == content
+                action, path = ("unchanged" if same else "skipped-edited"), target
+            elif dry_run:
+                action, path = "would-create", target
+            else:
+                directory.mkdir(parents=True, exist_ok=True)
+                _updates_directory(site, locale)
+                try:
+                    with target.open("x", encoding="utf-8", newline="\n") as handle:
+                        handle.write(content)
+                    action = "created"
+                except FileExistsError:
+                    action = "skipped-edited"
+                path = target
+            entries.append({
+                "eventId": event["id"],
+                "id": entry_id,
+                "locale": locale,
+                "action": action,
+                "path": path.relative_to(site).as_posix(),
+            })
+    return {
+        "dryRun": dry_run,
+        "siteRoot": str(site),
+        "entries": entries,
+        "notPublic": not_public,
+        "skippedLocales": skipped_locales,
+    }
+
+
 def _public_from_args(args: argparse.Namespace) -> dict[str, Any] | None:
     supplied = any(
         value is not None
@@ -657,6 +901,17 @@ def main() -> int:
     commands.add_parser("check")
     commands.add_parser("validate")
 
+    updates = commands.add_parser(
+        "project-updates",
+        help="Write draft update entries (src/content/updates/<locale>/<id>.md) from public events.",
+    )
+    updates.add_argument("--site-root", required=True)
+    updates.add_argument("--product", required=True)
+    updates.add_argument("--event-id", action="append", default=[])
+    updates.add_argument("--since")
+    updates.add_argument("--locale", action="append", default=[])
+    updates.add_argument("--dry-run", action="store_true")
+
     args = parser.parse_args()
     try:
         if args.command == "append":
@@ -691,6 +946,19 @@ def main() -> int:
             }
         elif args.command == "check":
             output = {"status": "ok", **cache_status(args.project_root)}
+        elif args.command == "project-updates":
+            output = {
+                "status": "ok",
+                **project_updates(
+                    args.project_root,
+                    args.site_root,
+                    args.product,
+                    event_ids=args.event_id,
+                    since=args.since,
+                    locales=args.locale,
+                    dry_run=args.dry_run,
+                ),
+            }
         else:
             output = {"status": "ok", "eventCount": len(load_events(args.project_root))}
     except (ContextHistoryError, OSError, UnicodeError) as error:

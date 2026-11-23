@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-25"
-updated: "2026-09-01"
+updated: "2026-11-23"
 status: active
 source_skill: 900-shipglows-core
 scope: context-history-and-head
@@ -22,12 +22,16 @@ linked_systems:
   - skills/104-sg-end/SKILL.md
   - skills/005-sg-ship/SKILL.md
   - shipglows_data/workflow/history/
+  - shipglows-app-engine/shared/updates
+  - shipglows-app-engine/shared/roadmap
+  - skills/references/content-tree-model.md
 depends_on:
   - artifact: skills/references/context-quality-contract.md
     artifact_version: "1.5.0"
     required_status: active
 supersedes: []
 evidence:
+  - "2026-11-23: public events project into draft update entries of @shipglows/astro-updates sites; agent roadmap writes stay hidden and append-only."
   - "Operator correction 2026-09-01: closure refreshes bounded context after Git-state changes and uses exact changed paths plus the canonical code-docs map before documentation classification."
   - "Operator approval on 2026-08-25 selected date-segmented immutable history, branch/worktree-aware Context Head, automatic normal-path capture, and a public bilingual allowlisted projection."
   - "Operator approval on 2026-08-30 made changelog classification and significant-event capture a shared closure behavior for every managed repository."
@@ -98,6 +102,16 @@ Events are internal by default. Add a `public` object only when all of these are
 The public site reads only the public allowlist. Raw history objects never become page props, HTML, JSON endpoints, or client payloads.
 
 The closure report classifies the changelog projection separately: `public-ready` when eligible bilingual public copy is prepared for a declared delivery path, `internal-only` when the significant event must remain private, `not applicable` when no significant changelog event exists, or `needs review` when eligibility, copy, safety, or evidence remains unresolved. `public-ready` is readiness, not proof that an entry is published, deployed, or available. A public object still obeys every allowlist and delivery-proof rule above.
+
+## Product Updates And Roadmap
+
+When a closure, ship or release records a public-ready event and the product site declares `@shipglows/astro-updates` (collection `src/content/updates/`, `content-tree-model.md`), project it into draft update entries:
+
+`python $SHIPGLOWS_ROOT/tools/context_history.py --project-root <history repo> project-updates --site-root <site> --product <key> --event-id <evt_...> [--dry-run]`
+
+It writes one `src/content/updates/<locale>/<id>.md` per manifest locale (`fr`, `en`) with the same `id`, `status: draft`, `source: { producer: agent, ref: <event id> }`, mapped by the `shared/updates` contract README. It never overwrites: an existing file is `unchanged`, `skipped-edited` or `already-projected`; report those, never force them. Agents never set `status: published`; a human, or `sg-release` after explicit review, does. `shipglows_app/site` still exports `shipglows.public-changelog/v1` from the same public objects.
+
+Roadmap items (`src/content/roadmap/`, `@shipglows/astro-roadmap`): an agent creates or updates them only with `visibility: hidden` and `source.producer: agent`, appends to `statusHistory` (never rewrites it) and keeps its last `to` equal to `status`. When an update delivers an item, add the item id to the update's `relatedRoadmap[]` and the update id to the item's `shippedIn[]` in every locale. Never write vote counts or requester identities.
 
 ## Recovery And Growth
 

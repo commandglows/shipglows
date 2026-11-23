@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-11-01"
-updated: "2026-11-01"
+updated: "2026-11-23"
 status: active
 source_skill: 900-shipglows-core
 scope: content-tree-model
@@ -21,12 +21,15 @@ linked_systems:
   - shipglows-astro-engine
   - contentglows
   - shipglows_app
+  - shipglows-app-engine/shared/updates
+  - shipglows-app-engine/shared/roadmap
 depends_on:
   - artifact: skills/references/project-tree-model.md
     artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:
+  - "2026-11-23: updates and roadmap declared as sibling collections, rendered by @shipglows/astro-updates and @shipglows/astro-roadmap against the shared app-engine contracts."
   - "Operator decision 2026-11-01: one content location and one taxonomy model on every site, so ContentGlows and shipglows_app read and write content without guessing."
   - "Operator decision 2026-11-01: evergreen content, so the collection is named articles, not blog."
   - "Operator decision 2026-11-01: flat files, structure carried by a taxonomy, URL /<pillar>/<slug>, graph view of articles in our software."
@@ -64,6 +67,8 @@ site/
       articles/
         <locale>/
           <slug>.md                # one article; the file name is its slug
+      updates/<locale>/<id>.md     # product update (sibling collection, see below)
+      roadmap/<locale>/<id>.md     # roadmap item (sibling collection, see below)
       taxonomy.yaml                # the subject tree (pillars and sub-nodes)
       redirects.json               # every moved URL, kept forever
     assets/
@@ -78,6 +83,14 @@ Rules:
 - A `hubFor` article is the one exception to slug uniqueness: its file name must equal the slug of its taxonomy node, and it renders at the hub URL, never as an article.
 - The collection is named `articles` on every site, whatever the site calls it publicly ("guides", "encyclopédie", "ressources").
 - Other structured collections (product documentation, skill catalogue, quiz paths) may exist in `src/content/<collection>/`. They are not editorial articles and never replace `articles/`. Legal and static pages stay in `src/pages/`.
+
+## Sibling Collections: Updates And Roadmap
+
+`updates` (product changelog) and `roadmap` are fixed-name sibling collections with the same layout rules: `src/content/<collection>/<locale>/<id>.md`, files directly under the locale folder, `_`-prefixed files not loaded, and the file name is the `id`, identical in every locale because cross-links cite it (`relatedRoadmap[]` on an update, `shippedIn[]` on a roadmap item). `id`, `locale` and URL fields are refused in frontmatter; drafts use `status: draft` (updates) or `visibility: hidden` (roadmap), never `draft`.
+
+- Contracts: `shipglows-app-engine/shared/updates/` and `shipglows-app-engine/shared/roadmap/` (fields, semantic rules, Keep a Changelog and `CHANGELOG_*` mappings).
+- Rendering, collection schemas and agent producer rules: `@shipglows/astro-updates` and `@shipglows/astro-roadmap` (`shipglows-astro-engine/packages/{updates,roadmap}/README.md`).
+- Agent drafts from public history events: `context-history-and-head.md`.
 
 ## Taxonomy
 

@@ -46,7 +46,7 @@ Conditional authorities: `actionable-failure-contract.md` for failure reports; `
 
 Keep this order: bounded scope/risk → `105-sg-check nofix` unless skipped → `005-sg-ship` → `405-sg-prod` → required `108`/`109`/`107` proof → `103-sg-verify` → optional `304-sg-changelog`.
 
-Record commit/branch/ship mode, matching target URL/provider state, objective-matched proof, verification verdict, and changelog decision. Missing deployment or required proof keeps the result `partial` or `blocked`; never claim `deployed` before final verification.
+Record commit/branch/ship mode, matching target URL/provider state, objective-matched proof, verification verdict, and changelog decision. Draft update entries (`context-history-and-head.md`) become `status: published` only after verified delivery and explicit review. Missing deployment or required proof keeps the result `partial` or `blocked`; never claim `deployed` before final verification.
 
 Independent read-only release/CI/runtime evidence may parallelize under the shared matrix. Ship, deploy, tracker, and production mutations remain sequential unless ready non-overlapping `Execution Batches` exist.
 

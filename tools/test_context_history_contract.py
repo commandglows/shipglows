@@ -13,6 +13,8 @@ CHANGELOG = ROOT / "skills/304-sg-changelog/SKILL.md"
 CLOSURE = ROOT / "skills/104-sg-end/SKILL.md"
 SHIP = ROOT / "skills/005-sg-ship/SKILL.md"
 TOOL = ROOT / "tools/context_history.py"
+CONTENT_TREE = ROOT / "skills/references/content-tree-model.md"
+DEPLOY = ROOT / "skills/004-sg-deploy/SKILL.md"
 
 
 def compact(path: Path) -> str:
@@ -55,9 +57,35 @@ class ContextHistoryContractTests(unittest.TestCase):
         self.assertIn("structured history first", compact(CHANGELOG))
         self.assertIn("public eligibility is never inferred from a commit message alone", compact(CHANGELOG))
 
+    def test_public_events_feed_draft_updates_and_hidden_roadmap_items(self) -> None:
+        doctrine = compact(REFERENCE)
+        for marker in (
+            "project-updates",
+            "--dry-run",
+            "status: draft",
+            "never overwrites",
+            "agents never set `status: published`",
+            "visibility: hidden",
+            "appends to `statushistory`",
+            "relatedroadmap[]",
+            "shippedin[]",
+        ):
+            self.assertIn(marker, doctrine)
+        self.assertIn("when a closure, ship or release records a public-ready event", doctrine)
+        self.assertIn("@shipglows/astro-updates", compact(CHANGELOG))
+        self.assertIn("`changelog.md` stays the technical", compact(CHANGELOG))
+        self.assertIn("shared/updates/readme.md", compact(CHANGELOG))
+        self.assertIn("explicit review", compact(DEPLOY))
+        tree = compact(CONTENT_TREE)
+        for marker in ("updates/<locale>/<id>.md", "roadmap/<locale>/<id>.md", "shared/updates", "astro-roadmap"):
+            self.assertIn(marker, tree)
+
     def test_tool_stays_standard_library_and_exposes_bounded_commands(self) -> None:
         source = TOOL.read_text(encoding="utf-8")
-        for marker in ("append_event", "generate_context_head", "cache_status", "--no-write", "MAX_FILES", "MAX_EVENTS"):
+        for marker in (
+            "append_event", "generate_context_head", "cache_status", "project_updates",
+            "--no-write", "--dry-run", "MAX_FILES", "MAX_EVENTS",
+        ):
             self.assertIn(marker, source)
         for dependency in ("requests", "pydantic", "yaml", "jsonschema"):
             self.assertNotIn(f"import {dependency}", source)

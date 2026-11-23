@@ -21,6 +21,8 @@ When the project adopts `shipglows_data/workflow/history/`, load `$SHIPGLOWS_ROO
 
 Git remains the fallback for projects without structured history and a reconciliation source when meaningful commits lack events. Public eligibility is never inferred from a commit message alone. Public entries require complete English/French copy and delivery proof; ambiguous entries remain internal.
 
+`CHANGELOG.md` stays the technical Keep a Changelog record. Public product updates are separate draft entries of sites using `@shipglows/astro-updates`, produced by the projection in `context-history-and-head.md`; Keep a Changelog and `CHANGELOG_*` mappings: `shipglows-app-engine/shared/updates/README.md`.
+
 
 ## Context
 
