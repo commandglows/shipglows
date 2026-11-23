@@ -145,6 +145,7 @@ shipglows-devserver.ps1
      -> Invoke-SgRegistryMutation (registry.lock held only to read/merge/write; holder recorded in registry.lock.owner.json)
      -> Get-SgRuntimeProcessReport / Get-SgRegistryLockState (s doctor, s unlock: classify managed pwsh processes, stop orphans after confirmation)
      -> Get-SgExcludedPortRanges / Get-SgPortExclusion / Get-SgPortExclusionReport (Windows-excluded TCP ranges: Test-SgPortAllocatable rejects them, Reserve-SgProjectPort reassigns, s doctor lists them)
+     -> Get-SgDynamicPortRange / Get-SgDynamicPortOverlap / Get-SgDynamicPortHint (Windows ephemeral TCP range overlapping the managed range: s doctor and busy configured-port errors name the elevated netsh fix)
      -> registry/process lifecycle functions
 ```
 

@@ -727,6 +727,20 @@ refused because the target lock is busy names the holder recorded in the runtime
 directory's `target-*.lock.owner.json`. `s doctor [-Json]` also lists the
 excluded ranges and the registered ports inside them.
 
+Windows also hands out ephemeral ports (any bind to port 0) from its dynamic TCP
+range, `netsh int ipv4 show dynamicport tcp`, by default 49152-65535. Some
+software lowers it; on 2026-11-23 the operator host had 1024-15000 for IPv4 and
+IPv6, so the Dart DDS (`dds_aot.dart.snapshot --bind-port=0`) and `flutter run` of a
+Flutter web-server session took 3024, 3032 and 3034 inside the managed 3000-3100
+range and blocked other projects on their configured port. Pinning one Flutter
+port does not help: DDS, DWDS and other tools open several port-0 sockets each.
+`Get-SgDynamicPortRange` reads the range live (5 s cache, locale-independent);
+`s doctor [-Json]` reports `DynamicOverlap` with the elevated fix
+`netsh int ipv4 set dynamicport tcp start=49152 num=16384; netsh int ipv6 set dynamicport tcp start=49152 num=16384`,
+and a configured port refused as busy inside that range names the same cause and
+command. ShipGlows never changes the host range itself: it is a machine-wide,
+administrator setting.
+
 Windows exposes a separate global developer-tool surface through
 `shipglows tools status|update` and `s tools status|update`. Status is read-only:
 it shows the declared ShipGlows-owned scope, asks WinGet for its available

@@ -847,6 +847,10 @@ function Invoke-SgDoctor {
         Write-SgWarn "$($portReport.Affected.Count) registered port(s) fall inside a Windows-excluded range and cannot be bound; the next s start reassigns a free port automatically."
         foreach ($item in $portReport.Affected) { Write-Host ('  {0,-6} {1,-40} {2} (range {3})' -f $item.Port, $item.Name, $item.Status, $item.Range) -ForegroundColor Yellow }
     } else { Write-SgInfo 'No registered port is inside a Windows-excluded range.' }
+    if ($portReport.DynamicOverlap) {
+        $overlap = $portReport.DynamicOverlap
+        Write-SgWarn "Windows hands out ephemeral TCP ports $($overlap.DynamicStart)-$($overlap.DynamicEnd), which covers managed ports $($overlap.Start)-$($overlap.End): Dart DDS, Flutter debug services and other port-0 binds can take a project's configured port. Restore the Windows default from an elevated PowerShell: $($overlap.Command)"
+    }
     Write-Host ''
     Write-Host 'Managed PowerShell processes' -ForegroundColor Cyan
     if (-not $report.Processes.Count) { Write-Host '  none' }

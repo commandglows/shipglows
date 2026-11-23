@@ -1510,6 +1510,42 @@ function Get-SgExcludedPortRanges([switch]$Refresh) {
     return @($script:SgExcludedPortCache)
 }
 
+# Windows hands out ephemeral ports (any bind to port 0: Dart DDS, Flutter debug services, browsers)
+# from its dynamic TCP range. The default is 49152-65535; some software lowers it (seen: 1024-15000),
+# which lets those processes take managed ports. Locale-independent: the two "label : number" lines
+# are the start port then the number of ports.
+$script:SgDynamicPortFix = 'netsh int ipv4 set dynamicport tcp start=49152 num=16384; netsh int ipv6 set dynamicport tcp start=49152 num=16384'
+function ConvertFrom-SgDynamicPortOutput([string[]]$Lines) {
+    $numbers = @(@($Lines) | ForEach-Object { if ([string]$_ -match ':\s*(\d+)\s*$') { [int]$Matches[1] } })
+    if ($numbers.Count -lt 2 -or $numbers[1] -le 0) { return $null }
+    return [pscustomobject]@{ Start = $numbers[0]; Count = $numbers[1]; End = $numbers[0] + $numbers[1] - 1 }
+}
+
+$script:SgDynamicPortCache = $null
+$script:SgDynamicPortCacheTicks = 0
+function Get-SgDynamicPortRange([switch]$Refresh) {
+    $now = [Environment]::TickCount64
+    if (-not $Refresh -and $script:SgDynamicPortCacheTicks -ne 0 -and ($now - $script:SgDynamicPortCacheTicks) -lt 5000) { return $script:SgDynamicPortCache }
+    $range = $null
+    try { $range = ConvertFrom-SgDynamicPortOutput @(& netsh.exe int ipv4 show dynamicport tcp 2>$null) } catch { $range = $null }
+    $script:SgDynamicPortCache = $range
+    $script:SgDynamicPortCacheTicks = $now
+    return $range
+}
+
+# The part of the managed range that Windows may hand out as ephemeral ports, with the elevated fix; or $null.
+function Get-SgDynamicPortOverlap([int]$PortStart, [int]$PortEnd, [object]$Range) {
+    if ($null -eq $Range -or $Range.End -lt $PortStart -or $Range.Start -gt $PortEnd) { return $null }
+    return [pscustomobject]@{ Start = [Math]::Max($PortStart, $Range.Start); End = [Math]::Min($PortEnd, $Range.End); DynamicStart = $Range.Start; DynamicEnd = $Range.End; Command = $script:SgDynamicPortFix }
+}
+
+# Explains a busy port that Windows can give to any program as an ephemeral port; '' otherwise.
+function Get-SgDynamicPortHint([int]$Port) {
+    $range = Get-SgDynamicPortRange
+    if ($null -eq $range -or $Port -lt $range.Start -or $Port -gt $range.End) { return '' }
+    return " Port $Port is inside the Windows dynamic TCP port range $($range.Start)-$($range.End), so any program binding port 0 (Dart DDS, Flutter debug services) can take it; restore the Windows default from an elevated PowerShell with: $($script:SgDynamicPortFix)"
+}
+
 # The Windows-excluded range containing the port, or $null.
 function Get-SgPortExclusion([int]$Port) {
     foreach ($range in @(Get-SgExcludedPortRanges)) { if ($Port -ge $range.Start -and $Port -le $range.End) { return $range } }
@@ -1529,7 +1565,8 @@ function Get-SgPortExclusionReport([object]$Config) {
             if ($range) { $affected.Add([pscustomobject]@{ Name = [string]$project.name; Path = [string]$project.path; Port = $port; Range = "$($range.Start)-$($range.End)"; Status = [string]$project.status }) }
         }
     }
-    return [pscustomobject]@{ Ranges = $ranges; Affected = $affected.ToArray(); PortStart = $Config.PortStart; PortEnd = $Config.PortEnd }
+    $dynamic = Get-SgDynamicPortRange -Refresh
+    return [pscustomobject]@{ Ranges = $ranges; Affected = $affected.ToArray(); PortStart = $Config.PortStart; PortEnd = $Config.PortEnd; DynamicRange = $dynamic; DynamicOverlap = (Get-SgDynamicPortOverlap $Config.PortStart $Config.PortEnd $dynamic) }
 }
 
 # True when nothing accepts connections on the port. Get-NetTCPConnection can miss live
@@ -1669,7 +1706,8 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
                         $reason = if ($otherPorts -contains $candidate) { 'reserved by another registered surface' }
                             elseif (-not (Test-SgPortAvailable $candidate)) { 'in use by a listening process' }
                             else { 'not bindable on 127.0.0.1' }
-                        throw "Configured port $candidate is unavailable: $reason$(Get-SgPortHolderLabel $candidate)."
+                        $dynamicHint = if ($reason -ne 'reserved by another registered surface') { Get-SgDynamicPortHint $candidate } else { '' }
+                        throw "Configured port $candidate is unavailable: $reason$(Get-SgPortHolderLabel $candidate).$dynamicHint"
                     }
                     continue
                 }
@@ -5520,5 +5558,5 @@ function Show-SgDashboard([object]$Config) {
 
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
-Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Get-SgPortExclusionReport,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Unregister-SgMissingProjects,Get-SgMissingProjects,Test-SgProjectSurfaceMissing,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Get-SgPortExclusionReport,ConvertFrom-SgDynamicPortOutput,Get-SgDynamicPortRange,Get-SgDynamicPortOverlap,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Unregister-SgMissingProjects,Get-SgMissingProjects,Test-SgProjectSurfaceMissing,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
