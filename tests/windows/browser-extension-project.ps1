@@ -260,6 +260,63 @@ try {
     Remove-Item -LiteralPath $nodeRecipe -Force
     Assert-Sg ((& $launchFor $extension) -eq $launchText) 'An undeclared Node recipe changed the existing extension launch.'
 
+    # A sops recipe runs the same command through ShipGlows.SecretRun.ps1 with an encrypted file of the checkout.
+    New-Item -ItemType Directory -Path (Join-Path $fixture '.git') -Force | Out-Null
+    $secretsDirectory = Join-Path $extension 'secrets'
+    New-Item -ItemType Directory -Path $secretsDirectory -Force | Out-Null
+    $secretsFile = Join-Path $secretsDirectory 'dev.sops.env'
+    $encryptedLines = "CONVEX_URL=ENC[AES256_GCM,data:AA==,iv:AA==,tag:AA==,type:str]`nsops_age__list_0__map_recipient=age1test`nsops_mac=ENC[AES256_GCM,data:AA==,iv:AA==,tag:AA==,type:str]`nsops_version=3.13.3`n"
+    [IO.File]::WriteAllText($secretsFile, $encryptedLines, [Text.UTF8Encoding]::new($false))
+    $sopsLaunchFor = {
+        param($Project, [bool]$WithSops = $true)
+        & $module {
+            param($Project, $WithSops)
+            function Get-SgCommandPath([string[]]$Names) {
+                if ($Names -contains 'sops.exe') { if ($WithSops) { return 'C:\tools\sops.exe' } else { return $null } }
+                if ($Names -contains 'doppler.exe') { throw 'A sops recipe looked up Doppler.' }
+                return 'C:\tools\corepack.cmd'
+            }
+            function Resolve-SgPowerShellExecutable { return 'C:\pwsh\pwsh.exe' }
+            (Get-SgLaunchSpec $Project 'browser-extension' 32145).Arguments -join ' '
+        } $Project $WithSops
+    }
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/dev.sops.env"},"publicEnvironment":["CONVEX_URL"]}', [Text.UTF8Encoding]::new($false))
+    $sopsLaunch = & $sopsLaunchFor $extension
+    $helperPath = Join-Path (Split-Path $modulePath -Parent) 'ShipGlows.SecretRun.ps1'
+    $expectedPrefix = "call `"C:\pwsh\pwsh.exe`" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$helperPath`" -SopsPath `"C:\tools\sops.exe`" -SecretsFile `"$secretsFile`" -Keys CONVEX_URL -CommandBase64 "
+    Assert-Sg ($sopsLaunch.Contains($expectedPrefix)) "Declared sops recipe did not wrap the extension launch: $sopsLaunch"
+    Assert-Sg ($sopsLaunch -match ' & rem ShipGlows:browser-extension:32145:') "The sops wrapper moved the managed signature off the outer command line: $sopsLaunch"
+    $encodedCommand = [regex]::Match($sopsLaunch, '-CommandBase64 ([A-Za-z0-9+/=]+) & rem ').Groups[1].Value
+    $decodedCommand = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($encodedCommand))
+    Assert-Sg ($decodedCommand -ceq '"C:\tools\corepack.cmd" pnpm@10.33.2 run dev:chrome --host 127.0.0.1 --port 32145') "The sops wrapper changed the wrapped command: $decodedCommand"
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/dev.sops.env"},"inject":"all","publicEnvironment":[]}', [Text.UTF8Encoding]::new($false))
+    Assert-Sg ((& $sopsLaunchFor $extension) -notmatch ' -Keys ') 'A whole-config sops recipe still filtered its keys.'
+    $missingSops = $false
+    try { [void](& $sopsLaunchFor $extension $false) } catch { $missingSops = $_.Exception.Message -match 'requires sops' }
+    Assert-Sg $missingSops 'A declared sops recipe fell back to an unconfigured launch when sops is missing.'
+    foreach ($invalid in @(
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/prd.sops.env"},"inject":"all","publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/missing_dev.sops.env"},"inject":"all","publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"../../../secrets/dev.sops.env"},"inject":"all","publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":"secrets/dev.sops.env","inject":"all","publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/dev.sops.env"},"publicEnvironment":[]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/dev.sops.env"},"inject":"all","publicEnvironment":["CONVEX_URL"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/dev.sops.env"},"publicEnvironment":["CLERK_SECRET_KEY"]}',
+        '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/dev.sops.env"},"doppler":{"project":"toolglows","config":"dev"},"inject":"all","publicEnvironment":[]}'
+    )) {
+        [IO.File]::WriteAllText($nodeRecipe, $invalid, [Text.UTF8Encoding]::new($false))
+        $rejected = $false
+        try { [void](& $sopsLaunchFor $extension) } catch { $rejected = $_.Exception.Message -match 'Node (launch )?recipe' }
+        Assert-Sg $rejected "Invalid sops Node recipe was accepted: $invalid"
+    }
+    # A plaintext value in the secrets file is refused before anything starts.
+    [IO.File]::WriteAllText($nodeRecipe, '{"schemaVersion":"shipglows.node-recipe.v1","sops":{"file":"secrets/dev.sops.env"},"inject":"all","publicEnvironment":[]}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText($secretsFile, "CLERK_SECRET_KEY=sk_test_plaintext`n" + $encryptedLines, [Text.UTF8Encoding]::new($false))
+    $plaintextRefused = $false
+    try { [void](& $sopsLaunchFor $extension) } catch { $plaintextRefused = $_.Exception.Message -match 'unencrypted value' }
+    Assert-Sg $plaintextRefused 'A sops recipe accepted a secrets file holding a plaintext value.'
+    Remove-Item -LiteralPath $nodeRecipe -Force
+
     Write-Host 'Windows browser-extension project support: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue

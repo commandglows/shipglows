@@ -2592,6 +2592,7 @@ function Read-SgNodeRecipe([string]$ProjectPath) {
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Node launch recipe cannot be a reparse point.' }
     if ($item.Length -gt 65536) { throw 'Node launch recipe exceeds 64 KiB.' }
     try { $recipe = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop } catch { throw 'Node launch recipe is not valid JSON.' }
+    if ($null -ne $recipe -and $recipe -isnot [array] -and @($recipe.PSObject.Properties.Name) -ccontains 'sops') { return (Confirm-SgSopsNodeRecipe $ProjectPath $recipe) }
     $hasInject = $null -ne $recipe -and $recipe -isnot [array] -and @($recipe.PSObject.Properties.Name) -ccontains 'inject'
     $keys = if ($hasInject) { @('doppler','inject','publicEnvironment','schemaVersion') } else { @('doppler','publicEnvironment','schemaVersion') }
     if ($null -eq $recipe -or $recipe -is [array] -or (@($recipe.PSObject.Properties.Name | Sort-Object) -join ',') -cne ($keys -join ',')) { throw 'Node launch recipe fields are invalid.' }
@@ -2624,12 +2625,90 @@ function Add-SgNodeRecipeLauncher([string]$ProjectPath, [string]$Command) {
     # Wrap the managed `call "<tool>" ...` command so Doppler injects only the declared keys,
     # or the whole development/staging config when the recipe opts into inject: all.
     $recipe = Read-SgNodeRecipe $ProjectPath
+    if ($recipe -and $recipe.PSObject.Properties['sopsFile']) {
+        $keys = if ($recipe.injectAll) { @() } else { @($recipe.publicEnvironment) }
+        return (ConvertTo-SgSopsLaunchCommand $recipe.sopsFile $keys $Command 'Node')
+    }
     if (-not $recipe -or ($recipe.doppler -is [string] -and $recipe.doppler -ceq 'NONE')) { return $Command }
     $doppler = Get-SgCommandPath @('doppler.exe')
     if (-not $doppler) { throw 'The declared Node recipe requires Doppler. No unauthenticated fallback is allowed.' }
     if (-not $Command.StartsWith('call "')) { throw 'Node launch command cannot be wrapped by its Doppler recipe.' }
     $only = if ($recipe.injectAll) { '' } else { "--only-secrets $(@($recipe.publicEnvironment) -join ',') " }
     return "call `"$doppler`" run --project $($recipe.doppler.project) --config $($recipe.doppler.config) $only--no-fallback --no-check-version --silent -- " + $Command.Substring(5)
+}
+
+function Get-SgSopsCheckoutRoot([string]$ProjectPath) {
+    $current = [IO.Path]::GetFullPath($ProjectPath).TrimEnd('\')
+    while ($current) {
+        if (Test-Path -LiteralPath (Join-Path $current '.git')) { return $current }
+        $parent = Split-Path $current -Parent
+        if (-not $parent -or $parent -eq $current) { break }
+        $current = $parent
+    }
+    return $null
+}
+
+function Resolve-SgSopsSecretsFile([string]$ProjectPath, [object]$Declaration, [string]$Label) {
+    # A SOPS development secrets file: an encrypted dotenv named after its config under a secrets
+    # folder of the same Git checkout. Every value must be encrypted; production files are refused.
+    if ($null -eq $Declaration -or $Declaration -is [string] -or $Declaration -is [array] -or (@($Declaration.PSObject.Properties.Name) -join ',') -cne 'file' -or $Declaration.file -isnot [string]) { throw "$Label recipe must declare sops as { `"file`": `"secrets/dev.sops.env`" }." }
+    $relative = [string]$Declaration.file
+    if ($relative -cnotmatch '^(\.\./){0,3}secrets/(dev|stg|staging)(_[a-z0-9-]+)?\.sops\.env$') { throw "$Label recipe sops file must be a development/staging secrets/<config>.sops.env path." }
+    $full = [IO.Path]::GetFullPath((Join-Path $ProjectPath $relative.Replace('/','\')))
+    $checkout = Get-SgSopsCheckoutRoot $ProjectPath
+    if (-not $checkout -or -not $full.StartsWith($checkout.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw "$Label recipe sops file must stay inside the project's Git checkout." }
+    if (-not (Test-Path -LiteralPath $full -PathType Leaf)) { throw "$Label recipe sops file was not found: $relative" }
+    $item = Get-Item -LiteralPath $full -Force
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "$Label recipe sops file cannot be a reparse point." }
+    if ($item.Length -gt 1048576) { throw "$Label recipe sops file exceeds 1 MiB." }
+    $encrypted = $false
+    foreach ($line in [IO.File]::ReadAllLines($full)) {
+        if ($line -match '^\s*(#.*)?$') { continue }
+        if ($line -cmatch '^sops_mac=ENC\[') { $encrypted = $true; continue }
+        if ($line -cmatch '^sops_[a-z0-9_]+=') { continue }
+        if ($line -cnotmatch '^[A-Za-z_][A-Za-z0-9_]*=ENC\[AES256_GCM,') { throw "$Label recipe sops file holds an unencrypted value; re-encrypt it with sops." }
+    }
+    if (-not $encrypted) { throw "$Label recipe sops file is not SOPS-encrypted." }
+    return $full
+}
+
+function Confirm-SgSopsNodeRecipe([string]$ProjectPath, [object]$Recipe) {
+    # Same contract as the Doppler recipe, with an encrypted file in place of the Doppler scope.
+    $hasInject = @($Recipe.PSObject.Properties.Name) -ccontains 'inject'
+    $keys = if ($hasInject) { 'inject,publicEnvironment,schemaVersion,sops' } else { 'publicEnvironment,schemaVersion,sops' }
+    if ((@($Recipe.PSObject.Properties.Name | Sort-Object) -join ',') -cne $keys) { throw 'Node launch recipe fields are invalid.' }
+    if ($Recipe.schemaVersion -cne 'shipglows.node-recipe.v1') { throw 'Unsupported Node launch recipe version.' }
+    if ($hasInject -and ($Recipe.inject -isnot [string] -or $Recipe.inject -cnotin @('public','all'))) { throw 'Node recipe inject must be "public" or "all".' }
+    if ($Recipe.publicEnvironment -isnot [array]) { throw 'Node recipe publicEnvironment must be an array.' }
+    foreach ($key in $Recipe.publicEnvironment) {
+        if ($key -isnot [string] -or $key -cnotmatch '^[A-Z][A-Z0-9_]{0,95}$' -or $key -match '(SECRET|PASSWORD|TOKEN|PRIVATE_KEY)') { throw 'Node recipe publicEnvironment contains a non-public or invalid key.' }
+    }
+    if (@($Recipe.publicEnvironment | Select-Object -Unique).Count -ne $Recipe.publicEnvironment.Count) { throw 'Node recipe publicEnvironment contains duplicate keys.' }
+    $injectAll = $hasInject -and $Recipe.inject -ceq 'all'
+    if ($injectAll -and $Recipe.publicEnvironment.Count -ne 0) { throw 'Node recipe inject "all" requires an empty publicEnvironment.' }
+    if (-not $injectAll -and $Recipe.publicEnvironment.Count -eq 0) { throw 'Node recipe with sops must list the public keys it injects.' }
+    $Recipe | Add-Member -NotePropertyName injectAll -NotePropertyValue $injectAll -Force
+    $Recipe | Add-Member -NotePropertyName sopsFile -NotePropertyValue (Resolve-SgSopsSecretsFile $ProjectPath $Recipe.sops 'Node') -Force
+    return $Recipe
+}
+
+function ConvertTo-SgSopsLaunchCommand([string]$SecretsFile, [string[]]$Keys, [string]$Command, [string]$Label) {
+    # Wrap a managed `call "<tool>" ... & rem <signature>` command: ShipGlows.SecretRun.ps1 decrypts the
+    # file in memory and starts the original command with those values. The command travels base64-encoded
+    # (no nested quoting) and the signature stays on the outer command line for process discovery.
+    $sops = Get-SgCommandPath @('sops.exe')
+    if (-not $sops) { throw "The declared $Label recipe requires sops. No unauthenticated fallback is allowed." }
+    if (-not $Command.StartsWith('call "')) { throw "$Label launch command cannot be wrapped by its sops recipe." }
+    $body = $Command.Substring(5)
+    $marker = $body.LastIndexOf(' & rem ')
+    if ($marker -lt 1) { throw "$Label launch command has no managed signature." }
+    $helper = Join-Path $PSScriptRoot 'ShipGlows.SecretRun.ps1'
+    if (-not (Test-Path -LiteralPath $helper -PathType Leaf)) { throw 'The ShipGlows secrets helper is missing from the runtime.' }
+    $pwsh = Resolve-SgPowerShellExecutable
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($body.Substring(0, $marker)))
+    $declared = @($Keys | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $only = if ($declared.Count -gt 0) { " -Keys $($declared -join ',')" } else { '' }
+    return "call `"$pwsh`" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$helper`" -SopsPath `"$sops`" -SecretsFile `"$SecretsFile`"$only -CommandBase64 $encoded" + $body.Substring($marker)
 }
 
 function Read-SgPythonRecipe([string]$ProjectPath) {

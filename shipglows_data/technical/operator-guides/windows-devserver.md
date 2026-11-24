@@ -461,6 +461,12 @@ telle quelle : après un changement de recette, utiliser `s restart`.
 }
 ```
 
+Pilote SOPS (depuis le 2026-11-24) : une recette Node peut déclarer
+`"sops": { "file": "secrets/dev.sops.env" }` à la place de `doppler`. `s start`
+déchiffre alors ce fichier du dépôt en mémoire via `ShipGlows.SecretRun.ps1`,
+avec les mêmes règles `inject` / `publicEnvironment`. Modèle, clés et commandes :
+`shipglows_data/technical/sops-secrets.md`.
+
 #### Recette Doppler pour une API Python/FastAPI
 
 Sans recette, `s start` cherche `app/main.py` puis `main.py` et lance uvicorn sans
