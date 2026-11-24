@@ -45,7 +45,7 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 Quick mode uses zero or one sufficient focused check, then stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
 
-When structured history is adopted, load `context-history-and-head.md` before final staging and append at most one bounded delivery event. Public fields require bilingual safe copy and delivery proof; ambiguity stays internal.
+When structured history is adopted, load `context-history-and-head.md` before final staging and append at most one bounded delivery event. Public fields require bilingual safe copy and delivery proof; ambiguity stays internal. A user-visible delivery's public event also drafts its product update or roadmap status; `publish` waits for review (`context-history-and-head.md`).
 
 Full mode may update trackers, changelog, and durable decisions. Load `full-close-playbook.md`, `closure-archive-guard.md`, `context-quality-contract.md`, `documentation-reflection-gate.md`, and `editorial-reflection-gate.md`; revalidate its bounded capsule before documentation classification. Material gaps prevent full closure.
 

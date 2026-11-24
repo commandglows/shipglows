@@ -33,7 +33,7 @@ class EndCompactionContractTests(unittest.TestCase):
             self.assertIn(heading, self.skill)
         _, errors, _, tokens = read_frontmatter(SKILL)
         self.assertEqual(errors, [])
-        self.assertLessEqual(tokens, 1600)
+        self.assertLessEqual(tokens, 1650)
 
     def test_closure_reference_is_required(self) -> None:
         self.assertIn("closure-bookkeeping-playbook.md", self.skill)

@@ -64,7 +64,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 - `$SHIPGLOWS_ROOT/skills/104-sg-end/references/closure-bookkeeping-playbook.md`
   - for closure steps and field-level bookkeeping.
 - `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md`
-  - when the project adopts structured history; append one significant closure, proof, invalidation, or next-action event and never record routine command chatter.
+  - when the project adopts structured history; append one significant closure, proof, invalidation, or next-action event and never record routine command chatter. A user-visible delivery's public event also drafts its product update or roadmap status; `publish` waits for review.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`
   - only when a reusable lesson is explicitly accepted.
 

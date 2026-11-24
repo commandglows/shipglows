@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.16.0"
+artifact_version: "1.17.0"
 project: ShipGlows
 created: "2026-04-29"
-updated: "2026-11-21"
+updated: "2026-11-24"
 status: active
 source_skill: 300-sg-docs
 scope: skill-context-budget
@@ -72,6 +72,7 @@ portable guard; changing it requires a distinct approved migration.
 - `SKILL.md`: target under 500 lines and about 5,000 estimated body tokens.
 - Wrapper target: below 500 tokens; atomic owner 800–1,800; master 1,200–2,200 when safe.
 - Activation core (`body + mandatory references`) should target below 5,000 unique estimated tokens.
+- Closure skills `005-sg-ship` and `104-sg-end` have a 1,650-token activation ceiling (raised from 1,600 on 2026-11-24 for the public product-update rule in `context-history-and-head.md`), enforced by `tools/test_005_sg_ship_contract.py` and `tools/test_104_sg_end_compaction_contract.py`. Any further raise needs the same kind of reason, not a silent edit.
 - A reference above 5,000 estimated tokens is a review signal: split only when multiple real loading decisions exist.
 
 Size is never authority to remove a stop condition, security gate, proof requirement, trace role, or reporting contract.

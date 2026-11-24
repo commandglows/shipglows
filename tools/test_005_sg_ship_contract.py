@@ -27,7 +27,7 @@ class ShipSkillContractTests(unittest.TestCase):
         )
 
     def test_activation_size_is_bounded(self) -> None:
-        self.assertLessEqual((len(self.text) + 3) // 4, 1600)
+        self.assertLessEqual((len(self.text) + 3) // 4, 1650)
 
     def test_quick_is_default_and_full_is_explicit(self) -> None:
         for phrase in (
