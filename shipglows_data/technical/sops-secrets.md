@@ -23,6 +23,8 @@ dans le dépôt Git du projet, et seule une clé privée age les ouvre.
   rend les fichiers illisibles : une copie doit vivre dans le Bitwarden de
   l'opératrice. Une clé fuitée oblige à rechiffrer et à changer les valeurs
   qu'elle ouvre, car l'historique Git garde les anciens fichiers.
+- **Fins de ligne :** sops refuse un dotenv chiffré en CRLF. Chaque dépôt déclare
+  `*.sops.env text eol=lf` et `.sops.yaml text eol=lf` dans `.gitattributes`.
 - **Outils :** `sops` (winget `SecretsOPerationS.SOPS`) et `age`
   (winget `FiloSottile.age`).
 
