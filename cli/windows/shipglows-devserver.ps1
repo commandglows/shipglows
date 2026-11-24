@@ -402,6 +402,7 @@ function Get-SgSelectedIndex([string[]]$Labels, [string]$Selected) {
 }
 
 function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
+    if (-not (Test-SgInteractiveConsole)) { throw "No interactive console: '$Prompt' cannot be asked. Pass it on the command line (-ProjectPath <path> or -RepositoryUrl <url>)." }
     if (-not $gum) { return Read-Host $Prompt }
     $arguments = @('input','--prompt',"$Prompt ")
     if ($Placeholder) { $arguments += @('--placeholder',$Placeholder) }
@@ -454,6 +455,8 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
 function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Choose a project') {
     # Show project identities from the prepared snapshot. Resolve the selected
     # entry below before any action rather than probing every project to render.
+    # Gum, fzf and Read-Host all wait silently forever without a console (agent tools, CI).
+    if (-not (Test-SgInteractiveConsole)) { throw "No interactive console: s $Action cannot open the project picker. Pass -ProjectPath <path>." }
     $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
     switch ($Action) {
         'start' { $items = @($items) }
@@ -515,6 +518,15 @@ function Invoke-SgGitHubLogin {
 
 function Get-SelectedRegisteredProject([string]$Header = 'Choose a registered project') {
     return Get-SelectedProject 'unregister' $Header
+}
+
+# `s stop` without -ProjectPath: the picker in a console; otherwise the project resolved from the
+# working directory (containing it, or the single running one below it), or a fast failure.
+function Get-SgStopSelection([string]$WorkingDirectory = (Get-Location).Path) {
+    if (Test-SgInteractiveConsole) { return Get-SelectedProject 'stop' }
+    $entry = Resolve-SgWorkingDirectoryProject @(@(Read-SgRegistry $config).projects) $WorkingDirectory { param($Entry) @(Get-SgLiveSessions $Entry).Count -gt 0 } 'stop'
+    Write-SgInfo "No interactive console: stopping $([string]$entry.name) ($([string]$entry.path)), resolved from $WorkingDirectory."
+    return $entry
 }
 
 function Show-SgShipGlowsStatus {
@@ -1325,7 +1337,7 @@ try {
             elseif ($reload.Status -eq 'unavailable') { throw "reload unavailable: $($reload.Reason)" }
             else { throw "reload failed: $($reload.Reason)" }
         }
-        'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath -Target (Get-SgRequestedTarget)) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path -Target (Get-SgRequestedTarget)) } } }
+        'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath -Target (Get-SgRequestedTarget)) } else { $entry = Get-SgStopSelection; if ($entry) { [void](Stop-SgProject $config $entry.path -Target (Get-SgRequestedTarget)) } } }
         'restart' {
             if ($ProjectPath) { Invoke-SgRestart $ProjectPath }
             else { $entry = Get-SelectedProject 'restart'; if ($entry) { Invoke-SgRestart $entry.path } }

@@ -451,6 +451,13 @@ share those terms. Clone and manual registration end with the exact next
 command. The complete non-interactive lifecycle is
 `s start -ProjectPath <path>`, `s status -ProjectPath <path>`,
 `s open -ProjectPath <path>`, then `s stop -ProjectPath <path>`.
+Without an interactive console (`[Environment]::UserInteractive` false or stdin
+redirected, as in agent tools and CI), no picker or prompt is ever opened:
+`s stop` without `-ProjectPath` stops the deepest registered project containing
+the working directory, else the single running project below it, and otherwise
+exits 1 listing `s stop -ProjectPath <path>` for each running project; every
+other command that would pick a project or ask a value exits 1 asking for
+`-ProjectPath` (or `-RepositoryUrl`).
 The interactive menu exposes the same actions, including `Open / load project`.
 If Open targets a stopped project, it identifies the selected experience and
 returns the exact Start command instead of reporting an ambiguous missing URL.

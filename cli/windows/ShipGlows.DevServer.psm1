@@ -67,6 +67,34 @@ function Test-SgProjectPath([string]$Path, [string]$Workspace) {
     } catch { return $false }
 }
 
+# Agent tools, CI and redirected shells have no console to answer a picker or prompt;
+# Gum then waits forever without printing anything.
+function Test-SgInteractiveConsole {
+    return [Environment]::UserInteractive -and -not [Console]::IsInputRedirected
+}
+
+# The registered project a console-less command without -ProjectPath addresses: the deepest one
+# containing the working directory, else the single running one below it. Anything else fails fast
+# with the exact -ProjectPath commands, never a prompt.
+function Resolve-SgWorkingDirectoryProject([object[]]$Projects, [string]$WorkingDirectory, [scriptblock]$IsRunning, [string]$Action = 'stop') {
+    $directory = ConvertTo-SgCanonicalPath $WorkingDirectory -AllowMissing
+    $isBelow = { param([string]$Child, [string]$Parent) $Child.StartsWith($Parent.TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) }
+    $registered = @($Projects | Where-Object { $_ -and -not [string]::IsNullOrWhiteSpace([string]$_.path) })
+    $containing = @($registered | Where-Object { $path = ConvertTo-SgCanonicalPath ([string]$_.path) -AllowMissing; $path.Equals($directory, [StringComparison]::OrdinalIgnoreCase) -or (& $isBelow $directory $path) } |
+        Sort-Object { ([string]$_.path).Length } -Descending)
+    if ($containing.Count -gt 0) { return $containing[0] }
+    $running = @($registered | Where-Object { [bool](& $IsRunning $_) })
+    $runningBelow = @($running | Where-Object { & $isBelow (ConvertTo-SgCanonicalPath ([string]$_.path) -AllowMissing) $directory })
+    if ($runningBelow.Count -eq 1) { return $runningBelow[0] }
+    $commands = { param([object[]]$Entries) ($Entries | ForEach-Object { "  s $Action -ProjectPath $([string]$_.path)" }) -join [Environment]::NewLine }
+    if ($runningBelow.Count -gt 1) {
+        throw "s $Action without -ProjectPath is ambiguous in $directory`: $($runningBelow.Count) running projects are below it. Run one of:$([Environment]::NewLine)$(& $commands $runningBelow)"
+    }
+    $message = "s $Action without -ProjectPath found no registered project at or running below $directory."
+    if ($running.Count -eq 0) { throw "$message No managed project is running." }
+    throw "$message Running projects:$([Environment]::NewLine)$(& $commands $running)"
+}
+
 function Test-SgGitUrl([string]$Url) {
     if ([string]::IsNullOrWhiteSpace($Url)) { return $false }
     if ($Url -match '://[^/]*:') { return $false }
@@ -5559,4 +5587,4 @@ function Show-SgDashboard([object]$Config) {
 . (Join-Path $PSScriptRoot 'ShipGlows.Backend.ps1')
 
 Export-ModuleMember -Function Get-SgRegistryLockState,Get-SgRuntimeProcessReport,Get-SgPortExclusionReport,ConvertFrom-SgDynamicPortOutput,Get-SgDynamicPortRange,Get-SgDynamicPortOverlap,Stop-SgProcessTree,Get-SgEntryDevice,Get-SgEntrySessions,Get-SgEntrySession,Get-SgLiveSessions,Get-SgSessionView,Select-SgPrimarySession,Format-SgSessionStatusLines,Get-SgSessionLogFiles,Get-SgSessionPortLabel,Get-SgSessionMutexName,Invoke-SgNamedMutex,Get-SgDefaultSessionTarget,Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Complete-SgManagedProcessExit,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Get-SgObsidianBratArtifactReport,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Invoke-SgObsidianPluginLab,Resolve-SgObsidianVault,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Assert-SgFlutterAndroidJdk,Assert-SgFlutterAndroidSdk,Get-SgFlutterEndedStatus,Get-SgFlutterAndroidApplicationId,Wait-SgFlutterAndroidAppStopped,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgDevShortcut,Get-SgGitCheckoutInfo,Unregister-SgProject,Unregister-SgMissingProjects,Get-SgMissingProjects,Test-SgProjectSurfaceMissing,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
-Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
+Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired,Test-SgInteractiveConsole,Resolve-SgWorkingDirectoryProject

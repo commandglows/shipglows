@@ -63,6 +63,7 @@ function Get-TestFunction([string]$Name) {
     function Get-SgProjectCatalog { param($Config,[switch]$SkipProcessReconciliation) if (-not $SkipProcessReconciliation) { throw 'Picker probed all projects.' }; return $entry }
     function Read-SgChoice { param($Header,$Options,$IdentityByLabel) if ($script:select) { return 'demo-id' }; return '' }
     function Resolve-SgProjectCatalogEntry { param($Config,$Identity,[switch]$RequireRegistered) if ($Identity -ne 'demo-id' -or -not $RequireRegistered) { throw 'Selected identity validation lost.' }; $script:resolveCount++; return $entry }
+    function Test-SgInteractiveConsole { $true }
     $choiceUiAvailable = $true
     . ([scriptblock]::Create($definition))
     $result = Get-SelectedProject 'open'

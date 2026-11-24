@@ -85,7 +85,8 @@ for regression in \
   github-clone-filter.ps1 \
   devserver-start-detach.ps1 \
   devserver-start-state.ps1 \
-  devserver-stop-behavior.ps1; do
+  devserver-stop-behavior.ps1 \
+  devserver-unattended-selection.ps1; do
   run_ps "$ROOT/tests/windows/$regression"
 done
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command '$ErrorActionPreference="Stop"; Import-Module ./cli/windows/ShipGlows.PowerShellRuntime.psm1 -Force -DisableNameChecking; $managed=Ensure-SgPowerShellRuntime; foreach($regression in @("devserver-backend.ps1","devserver-start-detach.ps1","devserver-detached-streams.ps1","devserver-flutter-stop-budget.ps1")){ & $managed -NoLogo -NoProfile -File "./tests/windows/$regression"; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE} }'

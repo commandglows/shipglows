@@ -380,6 +380,14 @@ s open -ProjectPath "C:\chemin\du\projet"
 s stop -ProjectPath "C:\chemin\du\projet"
 ```
 
+Sans console interactive (outil d'agent, CI, entrée redirigée), aucun sélecteur
+ni aucune question ne s'ouvre. `s stop` sans `-ProjectPath` arrête le projet
+enregistré qui contient le dossier courant, sinon l'unique projet en marche
+sous ce dossier ; sinon il échoue aussitôt (code 1) en donnant
+`s stop -ProjectPath <chemin>` pour chaque projet en marche. Les autres
+commandes qui devraient choisir un projet ou demander une valeur échouent de
+même en demandant `-ProjectPath` (ou `-RepositoryUrl`).
+
 Le menu interactif propose les mêmes actions, avec `Open / load project`. Si
 Open reçoit un projet arrêté, ShipGlows explique son type et redonne la commande
 Start exacte au lieu de laisser croire qu'une URL manque.
