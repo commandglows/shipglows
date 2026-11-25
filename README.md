@@ -1044,7 +1044,7 @@ Canonical syntax split:
 | Gouverner | `sg-docs` |
 | Organiser | `sg-planning`, `sg-private`, `sg-help` |
 
-Design animation remains available through `sg-design animation <audit|design|implement|tune> [scope]`; GSAP is optional and selected only when project fit and proof gates support it.
+Design animation remains available through `sg-design animation <audit|design|implement|tune> [scope]`; GSAP is optional and selected only when project fit and proof gates support it. Theme-faithful bilingual marketing, social-kit, store, and video assets live under `shipglows_data/marketing/assets/` via `sg-design assets <social-kit|campaign|stores|video|audit|list> [scope]`.
 
 `sg-content` owns audience-facing documentation and content. `sg-docs` owns
 internal architecture, governance, agent context, and metadata. `sg-engineering`

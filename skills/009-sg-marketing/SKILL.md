@@ -35,7 +35,7 @@ Default to `report=user`: concise, findings-first for audits and evidence limits
 
 `009-sg-marketing` is the sole public marketing-audit and market-study entrypoint. It selects exactly one explicit mode and one bounded local playbook; it is not an editorial lifecycle, research, SEO, veille, email, drafting, or implementation master.
 
-Marketing owns business positioning, offer, message strategy, and verbal brand foundations inside its existing `market`, `gtm`, `copy`, and `copywriting` modes. It hands visual identity-system creation to `sg-design identity` and editorial expression to `sg-content`; those handoffs do not create a hidden fifth marketing mode.
+Marketing owns business positioning, offer, message strategy, and verbal brand foundations inside its existing `market`, `gtm`, `copy`, and `copywriting` modes. It hands visual identity-system creation to `sg-design identity`, visual marketing/social asset production under `shipglows_data/marketing/assets/` to `sg-design assets`, and editorial expression to `sg-content`; those handoffs do not create a hidden fifth marketing mode.
 
 ## Mode Detection
 

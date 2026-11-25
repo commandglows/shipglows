@@ -50,7 +50,7 @@ Use this reference after loading:
 
 ## Canonical Mode Grammar
 
-Public `sg-design` accepts these commands: `identity [scope]`, `interface [scope]`, `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `animation <audit|design|implement|tune> [scope]`, `redesign [scope]`, `migration [scope]`, and the separately defined `library ...` operations. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases. `gsap` is not a public mode or alias.
+Public `sg-design` accepts these commands: `identity [scope]`, `interface [scope]`, `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `animation <audit|design|implement|tune> [scope]`, `redesign [scope]`, `migration [scope]`, the separately defined `library ...` operations, and `assets <social-kit|campaign|stores|video|audit|list> [scope]`. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases. `gsap` is not a public mode or alias.
 
 `identity` loads `brand-identity-playbook.md`. It creates or evolves the visual identity system from governed business, audience, positioning, promise, and brand truth. Marketing owns market, offer, positioning, message strategy, and verbal foundations; design owns art direction and the visual identity system; content owns editorial expression; implementation owners apply the accepted system to technical surfaces. One public owner retains the outcome and coordinates these boundaries internally.
 
@@ -68,6 +68,8 @@ contracts. Missing or unknown animation actions must list exactly `audit`,
 design are read-only. Implement applies a ready motion contract; tune preserves
 its motion concept while making bounded refinements. Broad whole-page or
 multi-section implementation is spec-first.
+
+`assets` loads `marketing-assets-playbook.md` and `$SHIPGLOWS_ROOT/skills/references/marketing-assets-contract.md`. Missing or unknown asset subcommands must list `social-kit`, `campaign`, `stores`, `video`, `audit`, and `list`, then perform no file mutation. `audit` and `list` are read-only; `social-kit`, `campaign`, `stores`, and `video` enforce the Theme Fidelity Gate, FR/EN atomic parity, safe-zone visual proof, and Git LFS tracking for heavy media under `shipglows_data/marketing/assets/`.
 
 ## Routing Rule
 
@@ -128,6 +130,12 @@ Typical flow for brand identity creation or evolution:
 
 ```text
 006-sg-design identity -> 100-sg-spec -> 101-sg-ready -> 102-sg-start -> identity proof -> 103-sg-verify -> commit/push -> authorized application
+```
+
+Typical flow for marketing and social-kit asset production:
+
+```text
+006-sg-design assets <social-kit|campaign|stores|video> -> theme & GTM/claim preflight -> FR/EN template render -> visual & safe-zone proof -> README index & LFS check
 ```
 
 Typical flow for token migration across a site:

@@ -9,10 +9,13 @@ class HelpInvocationParityTests(unittest.TestCase):
             for tail in ("audit ui", "audit tokens", "audit components", "audit a11y",
                          "animation audit", "animation design", "animation implement", "animation tune",
                          "library add https://example.com", "library retry example", "library approve example",
-                         "library list", "library status"):
+                         "library list", "library status",
+                         "assets social-kit", "assets campaign black-friday", "assets stores",
+                         "assets video", "assets audit", "assets list"):
                 self.assertEqual(check(f"{prefix} {tail}")["status"], "valid", tail)
             for tail in ("audit", "audit nonsense", "animation", "animation nonsense",
-                         "library", "library remove example", "library add", "library retry", "library list extra"):
+                         "library", "library remove example", "library add", "library retry", "library list extra",
+                         "assets", "assets nonsense", "assets campaign", "assets list extra"):
                 self.assertEqual(check(f"{prefix} {tail}")["status"], "invalid", tail)
 
     def test_core_recent_and_since_have_same_grammar_on_both_surfaces(self):

@@ -1,7 +1,7 @@
 ---
 name: 006-sg-design
 description: "Design systems, brand identity, accessibility, animation, and audits."
-argument-hint: <identity [scope] | interface [scope] | system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
+argument-hint: <identity [scope] | interface [scope] | system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ... | assets <social-kit|campaign|stores|video|audit|list> [scope]>
 ---
 
 Primary artifact type: `master-workflow`.
@@ -37,6 +37,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` before designing, implementing, or reviewing any noticeable delay: rendering, export, preview, generation, upload, save, or any action that can stay pending.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/brand-identity-playbook.md` for `identity [scope]` after positioning, audience, and existing brand truth are resolved.
+- `$SHIPGLOWS_ROOT/skills/006-sg-design/references/marketing-assets-playbook.md` and `$SHIPGLOWS_ROOT/skills/references/marketing-assets-contract.md` for `assets <social-kit|campaign|stores|video|audit|list> [scope]`.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/animation-playbook.md` for `animation <audit|design|implement|tune> [scope]` after valid animation selection.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-token-migration-playbook.md` for token centralization and migration handoff.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-proof-and-reporting.md` for design completion and handoff evidence.
@@ -93,6 +94,7 @@ Use the exact mode grammar and playbook mapping from `design-lifecycle-routing.m
 - `redesign` for lifecycle routing with proof
 - `migration` for token centralization and site consumption
 - `library ...` for private inspiration curation operations
+- `assets <social-kit|campaign|stores|video|audit|list> [scope]` for theme-faithful bilingual marketing, social-kit, store, and video assets under `shipglows_data/marketing/assets/`
 
 ## Validation
 

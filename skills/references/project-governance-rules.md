@@ -75,6 +75,7 @@ Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_L
 - Keep fast-moving operational trackers under `shipglows_data/workflow/` without forcing frontmatter onto tracker files.
 - Keep technical governance under `shipglows_data/technical/`.
 - Keep business and product truth under `shipglows_data/business/`.
+- Keep evergreen brand asset foundations under `shipglows_data/branding/assets/` and marketing, social, store, and video assets under `shipglows_data/marketing/assets/` (with heavy media tracked via Git LFS).
 - Keep public-content and claim governance under `shipglows_data/editorial/`.
 - Keep specs, audits, reviews, playbooks, checklists, and evidence under `shipglows_data/workflow/`.
 

@@ -162,7 +162,7 @@ composable with every command unless that mode declares a conflict.
 | --- | --- |
 | `shipglows` | default routing, `context`, `blitz`, `auto` |
 | `sg-development` | `default`, `feature`, `app`, `refactor` |
-| `sg-design` | `identity`, `system`, `playground`, `audit`, `animation`, `redesign`, `migration`, `library` |
+| `sg-design` | `identity`, `interface`, `system`, `playground`, `audit`, `animation`, `redesign`, `migration`, `library`, `assets` |
 | `sg-experience` | `audit`, `flow`, `onboarding`, `recovery` |
 | `sg-bug` | `default`, `reproduce`, `fix`, `retest`, `close` |
 | `sg-engineering` | `audit`, `architecture`, `deps`, `performance`, `migrate`, `github`, `sync`, `access`, `parity` |

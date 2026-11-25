@@ -40,6 +40,7 @@ Keep exactly one `shipglows_data/` at the governance root. In a monorepo, code m
 Use theme-first families, scoped by surface only when truth differs:
 
 - `shipglows_data/business/`, `product/`, `branding/`, and `gtm/` for commercial and product truth
+- `shipglows_data/marketing/assets/` for marketing, social-kit, campaign, store, and video assets (distinct from evergreen brand foundations in `branding/assets/`, with heavy media tracked via Git LFS)
 - `shipglows_data/technical/` for architecture, context, guidelines, and operator guides
 - `shipglows_data/editorial/` for public-content maps and claims
 - `shipglows_data/workflow/` for specs, bugs, audits, reviews, research, verification, conversations, explorations, trackers, playbooks, checklists, and archived history
@@ -60,6 +61,7 @@ Generated directories such as `node_modules/`, `dist/`, `.astro/`, `.vercel/`, `
 | --- | --- |
 | business, product, brand, GTM | matching theme, shared or `<surface>/...` |
 | inspiration, affiliates | `business/<surface>/project-competitors-and-inspirations.md` or `affiliate-programs.md` |
+| marketing/social visuals (root `artifacts/`) | `marketing/assets/` (`social-kit/`, `campaigns/`, `stores/`, `videos/`, `sources/`) |
 | context, function tree, architecture, guidelines | `technical/<surface>/...` |
 | content map | `editorial/<surface>/content-map.md` |
 | tasks, audit log | `workflow/TASKS.md` or `workflow/AUDIT_LOG.md` |

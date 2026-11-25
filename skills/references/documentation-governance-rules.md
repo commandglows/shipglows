@@ -57,6 +57,7 @@ Documentation in a ShipGlows-governed project must live in the canonical place, 
 - Keep technical documentation in `shipglows_data/technical/`.
 - Keep editorial and public-content governance in `shipglows_data/editorial/`.
 - Keep durable business, product, brand, GTM, competitor, and affiliate docs in `shipglows_data/business/`.
+- Keep evergreen brand asset foundations in `shipglows_data/branding/assets/` and marketing, social-kit, campaign, store, and video assets in `shipglows_data/marketing/assets/` (root `artifacts/` or ad-hoc `docs/pr-assets/` marketing visuals are migration debt).
 - Keep specs, audits, trackers, reviews, evidence, playbooks, and checklists in `shipglows_data/workflow/`.
 - Keep `AGENT.md`, `CLAUDE.md`, and `README.md` as entrypoints or compatibility surfaces, not as the full canonical corpus.
 - Keep the professional bug workflow's compact `shipglows_data/workflow/TEST_LOG.md`, optional `shipglows_data/workflow/BUGS.md`, and `shipglows_data/workflow/bugs/` records inside the canonical workflow corpus.

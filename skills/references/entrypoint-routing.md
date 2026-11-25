@@ -193,6 +193,7 @@ The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-
 | Software feature, application behavior, code implementation, technical site implementation, or broad code-like goal without durable bug state | `001-sg-build` |
 | Business model, offer, market, positioning, message strategy, or verbal brand foundation | public `sg-marketing`; internal `009-sg-marketing` selects its bounded mode |
 | Brand identity, visual identity system, art direction, logo system, palette, typography, or cross-surface visual expression | public `sg-design identity`; internal `006-sg-design identity` |
+| Marketing, social profile kit (avatars, banners, OG), campaign visuals, store graphics, or video asset packs | public `sg-design assets`; internal `006-sg-design assets` |
 | Audience content, editorial expression, content site strategy, public documentation, or publication lifecycle | `007-sg-content` |
 | Internal documentation, governed business truth, workflow contract, or agent documentation | `300-sg-docs` |
 | Recurring upkeep, dependency posture, docs drift, checks, audits, migrations, project hygiene, security maintenance | `002-sg-maintain` |

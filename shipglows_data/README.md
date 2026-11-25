@@ -47,6 +47,7 @@ It stores durable project truth close to the repo: business decisions, technical
 | Path | Role |
 | --- | --- |
 | `business/` | Product, business, brand, GTM, competitor, and affiliate decision contracts |
+| `marketing/assets/` | Marketing, social-kit, campaign, store, and video assets (templates, sources, FR/EN exports, LFS-tracked heavy media) |
 | `technical/` | Internal technical docs, architecture, code-docs map, subsystem contracts, external platform notes |
 | `editorial/` | Public-content governance, claim register, page intent, content map, and Astro content schema policy |
 | `workflow/` | Operational trackers, specs, audits, research, repurpose packs, email sequences, evidence, reusable playbooks, reusable checklists, test checklists, conversations, and archives |

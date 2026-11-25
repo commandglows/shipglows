@@ -135,7 +135,8 @@
               "animation",
               "redesign",
               "migration",
-              "library"
+              "library",
+              "assets"
             ],
             "internal_engines": [
               "105-sg-check",
@@ -4021,6 +4022,30 @@
               "max_args": 0
             },
             "status": {
+              "max_args": 0
+            }
+          }
+        },
+        "assets": {
+          "min_args": 1,
+          "subcommand_required": true,
+          "subcommands": {
+            "social-kit": {
+              "min_args": 0
+            },
+            "campaign": {
+              "min_args": 1
+            },
+            "stores": {
+              "min_args": 0
+            },
+            "video": {
+              "min_args": 0
+            },
+            "audit": {
+              "min_args": 0
+            },
+            "list": {
               "max_args": 0
             }
           }
