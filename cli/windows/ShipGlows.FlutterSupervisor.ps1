@@ -257,7 +257,11 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
     foreach ($message in $messages) {
         # app.restart reports a rejected reload (compile errors, DevFS sync, debug service timeout) as result.code != 0,
         # not as error. A later accepted reload clears the failure, so LastError always describes the latest outcome.
-        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$message.result-and$message.result-isnot[array]-and$message.result.PSObject.Properties['code']){if(($message.result.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError=Get-SgFlutterReloadFailureText $message.result}elseif($State.Ready){$State.LastError=$null}};continue }
+        if ($message.PSObject.Properties['id'] -and $null -ne $message.id) {
+            $parsedId=[long]0
+            $State.LastResponseId=if(-not($message.id -is [bool])-and[long]::TryParse([string]$message.id,[ref]$parsedId)){[long]$parsedId}else{[string]$message.id}
+            $State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$message.result-and$message.result-isnot[array]-and$message.result.PSObject.Properties['code']){if(($message.result.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError=Get-SgFlutterReloadFailureText $message.result}elseif($State.Ready){$State.LastError=$null}};continue
+        }
         if (-not $message.PSObject.Properties['event'] -or -not $message.PSObject.Properties['params']) { continue }
         $params = $message.params
         $State.LastEvent=[string]$message.event
@@ -304,20 +308,20 @@ function Write-SgFlutterJsonAtomic([string]$Path, [object]$Value, [int]$RetryTim
 
 # FullRestart turns app.restart into a hot restart: app state is rebuilt from main(), which
 # picks up route tables and other initializers a hot reload keeps, without a new build.
-function New-SgFlutterMachineRequestJson([int]$Id, [string]$Method, [string]$AppId, [switch]$FullRestart) {
+function New-SgFlutterMachineRequestJson([long]$Id, [string]$Method, [string]$AppId, [switch]$FullRestart) {
     $params = [ordered]@{appId=$AppId}
     if ($Method -eq 'app.restart') { $params.fullRestart=[bool]$FullRestart; $params.pause=$false; $params.reason=$(if($FullRestart){'ShipGlows hot restart'}else{'ShipGlows source change'}); $params.debounce=$true }
     $message=[ordered]@{id=$Id;method=$Method;params=$params}
     return ConvertTo-Json -InputObject @($message) -Depth 5 -Compress
 }
 
-function Send-SgFlutterMachineRequest([Diagnostics.Process]$Process, [int]$Id, [string]$Method, [string]$AppId, [switch]$FullRestart) {
+function Send-SgFlutterMachineRequest([Diagnostics.Process]$Process, [long]$Id, [string]$Method, [string]$AppId, [switch]$FullRestart) {
     $request = New-SgFlutterMachineRequestJson $Id $Method $AppId -FullRestart:$FullRestart
     $Process.StandardInput.WriteLine($request)
     $Process.StandardInput.Flush()
 }
 
-function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[int]$RequestId,[int]$TimeoutSeconds=10) {
+function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[long]$RequestId,[int]$TimeoutSeconds=10) {
     $deadline=(Get-Date).AddSeconds($TimeoutSeconds);$line=$null
     while((Get-Date)-lt $deadline){Pump-SgFlutterStreams $Pump $Queue $ErrorQueue;if($Process.HasExited){[void](Drain-SgFlutterStreams $Pump $Queue $ErrorQueue 1)};while($Queue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($LogPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $State $line;if($State.LastResponseId -eq $RequestId){if(-not$State.LastResponseOk){throw $(if($State.LastError){[string]$State.LastError}else{'Flutter machine request failed.'})};return $true}};if($Process.HasExited){throw 'Flutter exited while waiting for a machine response.'};Start-Sleep -Milliseconds 50}
     throw 'Flutter machine response timed out.'
@@ -325,13 +329,13 @@ function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pu
 
 # flutter.stdout.log carries no time and no request origin: this log ties each reload id to its source.
 # Diagnostics must never fail the reload they describe.
-function Write-SgFlutterReloadLog([string]$Path,[string]$SentAtUtc,[int]$RequestId,[string]$Source,[string]$Kind,[string]$Outcome,[long]$ElapsedMilliseconds,[string]$Detail) {
+function Write-SgFlutterReloadLog([string]$Path,[string]$SentAtUtc,[long]$RequestId,[string]$Source,[string]$Kind,[string]$Outcome,[long]$ElapsedMilliseconds,[string]$Detail) {
     try{$record=[ordered]@{sentAtUtc=$SentAtUtc;id=$RequestId;source=$Source;kind=$Kind;outcome=$Outcome;elapsedMs=$ElapsedMilliseconds;detail=$Detail};[IO.File]::AppendAllText($Path,(ConvertTo-Json -InputObject $record -Compress)+[Environment]::NewLine)}catch{}
 }
 
 # Flutter's debug service alone waits 10 s before reporting a stuck browser, on top of the recompile,
 # so the response wait must outlast it or a slow reload that succeeds is reported as failed.
-function Invoke-SgFlutterReloadRequest([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[string]$ReloadLogPath,[int]$RequestId,[string]$Source,[switch]$FullRestart,[int]$TimeoutSeconds=30) {
+function Invoke-SgFlutterReloadRequest([Diagnostics.Process]$Process,[object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$Queue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[object]$State,[string]$LogPath,[string]$ReloadLogPath,[long]$RequestId,[string]$Source,[switch]$FullRestart,[int]$TimeoutSeconds=30) {
     $sentAtUtc=[datetime]::UtcNow.ToString('o');$clock=[Diagnostics.Stopwatch]::StartNew();$outcome='failed';$detail=''
     try{
         Send-SgFlutterMachineRequest $Process $RequestId 'app.restart' $State.AppId -FullRestart:$FullRestart
