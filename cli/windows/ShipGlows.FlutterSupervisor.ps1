@@ -258,9 +258,13 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
         # app.restart reports a rejected reload (compile errors, DevFS sync, debug service timeout) as result.code != 0,
         # not as error. A later accepted reload clears the failure, so LastError always describes the latest outcome.
         if ($message.PSObject.Properties['id'] -and $null -ne $message.id) {
+            $hasError=$message.PSObject.Properties['error'] -and $null -ne $message.error
+            $resultProp=$message.PSObject.Properties['result']
+            if(-not$hasError-and-not$resultProp-and$message.PSObject.Properties['method']){continue}
             $parsedId=[long]0
             $State.LastResponseId=if(-not($message.id -is [bool])-and[long]::TryParse([string]$message.id,[ref]$parsedId)){[long]$parsedId}else{[string]$message.id}
-            $State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$message.result-and$message.result-isnot[array]-and$message.result.PSObject.Properties['code']){if(($message.result.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError=Get-SgFlutterReloadFailureText $message.result}elseif($State.Ready){$State.LastError=$null}};continue
+            $resultValue=if($resultProp){$resultProp.Value}else{$null}
+            $State.LastResponseOk=-not $hasError;if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'}elseif($null-ne$resultValue-and$resultValue-isnot[array]-and$resultValue.PSObject.Properties['code']){if(($resultValue.code -as [int])-ne0){$State.LastResponseOk=$false;$State.LastError=Get-SgFlutterReloadFailureText $resultValue}elseif($State.Ready){$State.LastError=$null}};continue
         }
         if (-not $message.PSObject.Properties['event'] -or -not $message.PSObject.Properties['params']) { continue }
         $params = $message.params

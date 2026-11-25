@@ -189,6 +189,10 @@ Update-SgFlutterProtocolState $arrayState '{"id":2113052507216,"result":{}}'
 if($arrayState.LastResponseId-isnot[long]-or$arrayState.LastResponseId-ne2113052507216L-or-not$arrayState.LastResponseOk){throw '64-bit machine response id was not preserved without Int32 overflow.'}
 Update-SgFlutterProtocolState $arrayState '{"id":"dtd-1","result":{}}'
 if($arrayState.LastResponseId-cne'dtd-1'-or-not$arrayState.LastResponseOk){throw 'String machine response id was not preserved.'}
+Update-SgFlutterProtocolState $arrayState '{"id":2113052507217,"method":"app.progress","params":{}}'
+if($arrayState.LastResponseId-cne'dtd-1'){throw 'Incoming JSON-RPC request with id overwrote LastResponseId or threw under StrictMode.'}
+Update-SgFlutterProtocolState $arrayState '{"id":2113052507218}'
+if($arrayState.LastResponseId-ne2113052507218L-or-not$arrayState.LastResponseOk){throw 'Machine envelope with id and no result property threw under StrictMode.'}
 foreach($ambiguous in @('[[{"event":"app.started","params":{"appId":"x"}}]]','[1]','[]')){try{[void](ConvertFrom-SgFlutterMachineEnvelope $ambiguous);throw 'Ambiguous Flutter machine envelope was accepted.'}catch{if($_.Exception.Message-eq'Ambiguous Flutter machine envelope was accepted.'){throw}}}
 $failedState=New-SgFlutterProtocolState
 Update-SgFlutterProtocolState $failedState '{"event":"app.start","params":{"appId":"failed-app"}}'
