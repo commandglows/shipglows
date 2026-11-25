@@ -97,3 +97,10 @@ Do not use this playbook for AppSumo license transitions; follow the AppSumo lic
 - Retrying unknown provider submissions blindly.
 - Claiming provider proof from mocked tests.
 - Creating private/founder behavior through hidden code branches instead of explicit offers and plan mappings.
+
+## Payments (non-negotiable)
+
+- Every sale goes through **Stripe Managed Payments**: Stripe is the merchant of record (VAT and sales tax, disputes). Never ordinary Stripe Payments, never another provider.
+- Every Checkout Session, one-time (`mode: payment`) and subscription (`mode: subscription`) alike, sets `managed_payments: { enabled: true }`, and a test asserts it. Managed Payments refuses `custom_text`: show the terms on the page before checkout.
+- Every Price is tax-inclusive (`tax_behavior: inclusive`). The Stripe account default is exclusive, so an unspecified Price adds VAT on top of the advertised amount.
+- Reference: `commandglows/shipglows_data/technical/platforms/stripe-managed-payments.md`.
