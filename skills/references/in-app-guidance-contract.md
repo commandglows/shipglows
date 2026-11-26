@@ -43,7 +43,7 @@ permission asks), which are a product decision of their own.
 ### IG-1 The guide owns the screen while a step shows
 
 - The rest of the screen recedes: dimmed (scrim about 72 %) and blurred (blur
-  sigma about 5.4), and inert: taps outside the card and the step's target are
+  sigma about 4.5), and inert: taps outside the card and the step's target are
   absorbed. The user has no other choice than to read the card.
 - The step's target sits in a clear, ringed hole with a halo and stays usable.
 - The card is the brightest element on screen: surface lit by the accent from
