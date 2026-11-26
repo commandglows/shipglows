@@ -21,6 +21,13 @@ DOC_RULES = ROOT / "skills" / "references" / "documentation-governance-rules.md"
 PLACEMENT = ROOT / "skills" / "references" / "canonical-project-governance-placement.md"
 PROJ_RULES = ROOT / "skills" / "references" / "project-governance-rules.md"
 DATA_README = ROOT / "shipglows_data" / "README.md"
+PUBLIC_DESIGN_SKILL = ROOT / "skills" / "sg-design" / "SKILL.md"
+EXPERT_CATALOG = ROOT / "skills" / "302-sg-help" / "references" / "help-modes-expert-catalog.md"
+METADATA_DOC = ROOT / "shipglows_data" / "technical" / "artifact-metadata-and-linter.md"
+CODE_DOCS_MAP = ROOT / "shipglows_data" / "technical" / "code-docs-map.md"
+LAYOUT_DECISION = ROOT / "shipglows_data" / "technical" / "decisions" / "project-governance-layout.md"
+CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
+GTM_CHECKLIST = ROOT / "shipglows_data" / "workflow" / "checklists" / "marketing-go-to-market-readiness-checklist.md"
 
 
 def normalized(path: Path) -> str:
@@ -79,6 +86,14 @@ class MarketingAssetsContractTests(unittest.TestCase):
 
         for doc in (DOC_RULES, PLACEMENT, PROJ_RULES, DATA_README):
             self.assertIn("marketing/assets/", normalized(doc))
+
+        self.assertIn("marketing assets", normalized(PUBLIC_DESIGN_SKILL).lower())
+        self.assertIn("| assets", normalized(EXPERT_CATALOG))
+        self.assertIn("marketing_assets_index", normalized(METADATA_DOC))
+        self.assertIn("marketing-assets-contract.md", normalized(CODE_DOCS_MAP))
+        self.assertIn("marketing/assets/", normalized(LAYOUT_DECISION))
+        self.assertIn("sg-design assets", normalized(CHEATSHEET))
+        self.assertIn("marketing-assets", normalized(GTM_CHECKLIST))
 
     def test_metadata_lint_supports_marketing_assets_index(self) -> None:
         self.assertIn("marketing_assets_index", shipglows_metadata_lint.ARTIFACT_REQUIRED)

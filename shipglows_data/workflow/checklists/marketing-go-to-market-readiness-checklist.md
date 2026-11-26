@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
 project: ShipGlows
 created: "2026-07-28"
-updated: "2026-07-28"
+updated: "2026-11-26"
 status: draft
 source_skill: 001-sg-build
 scope: marketing-go-to-market-readiness
@@ -51,6 +51,7 @@ Avant lancement, campagne, repositionnement ou revue mensuelle/trimestrielle.
 - [ ] `marketing-channels` — Chaque canal a une audience, un message et une hypothèse.
 - [ ] `marketing-proof` — Les témoignages, chiffres et claims ont une source ou sont qualifiés.
 - [ ] `marketing-funnel` — Le parcours découverte → activation → conversion est décrit.
+- [ ] `marketing-assets` — Le kit réseaux sociaux (FR/EN, hors GitHub par défaut) et les visuels de lancement sont versionnés dans `shipglows_data/marketing/assets/` (fidèles au thème et aux limites de claims, médias lourds en Git LFS).
 
 ### Apprentissage
 

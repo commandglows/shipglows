@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "2.9.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-27"
+updated: "2026-11-26"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -139,7 +139,7 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 | --- | --- | --- | --- |
 | Router | `shipglows` | Natural-language routing, blitz credit windows, nolocal policy, and direct handoff | `000-shipglows`, `708-sg-blitz`, `709-sg-auto` |
 | Créer | `sg-development` | Product, feature, app, code, and site delivery | `001-sg-build` |
-| Créer | `sg-design` | Brand identity, visual system, interface, accessibility, and motion | `006-sg-design` |
+| Créer | `sg-design` | Brand identity, visual system, interface, accessibility, motion, and marketing assets | `006-sg-design` |
 | Créer | `sg-experience` | Journeys, activation, onboarding, trust, and recovery | `008-sg-customer` |
 | Qualité | `sg-bug` | Observed defects through repair and proof | `003-sg-bug` |
 | Qualité | `sg-engineering` | Architecture, dependencies, performance, migration, sync, access, and parity | `010-sg-technical`, `600`, `601`, `602` |
@@ -207,6 +207,10 @@ is the exact safe alias of `shipglows git clean`, never native `git clean`.
 Animation uses `sg-design animation <audit|design|implement|tune> [scope]`.
 GSAP is optional and must pass project-fit, accessibility, reduced-motion,
 performance, and proof gates.
+
+Marketing assets use `sg-design assets <social-kit|campaign|stores|video|audit|list> [scope]`
+under `shipglows_data/marketing/assets/` (FR/EN parity, theme-faithful tokens/fonts,
+Git LFS for heavy video/source binaries, excluding GitHub from the default social pack).
 
 ## Clarify Once, Then Deliver
 

@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
 project: "shipglows"
 created: "2026-05-11"
-updated: "2026-05-24"
+updated: "2026-11-26"
 status: reviewed
 source_skill: sg-docs
 scope: "project-governance-layout"
@@ -60,6 +60,12 @@ shipglows_data/
     gtm.md
     project-competitors-and-inspirations.md
     affiliate-programs.md
+
+  branding/
+    assets/          # evergreen brand foundations (logos, fonts, icons, mascots)
+
+  marketing/
+    assets/          # social-kit, campaigns, stores, videos (Git LFS for heavy media), sources, templates
 
   technical/
     README.md
@@ -149,6 +155,7 @@ Nested `apps/foo/shipglows_data/` or sibling `foo_app/shipglows_data/` directori
 | `research/*.md` | `shipglows_data/workflow/research/*.md` |
 | `reviews/*.md` | `shipglows_data/workflow/reviews/*.md` |
 | `audits/*.md` | `shipglows_data/workflow/audits/*.md` |
+| `artifacts/*` (marketing visuals) | `shipglows_data/marketing/assets/` |
 
 ## Skill Mapping
 

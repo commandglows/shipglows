@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-07-13"
+updated: "2026-11-26"
 status: reviewed
 source_skill: sg-start
 scope: artifact-metadata-and-linter
@@ -47,6 +47,7 @@ This doc covers ShipGlows artifact frontmatter, templates, and `tools/shipglows_
 | `templates/editorial_content_context.md` | Template for editorial governance docs | Official linted artifact type for public-content governance |
 | `templates/competitive_intelligence.md` | Template for project competitors, alternatives, inspirations, and anti-patterns | Official linted artifact type for business research registries |
 | `templates/affiliate_program_registry.md` | Template for affiliate, referral, partner, sponsorship, and disclosure tracking | Official linted artifact type; never store secrets in generated files |
+| `templates/marketing_assets_index.md` | Template for project marketing, social-kit, campaign, store, and video asset inventory | Official linted artifact type for `shipglows_data/marketing/assets/README.md` |
 | `tools/shipglows_metadata_lint.py` | Dependency-free frontmatter validator | Keep standard-library only |
 | `shipglows_data/technical/metadata-migration-guide.md` | Human procedure for metadata adoption | Update when schema behavior changes |
 
@@ -66,6 +67,7 @@ This doc covers ShipGlows artifact frontmatter, templates, and `tools/shipglows_
 - `editorial_content_context` is an official linted artifact type for `shipglows_data/editorial/` governance docs and requires content surfaces, claim register, page intent, and next review metadata.
 - `competitive_intelligence` is an official linted artifact type for project-level competitor, alternative, inspiration, and anti-pattern registries.
 - `affiliate_program_registry` is an official linted artifact type for affiliate and partner program registries; it must keep secrets out of Markdown and include disclosure and secrets policies.
+- `marketing_assets_index` is an official linted artifact type for `shipglows_data/marketing/assets/README.md` and requires `next_review` metadata; its absence on repos without marketing assets is compliant.
 - Optional official artifact paths are linted when present, including when passed explicitly by absolute path; absence of `project-competitors-and-inspirations.md` or `affiliate-programs.md` is compliant.
 - Legacy root ShipGlows artifacts such as `BUSINESS.md`, `PRODUCT.md`, `BRANDING.md`, `GTM.md`, `ARCHITECTURE.md`, `CONTENT_MAP.md`, `CONTEXT.md`, `CONTEXT-FUNCTION-TREE.md`, `GUIDELINES.md`, `INSPIRATION.md`, and `AFFILIATES.md` are migration sources only. The linter must fail them at project root and point to their canonical `shipglows_data/` destination.
 
@@ -89,6 +91,7 @@ python3 tools/shipglows_metadata_lint.py --help
 python3 tools/shipglows_metadata_lint.py shipglows_data/technical templates/technical_module_context.md skills/references/technical-docs-corpus.md
 python3 tools/shipglows_metadata_lint.py shipglows_data/editorial templates/editorial_content_context.md skills/references/editorial-content-corpus.md
 python3 tools/shipglows_metadata_lint.py shipglows_data/business templates/competitive_intelligence.md templates/affiliate_program_registry.md
+python3 tools/shipglows_metadata_lint.py templates/marketing_assets_index.md
 ```
 
 ## Reader Checklist

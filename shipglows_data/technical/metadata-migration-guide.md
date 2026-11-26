@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.4.0"
 project: ShipGlows
 created: "2026-04-25"
-updated: "2026-05-11"
+updated: "2026-11-26"
 status: draft
 source_skill: sg-docs
 scope: metadata-migration
@@ -80,6 +80,7 @@ Metadata is required for ShipGlows decision artifacts, including:
 - `shipglows_data/business/business.md`
 - `shipglows_data/business/product.md`
 - `shipglows_data/branding/branding.md`
+- `shipglows_data/marketing/assets/README.md` (`artifact: marketing_assets_index`)
 - `shipglows_data/business/gtm.md`
 - `shipglows_data/technical/architecture.md`
 - `shipglows_data/technical/guidelines.md`

@@ -1,13 +1,13 @@
 ---
 name: sg-design
-description: Brand identity, interface and design-system creation, accessibility, inspiration, and animation.
+description: Brand identity, interfaces, design systems, accessibility, animation, and marketing assets.
 ---
 
 # sg-design
 
 ## Mission
 
-`sg-design` is the public owner for visual identity, interfaces, design systems, accessibility, inspiration, and animation.
+`sg-design` is the public owner for visual identity, interfaces, design systems, accessibility, inspiration, animation, and theme-faithful marketing assets.
 
 ## Scope Gate
 
@@ -15,7 +15,7 @@ Resolve the affected business, brand or product, intended outcome, and surface, 
 
 ## Required References
 
-Resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the root and `$SHIPGLOWS_ROOT/skills/006-sg-design/SKILL.md` exist, then load that canonical engine for design, animation, accessibility, and proof playbooks. If the root or file is missing, stop with a visible error; never fall back to a sibling runtime path. Execute it end to end; `006-sg-design` remains an expert/legacy engine only.
+Resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the root and `$SHIPGLOWS_ROOT/skills/006-sg-design/SKILL.md` exist, then load that canonical engine for design, animation, accessibility, marketing-asset, and proof playbooks. If the root or file is missing, stop with a visible error; never fall back to a sibling runtime path. Execute it end to end; `006-sg-design` remains an expert/legacy engine only.
 
 ## Validation
 

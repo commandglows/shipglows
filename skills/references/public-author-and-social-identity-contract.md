@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-18"
-updated: "2026-08-18"
+updated: "2026-11-26"
 status: active
 source_skill: 900-shipglows-core
 scope: public-author-and-social-identity
@@ -17,6 +17,7 @@ linked_systems:
   - shipglows_data/branding/public-identity-registry.json
   - skills/references/blog-and-cms-experience-contract.md
   - skills/references/editorial-content-corpus.md
+  - skills/references/marketing-assets-contract.md
   - skills/006-sg-design/SKILL.md
   - skills/007-sg-content/SKILL.md
   - skills/009-sg-marketing/SKILL.md

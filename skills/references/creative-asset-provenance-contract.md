@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-15"
-updated: "2026-08-15"
+updated: "2026-11-26"
 status: active
 source_skill: 900-shipglows-core
 scope: creative-asset-provenance-contract
@@ -17,6 +17,7 @@ linked_systems:
   - skills/001-sg-build/SKILL.md
   - skills/006-sg-design/SKILL.md
   - skills/007-sg-content/SKILL.md
+  - skills/references/marketing-assets-contract.md
   - tools/test_creative_asset_provenance_contract.py
 depends_on:
   - artifact: skills/references/decision-quality-contract.md

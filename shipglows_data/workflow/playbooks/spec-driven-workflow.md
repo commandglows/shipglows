@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.31.0"
 project: ShipGlows
 created: "2026-04-22"
-updated: "2026-11-22"
+updated: "2026-11-26"
 status: draft
 source_skill: 300-sg-docs
 scope: spec-driven-workflow
@@ -131,7 +131,7 @@ Skill launch cheatsheet:
 | Local-to-cloud data sync | `600-sg-local-cloud-sync <project, feature, or data domains>` | Local data promotion, cloud hydration, merge/conflict policy, sync/save UX states, sensitive-data exclusions, and proof routing. |
 | Product entitlements and access gates | `601-sg-product-entitlements <project or feature>` | Entitlement ownership, provider events, activation codes, product-local mirrors, backend authorization gates, support flows, and sync handoffs. |
 | Internal ShipGlows DX system maintenance | `900-shipglows-core build <target>` | Skill/doctrine, CLI/DevServer/TUI runtime, installer, packaging, or cross-surface coherence target inside `shipglows`; `shipglows_app` remains separate. |
-| Design lifecycle | `006-sg-design <design question or goal>` | Master design entrypoint for UI/UX, tokens, playgrounds, component/a11y audits, implementation, browser proof, verification, and ship routing. |
+| Design lifecycle | `006-sg-design <design question or goal>` | Master design entrypoint for UI/UX, tokens, playgrounds, component/a11y audits, animation, marketing assets, implementation, browser proof, verification, and ship routing. |
 | Design system creation | `006-sg-design system [target]` | Build a complete professional token system from an existing UI; use `playground` or `audit tokens` as explicit modes. |
 | Manual expert lifecycle | `100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end` | Use when you intentionally want to drive each gate instead of using `001-sg-build`. |
 | Commit and push ready work | `005-sg-ship [mode]` | no special argument, `skip-check`, `end la tache`/`end`/`fin`/`close task`, `all-dirty`/`ship-all`/`tout-dirty`. |
@@ -1111,6 +1111,7 @@ Use this rule of thumb:
 - content management -> `007-sg-content`
 - general design request, UI/UX work, redesign, token migration, or visual proof -> `006-sg-design`
 - design system from scattered UI values when the operator already knows that exact target -> `006-sg-design system`
+- theme-faithful bilingual marketing, social-kit, store, or video assets under `shipglows_data/marketing/assets/` -> `006-sg-design assets`
 - bug repair intake -> `106-sg-fix`
 - unclear problem -> `700-sg-explore`
 - non-trivial scoped work -> `100-sg-spec`
