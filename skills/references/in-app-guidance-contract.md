@@ -61,7 +61,9 @@ permission asks), which are a product decision of their own.
   there: the spotlight moves to the opened component, which stays fully
   usable, and the card moves clear of it with texts that explain that
   component (what to pick, which button confirms, how to undo).
-- When the component closes, the step is back on its target.
+- When the component closes, the step is back on its target. Moving to
+  another step closes it first: that step gets its own target, spotlight and
+  card position, never the previous step's leftover component.
 - Every step whose target opens something declares it: the opened component is
   wrapped as a guide target and the step names it with its own title and body.
   An undeclared one only gets the fallback (card at the top, nothing dimmed, the
