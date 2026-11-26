@@ -60,6 +60,7 @@ Load at gate:
 | `skills/references/ux-reference-intelligence.md` | A material journey needs cross-source conventions; `skills/references/ux-reference-connectors.md` only before external source selection/use. |
 | `authenticated-experience-ui-contract.md` | Design or review sign-in, account menus, private navigation, session loss, or recovery in signed-in UI. |
 | `human-centered-interaction-heuristics.md` | An audit or recommendation explicitly uses cognitive laws, heuristics, checklists, principles, or pattern libraries. |
+| `in-app-guidance-contract.md` | Onboarding tours, coach marks, tips, or their replay are designed, changed, reviewed, or proved. |
 
 Load `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` for durable first-success/activation measurement.
 
