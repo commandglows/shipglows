@@ -9,7 +9,7 @@
   "servers": [
     {"id": "dart", "owner": "Dart", "transport": "local", "activation": "flutter-project", "authority": "https://dart.dev/tools/dart-mcp-server"},
     {"id": "playwright", "owner": "Microsoft", "transport": "local", "activation": "web-or-ui-project", "package": "@playwright/mcp", "authority": "https://github.com/microsoft/playwright-mcp"},
-    {"id": "github", "owner": "GitHub", "transport": "remote", "activation": "git-project", "url": "https://api.githubcopilot.com/mcp/readonly", "readOnly": true},
+    {"id": "github", "owner": "GitHub", "transport": "catalog-only", "activation": "explicit-project-choice", "url": "https://api.githubcopilot.com/mcp/readonly", "readOnly": true},
     {"id": "firebase", "owner": "Google Firebase", "transport": "local", "activation": "firebase-or-flutterfire-project", "package": "firebase-tools", "cliPackage": "firebase-tools"},
     {"id": "convex", "owner": "Convex", "transport": "local", "activation": "convex-project", "package": "convex", "cliPackage": "convex"},
     {"id": "clerk", "owner": "Clerk", "transport": "remote", "activation": "clerk-project", "url": "https://mcp.clerk.com/mcp", "cliPackage": "clerk"},

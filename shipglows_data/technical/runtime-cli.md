@@ -597,9 +597,10 @@ install prepares exact Firebase, Convex, Vercel, Supabase and Clerk CLIs in an
 isolated machine `mise` toolbox, FlutterFire through Dart Pub, and Google Cloud
 CLI through WinGet. Bounded project detection writes agent-native project
 configuration and activates only matching Dart, Playwright, official Firebase,
-Convex, Clerk, read-only Supabase, Vercel and read-only GitHub MCP entrypoints.
+Convex, Clerk, read-only Supabase and Vercel MCP entrypoints.
 The generated machine-specific files are kept outside commits through each
-repository's local Git exclude file. Google Cloud MCPs remain catalog-only until
+repository's local Git exclude file. GitHub's MCP is catalog-only (no startable
+agent sign-in; `gh` covers GitHub work). Google Cloud MCPs remain catalog-only until
 explicitly selected. `gh` remains the sole GitHub credential owner. Neither Clerk nor GitHub authentication,
 project linking, SDK injection or secret retrieval is started. The environment
 report records installed and ready/pending MCP state separately for each agent.

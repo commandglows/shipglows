@@ -351,10 +351,11 @@ start authentication. Project detection controls MCP activation instead. For eve
 project registered with the ShipGlows DevServer, Windows writes agent-native local
 configuration for Codex, Claude, Gemini, OpenCode and Kilo. Those machine-specific
 files are excluded through the repository's local Git exclude file rather than
-committed. Dart, Playwright, Firebase/FlutterFire, Convex, Clerk, read-only Supabase,
-Vercel and read-only GitHub are activated only when the project manifests or Git
-metadata require them. Google Cloud MCPs are catalogued but require an explicit
-project choice. A divergent local config remains byte-for-byte unchanged and is
+committed. Dart, Playwright, Firebase/FlutterFire, Convex, Clerk, read-only Supabase
+and Vercel are activated only when the project manifests require them. Google Cloud
+and GitHub MCPs are catalogued but require an explicit project choice; GitHub's
+remote MCP offers agents no startable sign-in, and the authenticated `gh` CLI covers
+GitHub work. A divergent local config remains byte-for-byte unchanged and is
 reported pending unless it still matches ShipGlows' recorded hash or the owner runs
 the explicit maintainer surface. Playwright is never
 registered until an exact package version and a runnable local Chromium executable

@@ -445,31 +445,35 @@ exit /b 23
     Assert-Sg (-not $developerModePlan.ChangeRegistry) 'Developer Mode guidance must never mutate the registry.'
 
     $stackMcps = @(Get-SgStackMcpDefinitions $many $stackVersions 'C:\Program Files\nodejs\npx.cmd')
-    Assert-Sg (($stackMcps.Name -join '|') -eq 'firebase|convex|clerk|supabase|vercel|github') 'Detected project stacks must receive their approved MCPs and the project-local read-only GitHub MCP.'
+    Assert-Sg (($stackMcps.Name -join '|') -eq 'firebase|convex|clerk|supabase|vercel') 'Detected project stacks must receive their approved MCPs and no GitHub MCP.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'firebase').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ firebase-tools@14.0.0 mcp') 'Firebase MCP must use the exact resolved firebase-tools version.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'convex').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ convex@1.28.0 mcp start') 'Convex MCP must use the official CLI entrypoint and exact version.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'clerk').Type -eq 'remote' -and ($stackMcps | Where-Object Name -eq 'clerk').Url -eq 'https://mcp.clerk.com/mcp') 'Clerk MCP must use the official remote endpoint.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'supabase').ReadOnly -and ($stackMcps | Where-Object Name -eq 'supabase').Url -match 'read_only=true') 'Supabase MCP must default to the official read-only remote endpoint.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'vercel').Url -eq 'https://mcp.vercel.com') 'Vercel MCP must use the official remote endpoint.'
-    Assert-Sg (($stackMcps | Where-Object Name -eq 'github').Type -eq 'remote' -and ($stackMcps | Where-Object Name -eq 'github').Url -eq 'https://api.githubcopilot.com/mcp/readonly') 'GitHub MCP must default to the official read-only endpoint.'
+    Assert-Sg (-not @($stackMcps | Where-Object Name -eq 'github').Count) 'GitHub MCP must stay catalog-only: its remote endpoint offers agents no startable sign-in.'
+    $stackMcpCatalog = [IO.File]::ReadAllText((Join-Path $root 'cli\windows\ShipGlows.McpCatalog.json')) | ConvertFrom-Json
+    Assert-Sg ((@($stackMcpCatalog.servers | Where-Object id -eq 'github')[0].transport) -eq 'catalog-only') 'The GitHub MCP catalog entry must be catalog-only.'
     $remoteAgentPlan = Get-SgAgentMcpPlan OpenCode 'opencode.cmd' 'dart.bat' 'npx.cmd' '0.0.42' $true $stackMcps
-    Assert-Sg ($remoteAgentPlan.Config.mcp.servers.clerk.type -eq 'remote' -and $remoteAgentPlan.Config.mcp.servers.github.url -match '/readonly$') 'JSON agent plans must preserve remote MCP transport and read-only GitHub scope.'
+    Assert-Sg ($remoteAgentPlan.Config.mcp.servers.clerk.type -eq 'remote' -and $remoteAgentPlan.Config.mcp.servers.supabase.url -match 'read_only=true') 'JSON agent plans must preserve remote MCP transport and read-only Supabase scope.'
     $remoteKiloPlan = Get-SgAgentMcpPlan Kilo 'kilo.cmd' 'dart.bat' 'npx.cmd' '0.0.42' $true $stackMcps
-    Assert-Sg ($remoteKiloPlan.Config.mcp.clerk.url -eq 'https://mcp.clerk.com/mcp' -and $remoteKiloPlan.Config.mcp.github.type -eq 'remote') 'Kilo plans must preserve Clerk and GitHub remote MCP definitions.'
+    Assert-Sg ($remoteKiloPlan.Config.mcp.clerk.url -eq 'https://mcp.clerk.com/mcp' -and $remoteKiloPlan.Config.mcp.vercel.type -eq 'remote') 'Kilo plans must preserve Clerk and Vercel remote MCP definitions.'
     $globalMcps = @(Get-SgStackMcpDefinitions $empty @{} 'npx.cmd')
     Assert-Sg ($globalMcps.Count -eq 0) 'A project without Git metadata or optional stacks must not receive an MCP activation.'
     $flutterFireOnlyMcps = @(Get-SgStackMcpDefinitions ([pscustomobject]@{ Firebase=$false; FlutterFire=$true; Convex=$false; Clerk=$false; GitHub=$false }) @{ Firebase='14.0.0' } 'npx.cmd')
     Assert-Sg (($flutterFireOnlyMcps.Name -join '|') -eq 'firebase') 'FlutterFire dependency evidence must activate only the Firebase MCP without requiring firebase.json.'
 
+    $emptyClaudeConfig = Get-SgProjectAgentMcpConfigPlan -Agent Claude -ProjectPath $fixture -Servers @()
+    Assert-Sg ((($emptyClaudeConfig.Content | ConvertFrom-Json).mcpServers.PSObject.Properties | Measure-Object).Count -eq 0 -and -not @($emptyClaudeConfig.ServerNames | Where-Object { $_ }).Count) 'A project without detected MCPs must get an empty managed config that retires earlier servers.'
     $projectMcps = @(Get-SgProjectMcpDefinitions -Needs $many -Versions $stackVersions -DartPath 'C:\Program Files\flutter\bin\dart.bat' -NpxPath 'C:\Program Files\nodejs\npx.cmd' -Playwright ([pscustomobject]@{ Ready=$true; Version='0.0.42' }))
-    Assert-Sg (($projectMcps.Name -join '|') -eq 'dart|firebase|convex|clerk|supabase|vercel|github') 'Per-project MCP inventory must combine language, detected providers, and GitHub without adding Playwright to a non-web manifest.'
+    Assert-Sg (($projectMcps.Name -join '|') -eq 'dart|firebase|convex|clerk|supabase|vercel') 'Per-project MCP inventory must combine language and detected providers without GitHub or Playwright in a non-web manifest.'
     foreach ($agentName in @('Codex','Claude','Gemini','OpenCode','Kilo')) {
         $projectConfig = Get-SgProjectAgentMcpConfigPlan -Agent $agentName -ProjectPath $fixture -Servers $projectMcps
         Assert-Sg ($projectConfig.ConfigPath.StartsWith([IO.Path]::GetFullPath($fixture),[StringComparison]::OrdinalIgnoreCase)) "$agentName MCP configuration must be rooted in the managed project."
         Assert-Sg (($projectConfig.ServerNames -join '|') -eq ($projectMcps.Name -join '|')) "$agentName MCP configuration lost a project server."
         if ($agentName -eq 'OpenCode') {
             $openCodeProjectConfig = $projectConfig.Content | ConvertFrom-Json
-            Assert-Sg ($openCodeProjectConfig.mcp.servers.github.disabled -eq $false -and -not $openCodeProjectConfig.mcp.servers.github.PSObject.Properties['enabled']) 'OpenCode v2 project MCP must use disabled=false rather than the legacy enabled field.'
+            Assert-Sg ($openCodeProjectConfig.mcp.servers.vercel.disabled -eq $false -and -not $openCodeProjectConfig.mcp.servers.vercel.PSObject.Properties['enabled']) 'OpenCode v2 project MCP must use disabled=false rather than the legacy enabled field.'
         }
     }
     $codexProjectConfig = Get-SgProjectAgentMcpConfigPlan -Agent Codex -ProjectPath $fixture -Servers $projectMcps

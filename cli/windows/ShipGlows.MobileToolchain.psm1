@@ -753,9 +753,9 @@ function Get-SgStackMcpDefinitions {
     if ($Needs.PSObject.Properties['Vercel'] -and [bool]$Needs.Vercel) {
         $definitions.Add([pscustomobject]@{ Name='vercel'; Type='remote'; Url=[string](Get-SgMcpCatalogServer 'vercel' -RequiredField url).url; Command=''; Arguments=@(); RequiresAuthentication=$true })
     }
-    if (-not $Needs.PSObject.Properties['GitHub'] -or [bool]$Needs.GitHub) {
-        $definitions.Add([pscustomobject]@{ Name='github'; Type='remote'; Url=[string](Get-SgMcpCatalogServer 'github' -RequiredField url).url; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
-    }
+    # GitHub stays catalog-only: its remote MCP has no OAuth flow agents can start,
+    # so an activated entry only raises a failing sign-in prompt. The authenticated
+    # gh CLI covers GitHub work.
     return $definitions.ToArray()
 }
 
@@ -781,7 +781,9 @@ function Get-SgProjectAgentMcpConfigPlan {
     param(
         [ValidateSet('Codex','Claude','OpenCode','Kilo','Gemini')][string]$Agent,
         [Parameter(Mandatory=$true)][string]$ProjectPath,
-        [Parameter(Mandatory=$true)][object[]]$Servers
+        # A project without a detected stack gets an empty managed config, which
+        # also retires servers ShipGlows activated there earlier.
+        [Parameter(Mandatory=$true)][AllowEmptyCollection()][object[]]$Servers
     )
     $root = [IO.Path]::GetFullPath($ProjectPath)
     if ($Agent -eq 'Codex') {
@@ -799,7 +801,7 @@ function Get-SgProjectAgentMcpConfigPlan {
             $lines.Add('')
         }
         $lines.Add('# <<< shipglows project mcp <<<')
-        return [pscustomobject]@{ Agent=$Agent; ProjectPath=$root; RelativePath='.codex\config.toml'; ConfigPath=Join-Path $root '.codex\config.toml'; Content=($lines -join "`n") + "`n"; ServerNames=@($Servers.Name) }
+        return [pscustomobject]@{ Agent=$Agent; ProjectPath=$root; RelativePath='.codex\config.toml'; ConfigPath=Join-Path $root '.codex\config.toml'; Content=($lines -join "`n") + "`n"; ServerNames=@($Servers | ForEach-Object { [string]$_.Name }) }
     }
     $entries = [ordered]@{}
     foreach ($server in @($Servers)) {
@@ -817,7 +819,7 @@ function Get-SgProjectAgentMcpConfigPlan {
     elseif ($Agent -eq 'Gemini') { $relative='.gemini\settings.json'; $config=[ordered]@{ mcpServers=$entries } }
     elseif ($Agent -eq 'OpenCode') { $relative='.opencode\opencode.json'; $config=[ordered]@{ '$schema'='https://opencode.ai/config.json'; mcp=[ordered]@{ servers=$entries } } }
     else { $relative='.kilo\kilo.json'; $config=[ordered]@{ '$schema'='https://app.kilo.ai/config.json'; mcp=$entries } }
-    return [pscustomobject]@{ Agent=$Agent; ProjectPath=$root; RelativePath=$relative; ConfigPath=Join-Path $root $relative; Content=($config | ConvertTo-Json -Depth 32) + [Environment]::NewLine; ServerNames=@($Servers.Name) }
+    return [pscustomobject]@{ Agent=$Agent; ProjectPath=$root; RelativePath=$relative; ConfigPath=Join-Path $root $relative; Content=($config | ConvertTo-Json -Depth 32) + [Environment]::NewLine; ServerNames=@($Servers | ForEach-Object { [string]$_.Name }) }
 }
 
 function Get-SgStringSha256([string]$Content) {
